@@ -249,11 +249,62 @@ export interface AuditLog {
 export interface AiInsight {
     summary: string;
     risks: string[];
-    predictions: string;
+    predictions?: string;
     generatedAt: string;
+    recommendations?: string[];
+    timestamp?: string;
 }
 
 export interface ChatMessage {
+    id: string;
     role: 'user' | 'model';
     parts: { text: string }[];
+    createdAt: string;
+    actionId?: string;
+}
+
+export interface AiAssistantAction {
+    id: string;
+    title: string;
+    description: string;
+    prompt: string;
+    icon: string;
+}
+
+// Task Management Types
+export interface Task {
+    id: string;
+    projectId: string;
+    title: string;
+    description: string;
+    status: 'todo' | 'in-progress' | 'done' | 'blocked';
+    priority: 'low' | 'medium' | 'high' | 'critical';
+    assignedTo: string[]; // User IDs
+    createdBy: string; // User ID
+    dueDate: string;
+    dependencies: string[]; // Task IDs
+    subtasks: Subtask[];
+    progress: number; // 0-100
+    tags: string[];
+    rabItemId?: number; // Link to RAB item if applicable
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Subtask {
+    id: string;
+    title: string;
+    completed: boolean;
+    assignedTo?: string; // User ID
+    completedAt?: string;
+}
+
+export interface TaskComment {
+    id: string;
+    taskId: string;
+    authorId: string;
+    authorName: string;
+    authorAvatar: string;
+    content: string;
+    timestamp: string;
 }

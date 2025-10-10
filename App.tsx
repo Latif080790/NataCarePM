@@ -16,7 +16,14 @@ import UserManagementView from './views/UserManagementView';
 import MasterDataView from './views/MasterDataView';
 import AuditTrailView from './views/AuditTrailView';
 import LoginView from './views/LoginView';
-import OfflineIndicator from './components/OfflineIndicator'; // New
+import ProfileView from './views/ProfileView';
+import TaskListView from './views/TaskListView';
+import KanbanBoardView from './views/KanbanBoardView';
+import DependencyGraphView from './views/DependencyGraphView';
+import NotificationCenterView from './views/NotificationCenterView';
+import OfflineIndicator from './components/OfflineIndicator';
+import LiveCursors from './components/LiveCursors';
+import OnlineUsersDisplay from './components/OnlineUsersDisplay';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { Spinner } from './components/Spinner';
@@ -24,12 +31,17 @@ import { CommandPalette } from './components/CommandPalette';
 import Header from './components/Header';
 import { useAuth } from './contexts/AuthContext';
 import { useProject } from './contexts/ProjectContext';
+import { RealtimeCollaborationProvider, useRealtimeCollaboration } from './contexts/RealtimeCollaborationContext';
 import AiAssistantChat from './components/AiAssistantChat';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
   rab_ahsp: RabAhspView,
   jadwal: GanttChartView,
+  tasks: TaskListView,
+  kanban: KanbanBoardView,
+  dependencies: DependencyGraphView,
+  notifications: NotificationCenterView,
   laporan_harian: DailyReportView,
   progres: ProgressView,
   absensi: AttendanceView,
@@ -42,20 +54,24 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   user_management: UserManagementView,
   master_data: MasterDataView,
   audit_trail: AuditTrailView,
+  profile: ProfileView,
 };
 
-function App() {
+function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   const { currentUser, loading: authLoading } = useAuth();
   const { currentProject, loading: projectLoading, error, ...projectActions } = useProject();
+  const { updatePresence } = useRealtimeCollaboration();
 
   const { projectMetrics } = useProjectCalculations(currentProject);
 
   const handleNavigate = (viewId: string) => {
     if (viewComponents[viewId]) {
       setCurrentView(viewId);
+      // Update presence when navigating to different views
+      updatePresence(viewId);
     }
   };
 
@@ -108,7 +124,11 @@ function App() {
   const viewProps: any = {
       dashboard: { projectMetrics, recentReports: currentProject.dailyReports, notifications: projectActions.notifications, project: currentProject, updateAiInsight: projectActions.handleUpdateAiInsight },
       rab_ahsp: { items: currentProject.items, ahspData: projectActions.ahspData },
-      jadwal: { items: currentProject.items, startDate: currentProject.startDate },
+      jadwal: { projectId: currentProject.id },
+      tasks: { projectId: currentProject.id },
+      kanban: { projectId: currentProject.id },
+      dependencies: { projectId: currentProject.id },
+      notifications: { projectId: currentProject.id },
       laporan_harian: { dailyReports: currentProject.dailyReports, rabItems: currentProject.items, workers: projectActions.workers, onAddReport: projectActions.handleAddDailyReport },
       progres: { itemsWithProgress, onUpdateProgress: projectActions.handleUpdateProgress },
       absensi: { attendances: currentProject.attendances, workers: projectActions.workers, onUpdateAttendance: projectActions.handleUpdateAttendance },
@@ -120,11 +140,12 @@ function App() {
       laporan: { projectMetrics, project: currentProject },
       user_management: { users: currentProject.members },
       master_data: { workers: projectActions.workers },
-      audit_trail: { auditLog: currentProject.auditLog }
+      audit_trail: { auditLog: currentProject.auditLog },
+      profile: {}
   };
 
   return (
-      <div className="flex h-screen bg-gray-100 font-sans">
+      <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
         <Sidebar 
             currentView={currentView} 
             onNavigate={handleNavigate}
@@ -132,7 +153,9 @@ function App() {
             setIsCollapsed={setIsSidebarCollapsed}
         />
         <main className="flex-1 flex flex-col overflow-hidden">
-            <Header isSidebarCollapsed={isSidebarCollapsed}/>
+            <Header isSidebarCollapsed={isSidebarCollapsed}>
+                <OnlineUsersDisplay compact showActivity={false} />
+            </Header>
             <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-alabaster">
                 {CurrentViewComponent ? <CurrentViewComponent {...viewProps[currentView]} /> : <div>View not found</div>}
             </div>
@@ -140,7 +163,30 @@ function App() {
         <CommandPalette onNavigate={handleNavigate} />
         <AiAssistantChat />
         <OfflineIndicator />
+        <LiveCursors containerId="app-container" showLabels />
       </div>
+  );
+}
+
+function App() {
+  const { currentUser, loading: authLoading } = useAuth();
+
+  if (authLoading && !currentUser) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-alabaster">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <LoginView />;
+  }
+
+  return (
+    <RealtimeCollaborationProvider>
+      <AppContent />
+    </RealtimeCollaborationProvider>
   );
 }
 

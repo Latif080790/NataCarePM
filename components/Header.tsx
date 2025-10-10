@@ -7,9 +7,10 @@ import { LiveActivityFeed } from './LiveActivityFeed';
 
 interface HeaderProps {
     isSidebarCollapsed: boolean;
+    children?: React.ReactNode;
 }
 
-export default function Header({ isSidebarCollapsed }: HeaderProps) {
+export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
     const { currentUser, logout } = useAuth();
     const { workspaces, currentProject, setCurrentProjectId, loading, notifications, handleMarkNotificationsRead } = useProject();
 
@@ -38,6 +39,7 @@ export default function Header({ isSidebarCollapsed }: HeaderProps) {
                  <p className="text-sm text-palladium hidden md:block">{currentProject?.location}</p>
              </div>
              <div className="flex items-center gap-4">
+                 {children}
                  <LiveActivityFeed notifications={notifications} onReadAll={handleMarkNotificationsRead} />
                  {/* User Menu */}
                  <div className="flex items-center gap-2">

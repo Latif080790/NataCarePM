@@ -7,6 +7,7 @@ import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
 import { LogIn, UserPlus } from 'lucide-react';
+import ForgotPasswordView from './ForgotPasswordView';
 
 // Impor fungsi-fungsi yang diperlukan dari Firebase SDK
 import {
@@ -19,6 +20,7 @@ import { auth, db } from '../firebaseConfig'; // Pastikan path ini benar
 export default function LoginView() {
     const { loading: authLoading } = useAuth();
     const [isLogin, setIsLogin] = useState(true); // State untuk beralih antara Login dan Sign Up
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     
     // State untuk form input
     const [name, setName] = useState('');
@@ -71,6 +73,10 @@ export default function LoginView() {
 
     const isLoading = authLoading || isSubmitting;
 
+    if (showForgotPassword) {
+        return <ForgotPasswordView onBack={() => setShowForgotPassword(false)} />;
+    }
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-alabaster">
             <Card className="w-full max-w-sm">
@@ -102,10 +108,24 @@ export default function LoginView() {
                             {isLoading ? 'Memproses...' : (isLogin ? 'Masuk' : 'Daftar Akun Baru')}
                         </Button>
                     </form>
+                    
+                    {isLogin && (
+                        <div className="text-center mt-3">
+                            <button 
+                                onClick={() => setShowForgotPassword(true)}
+                                className="text-sm text-palladium hover:text-persimmon transition-colors"
+                                disabled={isLoading}
+                            >
+                                Lupa password?
+                            </button>
+                        </div>
+                    )}
+                    
                     <div className="text-center mt-4">
                         <button 
                             onClick={() => setIsLogin(!isLogin)}
                             className="text-sm text-persimmon hover:underline"
+                            disabled={isLoading}
                         >
                             {isLogin ? 'Belum punya akun? Buat di sini' : 'Sudah punya akun? Masuk'}
                         </button>

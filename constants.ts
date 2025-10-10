@@ -1,5 +1,5 @@
 import {
-    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History
+    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell
 } from 'lucide-react';
 import { Role, User, Permission } from './types';
 
@@ -51,6 +51,10 @@ export const navLinksConfig = [
     {
         id: 'monitoring-group', name: 'Monitoring',
         children: [
+              { id: 'tasks', label: 'Task Management', icon: CheckSquare },
+  { id: 'kanban', label: 'Kanban Board', icon: CheckSquare },
+  { id: 'dependencies', label: 'Dependency Graph', icon: CheckSquare },
+  { id: 'notifications', label: 'Notification Center', icon: Bell },,
             { id: 'laporan_harian', name: 'Laporan Harian', icon: Construction, requiredPermission: 'view_daily_reports' },
             { id: 'progres', name: 'Update Progres', icon: BarChart3, requiredPermission: 'view_progress' },
             { id: 'absensi', name: 'Absensi', icon: CalendarDays, requiredPermission: 'view_attendance' },
@@ -75,6 +79,7 @@ export const navLinksConfig = [
     {
         id: 'pengaturan-group', name: 'Pengaturan',
         children: [
+            { id: 'profile', name: 'Profil Saya', icon: UserCircle, requiredPermission: 'view_dashboard' },
             { id: 'user_management', name: 'Manajemen User', icon: Users, requiredPermission: 'view_users' },
             { id: 'master_data', name: 'Master Data', icon: Settings, requiredPermission: 'view_master_data' },
             { id: 'audit_trail', name: 'Jejak Audit', icon: History, requiredPermission: 'view_audit_trail' },

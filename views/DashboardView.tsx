@@ -1,24 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Responsive, WidthProvider, Layouts } from 'react-grid-layout';
 import { Project, ProjectMetrics, Notification, AiInsight } from '../types';
 import { StatCard } from '../components/StatCard';
 import { RadialProgress } from '../components/GaugeChart';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Progress } from '../components/Progress';
-import { formatCurrency, formatDate } from '../constants';
-import { DollarSign, BarChart3, AlertTriangle, CheckCircle, Clock, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from '../components/Button';
+import { Input } from '../components/FormControls';
 import { Spinner } from '../components/Spinner';
+import { formatCurrency, formatDate } from '../constants';
+import { 
+    DollarSign, BarChart3, AlertTriangle, CheckCircle, Clock, Sparkles, 
+    RefreshCw, Filter, Download, Calendar, TrendingUp, TrendingDown,
+    Users, Target, FileText, Bell, Settings, FullScreen, Minimize,
+    RotateCcw, ChevronDown, Search, Eye, EyeOff
+} from 'lucide-react';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 interface DashboardViewProps {
   projectMetrics: ProjectMetrics;
-  recentReports: any[]; // Simplified for grid
+  recentReports: any[];
   notifications: Notification[];
   project: Project;
   updateAiInsight: () => Promise<void>;
 }
+
+interface DashboardFilters {
+  dateRange: {
+    from: string;
+    to: string;
+  };
+  showCompleted: boolean;
+  showOverdue: boolean;
+  metricType: 'all' | 'financial' | 'progress' | 'team';
+  refreshInterval: number; // in seconds, 0 means manual only
+}
+
+interface WidgetConfig {
+  id: string;
+  title: string;
+  visible: boolean;
+  position: { x: number; y: number; w: number; h: number };
+}
+
+const defaultFilters: DashboardFilters = {
+  dateRange: {
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    to: new Date().toISOString().split('T')[0]
+  },
+  showCompleted: true,
+  showOverdue: true,
+  metricType: 'all',
+  refreshInterval: 30
+};
+
+const defaultWidgets: WidgetConfig[] = [
+  { id: 'overview', title: 'Project Overview', visible: true, position: { x: 0, y: 0, w: 12, h: 3 } },
+  { id: 'metrics', title: 'Key Metrics', visible: true, position: { x: 0, y: 3, w: 8, h: 4 } },
+  { id: 'ai-insights', title: 'AI Insights', visible: true, position: { x: 8, y: 3, w: 4, h: 4 } },
+  { id: 'progress', title: 'Progress Chart', visible: true, position: { x: 0, y: 7, w: 6, h: 4 } },
+  { id: 'notifications', title: 'Recent Notifications', visible: true, position: { x: 6, y: 7, w: 6, h: 4 } },
+  { id: 'reports', title: 'Recent Reports', visible: true, position: { x: 0, y: 11, w: 12, h: 3 } }
+];
 
 const AiInsightWidget = ({ insight, onRefresh, isLoading }: { insight?: AiInsight, onRefresh: () => void, isLoading: boolean }) => (
     <Card className="flex flex-col h-full">

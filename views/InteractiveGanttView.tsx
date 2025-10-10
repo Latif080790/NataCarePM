@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Task } from '../types';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { taskService } from '../api/taskService';
@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
-interface GanttChartViewProps {
-    projectId?: string;
+interface InteractiveGanttViewProps {
+    projectId: string;
 }
 
 interface GanttTask {
@@ -67,7 +67,7 @@ const priorityColors = {
     'critical': '#dc2626'
 };
 
-export default function GanttChartView({ projectId }: GanttChartViewProps) {
+export default function InteractiveGanttView({ projectId }: InteractiveGanttViewProps) {
     const { currentUser } = useAuth();
     const { currentProject } = useProject();
     const { addToast } = useToast();
@@ -120,7 +120,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
             let taskStart = new Date(projectStart);
             
             // Handle dependencies
-            if (task.dependencies?.length > 0) {
+            if (task.dependencies.length > 0) {
                 let latestEnd = new Date(projectStart);
                 task.dependencies.forEach(depId => {
                     const depTask = taskMap.get(depId);
@@ -144,7 +144,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                 endDate: taskEnd,
                 duration: daysUntilDue,
                 progress: task.progress,
-                dependencies: task.dependencies || [],
+                dependencies: task.dependencies,
                 assignedTo: task.assignedTo,
                 priority: task.priority,
                 status: task.status,
@@ -175,6 +175,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
     const calculateCriticalPath = (ganttTasks: GanttTask[]): string[] => {
         // Find the longest path through the network
         const taskMap = new Map(ganttTasks.map(gt => [gt.id, gt]));
+        const criticalPath: string[] = [];
         
         // Find tasks with no successors (end tasks)
         const endTasks = ganttTasks.filter(gt => 
@@ -287,7 +288,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
     }, [draggedTask, dragOffset, timelineHeaders.length]);
 
     const handleMouseUp = useCallback(async (e: MouseEvent) => {
-        if (!draggedTask || !timelineRef.current || !currentUser || !projectId) return;
+        if (!draggedTask || !timelineRef.current || !currentUser) return;
         
         const timelineRect = timelineRef.current.getBoundingClientRect();
         const dayWidth = timelineRect.width / timelineHeaders.length;
@@ -382,14 +383,6 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
         return (
             <div className="flex items-center justify-center h-full">
                 <p>Memuat gantt chart...</p>
-            </div>
-        );
-    }
-
-    if (!projectId) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <p>Silakan pilih proyek untuk melihat Gantt Chart</p>
             </div>
         );
     }
