@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NATA CARA - Project Management</title>
+    <title>NATA'CARA - Project Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
 {
@@ -12,45 +12,22 @@
     "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
     "firebase/storage": "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js",
     "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
-    "firebase/": "https://aistudiocdn.com/firebase@^12.4.0/",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.545.0",
+    "react-grid-layout": "https://aistudiocdn.com/react-grid-layout@^1.5.2",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.23.0",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.4.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react-grid-layout": "https://aistudiocdn.com/react-grid-layout@^1.5.2",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.23.0"
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
   }
 }
 </script>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-8 max-w-lg">
-        <h1 class="text-3xl font-bold text-gray-800">Project Management App</h1>
-        <p id="subtitle" class="mt-2 text-gray-600">Silakan masuk atau daftar untuk melanjutkan.</p>
-
-        <div id="login-form" class="mt-6 bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4">Autentikasi Pengguna</h2>
-            <div class="mb-4">
-                <label for="email" class="block text-gray-700">Email</label>
-                <input type="email" id="email-input" class="w-full px-3 py-2 border rounded-lg" placeholder="email@contoh.com">
-            </div>
-            <div class="mb-4">
-                <label for="password" class="block text-gray-700">Password</label>
-                <input type="password" id="password-input" class="w-full px-3 py-2 border rounded-lg" placeholder="******">
-            </div>
-            <div class="flex space-x-2">
-                <button id="signup-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Daftar (Sign Up)</button>
-                <button id="signin-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">Masuk (Sign In)</button>
-            </div>
-        </div>
-
-        <div id="user-status-card" class="mt-6 bg-white p-6 rounded-lg shadow-md hidden">
-            <h2 class="text-xl font-semibold">Selamat Datang!</h2>
-            <p id="user-status" class="mt-2"></p>
-            <div id="firestore-content" class="mt-4 p-4 border rounded-lg bg-gray-50">Memuat data proyek...</div>
-            <button id="logout-button" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Keluar (Logout)</button>
-        </div>
-    </div>
-
-    <script type="module" src="./src/index.ts"></script>
+<body class="bg-alabaster font-sans">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>

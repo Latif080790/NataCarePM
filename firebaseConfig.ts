@@ -5,12 +5,13 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-// Bagian Krusial: Mendaftarkan setiap layanan Firebase
+// --- BAGIAN TERPENTING ---
+// Pastikan ketiga baris ini ada. Inilah yang memperbaiki error tersebut.
 import "firebase/firestore";
 import "firebase/auth";
 import "firebase/storage";
+// -------------------------
 
-// Konfigurasi proyek Firebase Anda
 const firebaseConfig = {
     apiKey: "AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8",
     authDomain: "natacara-hns.firebaseapp.com",
@@ -21,10 +22,8 @@ const firebaseConfig = {
     measurementId: "G-7XPWRK3R2P"
 };
 
-// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 
-// Inisialisasi dan ekspor layanan untuk digunakan di seluruh aplikasi
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
