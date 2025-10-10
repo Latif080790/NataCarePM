@@ -1,0 +1,5 @@
+{
+  "name": "NATA'CARA - Project Management",
+  "description": "A comprehensive dashboard for managing construction projects, tracking budget, progress, resources, and finances in real-time. Built with React, Firebase, and Tailwind CSS.",
+  "requestFramePermissions": []
+}
