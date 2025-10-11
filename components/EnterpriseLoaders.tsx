@@ -1,9 +1,8 @@
 // 🚀 ENTERPRISE LOADING COMPONENTS - SOPHISTICATED SKELETON SCREENS
 // Premium loading states dengan glassmorphism dan smooth animations
 
-import React from 'react';
 import { Spinner } from './Spinner';
-import { Building2, Shield, Zap, Activity, TrendingUp } from 'lucide-react';
+import { Building2, Shield, Activity, Zap, TrendingUp } from 'lucide-react';
 
 // Enhanced Auth Loading Screen
 export function EnterpriseAuthLoader() {

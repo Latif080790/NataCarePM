@@ -1,26 +1,19 @@
-// 🚀 ENTERPRISE-GRADE ADVANCED DASHBOARD - LEVEL TERBAIK  
-// Sophisticated Production-Ready Implementation with React 19 Compatibility
-
 import * as React from 'react';
-import { useProject } from '../contexts/ProjectContext';
-import { useAuth } from '../contexts/AuthContext';
 import { Card } from '../components/Card';
 import { RadialProgress } from '../components/GaugeChart';
-import { LineChart } from '../components/LineChart';
 import { StatCard } from '../components/StatCard';
-import { ThemeCustomizer } from '../components/ThemeCustomizer';
 import { Spinner } from '../components/Spinner';
 import { Button } from '../components/Button';
-import { Project, ProjectMetrics, Notification, AiInsight, Task, DailyReport, Expense, PurchaseOrder, User } from '../types';
+import { Project, ProjectMetrics, Notification, Task, DailyReport, Expense, PurchaseOrder, User } from '../types';
 import { formatCurrency, formatDate } from '../constants';
 import { 
-  TrendingUp, TrendingDown, DollarSign, Users, Calendar, 
-  AlertTriangle, CheckCircle, Clock, Target, Zap, 
-  BarChart3, PieChart, Activity, Award, Sparkles, CreditCard
+  TrendingUp, DollarSign, 
+  AlertTriangle, CheckCircle, Zap, 
+  BarChart3, CreditCard
 } from 'lucide-react';
 
 // Define React hooks explicitly for compatibility
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect } = React;
 
 // Enterprise State Management with Advanced Patterns
 interface DashboardState {

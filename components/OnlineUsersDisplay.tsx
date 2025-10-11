@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRealtimeCollaboration } from '../contexts/RealtimeCollaborationContext';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';

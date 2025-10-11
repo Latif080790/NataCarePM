@@ -5,24 +5,15 @@ import { Task, User } from '../types';
 import { 
   Plus, 
   Search, 
-  Filter, 
-  MoreVertical,
   Edit3,
-  Trash2,
   User as UserIcon,
   Calendar,
   Flag,
   AlertTriangle,
   Target,
   CheckCircle,
-  Clock,
   Zap,
-  TrendingUp,
-  Users,
-  Brain,
-  Shield,
-  Eye,
-  ArrowRight
+  Eye
 } from 'lucide-react';
 
 interface KanbanViewProps {

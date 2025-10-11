@@ -5,24 +5,19 @@ import { Task, User } from '../types';
 import { 
   Plus, 
   Search, 
-  Filter, 
   CheckCircle, 
   Clock, 
   AlertTriangle,
   User as UserIcon,
   Calendar,
   Tag,
-  MoreVertical,
   Edit3,
   Trash2,
   Eye,
   Flag,
   Target,
   TrendingUp,
-  Users,
-  Zap,
-  Brain,
-  Shield
+  Zap
 } from 'lucide-react';
 
 interface TasksViewProps {
@@ -112,21 +107,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
       month: 'short',
       year: 'numeric'
     });
-  };
-
-  const handleCreateTask = (taskData: Omit<Task, 'id'>) => {
-    onCreateTask?.(taskData);
-    setIsCreateModalOpen(false);
-  };
-
-  const handleTaskUpdate = (taskId: string, updates: Partial<Task>) => {
-    onUpdateTask?.(taskId, updates);
-  };
-
-  const handleTaskDelete = (taskId: string) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus task ini?')) {
-      onDeleteTask?.(taskId);
-    }
   };
 
   return (

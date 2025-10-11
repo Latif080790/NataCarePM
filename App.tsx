@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
@@ -26,6 +26,7 @@ import KanbanBoardView from './views/KanbanBoardView';
 import KanbanView from './views/KanbanView';
 import DependencyGraphView from './views/DependencyGraphView';
 import NotificationCenterView from './views/NotificationCenterView';
+import MonitoringView from './views/MonitoringView';
 import OfflineIndicator from './components/OfflineIndicator';
 import LiveCursors from './components/LiveCursors';
 import OnlineUsersDisplay from './components/OnlineUsersDisplay';
@@ -35,6 +36,7 @@ import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
+import { useActivityTracker } from './hooks/useMonitoring';
 import { Spinner } from './components/Spinner';
 import { CommandPalette } from './components/CommandPalette';
 import Header from './components/Header';
@@ -42,6 +44,7 @@ import { useAuth } from './contexts/AuthContext';
 import { useProject } from './contexts/ProjectContext';
 import { RealtimeCollaborationProvider, useRealtimeCollaboration } from './contexts/RealtimeCollaborationContext';
 import AiAssistantChat from './components/AiAssistantChat';
+import { monitoringService } from './api/monitoringService';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
@@ -53,6 +56,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   kanban_board: KanbanBoardView,
   dependencies: DependencyGraphView,
   notifications: NotificationCenterView,
+  monitoring: MonitoringView,
   laporan_harian: DailyReportView,
   progres: ProgressView,
   absensi: AttendanceView,
@@ -84,13 +88,33 @@ function AppContent() {
   // 🔒 Initialize session timeout hook
   useSessionTimeout();
 
+  // 📊 Initialize monitoring hooks
+  const { trackActivity } = useActivityTracker();
+
   const { projectMetrics } = useProjectCalculations(currentProject);
+
+  // 📊 Initialize monitoring service
+  useEffect(() => {
+    if (currentUser) {
+      console.log('🔍 Starting system monitoring...');
+      monitoringService.startMonitoring(60000); // 1 minute interval
+      
+      return () => {
+        monitoringService.stopMonitoring();
+      };
+    }
+    
+    return undefined;
+  }, [currentUser]);
 
   const handleNavigate = (viewId: string) => {
     if (viewComponents[viewId]) {
       setCurrentView(viewId);
       // Update presence when navigating to different views
       updatePresence(viewId);
+      
+      // 📊 Track navigation activity
+      trackActivity('navigate', 'view', viewId, true);
     }
   };
 
@@ -194,7 +218,6 @@ function AppContent() {
   // Safe view props with comprehensive null safety and error handling
   const getViewProps = (viewId: string): any => {
     const safeProject = currentProject as any || {};
-    const safeMetrics = projectMetrics as any || {};
     const safeActions = projectActions as any || {};
     
     // Common safe props for all views

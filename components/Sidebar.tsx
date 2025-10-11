@@ -1,8 +1,7 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+﻿import { useState } from 'react';
 import { 
   ChevronsLeft, 
   ChevronsRight, 
-  Search, 
   Bell, 
   Settings, 
   User, 
@@ -11,23 +10,18 @@ import {
   ChevronRight,
   BarChart3,
   Users,
-  Calendar,
   FileText,
   DollarSign,
   Shield,
-  PieChart,
-  Clock,
-  Star,
-  Filter,
-  Plus,
-  Zap,
-  Target,
-  Activity,
   CheckSquare,
   TrendingUp,
   Truck,
   FileArchive,
-  History
+  History,
+  Monitor,
+  Calendar,
+  Activity,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { navLinksConfig, hasPermission } from '../constants';
@@ -42,9 +36,7 @@ interface SidebarProps {
 export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCollapsed }: SidebarProps) {
   const { currentUser, logout } = useAuth();
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['main-group']);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
 
   const getIconForView = (viewId: string) => {
     const iconMap: { [key: string]: any } = {
@@ -55,6 +47,7 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
       kanban: CheckSquare,
       dependencies: BarChart3,
       notifications: Bell,
+      monitoring: Monitor,
       laporan_harian: FileText,
       progres: TrendingUp,
       absensi: Users,
@@ -75,9 +68,7 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
   const handleNavigate = (viewId: string) => {
     try {
       onNavigate(viewId);
-      setSearchTerm('');
       setShowUserMenu(false);
-      setShowNotifications(false);
     } catch (error) {
       console.error('Navigation error:', error);
     }

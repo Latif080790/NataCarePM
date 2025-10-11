@@ -23,7 +23,9 @@ export type Permission =
     | 'manage_users'
     | 'view_master_data'
     | 'manage_master_data'
-    | 'view_audit_trail';
+    | 'view_audit_trail'
+    | 'view_monitoring'
+    | 'manage_monitoring';
 
 export interface Role {
     id: string;

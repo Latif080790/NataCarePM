@@ -1,5 +1,5 @@
 import {
-    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell
+    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor
 } from 'lucide-react';
 import { Role, User, Permission } from './types';
 
@@ -9,7 +9,8 @@ export const ROLES_CONFIG: Role[] = [
             'view_dashboard', 'view_rab', 'edit_rab', 'view_gantt', 'view_daily_reports', 'create_daily_reports',
             'view_progress', 'update_progress', 'view_attendance', 'manage_attendance', 'view_finances', 'manage_expenses',
             'view_evm', 'view_logistics', 'create_po', 'approve_po', 'manage_inventory', 'view_documents', 'manage_documents',
-            'view_reports', 'view_users', 'manage_users', 'view_master_data', 'manage_master_data', 'view_audit_trail'
+            'view_reports', 'view_users', 'manage_users', 'view_master_data', 'manage_master_data', 'view_audit_trail',
+            'view_monitoring', 'manage_monitoring'
         ]
     },
     {
@@ -17,7 +18,7 @@ export const ROLES_CONFIG: Role[] = [
             'view_dashboard', 'view_rab', 'edit_rab', 'view_gantt', 'view_daily_reports', 'create_daily_reports',
             'view_progress', 'update_progress', 'view_attendance', 'manage_attendance', 'view_finances', 'manage_expenses',
             'view_evm', 'view_logistics', 'create_po', 'approve_po', 'manage_inventory', 'view_documents', 'manage_documents',
-            'view_reports', 'view_users', 'view_master_data', 'view_audit_trail'
+            'view_reports', 'view_users', 'view_master_data', 'view_audit_trail', 'view_monitoring'
         ]
     },
     {
@@ -51,6 +52,7 @@ export const navLinksConfig = [
     {
         id: 'monitoring-group', name: 'Monitoring',
         children: [
+            { id: 'monitoring', name: 'System Monitoring', icon: Monitor, requiredPermission: 'view_monitoring' },
             { id: 'tasks', name: 'Task Management', icon: CheckSquare, requiredPermission: 'view_dashboard' },
             { id: 'kanban', name: 'Kanban Board', icon: CheckSquare, requiredPermission: 'view_dashboard' },
             { id: 'dependencies', name: 'Dependency Graph', icon: BarChart3, requiredPermission: 'view_dashboard' },

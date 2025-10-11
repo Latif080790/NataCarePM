@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings, X } from 'lucide-react';
 
 interface ThemeSettings {
@@ -80,12 +80,6 @@ export function ThemeCustomizer() {
     { id: 'green', name: 'Mint Fresh', color: '#95e1d3', preview: 'linear-gradient(135deg, #95e1d3 0%, #82d4c6 100%)' },
     { id: 'purple', name: 'Royal Purple', color: '#644e71', preview: 'linear-gradient(135deg, #644e71 0%, #52405e 100%)' },
     { id: 'rose', name: 'Rose Garden', color: '#f43f5e', preview: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)' }
-  ];
-
-  const borderRadiusOptions = [
-    { id: 'sharp' as const, name: 'Sharp', preview: '0px', description: 'Clean & Modern' },
-    { id: 'rounded' as const, name: 'Rounded', preview: '8px', description: 'Balanced & Friendly' },
-    { id: 'pill' as const, name: 'Pill', preview: '24px', description: 'Soft & Organic' }
   ];
 
   if (!isOpen) {

@@ -1,16 +1,15 @@
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
-import React, { useState, FormEvent, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
+import { useState, FormEvent, useEffect } from 'react';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
 import { 
   LogIn, UserPlus, Eye, EyeOff, Shield, Building2, 
-  Sparkles, Lock, Mail, User, CheckCircle, AlertCircle,
-  ArrowRight, Star, Trophy, Zap, Globe, Layers, BarChart3
+  Sparkles, Lock, Mail, User, CheckCircle,
+  ArrowRight, Star, Trophy, Zap, Globe, BarChart3
 } from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';
 

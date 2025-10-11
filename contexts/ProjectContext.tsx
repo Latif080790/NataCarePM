@@ -209,7 +209,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     // This is a client-side update only, as it doesn't persist.
     // In a real app, this would be a server-side function and saved to the DB.
     try {
-        const ai = new GoogleGenAI({apiKey: process.env.API_KEY as string});
+        const ai = new GoogleGenAI({apiKey: process.env.AIzaSyAglu9iWK_kkNkDXCUu4I6GqG62KsTrkhw as string});
         const context = getProjectContextForAI();
         const prompt = `Based on the following project data, provide a short executive summary, identify the top 3 potential risks, and give a brief prediction of project outcome (cost and schedule). Format the response as a JSON object with keys: "summary", "risks" (an array of strings), and "predictions". Project data: ${context}`;
         
@@ -218,7 +218,8 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
             contents: prompt,
         });
 
-        const parsedText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const responseText = await response.response.text();
+        const parsedText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const aiResponse = JSON.parse(parsedText);
 
         const newInsight: AiInsight = {

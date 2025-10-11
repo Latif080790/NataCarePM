@@ -232,6 +232,64 @@ service cloud.firestore {
     }
     
     // ============================================
+    // MONITORING COLLECTIONS
+    // ============================================
+    
+    // System Metrics - Admin and PM access only
+    match /systemMetrics/{metricId} {
+      allow read: if hasAnyRole(['admin', 'pm']);
+      allow create: if isAuthenticated(); // System can create metrics
+      allow update, delete: if hasRole('admin');
+    }
+    
+    // User Activities - Users can read their own, admin/PM can read all
+    match /userActivities/{activityId} {
+      allow read: if isAuthenticated() && 
+                     (isOwner(resource.data.userId) || hasAnyRole(['admin', 'pm']));
+      allow create: if isAuthenticated(); // System can create activities
+      allow update, delete: if hasAnyRole(['admin', 'pm']);
+    }
+    
+    // Error Logs - Admin and PM access only for reading, system can create
+    match /errorLogs/{errorId} {
+      allow read: if hasAnyRole(['admin', 'pm']);
+      allow create: if isAuthenticated(); // System can create error logs
+      allow update: if hasAnyRole(['admin', 'pm']); // Only for marking as resolved
+      allow delete: if hasRole('admin');
+    }
+    
+    // Performance Metrics - Admin and PM access only
+    match /performanceMetrics/{performanceId} {
+      allow read: if hasAnyRole(['admin', 'pm']);
+      allow create: if isAuthenticated(); // System can create metrics
+      allow update, delete: if hasRole('admin');
+    }
+    
+    // Project Metrics - Project members can read, admin/PM can write
+    match /projectMetrics/{projectMetricId} {
+      allow read: if isAuthenticated() && 
+                     (hasAnyRole(['admin', 'pm']) || 
+                      isProjectMember(resource.data.projectId));
+      allow create, update: if hasAnyRole(['admin', 'pm']);
+      allow delete: if hasRole('admin');
+    }
+    
+    // Monitoring Alerts - Admin and PM access only
+    match /monitoringAlerts/{alertId} {
+      allow read: if hasAnyRole(['admin', 'pm']);
+      allow create: if isAuthenticated(); // System can create alerts
+      allow update: if hasAnyRole(['admin', 'pm']); // For acknowledging alerts
+      allow delete: if hasRole('admin');
+    }
+    
+    // Circuit Breaker Stats - Admin access only
+    match /circuitBreakerStats/{statId} {
+      allow read: if hasRole('admin');
+      allow create, update: if isAuthenticated(); // System can update stats
+      allow delete: if hasRole('admin');
+    }
+
+    // ============================================
     // SETTINGS & CONFIGURATION
     // ============================================
     

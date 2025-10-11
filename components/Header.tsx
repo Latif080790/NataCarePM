@@ -10,9 +10,9 @@ interface HeaderProps {
     children?: React.ReactNode;
 }
 
-export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
+export default function Header({ children }: HeaderProps) {
     const { currentUser, logout } = useAuth();
-    const { workspaces, currentProject, setCurrentProjectId, loading, notifications, handleMarkNotificationsRead } = useProject();
+    const { workspaces, currentProject, setCurrentProjectId, loading } = useProject();
 
     if (!currentUser || !workspaces) {
         return null; // or a loading state

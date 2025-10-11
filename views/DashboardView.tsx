@@ -7,7 +7,6 @@ import QuickAccessPanel from '../components/QuickAccessPanel';
 import MetricCard from '../components/MetricCard';
 import ProgressRing from '../components/ProgressRing';
 import SimpleBarChart from '../components/SimpleBarChart';
-import { LineChart } from '../components/LineChart';
 import { SCurveChart } from '../components/SCurveChart';
 import { DashboardSkeleton } from '../components/DashboardSkeleton';
 import { 
@@ -21,11 +20,7 @@ import {
   Activity,
   Zap,
   Award,
-  ArrowUp,
-  ArrowDown,
-  Calendar,
   Clock,
-  AlertTriangle,
   CheckCircle,
   ChevronDown
 } from 'lucide-react';

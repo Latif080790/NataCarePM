@@ -9,10 +9,10 @@ import { useProject } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import TaskDetailModal from '../components/TaskDetailModal';
 import CreateTaskModal from '../components/CreateTaskModal';
-import { 
-    Calendar, Plus, Filter, Search, Download, ZoomIn, ZoomOut, 
-    RefreshCw, Settings, Eye, EyeOff, AlertTriangle, CheckCircle,
-    ArrowRight, Clock, Target, Users, BarChart3, TrendingUp
+import {
+    Plus, Search, Download, ZoomIn, ZoomOut,
+    Settings, AlertTriangle,
+    ArrowRight, Clock, Target, Users, BarChart3
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
@@ -57,14 +57,8 @@ const statusColors = {
     'todo': '#6b7280',
     'in-progress': '#3b82f6', 
     'done': '#10b981',
-    'blocked': '#ef4444'
-};
-
-const priorityColors = {
-    'low': '#9ca3af',
-    'medium': '#f59e0b',
-    'high': '#f97316', 
-    'critical': '#dc2626'
+    'blocked': '#ef4444',
+    'review': '#f59e0b'
 };
 
 export default function GanttChartView({ projectId }: GanttChartViewProps) {
@@ -322,6 +316,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                 document.removeEventListener('mouseup', handleMouseUp);
             };
         }
+        return () => {}; // Return cleanup function for all code paths
     }, [draggedTask, handleMouseMove, handleMouseUp]);
 
     const handleTaskClick = (task: GanttTask) => {
@@ -600,7 +595,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
 
                             {/* Task Rows */}
                             <div className="divide-y">
-                                {filteredTasks.map((task, taskIndex) => {
+                                {filteredTasks.map((task) => {
                                     const startIndex = timelineHeaders.findIndex(h => 
                                         h.date.toDateString() === task.startDate.toDateString()
                                     );

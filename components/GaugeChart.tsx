@@ -1,4 +1,4 @@
-import React from 'react';
+// Gauge Chart Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './Card';
 
 interface RadialProgressProps {
@@ -21,8 +21,6 @@ export function RadialProgress({ title, description, value, color = 'stroke-prec
     if (val >= 40) return 'stroke-no-way-rose';
     return 'stroke-red-500';
   };
-
-  const strokeColor = color === 'stroke-precious-persimmon' ? getColorByValue(normalizedValue) : color;
 
   return (
     <Card className={`glass-enhanced border-violet-essence/20 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ${className}`}>

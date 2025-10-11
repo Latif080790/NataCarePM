@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
-import { SecurityEvent, SecurityMetrics } from '../types/components';
 import { useSecurityManager, usePerformanceMonitor } from '../hooks/useSecurityAndPerformance';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { 
-    Shield, Lock, Eye, Activity, Cpu, MemoryStick, 
+    Shield, Lock, Eye, Activity, 
     Clock, AlertTriangle, CheckCircle, TrendingUp, 
-    Download, Settings, Users, Globe, Database
+    Download, Settings, Users, Database
 } from 'lucide-react';
 
 export default function SecurityDashboard() {
@@ -355,7 +354,7 @@ export default function SecurityDashboard() {
                                                 {performanceMetrics.memoryUsage[performanceMetrics.memoryUsage.length - 1]?.toFixed(1) || 0} MB
                                             </p>
                                         </div>
-                                        <MemoryStick className="w-8 h-8 text-blue-500" />
+                                        <Activity className="w-8 h-8 text-blue-500" />
                                     </div>
                                 </CardContent>
                             </Card>

@@ -4,6 +4,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCcw, Home, Mail, Shield, Code, AlertCircle } from 'lucide-react';
 import { Button } from './Button';
+import { monitoringService } from '../api/monitoringService';
 
 interface Props {
   children: ReactNode;
@@ -53,10 +54,12 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
     // Log to console for development
     console.error('🚨 ENTERPRISE ERROR BOUNDARY TRIGGERED:', errorReport);
     
+    // 📊 Log error to monitoring service
+    this.logToMonitoringService(error, errorInfo);
+    
     // In production, send to error tracking service
-    // Example: Sentry, LogRocket, or custom analytics
     if (process.env.NODE_ENV === 'production') {
-      // this.sendErrorReport(errorReport);
+      this.sendErrorReport(errorReport);
     }
 
     this.setState({
@@ -64,6 +67,20 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
       errorInfo
     });
   }
+
+  private logToMonitoringService = async (error: Error, _errorInfo: ErrorInfo) => {
+    try {
+      await monitoringService.logError({
+        message: error.message,
+        stack: error.stack,
+        severity: 'critical',
+        component: 'ErrorBoundary',
+        action: 'componentDidCatch',
+      });
+    } catch (e) {
+      console.error('Failed to log error to monitoring service:', e);
+    }
+  };
 
   private sendErrorReport = async (errorReport: any) => {
     try {

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRealtimeCollaboration } from '../contexts/RealtimeCollaborationContext';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
-import { Activity, Clock, Filter, RefreshCw, ExternalLink } from 'lucide-react';
+import { Activity, Clock, RefreshCw, ExternalLink } from 'lucide-react';
 
 interface LiveActivityFeedProps {
     limit?: number;
@@ -21,7 +21,7 @@ export default function LiveActivityFeed({
     autoRefresh = true,
     refreshInterval = 30000 // 30 seconds
 }: LiveActivityFeedProps) {
-    const { recentActivity, sendActivityEvent } = useRealtimeCollaboration();
+    const { recentActivity } = useRealtimeCollaboration();
     const [filter, setFilter] = useState<ActivityFilter>('all');
     const [isRefreshing, setIsRefreshing] = useState(false);
 
