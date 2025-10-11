@@ -368,33 +368,46 @@ export const TasksView: React.FC<TasksViewProps> = ({
         )}
       </div>
 
-      {/* 📱 MODALS - Placeholder */}
+      {/* Task Creation and Details - TODO: Implement proper modals */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 bg-white max-w-md mx-4">
-            <h3 className="text-xl font-bold mb-4">Create Task</h3>
-            <p className="text-gray-600 mb-4">Modal component integration pending</p>
-            <Button 
-              onClick={() => setIsCreateModalOpen(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Close
-            </Button>
+          <Card className="p-8 bg-white/95 backdrop-blur-sm max-w-lg mx-4 rounded-2xl shadow-2xl border border-white/20">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">Create New Task</h3>
+              <p className="text-gray-600 mb-6">Task management system is being integrated with Firebase backend.</p>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+                >
+                  Continue Working
+                </Button>
+                <p className="text-sm text-gray-500">Full task management will be available soon</p>
+              </div>
+            </div>
           </Card>
         </div>
       )}
 
       {selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 bg-white max-w-md mx-4">
-            <h3 className="text-xl font-bold mb-4">{selectedTask.title}</h3>
-            <p className="text-gray-600 mb-4">{selectedTask.description}</p>
-            <Button 
-              onClick={() => setSelectedTask(null)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Close
-            </Button>
+          <Card className="p-8 bg-white/95 backdrop-blur-sm max-w-lg mx-4 rounded-2xl shadow-2xl border border-white/20">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Eye className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
+              <p className="text-gray-600 mb-6">{selectedTask.description}</p>
+              <Button 
+                onClick={() => setSelectedTask(null)}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+              >
+                Close
+              </Button>
+            </div>
           </Card>
         </div>
       )}

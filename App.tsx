@@ -31,7 +31,6 @@ import LiveCursors from './components/LiveCursors';
 import OnlineUsersDisplay from './components/OnlineUsersDisplay';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/EnterpriseLoaders';
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
-import SafeViewWrapper from './components/SafeViewWrapper';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { Spinner } from './components/Spinner';
@@ -159,11 +158,13 @@ function AppContent() {
         updateAiInsight: projectActions.handleUpdateAiInsight 
       },
       enhanced_dashboard: { 
-        projectMetrics, 
-        recentReports: currentProject?.dailyReports || [], 
-        notifications: projectActions.notifications || [], 
-        project: currentProject, 
-        updateAiInsight: projectActions.handleUpdateAiInsight 
+        projects: [currentProject].filter(Boolean), // Send current project as array
+        tasks: [], // TODO: Add real tasks when available
+        expenses: currentProject?.expenses || [],
+        pos: currentProject?.purchaseOrders || [],
+        users: currentProject?.members || [],
+        projectMetrics: projectMetrics,
+        project: currentProject
       },
       rab_ahsp: { 
         items: currentProject?.items || [], 
@@ -171,19 +172,19 @@ function AppContent() {
       },
       jadwal: { projectId: currentProject?.id || '' },
       tasks: { 
-        tasks: [], // Mock empty tasks array 
+        tasks: [], // TODO: Implement real tasks from Firebase when available
         users: currentProject?.members || [], 
-        onCreateTask: () => {},
-        onUpdateTask: () => {},
-        onDeleteTask: () => {}
+        onCreateTask: () => console.log('Create task - TODO: Implement'),
+        onUpdateTask: () => console.log('Update task - TODO: Implement'),
+        onDeleteTask: () => console.log('Delete task - TODO: Implement')
       },
       task_list: { projectId: currentProject?.id || '' },
       kanban: { 
-        tasks: [], // Mock empty tasks array 
+        tasks: [], // TODO: Implement real tasks from Firebase when available
         users: currentProject?.members || [], 
-        onCreateTask: () => {},
-        onUpdateTask: () => {},
-        onDeleteTask: () => {}
+        onCreateTask: () => console.log('Create task - TODO: Implement'),
+        onUpdateTask: () => console.log('Update task - TODO: Implement'),
+        onDeleteTask: () => console.log('Delete task - TODO: Implement')
       },
       kanban_board: { projectId: currentProject?.id || '' },
       dependencies: { projectId: currentProject?.id || '' },
@@ -241,9 +242,7 @@ function AppContent() {
             </Header>
             <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-alabaster">
                 <EnterpriseErrorBoundary>
-                    <SafeViewWrapper onRetry={() => window.location.reload()}>
-                        {CurrentViewComponent ? <CurrentViewComponent {...viewProps[currentView]} /> : <div>View not found</div>}
-                    </SafeViewWrapper>
+                    {CurrentViewComponent ? <CurrentViewComponent {...viewProps[currentView]} /> : <div>View not found</div>}
                 </EnterpriseErrorBoundary>
             </div>
         </main>

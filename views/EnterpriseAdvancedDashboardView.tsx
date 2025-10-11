@@ -727,20 +727,30 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
     );
   }
 
-  // Safe mock data to prevent undefined errors (if not provided via props)
-  const safeTasks = tasks || [
-    { id: 1, status: 'completed', title: 'Foundation Work' },
-    { id: 2, status: 'in-progress', title: 'Structural Framework' },
-    { id: 3, status: 'todo', title: 'Electrical Installation' },
-    { id: 4, status: 'in-progress', title: 'Plumbing Work' },
-    { id: 5, status: 'todo', title: 'Interior Finishing' }
-  ];
+  // Use real data from props with proper fallbacks
+  const realTasks = tasks || [];
+  const realUsers = users || [];
+  const realExpenses = expenses || [];
+  const realPOs = purchaseOrders || [];
+  const realNotifications = notifications || [];
+  const realReports = recentReports || [];
 
-  const safeUsers = users || [
-    { id: 1, name: 'Project Manager', role: 'manager' },
-    { id: 2, name: 'Site Engineer', role: 'engineer' },
-    { id: 3, name: 'Construction Supervisor', role: 'supervisor' }
-  ];
+  // Calculate real metrics from actual project data
+  const realMetrics = {
+    totalTasks: realTasks.length,
+    completedTasks: realTasks.filter(t => t.status === 'done').length,
+    inProgressTasks: realTasks.filter(t => t.status === 'in-progress').length,
+    blockedTasks: realTasks.filter(t => t.status === 'blocked').length,
+    totalExpenses: realExpenses.reduce((sum, e) => sum + e.amount, 0),
+    totalUsers: realUsers.length,
+    activeUsers: realUsers.filter(u => u.isOnline).length,
+    totalPOs: realPOs.length,
+    completedPOs: realPOs.filter(po => po.status === 'Diterima Penuh').length,
+    pendingPOs: realPOs.filter(po => po.status === 'Menunggu Persetujuan').length,
+    unreadNotifications: realNotifications.filter(n => n.type === 'error' || n.type === 'warning').length, // Use error/warning as unread
+    recentReportsCount: realReports.length,
+    completionRate: realTasks.length > 0 ? (realTasks.filter(t => t.status === 'done').length / realTasks.length) * 100 : 0
+  };
 
   return React.createElement('div', {
     style: {

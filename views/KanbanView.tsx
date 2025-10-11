@@ -442,33 +442,46 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         </div>
       </Card>
 
-      {/* 📱 MODALS - Placeholder */}
+      {/* Kanban Task Management - TODO: Implement proper modals */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 bg-white max-w-md mx-4">
-            <h3 className="text-xl font-bold mb-4">Create Task</h3>
-            <p className="text-gray-600 mb-4">Modal component integration pending</p>
-            <Button 
-              onClick={() => setIsCreateModalOpen(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Close
-            </Button>
+          <Card className="p-8 bg-white/95 backdrop-blur-sm max-w-lg mx-4 rounded-2xl shadow-2xl border border-white/20">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">Add Task to Board</h3>
+              <p className="text-gray-600 mb-6">Advanced Kanban task management is being integrated with the project system.</p>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+                >
+                  Continue Working
+                </Button>
+                <p className="text-sm text-gray-500">Drag & drop task management coming soon</p>
+              </div>
+            </div>
           </Card>
         </div>
       )}
 
       {selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 bg-white max-w-md mx-4">
-            <h3 className="text-xl font-bold mb-4">{selectedTask.title}</h3>
-            <p className="text-gray-600 mb-4">{selectedTask.description}</p>
-            <Button 
-              onClick={() => setSelectedTask(null)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Close
-            </Button>
+          <Card className="p-8 bg-white/95 backdrop-blur-sm max-w-lg mx-4 rounded-2xl shadow-2xl border border-white/20">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Eye className="w-8 h-8 text-indigo-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
+              <p className="text-gray-600 mb-6">{selectedTask.description}</p>
+              <Button 
+                onClick={() => setSelectedTask(null)}
+                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+              >
+                Close
+              </Button>
+            </div>
           </Card>
         </div>
       )}

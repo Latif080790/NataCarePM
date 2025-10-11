@@ -1,772 +1,207 @@
 import React from 'react';
 import { Project, Task, Expense, PurchaseOrder, User } from '../types';
 import { Card } from '../components/Card';
-import { Progress } from '../components/Progress';
 import { Button } from '../components/Button';
-import { Spinner } from '../components/Spinner';
-import { LineChart } from '../components/LineChart';
-import { StatCard } from '../components/StatCard';
-import { formatCurrency, formatDate } from '../constants';
 import { 
-  TrendingUp, 
-  Activity, 
   Users, 
   DollarSign, 
-  CheckCircle,
+  TrendingUp, 
   Target,
   BarChart3,
   RefreshCw,
-  Brain,
-  Shield,
-  Zap,
-  AlertTriangle,
-  Clock,
-  Globe,
-  Database,
-  Settings,
-  Award,
-  TrendingDown,
-  PieChart,
-  Eye,
-  Bell,
-  Lock,
-  Monitor
+  Eye
 } from 'lucide-react';
+import { formatCurrency } from '../constants';
 
 interface DashboardViewProps {
   projects: Project[];
   tasks: Task[];
   expenses: Expense[];
-  pos: PurchaseOrder[];
+  purchaseOrders: PurchaseOrder[];
   users: User[];
 }
 
-// 🧠 Enterprise Analytics Engine - AI-Powered Intelligence System
-class EnterpriseAnalyticsEngine {
-  private static instance: EnterpriseAnalyticsEngine;
-  private metricsCache: Map<string, any> = new Map();
-  private lastUpdate: number = Date.now();
-
-  static getInstance(): EnterpriseAnalyticsEngine {
-    if (!this.instance) {
-      this.instance = new EnterpriseAnalyticsEngine();
-    }
-    return this.instance;
-  }
-
-  // 🔮 AI Predictive Analytics with Machine Learning
-  generateAIPredictiveAnalytics(projects: Project[], tasks: Task[]): any {
-    const cacheKey = 'predictive_analytics';
-    if (this.metricsCache.has(cacheKey) && (Date.now() - this.lastUpdate < 30000)) {
-      return this.metricsCache.get(cacheKey);
-    }
-
-    const completionRate = tasks.length > 0 ? tasks.filter(t => t.status === 'done').length / tasks.length : 0;
-    const avgTaskDuration = this.calculateAverageTaskDuration(tasks);
-    const projectComplexity = this.analyzeProjectComplexity(projects);
-    
-    const result = {
-      projectCompletion: {
-        predicted: Math.round(completionRate * 100),
-        confidence: Math.min(95, 85 + (completionRate * 10)),
-        timeframe: this.predictTimeframe(avgTaskDuration),
-        risk: completionRate < 0.6 ? 'HIGH' : completionRate < 0.8 ? 'MEDIUM' : 'LOW',
-        aiInsight: this.generateAIInsight(completionRate)
-      },
-      budgetForecast: {
-        projectedCompletion: this.calculateBudgetProjection(projects),
-        burnRateOptimal: true,
-        costEfficiencyScore: Math.round(85 + Math.random() * 10),
-        savingsOpportunity: Math.round(Math.random() * 15)
-      },
-      qualityMetrics: {
-        defectPrediction: Math.max(1, 5 - (completionRate * 4)),
-        customerSatisfactionForecast: Math.round(88 + (completionRate * 12)),
-        codeQualityTrend: 'IMPROVING',
-        testCoverage: Math.round(75 + (completionRate * 20))
-      },
-      teamPerformance: {
-        velocityTrend: completionRate > 0.7 ? 'ACCELERATING' : 'STABLE',
-        burndownHealth: completionRate * 100,
-        collaborationIndex: Math.round(80 + Math.random() * 15),
-        productivityScore: Math.round(completionRate * 100)
-      }
-    };
-
-    this.metricsCache.set(cacheKey, result);
-    this.lastUpdate = Date.now();
-    return result;
-  }
-
-  // 💰 Advanced Financial Intelligence with ROI Analysis
-  generateFinancialIntelligence(expenses: Expense[], pos: PurchaseOrder[]): any {
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-    const totalPOs = pos.reduce((sum, po) => {
-      const poTotal = po.items?.reduce((itemSum, item) => itemSum + item.totalPrice, 0) || 0;
-      return sum + poTotal;
-    }, 0);
-    const revenueGrowth = this.calculateRevenueGrowth(totalPOs);
-    
-    return {
-      financialHealth: {
-        score: Math.round(85 + Math.random() * 10),
-        trend: revenueGrowth > 10 ? 'EXCELLENT' : revenueGrowth > 5 ? 'GOOD' : 'STABLE',
-        riskLevel: totalExpenses > totalPOs * 0.8 ? 'HIGH' : 'LOW'
-      },
-      roi: {
-        current: totalExpenses > 0 ? ((totalPOs - totalExpenses) / totalExpenses * 100) : 0,
-        projected: Math.round(15 + Math.random() * 10),
-        benchmark: 22.5,
-        improvement: '+12%'
-      },
-      cashFlow: {
-        current: totalPOs * 1.15,
-        projected: totalPOs * 1.25,
-        runway: '18 months',
-        burnRate: Math.round(totalExpenses / 30)
-      },
-      costOptimization: {
-        savings: Math.round(totalExpenses * 0.08),
-        efficiency: Math.round(87 + Math.random() * 8),
-        recommendations: [
-          'Vendor negotiation opportunities',
-          'Bulk purchase discounts',
-          'Process automation savings'
-        ]
-      }
-    };
-  }
-
-  // ⚡ Advanced Performance Insights with Real-time Monitoring
-  generatePerformanceInsights(): any {
-    return {
-      systemHealth: {
-        overallScore: Math.round(92 + Math.random() * 6),
-        cpuUsage: Math.round(20 + Math.random() * 15),
-        memoryUsage: Math.round(60 + Math.random() * 15),
-        diskIO: Math.round(40 + Math.random() * 20),
-        networkLatency: Math.round(8 + Math.random() * 12),
-        uptime: 99.95 + Math.random() * 0.04,
-        throughput: Math.round(15000 + Math.random() * 5000),
-        responseTime: Math.round(120 + Math.random() * 80)
-      },
-      applicationMetrics: {
-        activeUsers: Math.round(45 + Math.random() * 20),
-        sessionDuration: '24m',
-        pageLoadTime: Math.round(800 + Math.random() * 400),
-        errorRate: (Math.random() * 0.5).toFixed(2),
-        apiLatency: Math.round(50 + Math.random() * 30),
-        cacheHitRatio: Math.round(85 + Math.random() * 10)
-      },
-      businessMetrics: {
-        userEngagement: Math.round(88 + Math.random() * 8),
-        featureAdoption: Math.round(75 + Math.random() * 15),
-        customerSatisfaction: Math.round(90 + Math.random() * 8),
-        conversionRate: (2.5 + Math.random() * 1.5).toFixed(1),
-        retention: Math.round(82 + Math.random() * 12)
-      }
-    };
-  }
-
-  // ⚠️ Enterprise Risk Assessment with AI Analysis
-  generateRiskAssessment(): any {
-    const riskFactors = this.identifyRiskFactors();
-    const overallRisk = this.calculateOverallRisk(riskFactors);
-    
-    return {
-      overallRiskScore: overallRisk,
-      riskLevel: overallRisk > 70 ? 'HIGH' : overallRisk > 40 ? 'MEDIUM' : 'LOW',
-      criticalRisks: [
-        { 
-          type: 'FINANCIAL', 
-          severity: 'HIGH', 
-          probability: 18, 
-          impact: 'Budget overrun risk',
-          mitigation: 'Implement cost controls'
-        },
-        { 
-          type: 'OPERATIONAL', 
-          severity: 'MEDIUM', 
-          probability: 25, 
-          impact: 'Resource constraints',
-          mitigation: 'Resource optimization plan'
-        },
-        { 
-          type: 'TECHNICAL', 
-          severity: 'LOW', 
-          probability: 12, 
-          impact: 'System performance',
-          mitigation: 'Infrastructure scaling'
-        },
-        { 
-          type: 'SECURITY', 
-          severity: 'MEDIUM', 
-          probability: 15, 
-          impact: 'Data protection',
-          mitigation: 'Security audit & training'
-        }
-      ],
-      riskTrends: {
-        financial: 'DECREASING',
-        operational: 'STABLE',
-        technical: 'IMPROVING',
-        security: 'MONITORING'
-      },
-      mitigationStrategies: [
-        'Automated risk monitoring',
-        'Proactive alerting system',
-        'Regular security assessments',
-        'Continuous process improvement'
-      ]
-    };
-  }
-
-  // 🎯 Strategic KPI Monitoring
-  generateStrategicKPIs(projects: Project[], tasks: Task[]): any {
-    return {
-      innovation: {
-        score: Math.round(78 + Math.random() * 15),
-        newFeatures: Math.round(12 + Math.random() * 8),
-        rndInvestment: '15%',
-        patentsPending: 3
-      },
-      market: {
-        share: '12.5%',
-        growth: '+23%',
-        satisfaction: Math.round(89 + Math.random() * 8),
-        nps: Math.round(45 + Math.random() * 15)
-      },
-      sustainability: {
-        carbonFootprint: '-8%',
-        energyEfficiency: '+15%',
-        wasteReduction: '25%',
-        greenScore: Math.round(82 + Math.random() * 12)
-      }
-    };
-  }
-
-  // Helper Methods
-  private calculateAverageTaskDuration(tasks: Task[]): number {
-    return tasks.length > 0 ? 5.2 : 0; // Mock calculation
-  }
-
-  private analyzeProjectComplexity(projects: Project[]): number {
-    return projects.length * 1.5; // Mock complexity score
-  }
-
-  private generateAIInsight(completionRate: number): string {
-    if (completionRate > 0.8) return "Excellent progress! Team is exceeding expectations.";
-    if (completionRate > 0.6) return "Good momentum. Consider optimizing workflows.";
-    return "Attention needed. Recommend resource reallocation.";
-  }
-
-  private predictTimeframe(avgDuration: number): string {
-    if (avgDuration < 3) return "5-7 days";
-    if (avgDuration < 7) return "2-3 weeks";
-    return "1 month";
-  }
-
-  private calculateBudgetProjection(projects: Project[]): number {
-    return Math.round(85 + Math.random() * 10);
-  }
-
-  private calculateRevenueGrowth(revenue: number): number {
-    return Math.round(8 + Math.random() * 12);
-  }
-
-  private identifyRiskFactors(): string[] {
-    return ['budget', 'timeline', 'resources', 'quality'];
-  }
-
-  private calculateOverallRisk(factors: string[]): number {
-    return Math.round(25 + Math.random() * 20);
-  }
-}
-
-interface DashboardViewProps {
-  projects: Project[];
-  tasks: Task[];
-  expenses: Expense[];
-  pos: PurchaseOrder[];
-  users: User[];
-}
-
-export const DashboardView: React.FC<DashboardViewProps> = ({
+const DashboardView: React.FC<DashboardViewProps> = ({
   projects = [],
   tasks = [],
   expenses = [],
-  pos = [],
+  purchaseOrders = [],
   users = []
 }) => {
-  // Initialize Enterprise Analytics Engine
-  const analyticsEngine = EnterpriseAnalyticsEngine.getInstance();
-
-  // Advanced metrics calculations
   const totalProjects = projects.length;
-  const completedProjects = projects.filter(p => p.name).length; // Assume all named projects are active
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const totalBudget = projects.reduce((sum, p) => sum + 1000000, 0); // Mock budget data
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-
-  const kpiMetrics = {
-    projectCompletion: totalProjects > 0 ? (completedProjects / totalProjects) * 100 : 0,
-    taskCompletion: totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0,
-    budgetUtilization: totalBudget > 0 ? (totalExpenses / totalBudget) * 100 : 0,
-    totalRevenue: totalBudget,
-    netProfit: totalBudget - totalExpenses,
-    activeProjects: projects.filter(p => p.name).length
-  };
-
-  // Generate AI-powered analytics
-  const aiPredictiveAnalytics = analyticsEngine.generateAIPredictiveAnalytics(projects, tasks);
-  const financialIntelligence = analyticsEngine.generateFinancialIntelligence(expenses, pos);
-  const performanceInsights = analyticsEngine.generatePerformanceInsights();
-  const riskAssessment = analyticsEngine.generateRiskAssessment();
-  const strategicKPIs = analyticsEngine.generateStrategicKPIs(projects, tasks);
+  const activeTasks = tasks.filter(task => task.status === 'in-progress' || task.status === 'todo').length;
+  const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+  const totalPOs = purchaseOrders.reduce((sum, po) => {
+    const poTotal = po.items.reduce((itemSum, item) => itemSum + item.totalPrice, 0);
+    return sum + poTotal;
+  }, 0);
+  const completedTasks = tasks.filter(task => task.status === 'done').length;
+  const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
 
   const handleRefresh = () => {
     console.log('Dashboard refreshed');
   };
 
-  const handleDrillDown = (metric: string) => {
-    console.log(`Drilling down into ${metric} metrics`);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      {/* 🎯 ENHANCED HEADER SECTION */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-              🚀 Enterprise Command Center
-            </h1>
-            <p className="text-lg text-gray-700 font-medium">Advanced Analytics • AI Intelligence • Real-time Insights • Strategic KPIs</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg shadow-sm">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-green-700 font-medium">Live System</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
+            <div className="flex-1">
+              <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+                🚀 Enterprise Command Center
+              </h1>
+              <p className="text-lg text-gray-700 font-medium leading-relaxed">
+                Advanced Analytics • Real-time Insights • Strategic KPIs • NataCarePM v2.0
+              </p>
             </div>
-            <div className="flex items-center space-x-2 bg-blue-100 px-4 py-2 rounded-lg shadow-sm">
-              <Eye className="w-4 h-4 text-blue-600" />
-              <span className="text-blue-700 font-medium">Monitoring Active</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg shadow-sm">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-700 font-medium">Live System</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-blue-100 px-4 py-2 rounded-lg shadow-sm">
+                <Eye className="w-4 h-4 text-blue-600" />
+                <span className="text-blue-700 font-medium">Monitoring Active</span>
+              </div>
+              <Button 
+                onClick={handleRefresh}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 shadow-lg transition-all duration-300"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Refresh Analytics</span>
+              </Button>
             </div>
-            <Button 
-              onClick={handleRefresh}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 shadow-lg"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Refresh Analytics</span>
-            </Button>
           </div>
         </div>
 
-        {/* 📊 REAL-TIME SYSTEM STATUS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          <StatCard
-            title="System Health"
-            value={`${performanceInsights.systemHealth.overallScore}%`}
-            icon={Shield}
-            color="text-green-600"
-            description="↗️ +2.5% from last hour"
-          />
-          <StatCard
-            title="Active Users"
-            value={performanceInsights.applicationMetrics.activeUsers.toString()}
-            icon={Users}
-            color="text-blue-600"
-            description="↗️ +8.3% growth"
-          />
-          <StatCard
-            title="Performance Score"
-            value={`${aiPredictiveAnalytics.teamPerformance.productivityScore}%`}
-            icon={Zap}
-            color="text-yellow-600"
-            description="↗️ +12.7% improvement"
-          />
-          <StatCard
-            title="Risk Level"
-            value={riskAssessment.riskLevel}
-            icon={AlertTriangle}
-            color="text-orange-600"
-            description={riskAssessment.overallRiskScore > 50 ? "↘️ -5.2% reduced" : "↗️ +3.1% monitored"}
-          />
-          <StatCard
-            title="AI Confidence"
-            value={`${aiPredictiveAnalytics.projectCompletion.confidence}%`}
-            icon={Brain}
-            color="text-purple-600"
-            description="↗️ +4.8% accuracy"
-          />
+        {/* Main Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">Total Projects</p>
+                <p className="text-3xl font-bold text-blue-600 mt-1">{totalProjects}</p>
+              </div>
+              <Target className="w-12 h-12 text-blue-500 opacity-80" />
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">Active Tasks</p>
+                <p className="text-3xl font-bold text-green-600 mt-1">{activeTasks}</p>
+              </div>
+              <BarChart3 className="w-12 h-12 text-green-500 opacity-80" />
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">Total Expenses</p>
+                <p className="text-3xl font-bold text-orange-600 mt-1">{formatCurrency(totalExpenses)}</p>
+              </div>
+              <DollarSign className="w-12 h-12 text-orange-500 opacity-80" />
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">Purchase Orders</p>
+                <p className="text-3xl font-bold text-purple-600 mt-1">{formatCurrency(totalPOs)}</p>
+              </div>
+              <TrendingUp className="w-12 h-12 text-purple-500 opacity-80" />
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">Team Members</p>
+                <p className="text-3xl font-bold text-indigo-600 mt-1">{users.length}</p>
+              </div>
+              <Users className="w-12 h-12 text-indigo-500 opacity-80" />
+            </div>
+          </Card>
         </div>
-      </div>
 
-      {/* 🧠 AI INSIGHTS & PREDICTIVE ANALYTICS SECTION */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* 🔮 AI Predictive Analytics */}
-        <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold flex items-center">
-              <Brain className="w-7 h-7 mr-3 text-purple-600" />
-              AI Predictive Analytics
-            </h3>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
-                {aiPredictiveAnalytics.projectCompletion.confidence}% Confidence
-              </span>
+        {/* Performance Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold flex items-center text-blue-800">
+                <BarChart3 className="w-7 h-7 mr-3 text-blue-600" />
+                Project Performance
+              </h3>
             </div>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-xl border border-blue-200">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-blue-800 font-semibold">Project Completion Forecast</span>
-                <span className="text-3xl font-bold text-blue-600">
-                  {aiPredictiveAnalytics.projectCompletion.predicted}%
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-blue-700">Expected timeframe: {aiPredictiveAnalytics.projectCompletion.timeframe}</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium $
-                  aiPredictiveAnalytics.projectCompletion.risk === 'LOW' ? 'bg-green-100 text-green-700' :
-                  aiPredictiveAnalytics.projectCompletion.risk === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
-                }`}>
-                  {aiPredictiveAnalytics.projectCompletion.risk} Risk
-                </span>
-              </div>
-              <div className="mt-3 p-3 bg-blue-100 rounded-lg">
-                <p className="text-blue-800 text-sm italic">
-                  💡 AI Insight: {aiPredictiveAnalytics.projectCompletion.aiInsight}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* 💰 Advanced Financial Intelligence */}
-        <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold flex items-center">
-              <DollarSign className="w-7 h-7 mr-3 text-emerald-600" />
-              Financial Intelligence
-            </h3>
-            <div className="flex items-center space-x-2">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                financialIntelligence.financialHealth.trend === 'EXCELLENT' ? 'bg-green-100 text-green-700' :
-                financialIntelligence.financialHealth.trend === 'GOOD' ? 'bg-blue-100 text-blue-700' :
-                'bg-yellow-100 text-yellow-700'
-              }`}>
-                {financialIntelligence.financialHealth.trend}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-5 rounded-xl border border-emerald-200">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-emerald-800 font-semibold">ROI Performance</span>
-                <span className="text-3xl font-bold text-emerald-600">
-                  {financialIntelligence.roi.current.toFixed(1)}%
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-emerald-700 text-sm">Projected:</span>
-                  <p className="text-xl font-bold text-emerald-600">{financialIntelligence.roi.projected}%</p>
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-800 font-semibold">Task Completion Rate</span>
+                  <span className="text-3xl font-bold text-blue-600">{taskCompletionRate}%</span>
                 </div>
-                <div>
-                  <span className="text-emerald-700 text-sm">Benchmark:</span>
-                  <p className="text-xl font-bold text-emerald-600">{financialIntelligence.roi.benchmark}%</p>
+                <div className="mt-2 bg-blue-100 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${taskCompletionRate}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <p className="text-sm text-blue-600">Completed</p>
+                    <p className="text-2xl font-bold text-blue-700">{completedTasks}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-blue-600">In Progress</p>
+                    <p className="text-2xl font-bold text-blue-700">{activeTasks}</p>
+                  </div>
                 </div>
               </div>
             </div>
+          </Card>
 
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200">
-              <h4 className="text-blue-800 font-semibold mb-3">Cash Flow Analysis</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-blue-700">Current:</span>
-                  <span className="font-bold text-blue-800">{formatCurrency(financialIntelligence.cashFlow.current)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-blue-700">Runway:</span>
-                  <span className="font-bold text-blue-800">{financialIntelligence.cashFlow.runway}</span>
-                </div>
-              </div>
+          <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold flex items-center text-emerald-800">
+                <DollarSign className="w-7 h-7 mr-3 text-emerald-600" />
+                Financial Overview
+              </h3>
             </div>
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="p-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100">Project Completion</p>
-              <p className="text-3xl font-bold">{kpiMetrics.projectCompletion.toFixed(1)}%</p>
-            </div>
-            <Target className="w-8 h-8 text-blue-200" />
-          </div>
-          <Progress value={kpiMetrics.projectCompletion} className="mt-4" />
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-r from-green-500 to-green-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100">Task Efficiency</p>
-              <p className="text-3xl font-bold">{kpiMetrics.taskCompletion.toFixed(1)}%</p>
-            </div>
-            <CheckCircle className="w-8 h-8 text-green-200" />
-          </div>
-          <Progress value={kpiMetrics.taskCompletion} className="mt-4" />
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100">Budget Utilization</p>
-              <p className="text-3xl font-bold">{kpiMetrics.budgetUtilization.toFixed(1)}%</p>
-            </div>
-            <DollarSign className="w-8 h-8 text-purple-200" />
-          </div>
-          <Progress value={kpiMetrics.budgetUtilization} className="mt-4" />
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100">Active Projects</p>
-              <p className="text-3xl font-bold">{kpiMetrics.activeProjects}</p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-orange-200" />
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center">
-              <DollarSign className="w-6 h-6 mr-2 text-green-600" />
-              Financial Overview
-            </h3>
-          </div>
-          <div className="space-y-4">
-            <div className="bg-emerald-50 p-4 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-emerald-700 font-medium">Total Revenue</span>
-                <span className="text-2xl font-bold text-emerald-600">
-                  {formatCurrency(kpiMetrics.totalRevenue)}
-                </span>
-              </div>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-blue-700 font-medium">Net Profit</span>
-                <span className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(kpiMetrics.netProfit)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center">
-              <BarChart3 className="w-6 h-6 mr-2 text-blue-600" />
-              Performance Metrics
-            </h3>
-          </div>
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{projects.length}</p>
-                <p className="text-sm text-gray-600">Total Projects</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{tasks.length}</p>
-                <p className="text-sm text-gray-600">Total Tasks</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card className="p-6">
-          <h3 className="text-xl font-bold mb-6 flex items-center">
-            <Activity className="w-6 h-6 mr-2 text-indigo-600" />
-            Revenue Trend
-          </h3>
-          <LineChart
-            data={{
-              planned: [
-                { day: 1, cost: 4000 },
-                { day: 2, cost: 3000 },
-                { day: 3, cost: 5000 },
-                { day: 4, cost: 4500 },
-                { day: 5, cost: 6000 },
-                { day: 6, cost: 5500 }
-              ],
-              actual: [
-                { day: 1, cost: 3800 },
-                { day: 2, cost: 3200 },
-                { day: 3, cost: 4800 },
-                { day: 4, cost: 4700 },
-                { day: 5, cost: 5800 },
-                { day: 6, cost: 5700 }
-              ]
-            }}
-            width={600}
-            height={300}
-          />
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-xl font-bold mb-6 flex items-center">
-            <Users className="w-6 h-6 mr-2 text-green-600" />
-            Quick Stats
-          </h3>
-          <div className="space-y-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-blue-600">Live</p>
-                <p className="text-gray-600">Dashboard Status</p>
-              </div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-center">
-                <p className="text-3xl font-bold text-green-600">{users.length}</p>
-                <p className="text-gray-600">Active Users</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* ⚡ ADVANCED PERFORMANCE & RISK MONITORING */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* ⚡ System Performance Monitoring */}
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold flex items-center">
-              <Monitor className="w-7 h-7 mr-3 text-blue-600" />
-              System Performance
-            </h3>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                {performanceInsights.systemHealth.overallScore}% Health
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-600">{performanceInsights.systemHealth.uptime}%</p>
-                  <p className="text-green-700 text-sm">System Uptime</p>
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-emerald-800 font-semibold">Total Budget</span>
+                  <span className="text-3xl font-bold text-emerald-600">{formatCurrency(totalExpenses + totalPOs)}</span>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-600">{performanceInsights.systemHealth.throughput.toLocaleString()}</p>
-                  <p className="text-blue-700 text-sm">Throughput/sec</p>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <p className="text-sm text-emerald-600">Expenses</p>
+                    <p className="text-2xl font-bold text-emerald-700">{formatCurrency(totalExpenses)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-emerald-600">Purchase Orders</p>
+                    <p className="text-2xl font-bold text-emerald-700">{formatCurrency(totalPOs)}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
-        {/* ⚠️ Enterprise Risk Assessment */}
-        <Card className="p-6 bg-gradient-to-br from-red-50 to-orange-50 border-red-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold flex items-center">
-              <AlertTriangle className="w-7 h-7 mr-3 text-red-600" />
-              Risk Assessment
-            </h3>
-            <div className="flex items-center space-x-2">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                riskAssessment.riskLevel === 'LOW' ? 'bg-green-100 text-green-700' :
-                riskAssessment.riskLevel === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-red-100 text-red-700'
-              }`}>
-                {riskAssessment.riskLevel} Risk
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 p-5 rounded-xl border border-orange-200">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-orange-800 font-semibold">Overall Risk Score</span>
-                <span className="text-4xl font-bold text-orange-600">
-                  {riskAssessment.overallRiskScore}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* 🎯 STRATEGIC KPIs */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <Card className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center">
-              <Award className="w-6 h-6 mr-2 text-indigo-600" />
-              Innovation KPIs
-            </h3>
-          </div>
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-indigo-600">{strategicKPIs.innovation.score}</p>
-              <p className="text-indigo-700 text-sm">Innovation Score</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-teal-50 border-green-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center">
-              <Globe className="w-6 h-6 mr-2 text-green-600" />
-              Market Position
-            </h3>
-          </div>
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-green-600">{strategicKPIs.market.share}</p>
-              <p className="text-green-700 text-sm">Market Share</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center">
-              <Settings className="w-6 h-6 mr-2 text-emerald-600" />
-              Sustainability
-            </h3>
-          </div>
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-emerald-600">{strategicKPIs.sustainability.greenScore}</p>
-              <p className="text-emerald-700 text-sm">Green Score</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <div className="mt-12 text-center">
-        <p className="text-gray-500">
-          🚀 Enterprise Command Center • AI-Powered Analytics • Real-time Intelligence • Strategic Insights • NataCarePM v2.0
-        </p>
+        {/* Footer */}
+        <div className="mt-12 text-center">
+          <p className="text-gray-500">
+            🚀 Enterprise Command Center • AI-Powered Analytics • Real-time Intelligence • Strategic Insights • NataCarePM v2.0
+          </p>
+        </div>
       </div>
     </div>
   );
