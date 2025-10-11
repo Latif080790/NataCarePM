@@ -284,7 +284,7 @@ export interface Task {
     projectId: string;
     title: string;
     description: string;
-    status: 'todo' | 'in-progress' | 'done' | 'blocked';
+    status: 'todo' | 'in-progress' | 'review' | 'done' | 'blocked';
     priority: 'low' | 'medium' | 'high' | 'critical';
     assignedTo: string[]; // User IDs
     createdBy: string; // User ID

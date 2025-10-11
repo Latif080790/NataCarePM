@@ -18,14 +18,20 @@ import UserManagementView from './views/UserManagementView';
 import MasterDataView from './views/MasterDataView';
 import AuditTrailView from './views/AuditTrailView';
 import LoginView from './views/LoginView';
+import EnterpriseLoginView from './views/EnterpriseLoginView';
 import ProfileView from './views/ProfileView';
 import TaskListView from './views/TaskListView';
+import TasksView from './views/TasksView';
 import KanbanBoardView from './views/KanbanBoardView';
+import KanbanView from './views/KanbanView';
 import DependencyGraphView from './views/DependencyGraphView';
 import NotificationCenterView from './views/NotificationCenterView';
 import OfflineIndicator from './components/OfflineIndicator';
 import LiveCursors from './components/LiveCursors';
 import OnlineUsersDisplay from './components/OnlineUsersDisplay';
+import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/EnterpriseLoaders';
+import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
+import SafeViewWrapper from './components/SafeViewWrapper';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { Spinner } from './components/Spinner';
@@ -41,8 +47,10 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   enhanced_dashboard: DashboardView,
   rab_ahsp: RabAhspView,
   jadwal: GanttChartView,
-  tasks: TaskListView,
-  kanban: KanbanBoardView,
+  tasks: TasksView,
+  task_list: TaskListView,
+  kanban: KanbanView,
+  kanban_board: KanbanBoardView,
   dependencies: DependencyGraphView,
   notifications: NotificationCenterView,
   laporan_harian: DailyReportView,
@@ -79,14 +87,16 @@ function AppContent() {
   };
 
   const itemsWithProgress = useMemo(() => {
-    if (!currentProject) return [];
+    if (!currentProject || !currentProject.items || !currentProject.dailyReports) return [];
+    
     const completedVolumeMap = new Map<number, number>();
     currentProject.dailyReports.forEach(report => {
-        report.workProgress.forEach(progress => {
+        report.workProgress?.forEach(progress => {
             const currentVolume = completedVolumeMap.get(progress.rabItemId) || 0;
             completedVolumeMap.set(progress.rabItemId, currentVolume + progress.completedVolume);
         });
     });
+    
     return currentProject.items.map(item => ({
         ...item,
         completedVolume: completedVolumeMap.get(item.id) || 0,
@@ -94,24 +104,15 @@ function AppContent() {
   }, [currentProject]);
 
   if (authLoading && !currentUser) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-alabaster">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <EnterpriseAuthLoader />;
   }
 
   if (!currentUser) {
-    return <LoginView />;
+    return <EnterpriseLoginView />;
   }
   
   if (projectLoading || (!currentProject && !error)) {
-    return (
-       <div className="flex items-center justify-center h-screen bg-alabaster">
-         <Spinner size="lg" />
-         <p className="ml-4">Memuat data proyek...</p>
-       </div>
-    );
+    return <EnterpriseProjectLoader />;
   }
 
   if (error || !currentProject) {
@@ -124,26 +125,105 @@ function AppContent() {
   }
   
   const CurrentViewComponent = viewComponents[currentView];
+  
+  // Enhanced error handling for missing views
+  if (!CurrentViewComponent) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-red-50 to-pink-50 text-red-700 p-8 text-center">
+        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-red-200">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-red-800 mb-2">View Not Found</h2>
+          <p className="text-red-600 mb-6">The requested view "{currentView}" is not available.</p>
+          <button 
+            onClick={() => handleNavigate('dashboard')}
+            className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Safe view props with null safety
   const viewProps: any = {
-      dashboard: { projectMetrics, recentReports: currentProject.dailyReports, notifications: projectActions.notifications, project: currentProject, updateAiInsight: projectActions.handleUpdateAiInsight },
-      rab_ahsp: { items: currentProject.items, ahspData: projectActions.ahspData },
-      jadwal: { projectId: currentProject.id },
-      tasks: { projectId: currentProject.id },
-      kanban: { projectId: currentProject.id },
-      dependencies: { projectId: currentProject.id },
-      notifications: { projectId: currentProject.id },
-      laporan_harian: { dailyReports: currentProject.dailyReports, rabItems: currentProject.items, workers: projectActions.workers, onAddReport: projectActions.handleAddDailyReport },
-      progres: { itemsWithProgress, onUpdateProgress: projectActions.handleUpdateProgress },
-      absensi: { attendances: currentProject.attendances, workers: projectActions.workers, onUpdateAttendance: projectActions.handleUpdateAttendance },
-      biaya_proyek: { expenses: currentProject.expenses, projectMetrics },
-      arus_kas: { termins: currentProject.termins, expenses: currentProject.expenses },
+      dashboard: { 
+        projectMetrics, 
+        recentReports: currentProject?.dailyReports || [], 
+        notifications: projectActions.notifications || [], 
+        project: currentProject, 
+        updateAiInsight: projectActions.handleUpdateAiInsight 
+      },
+      enhanced_dashboard: { 
+        projectMetrics, 
+        recentReports: currentProject?.dailyReports || [], 
+        notifications: projectActions.notifications || [], 
+        project: currentProject, 
+        updateAiInsight: projectActions.handleUpdateAiInsight 
+      },
+      rab_ahsp: { 
+        items: currentProject?.items || [], 
+        ahspData: projectActions.ahspData 
+      },
+      jadwal: { projectId: currentProject?.id || '' },
+      tasks: { 
+        tasks: [], // Mock empty tasks array 
+        users: currentProject?.members || [], 
+        onCreateTask: () => {},
+        onUpdateTask: () => {},
+        onDeleteTask: () => {}
+      },
+      task_list: { projectId: currentProject?.id || '' },
+      kanban: { 
+        tasks: [], // Mock empty tasks array 
+        users: currentProject?.members || [], 
+        onCreateTask: () => {},
+        onUpdateTask: () => {},
+        onDeleteTask: () => {}
+      },
+      kanban_board: { projectId: currentProject?.id || '' },
+      dependencies: { projectId: currentProject?.id || '' },
+      notifications: { projectId: currentProject?.id || '' },
+      laporan_harian: { 
+        dailyReports: currentProject?.dailyReports || [], 
+        rabItems: currentProject?.items || [], 
+        workers: projectActions.workers || [], 
+        onAddReport: projectActions.handleAddDailyReport 
+      },
+      progres: { 
+        itemsWithProgress: itemsWithProgress || [], 
+        onUpdateProgress: projectActions.handleUpdateProgress 
+      },
+      absensi: { 
+        attendances: currentProject?.attendances || [], 
+        workers: projectActions.workers || [], 
+        onUpdateAttendance: projectActions.handleUpdateAttendance 
+      },
+      biaya_proyek: { 
+        expenses: currentProject?.expenses || [], 
+        projectMetrics 
+      },
+      arus_kas: { 
+        termins: currentProject?.termins || [], 
+        expenses: currentProject?.expenses || [] 
+      },
       strategic_cost: { projectMetrics },
-      logistik: { purchaseOrders: currentProject.purchaseOrders, inventory: currentProject.inventory, onUpdatePOStatus: projectActions.handleUpdatePOStatus, ahspData: projectActions.ahspData, onAddPO: projectActions.handleAddPO },
-      dokumen: { documents: currentProject.documents },
+      logistik: { 
+        purchaseOrders: currentProject?.purchaseOrders || [], 
+        inventory: currentProject?.inventory || [], 
+        onUpdatePOStatus: projectActions.handleUpdatePOStatus, 
+        ahspData: projectActions.ahspData, 
+        onAddPO: projectActions.handleAddPO 
+      },
+      dokumen: { documents: currentProject?.documents || [] },
       laporan: { projectMetrics, project: currentProject },
-      user_management: { users: currentProject.members },
-      master_data: { workers: projectActions.workers },
-      audit_trail: { auditLog: currentProject.auditLog },
+      user_management: { users: currentProject?.members || [] },
+      master_data: { workers: projectActions.workers || [] },
+      audit_trail: { auditLog: currentProject?.auditLog || [] },
       profile: {}
   };
 
@@ -160,7 +240,11 @@ function AppContent() {
                 <OnlineUsersDisplay compact showActivity={false} />
             </Header>
             <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-alabaster">
-                {CurrentViewComponent ? <CurrentViewComponent {...viewProps[currentView]} /> : <div>View not found</div>}
+                <EnterpriseErrorBoundary>
+                    <SafeViewWrapper onRetry={() => window.location.reload()}>
+                        {CurrentViewComponent ? <CurrentViewComponent {...viewProps[currentView]} /> : <div>View not found</div>}
+                    </SafeViewWrapper>
+                </EnterpriseErrorBoundary>
             </div>
         </main>
         <CommandPalette onNavigate={handleNavigate} />

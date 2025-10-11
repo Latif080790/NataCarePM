@@ -207,8 +207,8 @@ class EnterpriseAnalyticsEngine {
   }
 
   private calculateProductivity() {
-    const tasksCompleted = this.projectData.dailyReports.reduce((acc, report) => 
-      acc + report.workProgress.length, 0);
+    const tasksCompleted = this.projectData?.dailyReports?.reduce((acc, report) => 
+      acc + (report.workProgress?.length || 0), 0) || 0;
     
     const averageCompletionTime = this.calculateAverageCompletionTime();
     const qualityScore = this.calculateQualityScore();
@@ -363,9 +363,9 @@ class EnterpriseAnalyticsEngine {
   }
 
   private calculateQualityScore(): number {
-    const totalTasks = this.projectData.dailyReports.length * 5; // Estimated
+    const totalTasks = (this.projectData?.dailyReports?.length || 0) * 5; // Estimated
     const qualityIssues = this.countQualityIssues();
-    return Math.max(0, 100 - (qualityIssues / totalTasks) * 100);
+    return Math.max(0, 100 - (qualityIssues / Math.max(1, totalTasks)) * 100);
   }
 
   private identifyBottlenecks() {
@@ -384,7 +384,8 @@ class EnterpriseAnalyticsEngine {
   }
 
   private calculateHumanResourceUtilization(): number {
-    const totalMembers = this.projectData.members.length;
+    const totalMembers = this.projectData?.members?.length || 0;
+    if (totalMembers === 0) return 0;
     const activeMembers = Math.floor(totalMembers * 0.85); // 85% utilization
     return (activeMembers / totalMembers) * 100;
   }
@@ -520,13 +521,13 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
       assignees: [],
       categories: [],
       riskLevel: [],
-      costRange: { min: 0, max: projectMetrics.totalBudget },
+      costRange: { min: 0, max: projectMetrics?.totalBudget || 0 },
       progressRange: { min: 0, max: 100 }
     },
     selectedTimeRange: { period: 'month' },
     realTimeData: {
-      activeUsers: users.length,
-      ongoingTasks: tasks.filter(t => t.status === 'in-progress').length,
+      activeUsers: users?.length || 0,
+      ongoingTasks: tasks?.filter(t => t.status === 'in-progress')?.length || 0,
       systemLoad: 45,
       dataFreshness: new Date(),
       connectionStatus: 'connected',
@@ -553,12 +554,12 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
     riskAssessment: {} as RiskData,
     collaborationData: {
       teamActivity: {
-        activeMembers: users.length,
+        activeMembers: users?.length || 0,
         communicationFrequency: 25,
         meetingsScheduled: 3
       },
       documentSharing: {
-        recentUploads: project.documents.length,
+        recentUploads: project?.documents?.length || 0,
         collaborativeEdits: 12,
         accessFrequency: 45
       }
@@ -705,7 +706,8 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
     return `${Math.ceil(days / 30)} months`;
   };
 
-  if (dashboardState.isLoading) {
+  // Enhanced loading state with safety checks
+  if (dashboardState.isLoading || !project || !projectMetrics) {
     return (
       React.createElement('div', {
         style: {
@@ -724,6 +726,21 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
       ])
     );
   }
+
+  // Safe mock data to prevent undefined errors (if not provided via props)
+  const safeTasks = tasks || [
+    { id: 1, status: 'completed', title: 'Foundation Work' },
+    { id: 2, status: 'in-progress', title: 'Structural Framework' },
+    { id: 3, status: 'todo', title: 'Electrical Installation' },
+    { id: 4, status: 'in-progress', title: 'Plumbing Work' },
+    { id: 5, status: 'todo', title: 'Interior Finishing' }
+  ];
+
+  const safeUsers = users || [
+    { id: 1, name: 'Project Manager', role: 'manager' },
+    { id: 2, name: 'Site Engineer', role: 'engineer' },
+    { id: 3, name: 'Construction Supervisor', role: 'supervisor' }
+  ];
 
   return React.createElement('div', {
     style: {
@@ -1190,7 +1207,7 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
             React.createElement('div', {
               key: 'on-track-value',
               style: { fontSize: '20px', fontWeight: 'bold', color: '#3b82f6' }
-            }, tasks.filter(t => t.status === 'in-progress').length),
+            }, (tasks?.filter(t => t.status === 'in-progress') || []).length),
             React.createElement('div', {
               key: 'on-track-label',
               style: { fontSize: '12px', color: '#64748b' }
@@ -1200,7 +1217,7 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
             React.createElement('div', {
               key: 'pending-value',
               style: { fontSize: '20px', fontWeight: 'bold', color: '#f59e0b' }
-            }, tasks.filter(t => t.status === 'todo').length),
+            }, (tasks?.filter(t => t.status === 'todo') || []).length),
             React.createElement('div', {
               key: 'pending-label',
               style: { fontSize: '12px', color: '#64748b' }
@@ -1230,8 +1247,8 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
         React.createElement('div', {
           key: 'notif-content',
           style: { maxHeight: '400px', overflowY: 'auto' }
-        }, criticalNotifications.length > 0 ? 
-          criticalNotifications.map((notification, index) =>
+        }, (criticalNotifications?.length || 0) > 0 ? 
+          (criticalNotifications || []).map((notification, index) =>
             React.createElement('div', {
               key: index,
               style: {

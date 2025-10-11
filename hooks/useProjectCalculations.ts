@@ -8,7 +8,7 @@ export const useProjectCalculations = (
 ): { projectMetrics: ProjectMetrics } => {
 
     const projectMetrics = useMemo((): ProjectMetrics => {
-        if (!project || !project.items) {
+        if (!project || !project.items || !project.expenses || !project.dailyReports) {
             return {
                 totalBudget: 0, actualCost: 0, plannedValue: 0, earnedValue: 0, remainingBudget: 0, overallProgress: 0,
                 evm: { cpi: 1, spi: 1, sv: 0, cv: 0 },
@@ -22,10 +22,12 @@ export const useProjectCalculations = (
 
         const completedVolumeMap = new Map<number, number>();
         project.dailyReports.forEach(report => {
-            report.workProgress.forEach(progress => {
-                const currentVolume = completedVolumeMap.get(progress.rabItemId) || 0;
-                completedVolumeMap.set(progress.rabItemId, currentVolume + progress.completedVolume);
-            });
+            if (report.workProgress) {
+                report.workProgress.forEach(progress => {
+                    const currentVolume = completedVolumeMap.get(progress.rabItemId) || 0;
+                    completedVolumeMap.set(progress.rabItemId, currentVolume + progress.completedVolume);
+                });
+            }
         });
 
         const earnedValue = project.items.reduce((sum, item) => {

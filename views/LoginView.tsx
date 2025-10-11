@@ -1,32 +1,48 @@
-// Lokasi: src/views/LoginView.tsx
+// 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
+// Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
-import { LogIn, UserPlus } from 'lucide-react';
+import { 
+  LogIn, UserPlus, Eye, EyeOff, Shield, Building2, 
+  Sparkles, Lock, Mail, User, CheckCircle, AlertCircle,
+  ArrowRight, Star, Trophy, Zap
+} from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';
 
-// Impor fungsi-fungsi yang diperlukan dari Firebase SDK
+// Firebase imports
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig'; // Pastikan path ini benar
+import { auth, db } from '../firebaseConfig';
 
 export default function LoginView() {
     const { loading: authLoading, login } = useAuth();
-    const [isLogin, setIsLogin] = useState(true); // State untuk beralih antara Login dan Sign Up
+    const [isLogin, setIsLogin] = useState(true);
     const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     
-    // State untuk form input
+    // Enhanced form state
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('pm@natacara.dev'); // Default email untuk testing
-    const [password, setPassword] = useState('NataCare2025!'); // Default password untuk testing
+    const [email, setEmail] = useState('pm@natacara.dev');
+    const [password, setPassword] = useState('NataCare2025!');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    
+    // Animation state
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (showForgotPassword) {
+        return <ForgotPasswordView onBack={() => setShowForgotPassword(false)} />;
+    }
     
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();

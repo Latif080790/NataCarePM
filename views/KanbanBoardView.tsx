@@ -81,6 +81,7 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
         const grouped: Record<Task['status'], Task[]> = {
             todo: [],
             'in-progress': [],
+            review: [],
             done: [],
             blocked: []
         };

@@ -104,14 +104,33 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   useEffect(() => {
     if (!currentProjectId) return;
     setLoading(true);
+    setError(null);
 
     const unsubscribeProject = projectService.streamProjectById(currentProjectId, (project) => {
-        setCurrentProject(project);
+        if (project) {
+            // Ensure all required properties exist with defaults
+            const safeProject = {
+                ...project,
+                items: project.items || [],
+                members: project.members || [],
+                dailyReports: project.dailyReports || [],
+                attendances: project.attendances || [],
+                expenses: project.expenses || [],
+                termins: project.termins || [],
+                purchaseOrders: project.purchaseOrders || [],
+                inventory: project.inventory || [],
+                documents: project.documents || [],
+                auditLog: project.auditLog || [],
+            };
+            setCurrentProject(safeProject);
+        } else {
+            setError(new Error(`Project with ID ${currentProjectId} not found`));
+        }
         setLoading(false);
     });
 
     const unsubscribeNotifications = projectService.streamNotifications((notifs) => {
-        setNotifications(notifs);
+        setNotifications(notifs || []);
     });
 
     return () => {
