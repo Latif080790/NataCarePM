@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input, Select, Textarea } from './FormControls';
@@ -82,7 +82,7 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
     };
 
     // Handle form submission
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         
         if (!validateForm() || !currentProject || !currentUser) {

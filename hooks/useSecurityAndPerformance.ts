@@ -29,7 +29,7 @@ interface SecurityMetrics {
     failedLoginAttempts: { [email: string]: { count: number; lastAttempt: Date } };
     activeSessions: { [userId: string]: { loginTime: Date; lastActivity: Date; ipAddress: string } };
     securityEvents: Array<{
-        type: 'login_success' | 'login_failure' | 'password_change' | 'suspicious_activity';
+        type: 'login_success' | 'login_failure' | 'password_change' | 'suspicious_activity' | 'config_change' | 'data_access' | 'admin_action' | 'security_alert';
         userId?: string;
         timestamp: Date;
         details: any;
@@ -124,7 +124,7 @@ export const useSecurityManager = () => {
         const sessionAge = (now.getTime() - session.lastActivity.getTime()) / (1000 * 60); // in minutes
 
         if (sessionAge > securityConfig.sessionTimeout) {
-            addToast('Session expired. Please log in again.', 'warning');
+            addToast('Session expired. Please log in again.', 'error');
             return false;
         }
 

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Document as DocumentType } from '../types';
+import { DocumentVersion, DocumentWithVersions } from '../types/components';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
@@ -17,27 +18,6 @@ import { useToast } from '../contexts/ToastContext';
 
 interface DokumenViewProps {
     documents: DocumentType[];
-}
-
-interface DocumentVersion {
-    id: string;
-    documentId: string;
-    version: string;
-    name: string;
-    url: string;
-    uploadDate: string;
-    uploadedBy: string;
-    changeLog: string;
-    size: number;
-}
-
-interface DocumentWithVersions extends DocumentType {
-    versions: DocumentVersion[];
-    currentVersion: string;
-    tags: string[];
-    lastModified: string;
-    modifiedBy: string;
-    isArchived: boolean;
 }
 
 const documentTypes = [
@@ -119,7 +99,9 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                     uploadDate: doc.uploadDate,
                     uploadedBy: 'John Doe',
                     changeLog: 'Initial version',
-                    size: Math.floor(Math.random() * 10000000) + 100000
+                    size: Math.floor(Math.random() * 10000000) + 100000,
+                    fileSize: Math.floor(Math.random() * 10000000) + 100000,
+                    comments: 'Initial upload'
                 }
             ],
             currentVersion: '1.0',
@@ -222,14 +204,14 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleArchiveDocument(doc.id)}
+                                    onClick={() => handleArchiveDocument(doc.id.toString())}
                                 >
                                     <Archive className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDeleteDocument(doc.id)}
+                                    onClick={() => handleDeleteDocument(doc.id.toString())}
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -316,7 +298,7 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                             </select>
                             
                             <Button
-                                variant={showArchived ? 'primary' : 'ghost'}
+                                variant={showArchived ? 'default' : 'ghost'}
                                 size="sm"
                                 onClick={() => setShowArchived(!showArchived)}
                             >
@@ -325,14 +307,14 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                             </Button>
                             
                             <Button
-                                variant={viewMode === 'grid' ? 'primary' : 'ghost'}
+                                variant={viewMode === 'grid' ? 'default' : 'ghost'}
                                 size="sm"
                                 onClick={() => setViewMode('grid')}
                             >
                                 Grid
                             </Button>
                             <Button
-                                variant={viewMode === 'list' ? 'primary' : 'ghost'}
+                                variant={viewMode === 'list' ? 'default' : 'ghost'}
                                 size="sm"
                                 onClick={() => setViewMode('list')}
                             >
@@ -482,14 +464,14 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                                                             <Button 
                                                                 variant="ghost" 
                                                                 size="sm"
-                                                                onClick={() => handleArchiveDocument(doc.id)}
+                                                                onClick={() => handleArchiveDocument(doc.id.toString())}
                                                             >
                                                                 <Archive className="w-4 h-4"/>
                                                             </Button>
                                                             <Button 
                                                                 variant="ghost" 
                                                                 size="sm"
-                                                                onClick={() => handleDeleteDocument(doc.id)}
+                                                                onClick={() => handleDeleteDocument(doc.id.toString())}
                                                             >
                                                                 <Trash2 className="w-4 h-4"/>
                                                             </Button>
@@ -539,6 +521,7 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             {/* Document Preview Modal */}
             {selectedDocument && showPreviewModal && (
                 <Modal
+                    title="Document Preview"
                     isOpen={showPreviewModal}
                     onClose={() => {
                         setShowPreviewModal(false);
@@ -594,6 +577,7 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             {/* Version History Modal */}
             {selectedDocument && showVersionHistory && (
                 <Modal
+                    title="Version History"
                     isOpen={showVersionHistory}
                     onClose={() => {
                         setShowVersionHistory(false);

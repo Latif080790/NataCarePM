@@ -72,7 +72,7 @@ export default function LiveCursors({ containerId = 'app-container', showLabels 
         const validCursors: CursorPosition[] = [];
 
         onlineUsers.forEach(user => {
-            if (user.id === currentUser?.uid) return; // Don't show own cursor
+            if (user.id === currentUser?.id) return; // Don't show own cursor
             if (!user.cursor) return;
 
             // Only show cursors from users active in the last 30 seconds
@@ -142,7 +142,7 @@ export default function LiveCursors({ containerId = 'app-container', showLabels 
                 </div>
             ))}
 
-            <style jsx>{`
+            <style>{`
                 @keyframes fade-in {
                     from {
                         opacity: 0;
@@ -222,7 +222,7 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ context, class
     const { currentUser } = useAuth();
 
     const relevantTypingUsers = Object.values(typingUsers).filter(user => 
-        user.currentView === context && user.id !== currentUser?.uid
+        user.currentView === context && user.id !== currentUser?.id
     );
 
     if (relevantTypingUsers.length === 0) return null;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
+import { SecurityEvent, SecurityMetrics } from '../types/components';
 import { useSecurityManager, usePerformanceMonitor } from '../hooks/useSecurityAndPerformance';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -53,7 +54,7 @@ export default function SecurityDashboard() {
 
         try {
             // In a real app, this would call an API to update the password
-            logSecurityEvent('password_change', { userId: currentUser?.uid }, currentUser?.uid);
+            logSecurityEvent('password_change', { userId: currentUser?.id }, currentUser?.id);
             addToast('Password updated successfully', 'success');
             setNewPassword('');
             setConfirmPassword('');
@@ -64,7 +65,7 @@ export default function SecurityDashboard() {
 
     const handleSecurityConfigUpdate = (updates: Partial<typeof securityConfig>) => {
         setSecurityConfig(prev => ({ ...prev, ...updates }));
-        logSecurityEvent('config_change', { changes: updates }, currentUser?.uid);
+        logSecurityEvent('config_change', { changes: updates }, currentUser?.id);
         addToast('Security configuration updated', 'success');
     };
 

@@ -11,7 +11,7 @@ import { formatCurrency, formatDate } from '../constants';
 import { 
     DollarSign, BarChart3, AlertTriangle, CheckCircle, Clock, Sparkles, 
     RefreshCw, Filter, Download, Calendar, TrendingUp, TrendingDown,
-    Users, Target, FileText, Bell, Settings, FullScreen, Minimize,
+    Users, Target, FileText, Bell, Settings, Fullscreen, Minimize,
     RotateCcw, ChevronDown, Search, Eye, EyeOff
 } from 'lucide-react';
 
@@ -143,6 +143,12 @@ export default function DashboardView({
         // In real implementation, this would filter actual data
         return {
             ...projectMetrics,
+            // Additional calculated metrics
+            totalCost: projectMetrics.actualCost,
+            budgetUtilization: (projectMetrics.actualCost / projectMetrics.totalBudget) * 100,
+            schedulePerformance: projectMetrics.evm.spi * 100,
+            cpi: projectMetrics.evm.cpi.toFixed(2),
+            spi: projectMetrics.evm.spi.toFixed(2),
             // Apply date filtering logic here
             filteredReports: recentReports.filter(report => {
                 const reportDate = new Date(report.date);
@@ -250,7 +256,7 @@ export default function DashboardView({
                     </div>
 
                     <Button
-                        variant={showFilters ? 'primary' : 'ghost'}
+                        variant={showFilters ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setShowFilters(!showFilters)}
                     >
@@ -286,7 +292,7 @@ export default function DashboardView({
                         size="sm"
                         onClick={() => setIsFullscreen(!isFullscreen)}
                     >
-                        {isFullscreen ? <Minimize className="w-4 h-4" /> : <FullScreen className="w-4 h-4" />}
+                        {isFullscreen ? <Minimize className="w-4 h-4" /> : <Fullscreen className="w-4 h-4" />}
                     </Button>
                 </div>
             </div>
@@ -409,28 +415,28 @@ export default function DashboardView({
                                         <StatCard
                                             title="Total Progress"
                                             value={`${filteredMetrics.overallProgress}%`}
-                                            icon={<Target className="w-6 h-6" />}
+                                            icon={Target}
                                             trend={+2.5}
                                             className="border-l-4 border-l-green-500"
                                         />
                                         <StatCard
                                             title="Budget Spent"
                                             value={formatCurrency(filteredMetrics.totalCost)}
-                                            icon={<DollarSign className="w-6 h-6" />}
+                                            icon={DollarSign}
                                             trend={-1.2}
                                             className="border-l-4 border-l-blue-500"
                                         />
                                         <StatCard
                                             title="Active Tasks"
                                             value="24"
-                                            icon={<CheckCircle className="w-6 h-6" />}
+                                            icon={CheckCircle}
                                             trend={+5}
                                             className="border-l-4 border-l-orange-500"
                                         />
                                         <StatCard
                                             title="Team Members"
                                             value={project.members.length.toString()}
-                                            icon={<Users className="w-6 h-6" />}
+                                            icon={Users}
                                             trend={0}
                                             className="border-l-4 border-l-purple-500"
                                         />
@@ -455,32 +461,30 @@ export default function DashboardView({
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div className="text-center">
                                                 <RadialProgress 
+                                                    title="Progress Keseluruhan"
+                                                    description={`${filteredMetrics.overallProgress}% dari target`}
                                                     value={filteredMetrics.overallProgress} 
-                                                    size={120}
-                                                    strokeWidth={8}
-                                                    className="mx-auto"
+                                                    className="text-center" 
                                                 />
                                                 <p className="text-sm font-semibold mt-2">Overall Progress</p>
                                             </div>
                                             <div className="text-center">
                                                 <RadialProgress 
+                                                    title="Budget Utilization"
+                                                    description={`${filteredMetrics.budgetUtilization.toFixed(1)}% dari total budget`}
                                                     value={filteredMetrics.budgetUtilization} 
-                                                    size={120}
-                                                    strokeWidth={8}
-                                                    color="#3b82f6"
+                                                    color="stroke-blue-500"
                                                     className="mx-auto"
                                                 />
-                                                <p className="text-sm font-semibold mt-2">Budget Utilization</p>
                                             </div>
                                             <div className="text-center">
                                                 <RadialProgress 
+                                                    title="Schedule Performance"
+                                                    description={`${filteredMetrics.schedulePerformance.toFixed(1)}% jadwal sesuai target`}
                                                     value={filteredMetrics.schedulePerformance} 
-                                                    size={120}
-                                                    strokeWidth={8}
-                                                    color="#f59e0b"
+                                                    color="stroke-yellow-500"
                                                     className="mx-auto"
                                                 />
-                                                <p className="text-sm font-semibold mt-2">Schedule Performance</p>
                                             </div>
                                         </div>
 

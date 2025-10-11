@@ -1,6 +1,6 @@
 // Lokasi: src/views/LoginView.tsx
 
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
@@ -28,7 +28,7 @@ export default function LoginView() {
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const handleSubmit = async (event: React.FormEvent) => {
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setIsSubmitting(true);
 

@@ -6,10 +6,46 @@ const todayStr = getTodayDateString();
 const startDate = addDays(today, -30);
 
 export const MOCK_USERS: User[] = [
-    { id: 'user1', name: 'Jevline Kief', email: 'pm@natacara.dev', roleId: 'pm', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
-    { id: 'user2', name: 'Admin Nata', email: 'admin@natacara.dev', roleId: 'admin', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704e' },
-    { id: 'user3', name: 'Bambang Lapangan', email: 'site@natacara.dev', roleId: 'site_manager', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704f' },
-    { id: 'user4', name: 'Siti Keuangan', email: 'finance@natacara.dev', roleId: 'finance', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026705a' },
+    { 
+        uid: 'user1-firebase-uid', 
+        id: 'user1', 
+        name: 'Jevline Kief', 
+        email: 'pm@natacara.dev', 
+        roleId: 'pm', 
+        avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        isOnline: true,
+        lastSeen: new Date().toISOString()
+    },
+    { 
+        uid: 'user2-firebase-uid', 
+        id: 'user2', 
+        name: 'Admin Nata', 
+        email: 'admin@natacara.dev', 
+        roleId: 'admin', 
+        avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704e',
+        isOnline: true,
+        lastSeen: new Date().toISOString()
+    },
+    { 
+        uid: 'user3-firebase-uid', 
+        id: 'user3', 
+        name: 'Bambang Lapangan', 
+        email: 'site@natacara.dev', 
+        roleId: 'site_manager', 
+        avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704f',
+        isOnline: false,
+        lastSeen: addDays(new Date(), -1).toISOString()
+    },
+    { 
+        uid: 'user4-firebase-uid', 
+        id: 'user4', 
+        name: 'Siti Keuangan', 
+        email: 'finance@natacara.dev', 
+        roleId: 'finance', 
+        avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026705a',
+        isOnline: true,
+        lastSeen: new Date().toISOString()
+    },
 ];
 
 export const MOCK_WORKERS: Worker[] = [
@@ -86,8 +122,8 @@ export const MOCK_DB: {
                         { id: 'ex3', description: 'Biaya konsumsi rapat', amount: 250000, date: addDays(today, -5).toISOString().split('T')[0], type: 'Lain-lain' },
                     ],
                     documents: [
-                        { id: 1, name: 'Kontrak_Kerja.pdf', category: 'Legal', uploadDate: addDays(today, -40).toISOString().split('T')[0], url: '#' },
-                        { id: 2, name: 'Gambar_Denah_Lantai_1.dwg', category: 'Teknis', uploadDate: addDays(today, -35).toISOString().split('T')[0], url: '#' },
+                        { id: 'doc1', name: 'Kontrak_Kerja.pdf', category: 'Legal', uploadDate: addDays(today, -40).toISOString().split('T')[0], url: '#' },
+                        { id: 'doc2', name: 'Gambar_Denah_Lantai_1.dwg', category: 'Teknis', uploadDate: addDays(today, -35).toISOString().split('T')[0], url: '#' },
                     ],
                     purchaseOrders: [
                         { id: 'po1', prNumber: 'PR-12345', status: 'Menunggu Persetujuan', items: [{ materialName: 'Besi Beton', quantity: 500, unit: 'kg', pricePerUnit: 12000, totalPrice: 6000000 }], requester: 'Bambang Lapangan', requestDate: addDays(today, -5).toISOString().split('T')[0] },

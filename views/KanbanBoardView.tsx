@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, DragEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Task } from '../types';
@@ -77,7 +77,7 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
     }, [projectId]);
 
     // Group tasks by status
-    const tasksByStatus = React.useMemo(() => {
+    const tasksByStatus = useMemo(() => {
         const grouped: Record<Task['status'], Task[]> = {
             todo: [],
             'in-progress': [],
@@ -112,7 +112,7 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
     };
 
     // Drag and Drop Handlers
-    const handleDragStart = (e: React.DragEvent, task: Task) => {
+    const handleDragStart = (e: DragEvent, task: Task) => {
         setDraggedTask(task);
         e.dataTransfer.effectAllowed = 'move';
     };
@@ -121,12 +121,12 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
         setDraggedTask(null);
     };
 
-    const handleDragOver = (e: React.DragEvent) => {
+    const handleDragOver = (e: DragEvent) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     };
 
-    const handleDrop = async (e: React.DragEvent, newStatus: Task['status']) => {
+    const handleDrop = async (e: DragEvent, newStatus: Task['status']) => {
         e.preventDefault();
         
         if (!draggedTask || !currentUser || !currentProject) return;

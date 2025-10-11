@@ -6,15 +6,16 @@ interface RadialProgressProps {
   description: string;
   value: number; // 0 to 100
   color?: string;
+  className?: string;
 }
 
-export function RadialProgress({ title, description, value, color = 'stroke-persimmon' }: RadialProgressProps) {
+export function RadialProgress({ title, description, value, color = 'stroke-persimmon', className = '' }: RadialProgressProps) {
   const normalizedValue = Math.max(0, Math.min(100, value));
   const circumference = 2 * Math.PI * 45; // 2 * pi * radius
   const offset = circumference - (normalizedValue / 100) * circumference;
 
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader className="pb-2">
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

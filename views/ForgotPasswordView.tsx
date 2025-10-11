@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
@@ -13,7 +13,7 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
     const [emailSent, setEmailSent] = useState(false);
     const [error, setError] = useState('');
 
-    const handleSubmit = async (event: React.FormEvent) => {
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setIsSubmitting(true);
         setError('');

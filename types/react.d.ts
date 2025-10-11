@@ -1,6 +1,5 @@
 declare module 'react' {
   export = React;
-  export as namespace React;
 
   namespace React {
     type ReactNode = any;

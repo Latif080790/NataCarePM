@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
@@ -28,7 +28,7 @@ export default function ProfileView() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const handleSaveProfile = async (e: React.FormEvent) => {
+    const handleSaveProfile = async (e: FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
         
@@ -61,7 +61,7 @@ export default function ProfileView() {
         }
     };
 
-    const handleChangePassword = async (e: React.FormEvent) => {
+    const handleChangePassword = async (e: FormEvent) => {
         e.preventDefault();
         if (!auth.currentUser) return;
         

@@ -14,6 +14,10 @@ import { Button } from '../components/Button';
 import { Spinner } from '../components/Spinner';
 import { LineChart } from '../components/LineChart';
 import { formatCurrency, formatDate } from '../constants';
+import { 
+    DollarSign, BarChart3, CreditCard, TrendingUp, Zap, 
+    AlertTriangle, CheckCircle, Target, Users, Activity 
+} from 'lucide-react';
 
 // Enterprise State Management with Advanced Patterns
 interface DashboardState {
@@ -822,37 +826,37 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
         key: 'budget-card',
         title: 'Total Budget',
         value: formatCurrency(enhancedMetrics.totalBudget),
-        icon: '💰'
+        icon: DollarSign
       }),
       React.createElement(StatCard, {
         key: 'spent-card',
         title: 'Budget Utilized',
         value: formatCurrency(enhancedMetrics.actualCost),
-        icon: '📊'
+        icon: BarChart3
       }),
       React.createElement(StatCard, {
         key: 'remaining-card',
         title: 'Budget Remaining',
         value: formatCurrency(enhancedMetrics.remainingBudget),
-        icon: '💳'
+        icon: CreditCard
       }),
       React.createElement(StatCard, {
         key: 'progress-card',
         title: 'Overall Progress',
         value: formatPercentage(enhancedMetrics.progressPercentage),
-        icon: '📈'
+        icon: TrendingUp
       }),
       React.createElement(StatCard, {
         key: 'efficiency-card',
         title: 'Efficiency Score',
         value: formatPercentage(enhancedMetrics.efficiency),
-        icon: '⚡'
+        icon: Zap
       }),
       React.createElement(StatCard, {
         key: 'risk-card',
         title: 'Risk Level',
         value: enhancedMetrics.riskLevel.toUpperCase(),
-        icon: enhancedMetrics.riskLevel === 'low' ? '✅' : enhancedMetrics.riskLevel === 'critical' ? '🚨' : '⚠️'
+        icon: enhancedMetrics.riskLevel === 'low' ? CheckCircle : enhancedMetrics.riskLevel === 'critical' ? AlertTriangle : AlertTriangle
       })
     ] : [React.createElement('div', { key: 'loading-metrics' }, 'Loading metrics...')]),
 
@@ -1160,6 +1164,8 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
         }, [
           React.createElement(RadialProgress, {
             key: 'radial-progress',
+            title: 'Overall Progress',
+            description: `${projectMetrics.overallProgress}% completed`,
             value: projectMetrics.overallProgress
           })
         ]),

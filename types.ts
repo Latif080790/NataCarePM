@@ -45,11 +45,15 @@ export interface RabItem {
 }
 
 export interface User {
-    id: string;
+    uid: string; // Firebase UID
+    id: string; // Application ID
     name: string;
     email: string;
     roleId: string; // Links to a Role
     avatarUrl: string;
+    isOnline?: boolean;
+    lastSeen?: string;
+    permissions?: Permission[];
 }
 
 export interface Project {
@@ -214,7 +218,7 @@ export interface InventoryItem {
 }
 
 export interface Document {
-    id: number;
+    id: string; // Changed from number to string for consistency
     name: string;
     category: string;
     uploadDate: string;
@@ -232,10 +236,13 @@ export interface Termin {
 
 export interface Notification {
     id: string;
+    title: string;
     message: string;
+    type: 'info' | 'success' | 'warning' | 'error';
     isRead: boolean;
     timestamp: string;
     linkTo?: string;
+    priority?: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export interface AuditLog {
