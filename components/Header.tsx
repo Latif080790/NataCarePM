@@ -19,16 +19,17 @@ export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
     }
     
     return (
-        <header className="flex items-center justify-between p-6 glass border-b border-violet-essence/20 flex-shrink-0 h-[80px] sticky top-0 z-40 backdrop-blur-xl">
-             <div className="flex-1 flex items-center gap-6">
+        <header className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-6 glass border-b border-violet-essence/20 flex-shrink-0 min-h-[80px] sticky top-0 z-40 backdrop-blur-xl gap-4">
+             <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 w-full md:w-auto">
                 {/* Enhanced Project Switcher */}
-                <div className="w-72">
+                <div className="w-full md:w-72">
                     <div className="relative">
                         <Select 
                             value={currentProject?.id || ''} 
                             onChange={e => setCurrentProjectId(e.target.value)}
                             disabled={loading}
-                            className="font-semibold text-night-black bg-brilliance/50 border-violet-essence/30 rounded-xl px-4 py-3 glass-subtle backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-precious-persimmon/20 focus:border-precious-persimmon/50"
+                            className="font-semibold text-night-black bg-brilliance/50 border-violet-essence/30 rounded-xl px-4 py-3 glass-subtle backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-precious-persimmon/20 focus:border-precious-persimmon/50 w-full"
+                            aria-label="Select project"
                         >
                             {workspaces.map(ws => (
                                 <optgroup label={ws.name} key={ws.id}>
@@ -51,11 +52,11 @@ export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
                 </div>
              </div>
 
-             <div className="flex items-center gap-4">
+             <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
                  {children}
                  
                  {/* Enhanced Live Activity Feed */}
-                 <div className="hidden lg:block">
+                 <div className="hidden xl:block">
                      <LiveActivityFeed limit={5} compact={true} />
                  </div>
                  
@@ -70,7 +71,7 @@ export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-brilliance animate-pulse"></div>
                     </div>
                     
-                    <div className="hidden sm:block min-w-0">
+                    <div className="hidden lg:block min-w-0">
                         <p className="font-semibold text-sm text-night-black truncate">{currentUser.name}</p>
                         <p className="text-xs text-palladium truncate">{workspaces[0]?.name}</p>
                     </div>
@@ -79,6 +80,7 @@ export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
                         onClick={logout} 
                         className="p-2 rounded-xl hover:bg-red-500/10 text-palladium hover:text-red-400 transition-all duration-300 group border border-transparent hover:border-red-400/20" 
                         title="Logout"
+                        aria-label="Logout"
                     >
                          <LogOut size={18} className="group-hover:scale-110 transition-transform" />
                     </button>

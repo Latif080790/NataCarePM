@@ -1,0 +1,248 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().roleId == role;
+    }
+    
+    function hasAnyRole(roles) {
+      return isAuthenticated() && getUserData().roleId in roles;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isProjectMember(projectId) {
+      let project = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return isAuthenticated() && 
+             request.auth.uid in project.members.map(m => m.uid);
+    }
+    
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    
+    match /users/{userId} {
+      // Anyone can read user profiles (for display purposes)
+      allow read: if isAuthenticated();
+      
+      // Users can only update their own profile
+      // Admins can update any profile
+      allow update: if isOwner(userId) || hasRole('admin');
+      
+      // Only admins can create users
+      allow create: if hasRole('admin');
+      
+      // Only admins can delete users
+      allow delete: if hasRole('admin');
+    }
+    
+    // ============================================
+    // PROJECTS COLLECTION
+    // ============================================
+    
+    match /projects/{projectId} {
+      // All authenticated users can read projects they're members of
+      allow read: if isAuthenticated() && 
+                     (isProjectMember(projectId) || hasAnyRole(['admin', 'pm']));
+      
+      // Only admins and PMs can create projects
+      allow create: if hasAnyRole(['admin', 'pm']);
+      
+      // Only admins and PMs can update projects
+      allow update: if hasAnyRole(['admin', 'pm']) && isProjectMember(projectId);
+      
+      // Only admins can delete projects
+      allow delete: if hasRole('admin');
+      
+      // ============================================
+      // PROJECT SUBCOLLECTIONS
+      // ============================================
+      
+      // RAB/AHSP Items
+      match /items/{itemId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow write: if hasAnyRole(['admin', 'pm']) && isProjectMember(projectId);
+      }
+      
+      // Daily Reports
+      match /dailyReports/{reportId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow create: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+        allow update: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+        allow delete: if hasAnyRole(['admin', 'pm']);
+      }
+      
+      // Attendance Records
+      match /attendances/{attendanceId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow create: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+        allow update: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+        allow delete: if hasAnyRole(['admin', 'pm']);
+      }
+      
+      // Expenses
+      match /expenses/{expenseId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow create: if hasAnyRole(['admin', 'pm', 'finance']) && isProjectMember(projectId);
+        allow update: if hasAnyRole(['admin', 'pm', 'finance']) && isProjectMember(projectId);
+        allow delete: if hasAnyRole(['admin', 'pm', 'finance']);
+      }
+      
+      // Purchase Orders
+      match /purchaseOrders/{poId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow create: if hasAnyRole(['admin', 'pm', 'finance']) && isProjectMember(projectId);
+        allow update: if hasAnyRole(['admin', 'pm', 'finance']) && isProjectMember(projectId);
+        allow delete: if hasAnyRole(['admin', 'pm', 'finance']);
+      }
+      
+      // Documents
+      match /documents/{documentId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow create: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+        allow update: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+        allow delete: if hasAnyRole(['admin', 'pm']);
+      }
+      
+      // Inventory
+      match /inventory/{inventoryId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow write: if hasAnyRole(['admin', 'pm', 'site_manager']) && isProjectMember(projectId);
+      }
+      
+      // Termins (Payment Terms)
+      match /termins/{terminId} {
+        allow read: if isAuthenticated() && isProjectMember(projectId);
+        allow write: if hasAnyRole(['admin', 'pm', 'finance']) && isProjectMember(projectId);
+      }
+      
+      // Audit Logs (read-only except for system)
+      match /auditLog/{auditId} {
+        allow read: if hasAnyRole(['admin', 'pm']);
+        allow create: if isAuthenticated(); // System can create
+        allow update, delete: if false; // Audit logs are immutable
+      }
+    }
+    
+    // ============================================
+    // TASKS COLLECTION
+    // ============================================
+    
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow create: if hasAnyRole(['admin', 'pm', 'site_manager']);
+      allow update: if hasAnyRole(['admin', 'pm', 'site_manager']) || 
+                       (isAuthenticated() && request.auth.uid in resource.data.assignedTo);
+      allow delete: if hasAnyRole(['admin', 'pm']);
+      
+      // Subtasks
+      match /subtasks/{subtaskId} {
+        allow read: if isAuthenticated();
+        allow write: if hasAnyRole(['admin', 'pm', 'site_manager']) ||
+                        (isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/tasks/$(taskId)).data.assignedTo);
+      }
+      
+      // Comments
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update: if isOwner(resource.data.userId) || hasAnyRole(['admin', 'pm']);
+        allow delete: if isOwner(resource.data.userId) || hasAnyRole(['admin', 'pm']);
+      }
+    }
+    
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+    
+    match /notifications/{notificationId} {
+      // Users can only read their own notifications
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      
+      // System can create notifications
+      allow create: if isAuthenticated();
+      
+      // Users can update their own notifications (mark as read)
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
+      
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+    
+    // ============================================
+    // WORKSPACES COLLECTION
+    // ============================================
+    
+    match /workspaces/{workspaceId} {
+      allow read: if isAuthenticated();
+      allow create: if hasAnyRole(['admin', 'pm']);
+      allow update: if hasAnyRole(['admin', 'pm']);
+      allow delete: if hasRole('admin');
+    }
+    
+    // ============================================
+    // AI INSIGHTS COLLECTION
+    // ============================================
+    
+    match /aiInsights/{insightId} {
+      allow read: if isAuthenticated();
+      allow create: if hasAnyRole(['admin', 'pm']);
+      allow update: if hasAnyRole(['admin', 'pm']);
+      allow delete: if hasRole('admin');
+    }
+    
+    // ============================================
+    // MASTER DATA COLLECTIONS
+    // ============================================
+    
+    match /workers/{workerId} {
+      allow read: if isAuthenticated();
+      allow write: if hasAnyRole(['admin', 'pm', 'site_manager']);
+    }
+    
+    match /materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow write: if hasAnyRole(['admin', 'pm']);
+    }
+    
+    match /equipment/{equipmentId} {
+      allow read: if isAuthenticated();
+      allow write: if hasAnyRole(['admin', 'pm']);
+    }
+    
+    match /vendors/{vendorId} {
+      allow read: if isAuthenticated();
+      allow write: if hasAnyRole(['admin', 'pm', 'finance']);
+    }
+    
+    // ============================================
+    // SETTINGS & CONFIGURATION
+    // ============================================
+    
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('admin');
+    }
+    
+    // Block all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

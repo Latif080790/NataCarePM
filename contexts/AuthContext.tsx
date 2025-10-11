@@ -6,7 +6,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User as Fireba
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (email: string, password?: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
 }
@@ -42,12 +42,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
-  const login = useCallback(async (email: string, password?: string) => {
-    // In a real app, you get password from a form. Here we use a default for demo.
-    const mockPassword = "NataCare2025!";
+  const login = useCallback(async (email: string, password: string) => {
+    if (!password || password.trim() === '') {
+        console.error("Password is required");
+        return false;
+    }
+    
     setLoading(true);
     try {
-        await signInWithEmailAndPassword(auth, email, password || mockPassword);
+        await signInWithEmailAndPassword(auth, email, password);
         return true;
     } catch (error) {
         console.error("Firebase login failed", error);

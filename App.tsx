@@ -34,6 +34,7 @@ import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/Ente
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
+import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { Spinner } from './components/Spinner';
 import { CommandPalette } from './components/CommandPalette';
 import Header from './components/Header';
@@ -43,87 +44,33 @@ import { RealtimeCollaborationProvider, useRealtimeCollaboration } from './conte
 import AiAssistantChat from './components/AiAssistantChat';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
-  dashboard: DashboardView, // Use our enhanced DashboardView as main
-  enhanced_dashboard: EnterpriseAdvancedDashboardView,
+  dashboard: DashboardView,
   rab_ahsp: RabAhspView,
   jadwal: GanttChartView,
+  tasks: TasksView,
+  task_list: TaskListView,
+  kanban: KanbanView,
+  kanban_board: KanbanBoardView,
+  dependencies: DependencyGraphView,
+  notifications: NotificationCenterView,
+  laporan_harian: DailyReportView,
+  progres: ProgressView,
+  absensi: AttendanceView,
+  biaya_proyek: FinanceView, // Remapped
+  arus_kas: CashflowView,
+  strategic_cost: StrategicCostView,
+  logistik: LogisticsView,
+  dokumen: DokumenView,
+  laporan: ReportView,
+  user_management: UserManagementView,
+  master_data: MasterDataView,
+  audit_trail: AuditTrailView,
   profile: ProfileView,
 };
 
 // Views that show fallback "coming soon" page
 const comingSoonViews: { [key: string]: { name: string; features: string[] } } = {
-  tasks: { 
-    name: 'Manajemen Tugas', 
-    features: ['Task creation and assignment', 'Due date tracking', 'Priority management', 'Progress monitoring', 'Team collaboration', 'Automated reminders']
-  },
-  task_list: { 
-    name: 'Daftar Tugas', 
-    features: ['List view of all tasks', 'Filter and sort options', 'Bulk operations', 'Quick status updates', 'Search functionality', 'Export capabilities']
-  },
-  kanban: { 
-    name: 'Kanban Board', 
-    features: ['Drag and drop interface', 'Custom columns', 'Card customization', 'Swimlanes', 'WIP limits', 'Analytics dashboard']
-  },
-  kanban_board: { 
-    name: 'Papan Kanban', 
-    features: ['Visual workflow management', 'Custom workflows', 'Team collaboration', 'Real-time updates', 'Mobile support', 'Integration ready']
-  },
-  dependencies: { 
-    name: 'Manajemen Dependensi', 
-    features: ['Dependency mapping', 'Critical path analysis', 'Impact assessment', 'Automated alerts', 'Resource planning', 'Timeline optimization']
-  },
-  notifications: { 
-    name: 'Pusat Notifikasi', 
-    features: ['Real-time notifications', 'Custom alerts', 'Email integration', 'Mobile push', 'Notification history', 'Smart filtering']
-  },
-  laporan_harian: { 
-    name: 'Laporan Harian', 
-    features: ['Daily progress reports', 'Work hour tracking', 'Photo documentation', 'Weather logging', 'Issue reporting', 'Automated summaries']
-  },
-  progres: { 
-    name: 'Monitoring Progress', 
-    features: ['Progress visualization', 'Milestone tracking', 'Performance metrics', 'Trend analysis', 'Forecasting', 'Alert system']
-  },
-  absensi: { 
-    name: 'Manajemen Absensi', 
-    features: ['Digital attendance', 'GPS tracking', 'Overtime calculation', 'Leave management', 'Shift scheduling', 'Payroll integration']
-  },
-  biaya_proyek: { 
-    name: 'Manajemen Biaya', 
-    features: ['Cost tracking', 'Budget management', 'Expense categories', 'Cost analysis', 'Budget alerts', 'Financial reporting']
-  },
-  arus_kas: { 
-    name: 'Arus Kas', 
-    features: ['Cash flow tracking', 'Payment scheduling', 'Invoice management', 'Financial forecasting', 'Bank reconciliation', 'Financial statements']
-  },
-  strategic_cost: { 
-    name: 'Strategic Cost', 
-    features: ['Strategic cost analysis', 'Cost optimization', 'ROI calculation', 'Value engineering', 'Cost benchmarking', 'Decision support']
-  },
-  logistik: { 
-    name: 'Manajemen Logistik', 
-    features: ['Inventory tracking', 'Purchase orders', 'Supplier management', 'Delivery scheduling', 'Stock alerts', 'Procurement analytics']
-  },
-  dokumen: { 
-    name: 'Manajemen Dokumen', 
-    features: ['Document storage', 'Version control', 'Access permissions', 'Search functionality', 'Collaboration tools', 'Audit trails']
-  },
-  laporan: { 
-    name: 'Sistem Pelaporan', 
-    features: ['Custom reports', 'Data visualization', 'Scheduled reports', 'Export options', 'Dashboard creation', 'Analytics tools']
-  },
-  user_management: { 
-    name: 'Manajemen Pengguna', 
-    features: ['User administration', 'Role management', 'Access control', 'User activity', 'Security settings', 'Audit logging']
-  },
-  master_data: { 
-    name: 'Master Data', 
-    features: ['Data management', 'Data validation', 'Import/export', 'Data quality', 'Reference data', 'Data governance']
-  },
-  audit_trail: { 
-    name: 'Audit Trail', 
-    features: ['Activity logging', 'Change tracking', 'Security monitoring', 'Compliance reporting', 'Data forensics', 'Audit reports']
-  }
+  // All views have been moved to viewComponents
 };
 
 function AppContent() {
@@ -133,6 +80,9 @@ function AppContent() {
   const { currentUser, loading: authLoading } = useAuth();
   const { currentProject, loading: projectLoading, error, ...projectActions } = useProject();
   const { updatePresence } = useRealtimeCollaboration();
+
+  // 🔒 Initialize session timeout hook
+  useSessionTimeout();
 
   const { projectMetrics } = useProjectCalculations(currentProject);
 

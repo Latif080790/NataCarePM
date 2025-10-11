@@ -9,6 +9,7 @@ import ProgressRing from '../components/ProgressRing';
 import SimpleBarChart from '../components/SimpleBarChart';
 import { LineChart } from '../components/LineChart';
 import { SCurveChart } from '../components/SCurveChart';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 import { 
   Users, 
   DollarSign, 
@@ -47,10 +48,19 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   users = [],
   onNavigate = () => {}
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+
+  // Simulate initial data load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Get current project or use first project
   const currentProject = projects[selectedProjectIndex] || projects[0];
@@ -101,11 +111,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   ];
 
   const handleRefresh = async () => {
-    setIsLoading(true);
+    setIsRefreshing(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     setLastUpdated(new Date());
-    setIsLoading(false);
+    setIsRefreshing(false);
     console.log('Dashboard refreshed');
   };
 
@@ -114,28 +124,40 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     { name: 'Dashboard' }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="layout-page">
+        <div className="layout-content spacing-section">
+          <DashboardSkeleton />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="layout-page">
       <div className="layout-content spacing-section">
         {/* Header Section with Project Selector */}
-        <div className="layout-header glass-enhanced rounded-2xl mb-6">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex-1">
+        <div className="layout-header glass-enhanced rounded-2xl mb-6 p-4 md:p-6">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full gap-4">
+            <div className="flex-1 w-full lg:w-auto">
               <BreadcrumbNavigation items={breadcrumbItems} className="mb-3" />
-              <div className="flex items-center space-x-4">
-                <div>
-                  <h1 className="text-display-2 gradient-text">Enterprise Command Center</h1>
-                  <p className="text-body-small">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                <div className="flex-1">
+                  <h1 className="text-2xl md:text-3xl lg:text-display-2 gradient-text">Enterprise Command Center</h1>
+                  <p className="text-xs md:text-sm text-body-small">
                     Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
                   </p>
                 </div>
                 
                 {/* Project Selector Dropdown */}
                 {projects.length > 0 && (
-                  <div className="relative">
+                  <div className="relative w-full sm:w-auto">
                     <button
                       onClick={() => setShowProjectDropdown(!showProjectDropdown)}
-                      className="flex items-center space-x-2 px-4 py-2.5 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/30 rounded-lg transition-all duration-200"
+                      className="flex items-center space-x-2 px-4 py-2.5 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/30 rounded-lg transition-all duration-200 w-full sm:w-auto justify-between sm:justify-start"
+                      aria-label="Select project"
+                      aria-expanded={showProjectDropdown}
                     >
                       <span className="text-sm font-semibold text-slate-200">
                         {currentProject?.name || 'Select Project'}
@@ -144,7 +166,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     </button>
                     
                     {showProjectDropdown && (
-                      <div className="absolute top-full mt-2 right-0 w-80 bg-slate-800 border border-slate-600/50 rounded-lg shadow-2xl z-50 max-h-64 overflow-y-auto">
+                      <div className="absolute top-full mt-2 right-0 w-full sm:w-80 bg-slate-800 border border-slate-600/50 rounded-lg shadow-2xl z-50 max-h-64 overflow-y-auto">
                         {projects.map((project, index) => (
                           <button
                             key={project.id}
@@ -155,6 +177,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                             className={`w-full text-left px-4 py-3 hover:bg-slate-700/50 transition-colors ${
                               index === selectedProjectIndex ? 'bg-orange-500/10 border-l-2 border-orange-500' : ''
                             }`}
+                            aria-label={`Select ${project.name}`}
                           >
                             <div className="text-sm font-medium text-slate-200">{project.name}</div>
                             <div className="text-xs text-slate-500 mt-0.5">{project.location}</div>
@@ -166,18 +189,24 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 )}
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <Button
                 onClick={handleRefresh}
-                disabled={isLoading}
-                className={`btn-secondary ${isLoading ? 'loading' : ''}`}
+                loading={isRefreshing}
+                disabled={isRefreshing}
+                className="btn-secondary flex-1 sm:flex-initial"
+                aria-label="Refresh dashboard data"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className="w-4 h-4" />
+                <span className="hidden sm:inline">Refresh</span>
               </Button>
-              <Button onClick={() => onNavigate('laporan')} className="btn-primary">
+              <Button 
+                onClick={() => onNavigate('laporan')} 
+                className="btn-primary flex-1 sm:flex-initial"
+                aria-label="View reports"
+              >
                 <BarChart3 className="w-4 h-4" />
-                Reports
+                <span className="hidden sm:inline">Reports</span>
               </Button>
             </div>
           </div>
@@ -185,15 +214,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* S-Curve Chart (Rencana vs Realisasi) */}
         <Card className="card-enhanced mb-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <div>
-              <h2 className="text-heading-2 visual-primary flex items-center space-x-2">
+              <h2 className="text-lg md:text-xl lg:text-heading-2 visual-primary flex items-center space-x-2">
                 <TrendingUp className="w-5 h-5 text-orange-500" />
                 <span>S-Curve Analysis</span>
               </h2>
-              <p className="text-body-small mt-1">Progress Rencana vs Realisasi</p>
+              <p className="text-xs md:text-sm text-body-small mt-1">Progress Rencana vs Realisasi</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-orange-500"></div>
                 <span className="text-xs text-slate-400">Rencana</span>
@@ -205,7 +234,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
           
-          <div className="h-72">
+          <div className="h-64 sm:h-72">
             <SCurveChart data={sCurveData} />
           </div>
         </Card>
@@ -216,18 +245,18 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Main Metrics Grid */}
-        <div className="grid-dashboard whitespace-component">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 whitespace-component">
           {/* Key Performance Indicators */}
           <Card className="card-enhanced col-span-full">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-heading-2 visual-primary">Key Performance Indicators</h2>
-              <div className="flex items-center space-x-2 text-body-small">
+              <h2 className="text-lg md:text-xl lg:text-heading-2 visual-primary">Key Performance Indicators</h2>
+              <div className="flex items-center space-x-2 text-xs md:text-sm text-body-small">
                 <Clock className="w-4 h-4 text-palladium" />
-                <span>Real-time data</span>
+                <span className="hidden sm:inline">Real-time data</span>
               </div>
             </div>
             
-            <div className="grid-cards-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
               <MetricCard
                 title="Active Projects"
                 value={activeProjects}

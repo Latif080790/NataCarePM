@@ -93,12 +93,22 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
 
   return (
     <aside className={`
-      ${isCollapsed ? 'w-16' : 'w-64'} 
-      h-full bg-gradient-to-b from-slate-900 via-slate-850 to-slate-900
-      border-r border-slate-700/40 shadow-2xl
-      transition-all duration-300 ease-in-out
+      ${isCollapsed ? 'w-20' : 'w-80'} 
+      h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900
+      border-r border-slate-700/50 shadow-2xl
+      transition-all duration-500 ease-out
       relative z-30 flex flex-col
+      md:static md:translate-x-0
+      ${isCollapsed ? 'fixed -translate-x-full md:translate-x-0' : 'fixed inset-y-0 left-0 md:static'}
     `}>
+      
+      {/* Mobile overlay */}
+      {!isCollapsed && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+          onClick={() => setIsCollapsed(true)}
+        />
+      )}
       
       {/* Enhanced Logo & Brand Section */}
       <div className={`
@@ -162,9 +172,11 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
                 <button
                   onClick={() => toggleGroup(group.id)}
                   className="
-                    p-0.5 rounded text-slate-500 hover:text-slate-300 
-                    hover:bg-slate-700/30 transition-all duration-150
+                    p-1 rounded-md text-slate-400 hover:text-slate-200 
+                    hover:bg-slate-700/50 transition-all duration-200
                   "
+                  aria-label={`Toggle ${group.name} section`}
+                  aria-expanded={expandedGroups.includes(group.id)}
                 >
                   {expandedGroups.includes(group.id) ? (
                     <ChevronDown size={12} />
@@ -188,14 +200,16 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
                         <button
                           onClick={() => handleNavigate(item.id)}
                           className={`
-                            w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'space-x-2.5 px-3'} py-2.5 rounded-lg 
-                            transition-all duration-200 text-left relative overflow-hidden
+                            w-full flex items-center space-x-3 p-3 rounded-xl 
+                            transition-all duration-300 text-left relative overflow-hidden
                             ${isActive
-                              ? 'bg-gradient-to-r from-orange-600/20 to-red-600/15 border border-orange-500/40 text-white shadow-md'
-                              : 'text-slate-400 hover:bg-slate-700/40 hover:text-slate-200 border border-transparent hover:border-slate-600/20'
+                              ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white shadow-lg'
+                              : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border border-transparent hover:border-slate-600/30'
                             }
                           `}
                           title={isCollapsed ? item.name : undefined}
+                          aria-label={`Navigate to ${item.name}`}
+                          aria-current={isActive ? 'page' : undefined}
                         >
                           {isActive && (
                             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 to-red-500"></div>

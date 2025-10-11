@@ -30,8 +30,8 @@ export default function EnterpriseLoginView() {
     
     // Enhanced form state
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('pm@natacara.dev');
-    const [password, setPassword] = useState('NataCare2025!');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [mounted, setMounted] = useState(false);
     
