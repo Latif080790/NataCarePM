@@ -14,12 +14,25 @@ interface RabAhspViewProps {
 export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
   const [selectedItem, setSelectedItem] = useState<RabItem | null>(null);
 
-  const totalBudget = items.reduce((sum, item) => sum + item.volume * item.hargaSatuan, 0);
+  // Safe guard: Check if items and ahspData are defined
+  if (!items || !ahspData) {
+    return (
+      <Card>
+        <CardContent>
+          <div className="flex items-center justify-center p-8">
+            <p className="text-palladium">Loading data...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const totalBudget = items.reduce((sum, item) => sum + (item?.volume || 0) * (item?.hargaSatuan || 0), 0);
 
   const getAhspDetails = (ahspId: string) => {
     return {
-      labors: ahspData.labors[ahspId] || {},
-      materials: ahspData.materials[ahspId] || {}
+      labors: ahspData?.labors?.[ahspId] || {},
+      materials: ahspData?.materials?.[ahspId] || {}
     };
   };
 
@@ -71,20 +84,31 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
                 </tr>
               </thead>
               <tbody>
-                {items.map(item => (
-                  <tr key={item.id} className="border-b border-violet-essence hover:bg-violet-essence/30">
-                    <td className="p-3 font-medium">{item.no}</td>
-                    <td className="p-3">
-                      <button onClick={() => setSelectedItem(item)} className="text-persimmon hover:underline font-semibold" disabled={!ahspData.labors[item.ahspId]}>
-                        {item.uraian}
-                      </button>
-                    </td>
-                    <td className="p-3 text-right">{item.volume.toFixed(2)}</td>
-                    <td className="p-3">{item.satuan}</td>
-                    <td className="p-3 text-right">{formatCurrency(item.hargaSatuan)}</td>
-                    <td className="p-3 text-right font-semibold">{formatCurrency(item.volume * item.hargaSatuan)}</td>
-                  </tr>
-                ))}
+                {items.map(item => {
+                  // Safe guard for undefined properties
+                  if (!item) return null;
+                  
+                  const hasAhspData = ahspData?.labors?.[item.ahspId];
+                  
+                  return (
+                    <tr key={item.id} className="border-b border-violet-essence hover:bg-violet-essence/30">
+                      <td className="p-3 font-medium">{item.no || '-'}</td>
+                      <td className="p-3">
+                        <button 
+                          onClick={() => setSelectedItem(item)} 
+                          className={`${hasAhspData ? 'text-persimmon hover:underline font-semibold' : 'text-palladium cursor-default'}`}
+                          disabled={!hasAhspData}
+                        >
+                          {item.uraian || 'N/A'}
+                        </button>
+                      </td>
+                      <td className="p-3 text-right">{(item.volume || 0).toFixed(2)}</td>
+                      <td className="p-3">{item.satuan || '-'}</td>
+                      <td className="p-3 text-right">{formatCurrency(item.hargaSatuan || 0)}</td>
+                      <td className="p-3 text-right font-semibold">{formatCurrency((item.volume || 0) * (item.hargaSatuan || 0))}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="font-bold bg-violet-essence/50 text-base">
@@ -103,17 +127,23 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
             <div>
               <h4 className="font-semibold text-night-black mb-2">Tenaga Kerja</h4>
               <ul className="list-disc list-inside text-sm text-palladium space-y-1">
-                {Object.entries(getAhspDetails(selectedItem.ahspId).labors).map(([type, coef]) => (
+                {Object.entries(getAhspDetails(selectedItem.ahspId).labors || {}).map(([type, coef]) => (
                   <li key={type}>{type}: {coef} OH</li>
                 ))}
+                {Object.keys(getAhspDetails(selectedItem.ahspId).labors || {}).length === 0 && (
+                  <li className="text-palladium italic">Tidak ada data tenaga kerja</li>
+                )}
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-night-black mb-2">Material</h4>
               <ul className="list-disc list-inside text-sm text-palladium space-y-1">
-                 {Object.entries(getAhspDetails(selectedItem.ahspId).materials).map(([name, coef]) => (
-                  <li key={name}>{name}: {coef} {ahspData.materialUnits[name]}</li>
+                 {Object.entries(getAhspDetails(selectedItem.ahspId).materials || {}).map(([name, coef]) => (
+                  <li key={name}>{name}: {coef} {ahspData?.materialUnits?.[name] || '-'}</li>
                 ))}
+                {Object.keys(getAhspDetails(selectedItem.ahspId).materials || {}).length === 0 && (
+                  <li className="text-palladium italic">Tidak ada data material</li>
+                )}
               </ul>
             </div>
           </div>

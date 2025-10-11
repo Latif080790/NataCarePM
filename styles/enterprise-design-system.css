@@ -709,3 +709,29 @@ body {
   0% { left: -100%; }
   100% { left: 100%; }
 }
+
+/* === CUSTOM SCROLLBAR === */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(51, 65, 85, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(248, 121, 65, 0.5);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(248, 121, 65, 0.8);
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(248, 121, 65, 0.5) rgba(51, 65, 85, 0.3);
+}

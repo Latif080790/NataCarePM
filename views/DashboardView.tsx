@@ -7,6 +7,8 @@ import QuickAccessPanel from '../components/QuickAccessPanel';
 import MetricCard from '../components/MetricCard';
 import ProgressRing from '../components/ProgressRing';
 import SimpleBarChart from '../components/SimpleBarChart';
+import { LineChart } from '../components/LineChart';
+import { SCurveChart } from '../components/SCurveChart';
 import { 
   Users, 
   DollarSign, 
@@ -23,7 +25,8 @@ import {
   Calendar,
   Clock,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  ChevronDown
 } from 'lucide-react';
 import { formatCurrency } from '../constants';
 
@@ -46,6 +49,23 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+
+  // Get current project or use first project
+  const currentProject = projects[selectedProjectIndex] || projects[0];
+
+  // S-Curve data (Planned vs Actual)
+  const sCurveData = [
+    { month: 'Jan', planned: 5, actual: 4 },
+    { month: 'Feb', planned: 15, actual: 12 },
+    { month: 'Mar', planned: 30, actual: 28 },
+    { month: 'Apr', planned: 50, actual: 45 },
+    { month: 'May', planned: 70, actual: 65 },
+    { month: 'Jun', planned: 85, actual: 75 },
+    { month: 'Jul', planned: 95, actual: 85 },
+    { month: 'Aug', planned: 100, actual: 92 }
+  ];
 
   // Enhanced metrics calculations
   const totalProjects = projects.length;
@@ -97,15 +117,54 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="layout-page">
       <div className="layout-content spacing-section">
-        {/* Header Section */}
+        {/* Header Section with Project Selector */}
         <div className="layout-header glass-enhanced rounded-2xl mb-6">
           <div className="flex items-center justify-between w-full">
-            <div>
-              <BreadcrumbNavigation items={breadcrumbItems} className="mb-2" />
-              <h1 className="text-display-2 gradient-text">Project Dashboard</h1>
-              <p className="text-body-small">
-                Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
-              </p>
+            <div className="flex-1">
+              <BreadcrumbNavigation items={breadcrumbItems} className="mb-3" />
+              <div className="flex items-center space-x-4">
+                <div>
+                  <h1 className="text-display-2 gradient-text">Enterprise Command Center</h1>
+                  <p className="text-body-small">
+                    Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
+                  </p>
+                </div>
+                
+                {/* Project Selector Dropdown */}
+                {projects.length > 0 && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+                      className="flex items-center space-x-2 px-4 py-2.5 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/30 rounded-lg transition-all duration-200"
+                    >
+                      <span className="text-sm font-semibold text-slate-200">
+                        {currentProject?.name || 'Select Project'}
+                      </span>
+                      <ChevronDown size={16} className={`text-slate-400 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {showProjectDropdown && (
+                      <div className="absolute top-full mt-2 right-0 w-80 bg-slate-800 border border-slate-600/50 rounded-lg shadow-2xl z-50 max-h-64 overflow-y-auto">
+                        {projects.map((project, index) => (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setSelectedProjectIndex(index);
+                              setShowProjectDropdown(false);
+                            }}
+                            className={`w-full text-left px-4 py-3 hover:bg-slate-700/50 transition-colors ${
+                              index === selectedProjectIndex ? 'bg-orange-500/10 border-l-2 border-orange-500' : ''
+                            }`}
+                          >
+                            <div className="text-sm font-medium text-slate-200">{project.name}</div>
+                            <div className="text-xs text-slate-500 mt-0.5">{project.location}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <Button
@@ -116,13 +175,40 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button onClick={() => onNavigate('report')} className="btn-primary">
+              <Button onClick={() => onNavigate('laporan')} className="btn-primary">
                 <BarChart3 className="w-4 h-4" />
-                Lihat Laporan
+                Reports
               </Button>
             </div>
           </div>
         </div>
+
+        {/* S-Curve Chart (Rencana vs Realisasi) */}
+        <Card className="card-enhanced mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-heading-2 visual-primary flex items-center space-x-2">
+                <TrendingUp className="w-5 h-5 text-orange-500" />
+                <span>S-Curve Analysis</span>
+              </h2>
+              <p className="text-body-small mt-1">Progress Rencana vs Realisasi</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span className="text-xs text-slate-400">Rencana</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span className="text-xs text-slate-400">Realisasi</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="h-72">
+            <SCurveChart data={sCurveData} />
+          </div>
+        </Card>
 
         {/* Quick Access Panel */}
         <div className="whitespace-component">
