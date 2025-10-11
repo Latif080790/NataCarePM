@@ -29,6 +29,7 @@ import NotificationCenterView from './views/NotificationCenterView';
 import OfflineIndicator from './components/OfflineIndicator';
 import LiveCursors from './components/LiveCursors';
 import OnlineUsersDisplay from './components/OnlineUsersDisplay';
+import FallbackView from './components/FallbackView';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/EnterpriseLoaders';
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 
@@ -42,29 +43,87 @@ import { RealtimeCollaborationProvider, useRealtimeCollaboration } from './conte
 import AiAssistantChat from './components/AiAssistantChat';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
-  dashboard: EnterpriseAdvancedDashboardView,
-  enhanced_dashboard: DashboardView,
+  dashboard: DashboardView, // Use our enhanced DashboardView as main
+  enhanced_dashboard: EnterpriseAdvancedDashboardView,
   rab_ahsp: RabAhspView,
   jadwal: GanttChartView,
-  tasks: TasksView,
-  task_list: TaskListView,
-  kanban: KanbanView,
-  kanban_board: KanbanBoardView,
-  dependencies: DependencyGraphView,
-  notifications: NotificationCenterView,
-  laporan_harian: DailyReportView,
-  progres: ProgressView,
-  absensi: AttendanceView,
-  biaya_proyek: FinanceView,
-  arus_kas: CashflowView,
-  strategic_cost: StrategicCostView,
-  logistik: LogisticsView,
-  dokumen: DokumenView,
-  laporan: ReportView,
-  user_management: UserManagementView,
-  master_data: MasterDataView,
-  audit_trail: AuditTrailView,
   profile: ProfileView,
+};
+
+// Views that show fallback "coming soon" page
+const comingSoonViews: { [key: string]: { name: string; features: string[] } } = {
+  tasks: { 
+    name: 'Manajemen Tugas', 
+    features: ['Task creation and assignment', 'Due date tracking', 'Priority management', 'Progress monitoring', 'Team collaboration', 'Automated reminders']
+  },
+  task_list: { 
+    name: 'Daftar Tugas', 
+    features: ['List view of all tasks', 'Filter and sort options', 'Bulk operations', 'Quick status updates', 'Search functionality', 'Export capabilities']
+  },
+  kanban: { 
+    name: 'Kanban Board', 
+    features: ['Drag and drop interface', 'Custom columns', 'Card customization', 'Swimlanes', 'WIP limits', 'Analytics dashboard']
+  },
+  kanban_board: { 
+    name: 'Papan Kanban', 
+    features: ['Visual workflow management', 'Custom workflows', 'Team collaboration', 'Real-time updates', 'Mobile support', 'Integration ready']
+  },
+  dependencies: { 
+    name: 'Manajemen Dependensi', 
+    features: ['Dependency mapping', 'Critical path analysis', 'Impact assessment', 'Automated alerts', 'Resource planning', 'Timeline optimization']
+  },
+  notifications: { 
+    name: 'Pusat Notifikasi', 
+    features: ['Real-time notifications', 'Custom alerts', 'Email integration', 'Mobile push', 'Notification history', 'Smart filtering']
+  },
+  laporan_harian: { 
+    name: 'Laporan Harian', 
+    features: ['Daily progress reports', 'Work hour tracking', 'Photo documentation', 'Weather logging', 'Issue reporting', 'Automated summaries']
+  },
+  progres: { 
+    name: 'Monitoring Progress', 
+    features: ['Progress visualization', 'Milestone tracking', 'Performance metrics', 'Trend analysis', 'Forecasting', 'Alert system']
+  },
+  absensi: { 
+    name: 'Manajemen Absensi', 
+    features: ['Digital attendance', 'GPS tracking', 'Overtime calculation', 'Leave management', 'Shift scheduling', 'Payroll integration']
+  },
+  biaya_proyek: { 
+    name: 'Manajemen Biaya', 
+    features: ['Cost tracking', 'Budget management', 'Expense categories', 'Cost analysis', 'Budget alerts', 'Financial reporting']
+  },
+  arus_kas: { 
+    name: 'Arus Kas', 
+    features: ['Cash flow tracking', 'Payment scheduling', 'Invoice management', 'Financial forecasting', 'Bank reconciliation', 'Financial statements']
+  },
+  strategic_cost: { 
+    name: 'Strategic Cost', 
+    features: ['Strategic cost analysis', 'Cost optimization', 'ROI calculation', 'Value engineering', 'Cost benchmarking', 'Decision support']
+  },
+  logistik: { 
+    name: 'Manajemen Logistik', 
+    features: ['Inventory tracking', 'Purchase orders', 'Supplier management', 'Delivery scheduling', 'Stock alerts', 'Procurement analytics']
+  },
+  dokumen: { 
+    name: 'Manajemen Dokumen', 
+    features: ['Document storage', 'Version control', 'Access permissions', 'Search functionality', 'Collaboration tools', 'Audit trails']
+  },
+  laporan: { 
+    name: 'Sistem Pelaporan', 
+    features: ['Custom reports', 'Data visualization', 'Scheduled reports', 'Export options', 'Dashboard creation', 'Analytics tools']
+  },
+  user_management: { 
+    name: 'Manajemen Pengguna', 
+    features: ['User administration', 'Role management', 'Access control', 'User activity', 'Security settings', 'Audit logging']
+  },
+  master_data: { 
+    name: 'Master Data', 
+    features: ['Data management', 'Data validation', 'Import/export', 'Data quality', 'Reference data', 'Data governance']
+  },
+  audit_trail: { 
+    name: 'Audit Trail', 
+    features: ['Activity logging', 'Change tracking', 'Security monitoring', 'Compliance reporting', 'Data forensics', 'Audit reports']
+  }
 };
 
 function AppContent() {
@@ -86,7 +145,7 @@ function AppContent() {
   };
 
   const itemsWithProgress = useMemo(() => {
-    if (!currentProject || !currentProject.items || !currentProject.dailyReports) return [];
+    if (!currentProject?.items || !currentProject?.dailyReports) return [];
     
     const completedVolumeMap = new Map<number, number>();
     currentProject.dailyReports.forEach(report => {
@@ -125,108 +184,224 @@ function AppContent() {
   
   const CurrentViewComponent = viewComponents[currentView];
   
+  // Show coming soon view for views in development
+  if (!CurrentViewComponent && comingSoonViews[currentView]) {
+    const comingSoonInfo = comingSoonViews[currentView];
+    return (
+      <div id="app-container" className="flex h-screen glass-bg font-sans">
+        <Sidebar 
+            currentView={currentView} 
+            onNavigate={handleNavigate}
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
+        />
+        <main className="flex-1 flex flex-col overflow-hidden">
+            <Header isSidebarCollapsed={isSidebarCollapsed}>
+                <OnlineUsersDisplay compact showActivity={false} />
+            </Header>
+            <div className="flex-1 overflow-hidden">
+                <FallbackView
+                  type="coming-soon"
+                  viewName={comingSoonInfo.name}
+                  viewId={currentView}
+                  onNavigateBack={() => handleNavigate('dashboard')}
+                  comingSoonFeatures={comingSoonInfo.features}
+                  description={`Modul ${comingSoonInfo.name} sedang dalam tahap pengembangan final. Kami berkomitmen memberikan pengalaman terbaik dengan fitur-fitur canggih untuk mendukung operasional proyek Anda.`}
+                />
+            </div>
+        </main>
+        <CommandPalette onNavigate={handleNavigate} />
+        <AiAssistantChat />
+        <OfflineIndicator />
+        <LiveCursors containerId="app-container" showLabels />
+      </div>
+    );
+  }
+  
   // Enhanced error handling for missing views
   if (!CurrentViewComponent) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-red-50 to-pink-50 text-red-700 p-8 text-center">
-        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-red-200">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex flex-col items-center justify-center h-screen glass-dark text-brilliance p-8 text-center">
+        <div className="glass border border-violet-essence/30 p-8 rounded-3xl shadow-2xl backdrop-blur-xl max-w-md">
+          <div className="w-20 h-20 gradient-bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 floating">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-red-800 mb-2">View Not Found</h2>
-          <p className="text-red-600 mb-6">The requested view "{currentView}" is not available.</p>
+          <h2 className="text-2xl font-bold gradient-text mb-3">Modul Tidak Ditemukan</h2>
+          <p className="text-violet-essence-200 mb-6 leading-relaxed">Modul "{currentView}" sedang dalam pengembangan atau belum tersedia.</p>
           <button 
             onClick={() => handleNavigate('dashboard')}
-            className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+            className="w-full gradient-bg-primary hover:scale-105 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg"
           >
-            Return to Dashboard
+            Kembali ke Dashboard
           </button>
         </div>
       </div>
     );
   }
   
-  // Safe view props with null safety
-  const viewProps: any = {
+  // Safe view props with comprehensive null safety and error handling
+  const getViewProps = (viewId: string): any => {
+    const safeProject = currentProject as any || {};
+    const safeMetrics = projectMetrics as any || {};
+    const safeActions = projectActions as any || {};
+    
+    // Common safe props for all views
+    const commonProps = {
+      project: currentProject,
+      projectMetrics: projectMetrics,
+      loading: projectLoading,
+      error: error
+    };
+
+    // View-specific props with comprehensive safety checks
+    const viewPropsMap: { [key: string]: any } = {
       dashboard: { 
-        projectMetrics, 
-        recentReports: currentProject?.dailyReports || [], 
-        notifications: projectActions.notifications || [], 
-        project: currentProject, 
-        updateAiInsight: projectActions.handleUpdateAiInsight 
+        ...commonProps,
+        projects: currentProject ? [currentProject] : [],
+        tasks: safeProject.tasks || [],
+        expenses: safeProject.expenses || [],
+        purchaseOrders: safeProject.purchaseOrders || [],
+        users: safeProject.members || [],
+        recentReports: safeProject.dailyReports?.slice(-5) || [],
+        notifications: safeActions.notifications || [],
+        updateAiInsight: safeActions.handleUpdateAiInsight || (() => {}),
+        onNavigate: handleNavigate
       },
       enhanced_dashboard: { 
-        projects: [currentProject].filter(Boolean), // Send current project as array
-        tasks: [], // TODO: Add real tasks when available
-        expenses: currentProject?.expenses || [],
-        pos: currentProject?.purchaseOrders || [],
-        users: currentProject?.members || [],
-        projectMetrics: projectMetrics,
-        project: currentProject
+        ...commonProps,
+        projectMetrics: projectMetrics, 
+        recentReports: safeProject.dailyReports || [], 
+        notifications: safeActions.notifications || [], 
+        updateAiInsight: safeActions.handleUpdateAiInsight || (() => {})
       },
       rab_ahsp: { 
-        items: currentProject?.items || [], 
-        ahspData: projectActions.ahspData 
+        ...commonProps,
+        items: safeProject.items || [], 
+        ahspData: safeActions.ahspData || []
       },
-      jadwal: { projectId: currentProject?.id || '' },
+      jadwal: { 
+        ...commonProps,
+        projectId: safeProject.id || '',
+        tasks: safeProject.tasks || [],
+        timeline: safeProject.timeline || {}
+      },
       tasks: { 
-        tasks: [], // TODO: Implement real tasks from Firebase when available
-        users: currentProject?.members || [], 
-        onCreateTask: () => console.log('Create task - TODO: Implement'),
-        onUpdateTask: () => console.log('Update task - TODO: Implement'),
-        onDeleteTask: () => console.log('Delete task - TODO: Implement')
+        ...commonProps,
+        tasks: safeProject.tasks || [],
+        users: safeProject.members || [], 
+        onCreateTask: safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
+        onUpdateTask: safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
+        onDeleteTask: safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon'))
       },
-      task_list: { projectId: currentProject?.id || '' },
+      task_list: { 
+        ...commonProps,
+        projectId: safeProject.id || '',
+        tasks: safeProject.tasks || []
+      },
       kanban: { 
-        tasks: [], // TODO: Implement real tasks from Firebase when available
-        users: currentProject?.members || [], 
-        onCreateTask: () => console.log('Create task - TODO: Implement'),
-        onUpdateTask: () => console.log('Update task - TODO: Implement'),
-        onDeleteTask: () => console.log('Delete task - TODO: Implement')
+        ...commonProps,
+        tasks: safeProject.tasks || [],
+        users: safeProject.members || [], 
+        onCreateTask: safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
+        onUpdateTask: safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
+        onDeleteTask: safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon'))
       },
-      kanban_board: { projectId: currentProject?.id || '' },
-      dependencies: { projectId: currentProject?.id || '' },
-      notifications: { projectId: currentProject?.id || '' },
+      kanban_board: { 
+        ...commonProps,
+        projectId: safeProject.id || '',
+        tasks: safeProject.tasks || []
+      },
+      dependencies: { 
+        ...commonProps,
+        projectId: safeProject.id || '',
+        tasks: safeProject.tasks || [],
+        dependencies: safeProject.dependencies || []
+      },
+      notifications: { 
+        ...commonProps,
+        projectId: safeProject.id || '',
+        notifications: safeActions.notifications || []
+      },
       laporan_harian: { 
-        dailyReports: currentProject?.dailyReports || [], 
-        rabItems: currentProject?.items || [], 
-        workers: projectActions.workers || [], 
-        onAddReport: projectActions.handleAddDailyReport 
+        ...commonProps,
+        dailyReports: safeProject.dailyReports || [], 
+        rabItems: safeProject.items || [], 
+        workers: safeActions.workers || [], 
+        onAddReport: safeActions.handleAddDailyReport || (() => console.log('Add report feature coming soon'))
       },
       progres: { 
+        ...commonProps,
         itemsWithProgress: itemsWithProgress || [], 
-        onUpdateProgress: projectActions.handleUpdateProgress 
+        onUpdateProgress: safeActions.handleUpdateProgress || (() => console.log('Update progress feature coming soon'))
       },
       absensi: { 
-        attendances: currentProject?.attendances || [], 
-        workers: projectActions.workers || [], 
-        onUpdateAttendance: projectActions.handleUpdateAttendance 
+        ...commonProps,
+        attendances: safeProject.attendances || [], 
+        workers: safeActions.workers || [], 
+        onUpdateAttendance: safeActions.handleUpdateAttendance || (() => console.log('Update attendance feature coming soon'))
       },
       biaya_proyek: { 
-        expenses: currentProject?.expenses || [], 
-        projectMetrics 
+        ...commonProps,
+        expenses: safeProject.expenses || [],
+        budget: safeProject.budget || {},
+        costs: safeProject.costs || []
       },
       arus_kas: { 
-        termins: currentProject?.termins || [], 
-        expenses: currentProject?.expenses || [] 
+        ...commonProps,
+        termins: safeProject.termins || [], 
+        expenses: safeProject.expenses || [],
+        cashflow: safeProject.cashflow || []
       },
-      strategic_cost: { projectMetrics },
+      strategic_cost: { 
+        ...commonProps,
+        strategicCosts: safeProject.strategicCosts || []
+      },
       logistik: { 
-        purchaseOrders: currentProject?.purchaseOrders || [], 
-        inventory: currentProject?.inventory || [], 
-        onUpdatePOStatus: projectActions.handleUpdatePOStatus, 
-        ahspData: projectActions.ahspData, 
-        onAddPO: projectActions.handleAddPO 
+        ...commonProps,
+        purchaseOrders: safeProject.purchaseOrders || [], 
+        inventory: safeProject.inventory || [], 
+        onUpdatePOStatus: safeActions.handleUpdatePOStatus || (() => console.log('Update PO status feature coming soon')), 
+        ahspData: safeActions.ahspData || [], 
+        onAddPO: safeActions.handleAddPO || (() => console.log('Add PO feature coming soon'))
       },
-      dokumen: { documents: currentProject?.documents || [] },
-      laporan: { projectMetrics, project: currentProject },
-      user_management: { users: currentProject?.members || [] },
-      master_data: { workers: projectActions.workers || [] },
-      audit_trail: { auditLog: currentProject?.auditLog || [] },
-      profile: {}
+      dokumen: { 
+        ...commonProps,
+        documents: safeProject.documents || [],
+        folders: safeProject.folders || []
+      },
+      laporan: { 
+        ...commonProps,
+        reports: safeProject.reports || []
+      },
+      user_management: { 
+        ...commonProps,
+        users: safeProject.members || [],
+        roles: safeProject.roles || []
+      },
+      master_data: { 
+        ...commonProps,
+        workers: safeActions.workers || [],
+        materials: safeProject.materials || [],
+        equipment: safeProject.equipment || []
+      },
+      audit_trail: { 
+        ...commonProps,
+        auditLog: safeProject.auditLog || [],
+        activities: safeProject.activities || []
+      },
+      profile: {
+        ...commonProps,
+        user: currentUser,
+        preferences: (currentUser as any)?.preferences || {}
+      }
+    };
+
+    return viewPropsMap[viewId] || commonProps;
   };
+
+  const viewProps = getViewProps(currentView);
 
   return (
       <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
@@ -240,9 +415,9 @@ function AppContent() {
             <Header isSidebarCollapsed={isSidebarCollapsed}>
                 <OnlineUsersDisplay compact showActivity={false} />
             </Header>
-            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 bg-alabaster">
+            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 glass-bg">
                 <EnterpriseErrorBoundary>
-                    {CurrentViewComponent ? <CurrentViewComponent {...viewProps[currentView]} /> : <div>View not found</div>}
+                    {CurrentViewComponent ? <CurrentViewComponent {...viewProps} /> : <div>View not found</div>}
                 </EnterpriseErrorBoundary>
             </div>
         </main>

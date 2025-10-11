@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project, Task, Expense, PurchaseOrder, User } from '../types';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
+import BreadcrumbNavigation from '../components/BreadcrumbNavigation';
+import QuickAccessPanel from '../components/QuickAccessPanel';
+import MetricCard from '../components/MetricCard';
+import ProgressRing from '../components/ProgressRing';
+import SimpleBarChart from '../components/SimpleBarChart';
 import { 
   Users, 
   DollarSign, 
@@ -9,7 +14,16 @@ import {
   Target,
   BarChart3,
   RefreshCw,
-  Eye
+  Eye,
+  Activity,
+  Zap,
+  Award,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
+  Clock,
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react';
 import { formatCurrency } from '../constants';
 
@@ -19,6 +33,7 @@ interface DashboardViewProps {
   expenses: Expense[];
   purchaseOrders: PurchaseOrder[];
   users: User[];
+  onNavigate?: (viewName: string) => void;
 }
 
 const DashboardView: React.FC<DashboardViewProps> = ({
@@ -26,9 +41,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   tasks = [],
   expenses = [],
   purchaseOrders = [],
-  users = []
+  users = [],
+  onNavigate = () => {}
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Enhanced metrics calculations
   const totalProjects = projects.length;
+  const activeProjects = projects.filter(p => p.id).length; // All projects are considered active for now
   const activeTasks = tasks.filter(task => task.status === 'in-progress' || task.status === 'todo').length;
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const totalPOs = purchaseOrders.reduce((sum, po) => {
@@ -37,37 +58,192 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   }, 0);
   const completedTasks = tasks.filter(task => task.status === 'done').length;
   const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+  
+  // Performance metrics
+  const overdueTasks = tasks.filter(task => {
+    const dueDate = new Date(task.dueDate);
+    return dueDate < new Date() && task.status !== 'done';
+  }).length;
+  
+  const totalBudget = totalExpenses + totalPOs;
+  const budgetUtilization = totalBudget > 0 ? Math.round((totalExpenses / totalBudget) * 100) : 0;
 
-  const handleRefresh = () => {
+  // Chart data
+  const taskStatusData = [
+    { label: 'Completed', value: completedTasks, color: '#10b981' },
+    { label: 'In Progress', value: activeTasks, color: '#F87941' },
+    { label: 'Overdue', value: overdueTasks, color: '#ef4444' }
+  ];
+
+  const budgetData = [
+    { label: 'Expenses', value: totalExpenses, color: '#F87941' },
+    { label: 'Purchase Orders', value: totalPOs, color: '#F9B095' }
+  ];
+
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLastUpdated(new Date());
+    setIsLoading(false);
     console.log('Dashboard refreshed');
   };
 
+  const breadcrumbItems = [
+    { name: 'Home', onClick: () => onNavigate('dashboard') },
+    { name: 'Dashboard' }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+    <div className="layout-page">
+      <div className="layout-content spacing-section">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-            <div className="flex-1">
-              <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
-                🚀 Enterprise Command Center
-              </h1>
-              <p className="text-lg text-gray-700 font-medium leading-relaxed">
-                Advanced Analytics • Real-time Insights • Strategic KPIs • NataCarePM v2.0
+        <div className="layout-header glass-enhanced rounded-2xl mb-6">
+          <div className="flex items-center justify-between w-full">
+            <div>
+              <BreadcrumbNavigation items={breadcrumbItems} className="mb-2" />
+              <h1 className="text-display-2 gradient-text">Project Dashboard</h1>
+              <p className="text-body-small">
+                Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}
               </p>
             </div>
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className={`btn-secondary ${isLoading ? 'loading' : ''}`}
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button onClick={() => onNavigate('report')} className="btn-primary">
+                <BarChart3 className="w-4 h-4" />
+                Lihat Laporan
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Access Panel */}
+        <div className="whitespace-component">
+          <QuickAccessPanel onNavigate={onNavigate} />
+        </div>
+
+        {/* Main Metrics Grid */}
+        <div className="grid-dashboard whitespace-component">
+          {/* Key Performance Indicators */}
+          <Card className="card-enhanced col-span-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-heading-2 visual-primary">Key Performance Indicators</h2>
+              <div className="flex items-center space-x-2 text-body-small">
+                <Clock className="w-4 h-4 text-palladium" />
+                <span>Real-time data</span>
+              </div>
+            </div>
+            
+            <div className="grid-cards-4">
+              <MetricCard
+                title="Active Projects"
+                value={activeProjects}
+                subValue={`${totalProjects} total projects`}
+                trend="up"
+                trendValue="+12%"
+                icon={<Target className="w-6 h-6" />}
+                color="primary"
+              />
+
+              <MetricCard
+                title="Active Tasks"
+                value={activeTasks}
+                subValue={`${overdueTasks} overdue`}
+                trend="down"
+                trendValue="-3%"
+                icon={<Activity className="w-6 h-6" />}
+                color="info"
+              />
+
+              <MetricCard
+                title="Completion Rate"
+                value={`${taskCompletionRate}%`}
+                subValue={`${completedTasks} completed`}
+                trend="up"
+                trendValue="+8%"
+                icon={<Award className="w-6 h-6" />}
+                color="success"
+              />
+
+              <MetricCard
+                title="Budget Used"
+                value={`${budgetUtilization}%`}
+                subValue={formatCurrency(totalBudget)}
+                trend="up"
+                trendValue="+15%"
+                icon={<DollarSign className="w-6 h-6" />}
+                color="warning"
+              />
+            </div>
+          </Card>
+
+          {/* Performance Analytics */}
+          <Card className="card-enhanced">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-heading-2 visual-primary">Task Performance</h3>
+              <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-success-bg">
+                <BarChart3 className="w-4 h-4 text-success" />
+                <span className="text-caption text-success">Analytics</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-center mb-6">
+              <ProgressRing
+                progress={taskCompletionRate}
+                size="lg"
+                color="primary"
+              >
+                <span className="text-caption">Completion</span>
+              </ProgressRing>
+            </div>
+
+            <SimpleBarChart
+              data={taskStatusData}
+              showValues={true}
+            />
+          </Card>
+        
+        {/* Enhanced Header Section */}
+        <div className="mb-12">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-2xl gradient-bg-primary flex items-center justify-center shadow-lg floating">
+                  <Activity className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-responsive-2xl font-bold gradient-text mb-2">
+                    🚀 Enterprise Command Center
+                  </h1>
+                  <p className="text-lg text-palladium font-medium">
+                    Advanced Analytics • Real-time Insights • Strategic KPIs • NataCarePM v2.0
+                  </p>
+                </div>
+              </div>
+            </div>
+            
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg shadow-sm">
+              <div className="flex items-center space-x-2 glass rounded-xl px-4 py-3 shadow-sm">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-green-700 font-medium">Live System</span>
+                <Zap className="w-4 h-4 text-green-600" />
+                <span className="text-green-700 font-semibold">Live System</span>
               </div>
-              <div className="flex items-center space-x-2 bg-blue-100 px-4 py-2 rounded-lg shadow-sm">
+              
+              <div className="flex items-center space-x-2 glass rounded-xl px-4 py-3 shadow-sm">
                 <Eye className="w-4 h-4 text-blue-600" />
-                <span className="text-blue-700 font-medium">Monitoring Active</span>
+                <span className="text-blue-700 font-semibold">Monitoring Active</span>
               </div>
+              
               <Button 
                 onClick={handleRefresh}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 shadow-lg transition-all duration-300"
+                className="btn-primary gap-2 px-6 py-3 lift-on-hover"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>Refresh Analytics</span>
@@ -76,119 +252,94 @@ const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Main Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Total Projects</p>
-                <p className="text-3xl font-bold text-blue-600 mt-1">{totalProjects}</p>
-              </div>
-              <Target className="w-12 h-12 text-blue-500 opacity-80" />
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Active Tasks</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">{activeTasks}</p>
-              </div>
-              <BarChart3 className="w-12 h-12 text-green-500 opacity-80" />
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Total Expenses</p>
-                <p className="text-3xl font-bold text-orange-600 mt-1">{formatCurrency(totalExpenses)}</p>
-              </div>
-              <DollarSign className="w-12 h-12 text-orange-500 opacity-80" />
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Purchase Orders</p>
-                <p className="text-3xl font-bold text-purple-600 mt-1">{formatCurrency(totalPOs)}</p>
-              </div>
-              <TrendingUp className="w-12 h-12 text-purple-500 opacity-80" />
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-white border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Team Members</p>
-                <p className="text-3xl font-bold text-indigo-600 mt-1">{users.length}</p>
-              </div>
-              <Users className="w-12 h-12 text-indigo-500 opacity-80" />
-            </div>
-          </Card>
-        </div>
-
-        {/* Performance Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold flex items-center text-blue-800">
-                <BarChart3 className="w-7 h-7 mr-3 text-blue-600" />
-                Project Performance
-              </h3>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-blue-800 font-semibold">Task Completion Rate</span>
-                  <span className="text-3xl font-bold text-blue-600">{taskCompletionRate}%</span>
+          {/* Financial Overview */}
+          <Card className="card-enhanced">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-heading-2 visual-primary flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-precious-persimmon" />
                 </div>
-                <div className="mt-2 bg-blue-100 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${taskCompletionRate}%` }}
-                  ></div>
-                </div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <p className="text-sm text-blue-600">Completed</p>
-                    <p className="text-2xl font-bold text-blue-700">{completedTasks}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-blue-600">In Progress</p>
-                    <p className="text-2xl font-bold text-blue-700">{activeTasks}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold flex items-center text-emerald-800">
-                <DollarSign className="w-7 h-7 mr-3 text-emerald-600" />
                 Financial Overview
               </h3>
+              <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-success-bg">
+                <TrendingUp className="w-4 h-4 text-success" />
+                <span className="text-caption text-success">Tracking</span>
+              </div>
             </div>
-            <div className="space-y-4">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-800 font-semibold">Total Budget</span>
-                  <span className="text-3xl font-bold text-emerald-600">{formatCurrency(totalExpenses + totalPOs)}</span>
+            
+            <div className="space-y-6">
+              <div className="glass-subtle rounded-xl p-6 text-center">
+                <div className="mb-4">
+                  <span className="text-body font-semibold visual-secondary">Total Budget</span>
+                </div>
+                <div className="text-heading-1 visual-accent mb-2">
+                  {formatCurrency(totalBudget)}
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-precious-persimmon"></div>
+                  <span className="text-body-small">Combined allocation</span>
                 </div>
               </div>
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <p className="text-sm text-emerald-600">Expenses</p>
-                    <p className="text-2xl font-bold text-emerald-700">{formatCurrency(totalExpenses)}</p>
+
+              <SimpleBarChart
+                data={budgetData}
+                showValues={true}
+              />
+            </div>
+          </Card>
+
+          {/* Team Performance */}
+          <Card className="card-enhanced">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-heading-2 visual-primary flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-precious-persimmon" />
+                </div>
+                Team Overview
+              </h3>
+              <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-info-bg">
+                <Activity className="w-4 h-4 text-info" />
+                <span className="text-caption text-info">Live</span>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="grid-cards-2">
+                <div className="text-center glass-subtle rounded-xl p-4">
+                  <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-precious-persimmon" />
                   </div>
-                  <div className="text-center">
-                    <p className="text-sm text-emerald-600">Purchase Orders</p>
-                    <p className="text-2xl font-bold text-emerald-700">{formatCurrency(totalPOs)}</p>
+                  <p className="text-body-small mb-1">Active Members</p>
+                  <p className="text-heading-3 visual-primary">{users.length}</p>
+                </div>
+                <div className="text-center glass-subtle rounded-xl p-4">
+                  <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-success" />
+                  </div>
+                  <p className="text-body-small mb-1">Projects</p>
+                  <p className="text-heading-3 visual-success">{totalProjects}</p>
+                </div>
+              </div>
+              
+              <div className="glass-subtle rounded-xl p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-body font-semibold">Performance Score</span>
+                  <span className="text-heading-3 visual-accent">85%</span>
+                </div>
+                
+                <div className="relative">
+                  <div className="w-full bg-violet-essence rounded-full h-3 mb-2">
+                    <div 
+                      className="gradient-bg-primary h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                      style={{ width: '85%' }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-caption">
+                    <span>Poor</span>
+                    <span>Good</span>
+                    <span>Excellent</span>
                   </div>
                 </div>
               </div>
@@ -196,11 +347,76 @@ const DashboardView: React.FC<DashboardViewProps> = ({
           </Card>
         </div>
 
+        {/* Recent Activity */}
+        <Card className="card-enhanced whitespace-component">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-heading-2 visual-primary">Recent Activity</h3>
+            <Button onClick={() => onNavigate('activity')} className="btn-secondary">
+              View All Activity
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Placeholder activity items */}
+            <div className="flex items-center space-x-4 p-4 glass-subtle rounded-xl">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-precious-persimmon" />
+              </div>
+              <div className="flex-1">
+                <p className="text-body font-medium">New task created: "Update dashboard components"</p>
+                <p className="text-body-small">2 minutes ago</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4 p-4 glass-subtle rounded-xl">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-precious-persimmon" />
+              </div>
+              <div className="flex-1">
+                <p className="text-body font-medium">Team member John Doe joined Project Alpha</p>
+                <p className="text-body-small">1 hour ago</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4 p-4 glass-subtle rounded-xl">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-precious-persimmon" />
+              </div>
+              <div className="flex-1">
+                <p className="text-body font-medium">Budget approved for Q4 initiatives</p>
+                <p className="text-body-small">3 hours ago</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-500">
-            🚀 Enterprise Command Center • AI-Powered Analytics • Real-time Intelligence • Strategic Insights • NataCarePM v2.0
-          </p>
+        <div className="text-center whitespace-section">
+          <div className="glass-enhanced rounded-3xl p-8 mx-auto max-w-4xl">
+            <div className="flex items-center justify-center space-x-4 mb-4">
+              <div className="w-12 h-12 rounded-2xl gradient-bg-primary flex items-center justify-center floating">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-heading-1 gradient-text">NataCarePM Enterprise</h3>
+            </div>
+            <p className="text-body-large visual-secondary">
+              Professional Project Management • Real-time Analytics • Enterprise Grade Security
+            </p>
+            <div className="flex items-center justify-center space-x-6 mt-6">
+              <div className="flex items-center space-x-2 text-body-small">
+                <Zap className="w-4 h-4 text-success" />
+                <span>Real-time Data</span>
+              </div>
+              <div className="flex items-center space-x-2 text-body-small">
+                <Award className="w-4 h-4 text-precious-persimmon" />
+                <span>Enterprise Grade</span>
+              </div>
+              <div className="flex items-center space-x-2 text-body-small">
+                <Activity className="w-4 h-4 text-info" />
+                <span>Live Monitoring</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

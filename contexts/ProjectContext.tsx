@@ -140,7 +140,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [currentProjectId]);
   
   const handleAddDailyReport = useCallback(async (report: Omit<DailyReport, 'id' | 'comments'>) => {
-    if (!currentProject || !currentUser) return;
+    if (!currentProject?.id || !currentUser) return;
     await projectService.addDailyReport(currentProject.id, report, currentUser);
     addToast('Laporan harian baru berhasil ditambahkan.', 'success');
   }, [currentProject, currentUser, addToast]);
@@ -155,31 +155,31 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [handleAddDailyReport]);
 
   const handleUpdatePOStatus = useCallback(async (poId: string, status: PurchaseOrder['status']) => {
-    if (!currentProject || !currentUser) return;
+    if (!currentProject?.id || !currentUser) return;
     await projectService.updatePOStatus(currentProject.id, poId, status, currentUser);
     addToast(`Status PO diperbarui menjadi ${status}.`, 'success');
   }, [currentProject, currentUser, addToast]);
   
   const handleAddPO = useCallback(async (po: Omit<PurchaseOrder, 'id' | 'status'>) => {
-    if (!currentProject || !currentUser) return;
+    if (!currentProject?.id || !currentUser) return;
     await projectService.addPurchaseOrder(currentProject.id, po, currentUser);
     addToast(`Purchase Order ${po.prNumber} berhasil dibuat.`, 'success');
   }, [currentProject, currentUser, addToast]);
 
   const handleUpdateAttendance = useCallback(async (date: string, updates: Map<string, Attendance['status']>) => {
-    if (!currentProject || !currentUser) return;
+    if (!currentProject?.id || !currentUser) return;
     await projectService.updateAttendance(currentProject.id, date, Array.from(updates.entries()), currentUser);
     addToast(`Absensi untuk tanggal ${date} berhasil disimpan.`, 'success');
   }, [currentProject, currentUser, addToast]);
 
   const handleAddComment = useCallback(async (reportId: string, content: string) => {
-      if (!currentProject || !currentUser) return;
+      if (!currentProject?.id || !currentUser) return;
       await projectService.addCommentToDailyReport(currentProject.id, reportId, content, currentUser);
       addToast('Komentar ditambahkan.', 'success');
   }, [currentProject, currentUser, addToast]);
   
   const handleAddDocument = useCallback(async (doc: Omit<Document, 'id' | 'url'>, file: File) => {
-    if (!currentProject || !currentUser) return;
+    if (!currentProject?.id || !currentUser) return;
     await projectService.addDocument(currentProject.id, doc, file, currentUser);
     addToast(`Dokumen "${doc.name}" berhasil diunggah.`, 'success');
   }, [currentProject, currentUser, addToast]);

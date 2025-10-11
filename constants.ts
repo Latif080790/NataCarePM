@@ -51,10 +51,10 @@ export const navLinksConfig = [
     {
         id: 'monitoring-group', name: 'Monitoring',
         children: [
-              { id: 'tasks', label: 'Task Management', icon: CheckSquare },
-  { id: 'kanban', label: 'Kanban Board', icon: CheckSquare },
-  { id: 'dependencies', label: 'Dependency Graph', icon: CheckSquare },
-  { id: 'notifications', label: 'Notification Center', icon: Bell },,
+            { id: 'tasks', name: 'Task Management', icon: CheckSquare, requiredPermission: 'view_dashboard' },
+            { id: 'kanban', name: 'Kanban Board', icon: CheckSquare, requiredPermission: 'view_dashboard' },
+            { id: 'dependencies', name: 'Dependency Graph', icon: BarChart3, requiredPermission: 'view_dashboard' },
+            { id: 'notifications', name: 'Notification Center', icon: Bell, requiredPermission: 'view_dashboard' },
             { id: 'laporan_harian', name: 'Laporan Harian', icon: Construction, requiredPermission: 'view_daily_reports' },
             { id: 'progres', name: 'Update Progres', icon: BarChart3, requiredPermission: 'view_progress' },
             { id: 'absensi', name: 'Absensi', icon: CalendarDays, requiredPermission: 'view_attendance' },

@@ -9,33 +9,65 @@ interface RadialProgressProps {
   className?: string;
 }
 
-export function RadialProgress({ title, description, value, color = 'stroke-persimmon', className = '' }: RadialProgressProps) {
+export function RadialProgress({ title, description, value, color = 'stroke-precious-persimmon', className = '' }: RadialProgressProps) {
   const normalizedValue = Math.max(0, Math.min(100, value));
   const circumference = 2 * Math.PI * 45; // 2 * pi * radius
   const offset = circumference - (normalizedValue / 100) * circumference;
 
+  // Enhanced color mapping for different value ranges
+  const getColorByValue = (val: number) => {
+    if (val >= 80) return 'stroke-green-500';
+    if (val >= 60) return 'stroke-precious-persimmon';
+    if (val >= 40) return 'stroke-no-way-rose';
+    return 'stroke-red-500';
+  };
+
+  const strokeColor = color === 'stroke-precious-persimmon' ? getColorByValue(normalizedValue) : color;
+
   return (
-    <Card className={className}>
-      <CardHeader className="pb-2">
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+    <Card className={`glass-enhanced border-violet-essence/20 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ${className}`}>
+      <CardHeader className="pb-4 border-b border-violet-essence/10">
+        <CardTitle className="text-lg font-bold gradient-text">{title}</CardTitle>
+        <CardDescription className="text-palladium">{description}</CardDescription>
       </CardHeader>
-      <CardContent className="flex items-center justify-center p-4">
-        <div className="relative w-32 h-32">
-          <svg className="w-full h-full" viewBox="0 0 100 100">
+      <CardContent className="flex items-center justify-center p-6">
+        <div className="relative w-36 h-36 group">
+          <svg className="w-full h-full transform group-hover:scale-105 transition-transform duration-300" viewBox="0 0 100 100">
+            {/* Enhanced background circle with gradient */}
+            <defs>
+              <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{stopColor: '#E6E4E6', stopOpacity: 0.3}} />
+                <stop offset="100%" style={{stopColor: '#E6E4E6', stopOpacity: 0.1}} />
+              </linearGradient>
+              <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{stopColor: '#F87941', stopOpacity: 1}} />
+                <stop offset="50%" style={{stopColor: '#F9B095', stopOpacity: 1}} />
+                <stop offset="100%" style={{stopColor: '#F87941', stopOpacity: 1}} />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge> 
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            
             {/* Background circle */}
             <circle
-              className="stroke-current text-violet-essence"
-              strokeWidth="10"
+              className="stroke-current text-violet-essence/30"
+              strokeWidth="8"
               cx="50"
               cy="50"
               r="45"
-              fill="transparent"
+              fill="url(#bg-gradient)"
             />
+            
             {/* Progress circle */}
             <circle
-              className={`stroke-current ${color} transition-all duration-1000 ease-in-out`}
-              strokeWidth="10"
+              className={`transition-all duration-1000 ease-in-out`}
+              stroke="url(#progress-gradient)"
+              strokeWidth="8"
               strokeLinecap="round"
               cx="50"
               cy="50"
@@ -44,11 +76,20 @@ export function RadialProgress({ title, description, value, color = 'stroke-pers
               strokeDasharray={circumference}
               strokeDashoffset={offset}
               transform="rotate(-90 50 50)"
+              filter="url(#glow)"
             />
           </svg>
+          
+          {/* Enhanced center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-night-black">{value.toFixed(1)}%</span>
+            <span className="text-3xl font-bold gradient-text group-hover:scale-110 transition-transform duration-300">
+              {value.toFixed(1)}%
+            </span>
+            <div className="w-4 h-1 rounded-full bg-gradient-to-r from-precious-persimmon to-no-way-rose mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
+          
+          {/* Floating indicator */}
+          <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-green-400 border-2 border-white shadow-lg animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>
       </CardContent>
     </Card>
