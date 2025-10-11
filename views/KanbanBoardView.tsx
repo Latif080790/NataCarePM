@@ -112,7 +112,7 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
     };
 
     // Drag and Drop Handlers
-    const handleDragStart = (e: DragEvent, task: Task) => {
+    const handleDragStart = (e: React.DragEvent, task: Task) => {
         setDraggedTask(task);
         e.dataTransfer.effectAllowed = 'move';
     };
@@ -121,12 +121,12 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
         setDraggedTask(null);
     };
 
-    const handleDragOver = (e: DragEvent) => {
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     };
 
-    const handleDrop = async (e: DragEvent, newStatus: Task['status']) => {
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>, newStatus: Task['status']) => {
         e.preventDefault();
         
         if (!draggedTask || !currentUser || !currentProject) return;

@@ -1,4 +1,4 @@
-import { useState, useCallback, useLayoutEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 export function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
   (node: T | null) => void,
@@ -17,7 +17,7 @@ export function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
     });
   }, [ref]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!ref) {
       return;
     }

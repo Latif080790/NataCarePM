@@ -260,7 +260,7 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
             // Tasks that are overdue or have high priority dependencies
             const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'done';
             const hasHighPriorityDeps = task.dependencies.some(depId => {
-                const depTask = taskMap.get(depId);
+                const depTask = taskMap.get(depId) as Task;
                 return depTask && (depTask.priority === 'high' || depTask.priority === 'critical');
             });
             return isOverdue || task.priority === 'critical' || hasHighPriorityDeps;

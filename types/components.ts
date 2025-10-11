@@ -1,12 +1,14 @@
 import React from 'react';
 
 // Extended Button component props with custom variants
-export interface ExtendedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ExtendedButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   icon?: React.ReactNode;
   fullWidth?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
 // Document types for document management

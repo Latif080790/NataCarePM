@@ -123,7 +123,7 @@ export default function InteractiveGanttView({ projectId }: InteractiveGanttView
             if (task.dependencies.length > 0) {
                 let latestEnd = new Date(projectStart);
                 task.dependencies.forEach(depId => {
-                    const depTask = taskMap.get(depId);
+                    const depTask = taskMap.get(depId) as Task;
                     if (depTask) {
                         const depGantt = scheduleTask(depTask);
                         if (depGantt.endDate > latestEnd) {
