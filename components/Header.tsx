@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
 import { Select } from './FormControls';
 import { LogOut } from 'lucide-react';
-import { LiveActivityFeed } from './LiveActivityFeed';
+import LiveActivityFeed from './LiveActivityFeed';
 
 interface HeaderProps {
     isSidebarCollapsed: boolean;
@@ -40,7 +40,7 @@ export default function Header({ isSidebarCollapsed, children }: HeaderProps) {
              </div>
              <div className="flex items-center gap-4">
                  {children}
-                 <LiveActivityFeed notifications={notifications} onReadAll={handleMarkNotificationsRead} />
+                 <LiveActivityFeed limit={5} compact={true} />
                  {/* User Menu */}
                  <div className="flex items-center gap-2">
                     <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-9 h-9 rounded-full" />
