@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
+import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
+import EnterpriseAdvancedDashboardView from './views/EnterpriseAdvancedDashboardView';
 import RabAhspView from './views/RabAhspView';
 import GanttChartView from './views/GanttChartView';
 import DailyReportView from './views/DailyReportView';
@@ -35,7 +37,8 @@ import { RealtimeCollaborationProvider, useRealtimeCollaboration } from './conte
 import AiAssistantChat from './components/AiAssistantChat';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
-  dashboard: DashboardView,
+  dashboard: EnterpriseAdvancedDashboardView,
+  enhanced_dashboard: DashboardView,
   rab_ahsp: RabAhspView,
   jadwal: GanttChartView,
   tasks: TaskListView,

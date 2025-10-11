@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = useCallback(async (email: string, password?: string) => {
     // In a real app, you get password from a form. Here we use a default for demo.
-    const mockPassword = "password123";
+    const mockPassword = "NataCare2025!";
     setLoading(true);
     try {
         await signInWithEmailAndPassword(auth, email, password || mockPassword);

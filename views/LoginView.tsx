@@ -18,14 +18,14 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig'; // Pastikan path ini benar
 
 export default function LoginView() {
-    const { loading: authLoading } = useAuth();
+    const { loading: authLoading, login } = useAuth();
     const [isLogin, setIsLogin] = useState(true); // State untuk beralih antara Login dan Sign Up
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     
     // State untuk form input
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('pm@natacara.dev'); // Default email untuk testing
+    const [password, setPassword] = useState('NataCare2025!'); // Default password untuk testing
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const handleSubmit = async (event: FormEvent) => {
@@ -35,8 +35,11 @@ export default function LoginView() {
         if (isLogin) {
             // --- PROSES LOGIN ---
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // AuthContext akan menangani sisanya (mengambil data & redirect)
+                const success = await login(email, password);
+                if (!success) {
+                    alert('Gagal masuk. Periksa email dan password Anda.');
+                }
+                // Jika berhasil, AuthContext akan menangani redirect
             } catch (error: any) {
                 alert(`Gagal Masuk: ${error.message}`);
             }
