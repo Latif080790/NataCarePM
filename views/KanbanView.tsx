@@ -13,7 +13,8 @@ import {
   Target,
   CheckCircle,
   Zap,
-  Eye
+  Eye,
+  Activity
 } from 'lucide-react';
 
 interface KanbanViewProps {
@@ -66,9 +67,7 @@ const kanbanColumns: KanbanColumn[] = [
 export const KanbanView: React.FC<KanbanViewProps> = ({
   tasks = [],
   users = [],
-  onCreateTask,
-  onUpdateTask,
-  onDeleteTask
+  onUpdateTask
 }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -150,21 +149,6 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       onUpdateTask?.(draggedTask.id, { status: newStatus as Task['status'] });
     }
     setDraggedTask(null);
-  };
-
-  const handleCreateTask = (taskData: Omit<Task, 'id'>) => {
-    onCreateTask?.(taskData);
-    setIsCreateModalOpen(false);
-  };
-
-  const handleTaskUpdate = (taskId: string, updates: Partial<Task>) => {
-    onUpdateTask?.(taskId, updates);
-  };
-
-  const handleTaskDelete = (taskId: string) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus task ini?')) {
-      onDeleteTask?.(taskId);
-    }
   };
 
   return (
@@ -396,7 +380,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       <Card className="mt-8 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold flex items-center">
-            <Brain className="w-7 h-7 mr-3 text-indigo-600" />
+            <Activity className="w-7 h-7 mr-3 text-indigo-600" />
             Workflow Intelligence
           </h3>
           <div className="flex items-center space-x-2">

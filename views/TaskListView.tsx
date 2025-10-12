@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input, Select } from '../components/FormControls';
-import { Task, User } from '../types';
+import { Task } from '../types';
 import { taskService } from '../api/taskService';
 import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
 import CreateTaskModal from '../components/CreateTaskModal';
 import TaskDetailModal from '../components/TaskDetailModal';
 import { 
-    PlusCircle, Search, Filter, Calendar, User as UserIcon, 
-    Tag, CheckCircle, Clock, AlertCircle, Ban 
+    PlusCircle, Search, Calendar, User as UserIcon, 
+    Tag, CheckCircle
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
@@ -83,21 +83,13 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
         };
     }, [tasks]);
 
-    const getStatusIcon = (status: Task['status']) => {
-        switch (status) {
-            case 'todo': return <Clock className="w-4 h-4 text-gray-500" />;
-            case 'in-progress': return <AlertCircle className="w-4 h-4 text-blue-500" />;
-            case 'done': return <CheckCircle className="w-4 h-4 text-green-500" />;
-            case 'blocked': return <Ban className="w-4 h-4 text-red-500" />;
-        }
-    };
-
     const getStatusColor = (status: Task['status']) => {
         switch (status) {
             case 'todo': return 'bg-gray-100 text-gray-800';
             case 'in-progress': return 'bg-blue-100 text-blue-800';
             case 'done': return 'bg-green-100 text-green-800';
             case 'blocked': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 

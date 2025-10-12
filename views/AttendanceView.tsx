@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input, Select } from '../components/FormControls';
 import { Attendance, Worker } from '../types';
 // FIX: Added formatDate to imports to resolve reference error.
 import { getTodayDateString, formatDate } from '../constants';
-import { UserCheck, UserX, User, Server } from 'lucide-react';
+import { UserCheck, UserX, User } from 'lucide-react';
 
 interface AttendanceViewProps {
     attendances: Attendance[];

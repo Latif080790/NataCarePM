@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
+import { useState, useEffect, useRef } from 'react';
+import { Card, CardContent } from '../components/Card';
 import { Button } from '../components/Button';
 import { Task } from '../types';
 import { taskService } from '../api/taskService';
-import { useAuth } from '../contexts/AuthContext';
-import { useProject } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import TaskDetailModal from '../components/TaskDetailModal';
 import CreateTaskModal from '../components/CreateTaskModal';
 import { 
-    Plus, Settings, RefreshCw, ZoomIn, ZoomOut, Download, Eye, 
-    ArrowRight, AlertCircle, CheckCircle, Clock, Ban, Target
+    Plus, RefreshCw, ZoomIn, ZoomOut, Download, 
+    ArrowRight, AlertCircle, Clock, Ban, Target
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
@@ -37,7 +35,8 @@ const statusColors = {
     'todo': '#6b7280',
     'in-progress': '#3b82f6',
     'done': '#10b981',
-    'blocked': '#ef4444'
+    'blocked': '#ef4444',
+    'review': '#8b5cf6'
 };
 
 const priorityColors = {
@@ -48,8 +47,6 @@ const priorityColors = {
 };
 
 export default function DependencyGraphView({ projectId }: DependencyGraphViewProps) {
-    const { currentUser } = useAuth();
-    const { currentProject } = useProject();
     const { addToast } = useToast();
     
     const svgRef = useRef<SVGSVGElement>(null);
@@ -128,8 +125,6 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
             });
             
             // Position nodes
-            const nodeWidth = 200;
-            const nodeHeight = 100;
             const levelSpacing = 300;
             const nodeSpacing = 120;
             

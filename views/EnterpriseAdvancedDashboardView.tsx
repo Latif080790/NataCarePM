@@ -12,9 +12,6 @@ import {
   BarChart3, CreditCard
 } from 'lucide-react';
 
-// Define React hooks explicitly for compatibility
-const { useState, useEffect } = React;
-
 // Enterprise State Management with Advanced Patterns
 interface DashboardState {
   isLoading: boolean;
@@ -161,7 +158,6 @@ interface UserCustomizations {
 // Advanced Analytics Engine
 class EnterpriseAnalyticsEngine {
   private readonly metricsCache: Map<string, any> = new Map();
-  private readonly subscribers: Set<(data: any) => void> = new Set();
   
   constructor(private projectData: Project, private metrics: ProjectMetrics) {}
 
@@ -489,15 +485,9 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
   project,
   projectMetrics,
   notifications,
-  recentReports,
   tasks,
-  expenses,
-  purchaseOrders,
   users,
-  updateAiInsight,
-  onExportData,
-  onCustomizeLayout,
-  onFilterChange
+  updateAiInsight
 }) => {
   // Advanced State Management
   const [dashboardState, setDashboardState] = React.useState<DashboardState>({
@@ -648,13 +638,6 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
     }
   };
 
-  // Advanced Filter Handler
-  const handleFilterChange = (newFilters: Partial<DashboardFilters>) => {
-    const updatedFilters = { ...dashboardState.filters, ...newFilters };
-    setDashboardState(prev => ({ ...prev, filters: updatedFilters }));
-    onFilterChange(updatedFilters);
-  };
-
   // Performance Optimization - Memoized Calculations
   const enhancedMetrics = React.useMemo(() => {
     if (!dashboardState.performanceMetrics.efficiency) return null;
@@ -721,30 +704,6 @@ const EnterpriseAdvancedDashboardView: React.FC<EnterpriseAdvancedDashboardProps
   }
 
   // Use real data from props with proper fallbacks
-  const realTasks = tasks || [];
-  const realUsers = users || [];
-  const realExpenses = expenses || [];
-  const realPOs = purchaseOrders || [];
-  const realNotifications = notifications || [];
-  const realReports = recentReports || [];
-
-  // Calculate real metrics from actual project data
-  const realMetrics = {
-    totalTasks: realTasks.length,
-    completedTasks: realTasks.filter(t => t.status === 'done').length,
-    inProgressTasks: realTasks.filter(t => t.status === 'in-progress').length,
-    blockedTasks: realTasks.filter(t => t.status === 'blocked').length,
-    totalExpenses: realExpenses.reduce((sum, e) => sum + e.amount, 0),
-    totalUsers: realUsers.length,
-    activeUsers: realUsers.filter(u => u.isOnline).length,
-    totalPOs: realPOs.length,
-    completedPOs: realPOs.filter(po => po.status === 'Diterima Penuh').length,
-    pendingPOs: realPOs.filter(po => po.status === 'Menunggu Persetujuan').length,
-    unreadNotifications: realNotifications.filter(n => n.type === 'error' || n.type === 'warning').length, // Use error/warning as unread
-    recentReportsCount: realReports.length,
-    completionRate: realTasks.length > 0 ? (realTasks.filter(t => t.status === 'done').length / realTasks.length) * 100 : 0
-  };
-
   return React.createElement('div', {
     style: {
       padding: '32px',

@@ -9,18 +9,10 @@ interface RadialProgressProps {
   className?: string;
 }
 
-export function RadialProgress({ title, description, value, color = 'stroke-precious-persimmon', className = '' }: RadialProgressProps) {
+export function RadialProgress({ title, description, value, className = '' }: RadialProgressProps) {
   const normalizedValue = Math.max(0, Math.min(100, value));
   const circumference = 2 * Math.PI * 45; // 2 * pi * radius
   const offset = circumference - (normalizedValue / 100) * circumference;
-
-  // Enhanced color mapping for different value ranges
-  const getColorByValue = (val: number) => {
-    if (val >= 80) return 'stroke-green-500';
-    if (val >= 60) return 'stroke-precious-persimmon';
-    if (val >= 40) return 'stroke-no-way-rose';
-    return 'stroke-red-500';
-  };
 
   return (
     <Card className={`glass-enhanced border-violet-essence/20 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ${className}`}>

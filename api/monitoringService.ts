@@ -17,15 +17,9 @@ import {
     updateDoc,
     serverTimestamp,
     Timestamp,
-    onSnapshot,
-    connectFirestoreEmulator,
-    enableNetwork,
-    disableNetwork
+    onSnapshot
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import { MonitoringDataValidator, FirebaseErrorHandler } from '../utils/validation/DataValidator';
-import { circuitBreakerManager } from '../utils/validation/CircuitBreaker';
-import { memoryManager, performanceMonitor, systemMetricsCache, requestOptimizer } from '../utils/performance/PerformanceOptimizer';
 
 // ============================================
 // ENHANCED TYPES & INTERFACES
@@ -420,7 +414,7 @@ export class MonitoringService {
                 errorId: '', // Will be set by Firestore
                 timestamp: new Date(),
                 resolved: false,
-                environment: (import.meta.env.MODE as 'development' | 'staging' | 'production') || 'development',
+                environment: 'development' as const,
                 url: window.location.href,
                 userAgent: navigator.userAgent
             };
@@ -769,57 +763,6 @@ export class MonitoringService {
     }
 
     /**
-     * Start monitoring system metrics
-     */
-    startMonitoring(intervalMs: number = 60000) {
-        if (this.metricsInterval) {
-            console.warn('Monitoring already started');
-            return;
-        }
-
-        console.log('🔍 Starting system monitoring...');
-        
-        // Collect metrics immediately
-        this.collectSystemMetrics();
-
-        // Then collect periodically
-        this.metricsInterval = setInterval(() => {
-            this.collectSystemMetrics();
-        }, intervalMs);
-    }
-
-    /**
-     * Stop monitoring
-     */
-    stopMonitoring() {
-        if (this.metricsInterval) {
-            clearInterval(this.metricsInterval);
-            this.metricsInterval = null;
-            console.log('🔍 Monitoring stopped');
-        }
-    }
-
-    /**
-     * Collect current system metrics
-     */
-    private async collectSystemMetrics() {
-        try {
-            const metrics: SystemMetrics = {
-                timestamp: new Date(),
-                cpu: this.getCPUUsage(),
-                memory: this.getMemoryUsage(),
-                activeUsers: await this.getActiveUsersCount(),
-                responseTime: await this.getAverageResponseTime(),
-                errorRate: await this.getErrorRate(),
-            };
-
-            await this.saveSystemMetrics(metrics);
-        } catch (error) {
-            console.error('Error collecting system metrics:', error);
-        }
-    }
-
-    /**
      * Get CPU usage (simulated - in real app use actual system metrics)
      */
     private getCPUUsage(): number {
@@ -908,34 +851,6 @@ export class MonitoringService {
     }
 
     /**
-     * Save system metrics to Firebase
-     */
-    private async saveSystemMetrics(metrics: SystemMetrics) {
-        try {
-            await addDoc(collection(db, 'systemMetrics'), {
-                ...metrics,
-                timestamp: serverTimestamp(),
-            });
-        } catch (error) {
-            console.error('Error saving system metrics:', error);
-        }
-    }
-
-    /**
-     * Log user activity
-     */
-    async logUserActivity(activity: UserActivity): Promise<void> {
-        try {
-            await addDoc(collection(db, 'userActivities'), {
-                ...activity,
-                timestamp: serverTimestamp(),
-            });
-        } catch (error) {
-            console.error('Error logging user activity:', error);
-        }
-    }
-
-    /**
      * Log performance metric
      */
     async logPerformanceMetric(metric: PerformanceMetric): Promise<void> {
@@ -946,26 +861,6 @@ export class MonitoringService {
             });
         } catch (error) {
             console.error('Error logging performance metric:', error);
-        }
-    }
-
-    /**
-     * Log error
-     */
-    async logError(error: Omit<ErrorLog, 'errorId' | 'timestamp' | 'resolved'>): Promise<void> {
-        try {
-            const errorDoc = await addDoc(collection(db, 'errorLogs'), {
-                ...error,
-                timestamp: serverTimestamp(),
-                resolved: false,
-            });
-
-            // Auto-alert for critical errors
-            if (error.severity === 'critical') {
-                await this.sendCriticalErrorAlert(errorDoc.id, error);
-            }
-        } catch (err) {
-            console.error('Error logging error:', err);
         }
     }
 
@@ -989,162 +884,6 @@ export class MonitoringService {
             });
         } catch (err) {
             console.error('Error sending critical error alert:', err);
-        }
-    }
-
-    /**
-     * Get system health status
-     */
-    async getSystemHealth(): Promise<{
-        status: 'healthy' | 'warning' | 'critical';
-        metrics: SystemMetrics | null;
-        issues: string[];
-    }> {
-        try {
-            // Get latest metrics
-            const q = query(
-                collection(db, 'systemMetrics'),
-                orderBy('timestamp', 'desc'),
-                limit(1)
-            );
-            const snapshot = await getDocs(q);
-            
-            if (snapshot.empty) {
-                return {
-                    status: 'warning',
-                    metrics: null,
-                    issues: ['No metrics data available'],
-                };
-            }
-
-            const data = snapshot.docs[0].data();
-            const metrics: SystemMetrics = {
-                timestamp: data.timestamp.toDate(),
-                cpu: data.cpu,
-                memory: data.memory,
-                activeUsers: data.activeUsers,
-                responseTime: data.responseTime,
-                errorRate: data.errorRate,
-            };
-
-            const issues: string[] = [];
-            let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-
-            // Check CPU
-            if (metrics.cpu > 90) {
-                issues.push('CPU usage is very high (>90%)');
-                status = 'critical';
-            } else if (metrics.cpu > 70) {
-                issues.push('CPU usage is high (>70%)');
-                if (status === 'healthy') status = 'warning';
-            }
-
-            // Check memory
-            if (metrics.memory > 500) {
-                issues.push('Memory usage is very high (>500MB)');
-                status = 'critical';
-            } else if (metrics.memory > 300) {
-                issues.push('Memory usage is high (>300MB)');
-                if (status === 'healthy') status = 'warning';
-            }
-
-            // Check response time
-            if (metrics.responseTime > 2000) {
-                issues.push('Response time is very slow (>2s)');
-                status = 'critical';
-            } else if (metrics.responseTime > 1000) {
-                issues.push('Response time is slow (>1s)');
-                if (status === 'healthy') status = 'warning';
-            }
-
-            // Check error rate
-            if (metrics.errorRate > 10) {
-                issues.push('High error rate (>10 errors/min)');
-                status = 'critical';
-            } else if (metrics.errorRate > 5) {
-                issues.push('Elevated error rate (>5 errors/min)');
-                if (status === 'healthy') status = 'warning';
-            }
-
-            return { status, metrics, issues };
-        } catch (error) {
-            console.error('Error getting system health:', error);
-            return {
-                status: 'critical',
-                metrics: null,
-                issues: ['Failed to fetch system health'],
-            };
-        }
-    }
-
-    /**
-     * Get project metrics
-     */
-    async getProjectMetrics(projectId: string): Promise<ProjectMetrics | null> {
-        try {
-            // Get project data
-            const projectDoc = await getDocs(
-                query(collection(db, 'projects'), where('__name__', '==', projectId))
-            );
-            
-            if (projectDoc.empty) return null;
-
-            const project = projectDoc.docs[0].data();
-
-            // Get tasks
-            const tasksQuery = query(
-                collection(db, 'tasks'),
-                where('projectId', '==', projectId)
-            );
-            const tasksSnapshot = await getDocs(tasksQuery);
-
-            let tasksCompleted = 0;
-            let tasksInProgress = 0;
-            let tasksPending = 0;
-
-            tasksSnapshot.forEach(doc => {
-                const task = doc.data();
-                if (task.status === 'completed') tasksCompleted++;
-                else if (task.status === 'in-progress') tasksInProgress++;
-                else tasksPending++;
-            });
-
-            const tasksTotal = tasksSnapshot.size;
-            const progressPercentage = tasksTotal > 0 
-                ? (tasksCompleted / tasksTotal) * 100 
-                : 0;
-
-            // Calculate budget
-            const budgetTotal = project.budget || 0;
-            const budgetSpent = project.expenses?.reduce(
-                (sum: number, exp: any) => sum + (exp.amount || 0), 
-                0
-            ) || 0;
-            const budgetRemaining = budgetTotal - budgetSpent;
-
-            // Team size
-            const teamSize = project.members?.length || 0;
-
-            // Last activity
-            const lastActivity = project.updatedAt?.toDate() || new Date();
-
-            return {
-                projectId,
-                projectName: project.name,
-                tasksTotal,
-                tasksCompleted,
-                tasksInProgress,
-                tasksPending,
-                progressPercentage,
-                budgetTotal,
-                budgetSpent,
-                budgetRemaining,
-                teamSize,
-                lastActivity,
-            };
-        } catch (error) {
-            console.error('Error getting project metrics:', error);
-            return null;
         }
     }
 

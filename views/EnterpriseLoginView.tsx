@@ -15,8 +15,7 @@ import ForgotPasswordView from './ForgotPasswordView';
 
 // Firebase imports
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';

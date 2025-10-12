@@ -4,7 +4,7 @@
  */
 
 import { monitoringService } from '../api/monitoringService';
-import { SystemMetrics, UserActivity, ErrorLog, PerformanceMetric } from '../types/monitoring';
+import { SystemMetrics, PerformanceMetric } from '../types/monitoring';
 import { MonitoringDataValidator } from '../utils/validation/DataValidator';
 import { circuitBreakerManager } from '../utils/validation/CircuitBreaker';
 
@@ -126,9 +126,9 @@ export class MonitoringSystemVerification {
         const testStart = Date.now();
         
         try {
-            const metrics = monitoringService.collectSystemInfo();
+            const healthCheck = await monitoringService.getSystemHealth();
             
-            if (metrics && typeof metrics.cpu === 'number' && typeof metrics.memory === 'number') {
+            if (healthCheck && healthCheck.metrics && typeof healthCheck.metrics.cpu === 'number' && typeof healthCheck.metrics.memory === 'number') {
                 this.addResult('System Metrics Collection', true, 'Successfully collected system metrics', Date.now() - testStart);
             } else {
                 this.addResult('System Metrics Collection', false, 'Failed to collect valid system metrics', Date.now() - testStart);
@@ -249,7 +249,7 @@ export class MonitoringSystemVerification {
         const testStart = Date.now();
         
         try {
-            const projectMetrics = await monitoringService.getProjectMetrics('test-project');
+            await monitoringService.getProjectMetrics('test-project');
             
             // Since this might be null for non-existent project, we just test that it doesn't throw
             this.addResult('Project Metrics', true, 'Successfully queried project metrics', Date.now() - testStart);

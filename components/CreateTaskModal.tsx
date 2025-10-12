@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import { useState, FormEvent } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input, Select, Textarea } from './FormControls';
@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import { Spinner } from './Spinner';
-import { Calendar, User as UserIcon, Tag, AlertCircle, Plus, X } from 'lucide-react';
+import { Calendar, Tag, AlertCircle, Plus, X } from 'lucide-react';
 import { getTodayDateString } from '../constants';
 
 interface CreateTaskModalProps {

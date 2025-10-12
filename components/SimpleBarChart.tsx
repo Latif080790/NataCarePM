@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from './Card';
 
 interface DataPoint {
@@ -18,7 +17,6 @@ interface SimpleBarChartProps {
 export default function SimpleBarChart({
   data,
   title,
-  height = 200,
   showValues = true,
   className = ''
 }: SimpleBarChartProps) {

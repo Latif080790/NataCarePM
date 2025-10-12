@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
-import EnterpriseAdvancedDashboardView from './views/EnterpriseAdvancedDashboardView';
 import RabAhspView from './views/RabAhspView';
 import GanttChartView from './views/GanttChartView';
 import DailyReportView from './views/DailyReportView';

@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
-import { useAuth } from '../contexts/AuthContext';
-import { useProject } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import { 
-    Bell, BellOff, Filter, Search, Check, CheckCircle, 
+    Bell, BellOff, Search, Check, CheckCircle, 
     AlertCircle, Info, MessageSquare, Calendar, Clock,
-    Trash2, Settings, Eye, User, FileText, Target,
-    CheckSquare, Archive
+    Trash2, Settings, Eye, User, FileText,
+    CheckSquare
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
@@ -31,10 +29,6 @@ interface Notification {
         name: string;
         avatar?: string;
     };
-}
-
-interface NotificationCenterViewProps {
-    projectId: string;
 }
 
 const notificationTypes = [
@@ -134,13 +128,10 @@ const mockNotifications: Notification[] = [
     }
 ];
 
-export default function NotificationCenterView({ projectId }: NotificationCenterViewProps) {
-    const { currentUser } = useAuth();
-    const { currentProject } = useProject();
+export default function NotificationCenterView() {
     const { addToast } = useToast();
     
     const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-    const [loading, setLoading] = useState(false);
     const [selectedType, setSelectedType] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showOnlyUnread, setShowOnlyUnread] = useState(false);

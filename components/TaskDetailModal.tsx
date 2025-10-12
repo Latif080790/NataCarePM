@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input, Select, Textarea } from './FormControls';
-import { Task, Subtask, TaskComment, User } from '../types';
+import { Task, Subtask, TaskComment } from '../types';
 import { taskService } from '../api/taskService';
 import { useAuth } from '../contexts/AuthContext';
 import { useProject } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import { Spinner } from './Spinner';
-import { CommentThread } from './CommentThread';
 import { Progress } from './Progress';
 import { 
-    Calendar, User as UserIcon, Tag, AlertCircle, Plus, X, 
+    Calendar, Tag, AlertCircle, Plus, X, 
     Edit, Save, CheckCircle, Clock, MessageCircle, Users,
-    Trash2, MoreHorizontal
+    Trash2
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
@@ -117,7 +116,7 @@ export default function TaskDetailModal({
                 assignedTo: currentUser.id,
             };
             
-            await taskService.addSubtask(currentProject.id, task.id, subtaskData, currentUser);
+            await taskService.addSubtask(currentProject.id, task.id, subtaskData);
             setNewSubtask('');
             addToast('Subtask berhasil ditambahkan', 'success');
             
@@ -143,8 +142,7 @@ export default function TaskDetailModal({
                 currentProject.id, 
                 task.id, 
                 subtaskId, 
-                { completed },
-                currentUser
+                { completed }
             );
             
             // Refresh task data
@@ -163,7 +161,7 @@ export default function TaskDetailModal({
         if (!currentProject || !currentUser) return;
         
         try {
-            await taskService.deleteSubtask(currentProject.id, task.id, subtaskId, currentUser);
+            await taskService.deleteSubtask(currentProject.id, task.id, subtaskId);
             
             // Refresh task data
             const updatedTask = await taskService.getTaskById(currentProject.id, task.id);
@@ -198,6 +196,7 @@ export default function TaskDetailModal({
             case 'in-progress': return <AlertCircle className="w-4 h-4 text-blue-500" />;
             case 'done': return <CheckCircle className="w-4 h-4 text-green-500" />;
             case 'blocked': return <X className="w-4 h-4 text-red-500" />;
+            default: return <Clock className="w-4 h-4 text-gray-500" />;
         }
     };
 
@@ -207,6 +206,7 @@ export default function TaskDetailModal({
             case 'in-progress': return 'bg-blue-100 text-blue-800';
             case 'done': return 'bg-green-100 text-green-800';
             case 'blocked': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 

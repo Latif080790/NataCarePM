@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Task } from '../types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { taskService } from '../api/taskService';
@@ -10,9 +10,9 @@ import { useToast } from '../contexts/ToastContext';
 import TaskDetailModal from '../components/TaskDetailModal';
 import CreateTaskModal from '../components/CreateTaskModal';
 import { 
-    Calendar, Plus, Filter, Search, Download, ZoomIn, ZoomOut, 
-    RefreshCw, Settings, Eye, EyeOff, AlertTriangle, CheckCircle,
-    ArrowRight, Clock, Target, Users, BarChart3, TrendingUp
+    Plus, Search, Download, ZoomIn, ZoomOut, 
+    AlertTriangle, Settings,
+    ArrowRight, Clock, Target, Users, BarChart3
 } from 'lucide-react';
 import { formatDate } from '../constants';
 
@@ -57,14 +57,8 @@ const statusColors = {
     'todo': '#6b7280',
     'in-progress': '#3b82f6', 
     'done': '#10b981',
-    'blocked': '#ef4444'
-};
-
-const priorityColors = {
-    'low': '#9ca3af',
-    'medium': '#f59e0b',
-    'high': '#f97316', 
-    'critical': '#dc2626'
+    'blocked': '#ef4444',
+    'review': '#8b5cf6'
 };
 
 export default function InteractiveGanttView({ projectId }: InteractiveGanttViewProps) {
@@ -175,7 +169,6 @@ export default function InteractiveGanttView({ projectId }: InteractiveGanttView
     const calculateCriticalPath = (ganttTasks: GanttTask[]): string[] => {
         // Find the longest path through the network
         const taskMap = new Map(ganttTasks.map(gt => [gt.id, gt]));
-        const criticalPath: string[] = [];
         
         // Find tasks with no successors (end tasks)
         const endTasks = ganttTasks.filter(gt => 
@@ -323,6 +316,7 @@ export default function InteractiveGanttView({ projectId }: InteractiveGanttView
                 document.removeEventListener('mouseup', handleMouseUp);
             };
         }
+        return undefined;
     }, [draggedTask, handleMouseMove, handleMouseUp]);
 
     const handleTaskClick = (task: GanttTask) => {
@@ -593,7 +587,7 @@ export default function InteractiveGanttView({ projectId }: InteractiveGanttView
 
                             {/* Task Rows */}
                             <div className="divide-y">
-                                {filteredTasks.map((task, taskIndex) => {
+                                {filteredTasks.map((task) => {
                                     const startIndex = timelineHeaders.findIndex(h => 
                                         h.date.toDateString() === task.startDate.toDateString()
                                     );

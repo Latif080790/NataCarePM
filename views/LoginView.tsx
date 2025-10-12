@@ -1,23 +1,20 @@
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
-import React, { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
 import { 
-  LogIn, UserPlus, Eye, EyeOff, Shield, Building2, 
-  Sparkles, Lock, Mail, User, CheckCircle, AlertCircle,
-  ArrowRight, Star, Trophy, Zap
+  LogIn, UserPlus
 } from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';
 
 // Firebase imports
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
@@ -26,18 +23,16 @@ export default function LoginView() {
     const { loading: authLoading, login } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [showForgotPassword, setShowForgotPassword] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
     
     // Enhanced form state
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [mounted, setMounted] = useState(false);
     
     // Animation state
     useEffect(() => {
-        setMounted(true);
+        // Component mounted
     }, []);
 
     if (showForgotPassword) {

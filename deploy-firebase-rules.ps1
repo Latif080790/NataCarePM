@@ -24,7 +24,7 @@ Write-Host ""
 
 # Check if user is logged in
 Write-Host "Checking Firebase authentication..." -ForegroundColor Yellow
-$loginCheck = firebase login:list 2>&1
+firebase login:list 2>&1 | Out-Null
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Not logged in to Firebase!" -ForegroundColor Red

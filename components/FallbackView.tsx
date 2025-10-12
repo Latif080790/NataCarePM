@@ -4,7 +4,6 @@ import { Button } from './Button';
 import { 
   AlertTriangle, 
   Database, 
-  Wifi, 
   WifiOff, 
   ArrowLeft,
   Construction,

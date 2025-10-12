@@ -1,4 +1,4 @@
-import React from 'react';
+// Dashboard Skeleton Component
 
 const SkeletonCard = () => (
   <div className="bg-slate-800 p-4 rounded-lg animate-pulse">

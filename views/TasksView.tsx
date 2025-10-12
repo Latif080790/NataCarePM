@@ -31,8 +31,6 @@ interface TasksViewProps {
 export const TasksView: React.FC<TasksViewProps> = ({
   tasks = [],
   users = [],
-  onCreateTask,
-  onUpdateTask,
   onDeleteTask
 }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -335,7 +333,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleTaskDelete(task.id);
+                      if (window.confirm('Apakah Anda yakin ingin menghapus task ini?')) {
+                        onDeleteTask?.(task.id);
+                      }
                     }}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                   >

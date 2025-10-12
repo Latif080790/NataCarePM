@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Project, ProjectMetrics, Notification, AiInsight } from '../types';
 import { StatCard } from '../components/StatCard';
 import { RadialProgress } from '../components/GaugeChart';
@@ -9,10 +9,10 @@ import { Input } from '../components/FormControls';
 import { Spinner } from '../components/Spinner';
 import { formatCurrency, formatDate } from '../constants';
 import { 
-    DollarSign, BarChart3, AlertTriangle, CheckCircle, Clock, Sparkles, 
-    RefreshCw, Filter, Download, Calendar, TrendingUp, TrendingDown,
+    DollarSign, CheckCircle, Clock, Sparkles, 
+    RefreshCw, Filter, Download, Calendar, TrendingUp,
     Users, Target, FileText, Bell, Settings, Fullscreen, Minimize,
-    RotateCcw, ChevronDown, Search, Eye, EyeOff
+    RotateCcw
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -95,11 +95,11 @@ const AiInsightWidget = ({ insight, onRefresh, isLoading }: { insight?: AiInsigh
                     <div>
                         <h4 className="font-semibold text-night-black">Rekomendasi</h4>
                         <ul className="list-disc list-inside text-palladium space-y-1">
-                            {insight.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
+                            {insight.recommendations?.map((rec, i) => <li key={i}>{rec}</li>) || []}
                         </ul>
                     </div>
                     <div className="text-xs text-palladium mt-4">
-                        Diperbarui: {formatDate(insight.timestamp)}
+                        Diperbarui: {insight.timestamp ? formatDate(insight.timestamp) : 'Unknown'}
                     </div>
                 </div>
             )}

@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, ReactNode, useCallback, use
 import { projectService } from '../api/projectService';
 import { 
     Workspace, Project, AhspData, Worker, Notification, DailyReport, 
-    PurchaseOrder, POItem, Attendance, WorkProgress, User, AiInsight, Comment, Document
+    PurchaseOrder, POItem, Attendance, WorkProgress, AiInsight, Document
 } from '../types';
 import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
@@ -218,7 +218,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
             contents: prompt,
         });
 
-        const responseText = await response.response.text();
+        const responseText = response.text || '';
         const parsedText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
         const aiResponse = JSON.parse(parsedText);
 

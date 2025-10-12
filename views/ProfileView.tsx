@@ -1,10 +1,10 @@
-import React, { useState, FormEvent } from 'react';
+import { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
-import { User, Mail, Lock, Save, Camera } from 'lucide-react';
+import { User, Lock, Save, Camera } from 'lucide-react';
 import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
@@ -17,7 +17,7 @@ export default function ProfileView() {
     
     // Profile form state
     const [name, setName] = useState(currentUser?.name || '');
-    const [email, setEmail] = useState(currentUser?.email || '');
+    const [email] = useState(currentUser?.email || '');
     const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl || '');
     
     // Password change state

@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from './Button';
 import { Input } from './FormControls';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
-import { Bot, Send, X, User as UserIcon, Sparkles, History as HistoryIcon, Wand2, Trash2, ListChecks, PlusCircle } from 'lucide-react';
+import { Bot, Send, X, User as UserIcon, Sparkles, History as HistoryIcon, Trash2, PlusCircle } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 // FIX: Import `Chat` type from `@google/genai` to correctly type the chat session object.
 import { GoogleGenAI, Chat } from '@google/genai';

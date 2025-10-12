@@ -111,7 +111,7 @@ export const taskService = {
     },
 
     // --- Subtask operations ---
-    addSubtask: async (projectId: string, taskId: string, subtaskData: Omit<Subtask, 'id'>, user: User): Promise<void> => {
+    addSubtask: async (projectId: string, taskId: string, subtaskData: Omit<Subtask, 'id'>): Promise<void> => {
         const taskRef = doc(db, `projects/${projectId}/tasks`, taskId);
         const taskDoc = await getDoc(taskRef);
         
@@ -132,7 +132,7 @@ export const taskService = {
         await taskService.recalculateTaskProgress(projectId, taskId);
     },
 
-    updateSubtask: async (projectId: string, taskId: string, subtaskId: string, updates: Partial<Subtask>, user: User): Promise<void> => {
+    updateSubtask: async (projectId: string, taskId: string, subtaskId: string, updates: Partial<Subtask>): Promise<void> => {
         const taskRef = doc(db, `projects/${projectId}/tasks`, taskId);
         const taskDoc = await getDoc(taskRef);
         
@@ -154,7 +154,7 @@ export const taskService = {
         await taskService.recalculateTaskProgress(projectId, taskId);
     },
 
-    deleteSubtask: async (projectId: string, taskId: string, subtaskId: string, user: User): Promise<void> => {
+    deleteSubtask: async (projectId: string, taskId: string, subtaskId: string): Promise<void> => {
         const taskRef = doc(db, `projects/${projectId}/tasks`, taskId);
         const taskDoc = await getDoc(taskRef);
         

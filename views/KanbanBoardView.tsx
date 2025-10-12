@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo, DragEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../components/Button';
 import { Task } from '../types';
 import { taskService } from '../api/taskService';

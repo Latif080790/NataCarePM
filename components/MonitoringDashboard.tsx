@@ -213,10 +213,10 @@ export const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({
     compact = false,
     showControls = true
 }) => {
-    const { metrics: systemMetrics, loading: metricsLoading } = useSystemMetrics();
+    const { metrics: systemMetrics } = useSystemMetrics();
     const { errors, loading: errorsLoading, resolveError } = useErrorLogs(20);
     const { health, refresh: refreshHealth } = useSystemHealth();
-    const { analytics, loading: analyticsLoading, refresh: refreshAnalytics } = useDashboardAnalytics('day');
+    const { analytics, refresh: refreshAnalytics } = useDashboardAnalytics('day');
 
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [isMonitoring, setIsMonitoring] = useState(false);
@@ -367,29 +367,25 @@ export const MonitoringDashboard: React.FC<MonitoringDashboardProps> = ({
                     title="Total Activities"
                     value={analytics?.summary?.totalActivities || 0}
                     icon="📊"
-                    trend={null}
-                    loading={analyticsLoading}
+                    trend={undefined}
                 />
                 <MetricCard
                     title="Total Errors"
                     value={analytics?.summary?.totalErrors || 0}
                     icon="🔴"
-                    trend={null}
-                    loading={analyticsLoading}
+                    trend={undefined}
                 />
                 <MetricCard
                     title="Critical Errors"
                     value={analytics?.summary?.criticalErrors || 0}
                     icon="🚨"
-                    trend={null}
-                    loading={analyticsLoading}
+                    trend={undefined}
                 />
                 <MetricCard
                     title="Active Users"
                     value={systemMetrics?.activeUsers || 0}
                     icon="👥"
-                    trend={null}
-                    loading={metricsLoading}
+                    trend={undefined}
                 />
             </div>
 

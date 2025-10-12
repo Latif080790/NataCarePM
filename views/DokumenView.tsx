@@ -1,14 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Document as DocumentType } from '../types';
-import { DocumentVersion, DocumentWithVersions } from '../types/components';
+import { DocumentWithVersions } from '../types/components';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { Modal } from '../components/Modal';
 import { 
-    Upload, Download, Search, Filter, Eye, History, 
+    Upload, Download, Search, Eye, History, 
     FileText, Image, FileVideo, Music, File, Trash2,
-    Edit3, Share2, Clock, User, Calendar, Tag, Archive
+    Share2, Clock, User, Calendar, Tag, Archive
 } from 'lucide-react';
 import { formatDate, hasPermission } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
@@ -136,12 +136,12 @@ export default function DokumenView({ documents }: DokumenViewProps) {
         setShowVersionHistory(true);
     };
 
-    const handleArchiveDocument = async (docId: string) => {
+    const handleArchiveDocument = async () => {
         // Mock archive functionality
         addToast('Dokumen berhasil diarsipkan', 'success');
     };
 
-    const handleDeleteDocument = async (docId: string) => {
+    const handleDeleteDocument = async () => {
         // Mock delete functionality
         addToast('Dokumen berhasil dihapus', 'success');
     };
@@ -204,14 +204,14 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleArchiveDocument(doc.id.toString())}
+                                    onClick={() => handleArchiveDocument()}
                                 >
                                     <Archive className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDeleteDocument(doc.id.toString())}
+                                    onClick={() => handleDeleteDocument()}
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -464,14 +464,14 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                                                             <Button 
                                                                 variant="ghost" 
                                                                 size="sm"
-                                                                onClick={() => handleArchiveDocument(doc.id.toString())}
+                                                                onClick={() => handleArchiveDocument()}
                                                             >
                                                                 <Archive className="w-4 h-4"/>
                                                             </Button>
                                                             <Button 
                                                                 variant="ghost" 
                                                                 size="sm"
-                                                                onClick={() => handleDeleteDocument(doc.id.toString())}
+                                                                onClick={() => handleDeleteDocument()}
                                                             >
                                                                 <Trash2 className="w-4 h-4"/>
                                                             </Button>

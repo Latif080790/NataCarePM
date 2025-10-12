@@ -1,10 +1,10 @@
 import { db, storage } from '../firebaseConfig';
 import { 
-    collection, getDocs, getDoc, doc, addDoc, updateDoc, setDoc, query, where, onSnapshot, serverTimestamp, orderBy, writeBatch 
+    collection, getDocs, getDoc, doc, addDoc, updateDoc, query, where, onSnapshot, serverTimestamp, orderBy, writeBatch 
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
-    Workspace, AhspData, DailyReport, Attendance, Document, PurchaseOrder, Worker, User, Notification, Project, AuditLog, Comment 
+    Workspace, AhspData, DailyReport, Attendance, Document, PurchaseOrder, Worker, User, Notification, Project 
 } from '../types';
 
 // Helper to convert Firestore doc to our TypeScript types

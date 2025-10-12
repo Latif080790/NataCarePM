@@ -131,7 +131,6 @@ export function useActivityTracker() {
             action,
             resource,
             resourceId,
-            timestamp: new Date(),
             duration,
             success,
         });

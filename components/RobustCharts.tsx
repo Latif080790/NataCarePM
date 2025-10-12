@@ -452,8 +452,6 @@ export const RobustBarChart: React.FC<RobustBarChartProps> = ({
     }
 
     const maxValue = Math.max(...data.map(d => d.value));
-    const barWidth = horizontal ? '100%' : `${80 / data.length}%`;
-    const barHeight = horizontal ? `${80 / data.length}%` : '100%';
 
     return (
         <ChartErrorBoundary>
