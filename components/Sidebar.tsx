@@ -21,7 +21,8 @@ import {
   Monitor,
   Calendar,
   Activity,
-  Zap
+  Zap,
+  Brain
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { navLinksConfig, hasPermission } from '../constants';
@@ -57,6 +58,7 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
       strategic_cost: Shield,
       logistik: Truck,
       dokumen: FileArchive,
+      documents: Brain, // Intelligent Document System
       laporan: FileText,
       profile: User,
       user_management: Users,

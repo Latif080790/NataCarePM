@@ -1,5 +1,5 @@
 import {
-    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor
+    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor, Brain
 } from 'lucide-react';
 import { Role, User, Permission } from './types';
 
@@ -76,6 +76,7 @@ export const navLinksConfig = [
         children: [
             { id: 'logistik', name: 'Logistik & PO', icon: Truck, requiredPermission: 'view_logistics' },
             { id: 'dokumen', name: 'Dokumen', icon: FileArchive, requiredPermission: 'view_documents' },
+            { id: 'documents', name: 'Intelligent Documents', icon: Brain, requiredPermission: 'view_documents' },
             { id: 'laporan', name: 'Laporan Proyek', icon: FileText, requiredPermission: 'view_reports' },
         ]
     },

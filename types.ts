@@ -577,6 +577,16 @@ export interface RiskAssessment {
         mitigation: string;
     }[];
     recommendations: string[];
+    // Additional properties for component compatibility
+    id?: string;
+    documentId?: string;
+    riskLevel?: 'low' | 'medium' | 'high' | 'critical';
+    factors?: string[];
+    mitigation?: string[];
+    mitigationStrategies?: string[];
+    complianceIssues?: string[];
+    assessedAt?: Date;
+    assessedBy?: string;
 }
 
 export interface CashFlowProjection {
@@ -660,4 +670,846 @@ export interface KPIMetrics {
     // Overall performance
     overallHealthScore: number;
     performanceTrend: 'Improving' | 'Stable' | 'Declining';
+}
+
+// ==================== INTELLIGENT DOCUMENT SYSTEM ====================
+
+// AI-Powered OCR Types
+export interface OCRResult {
+    id: string;
+    documentId: string;
+    extractedText: string;
+    confidence: number;
+    boundingBoxes: BoundingBox[];
+    extractedData: ExtractedData;
+    processingTime: number;
+    timestamp: Date;
+    status: 'processing' | 'completed' | 'failed';
+    errorMessage?: string;
+    // Additional properties for component compatibility
+    structuredData?: { [key: string]: any };
+    language?: string;
+}
+
+export interface BoundingBox {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    text: string;
+    confidence: number;
+    fieldType?: string;
+}
+
+export interface ExtractedData {
+    // Construction Document Fields
+    projectName?: string;
+    contractNumber?: string;
+    dates?: ExtractedDate[];
+    amounts?: ExtractedAmount[];
+    materials?: ExtractedMaterial[];
+    personnel?: ExtractedPersonnel[];
+    coordinates?: ExtractedCoordinate[];
+    specifications?: ExtractedSpecification[];
+    signatures?: ExtractedSignature[];
+    tables?: ExtractedTable[];
+    customFields?: { [key: string]: any };
+}
+
+export interface ExtractedDate {
+    value: string;
+    confidence: number;
+    type: 'start_date' | 'end_date' | 'milestone' | 'deadline' | 'other';
+    boundingBox: BoundingBox;
+}
+
+export interface ExtractedAmount {
+    value: number;
+    currency: string;
+    confidence: number;
+    type: 'total_cost' | 'material_cost' | 'labor_cost' | 'equipment_cost' | 'other';
+    boundingBox: BoundingBox;
+}
+
+export interface ExtractedMaterial {
+    name: string;
+    quantity: number;
+    unit: string;
+    unitPrice?: number;
+    confidence: number;
+    boundingBox: BoundingBox;
+}
+
+export interface ExtractedPersonnel {
+    name: string;
+    role: string;
+    contact?: string;
+    confidence: number;
+    boundingBox: BoundingBox;
+}
+
+export interface ExtractedCoordinate {
+    latitude?: number;
+    longitude?: number;
+    elevation?: number;
+    description: string;
+    confidence: number;
+    boundingBox: BoundingBox;
+}
+
+export interface ExtractedSpecification {
+    category: string;
+    description: string;
+    value?: string;
+    unit?: string;
+    confidence: number;
+    boundingBox: BoundingBox;
+}
+
+export interface ExtractedSignature {
+    signerName?: string;
+    signatureDate?: string;
+    role?: string;
+    confidence: number;
+    boundingBox: BoundingBox;
+    isValid: boolean;
+}
+
+export interface ExtractedTable {
+    headers: string[];
+    rows: string[][];
+    confidence: number;
+    boundingBox: BoundingBox;
+    category?: string;
+}
+
+// Smart Templates Types
+export interface DocumentTemplate {
+    id: string;
+    name: string;
+    category: TemplateCategory;
+    description: string;
+    version: string;
+    structure: TemplateStructure;
+    dataMapping: DataMapping[];
+    outputFormat: OutputFormat;
+    createdBy: string;
+    createdAt: Date;
+    updatedAt: Date;
+    isActive: boolean;
+    tags: string[];
+    metadata: TemplateMetadata;
+    // Additional properties for component compatibility
+    content?: string;
+    variables?: TemplateVariable[];
+    isPublic?: boolean;
+    usageCount?: number;
+}
+
+export type TemplateCategory = 
+    | 'progress_report' 
+    | 'financial_report' 
+    | 'safety_report' 
+    | 'quality_report'
+    | 'material_report'
+    | 'compliance_report'
+    | 'contract_document'
+    | 'inspection_report'
+    | 'custom';
+
+export interface TemplateStructure {
+    sections: TemplateSection[];
+    header?: TemplateHeader;
+    footer?: TemplateFooter;
+    styling: TemplateStyle;
+}
+
+export interface TemplateSection {
+    id: string;
+    title: string;
+    order: number;
+    type: 'text' | 'table' | 'chart' | 'image' | 'signature' | 'dynamic';
+    content?: string;
+    dataSource?: string;
+    isRequired: boolean;
+    conditions?: TemplateCondition[];
+    formatting: SectionFormatting;
+}
+
+export interface TemplateHeader {
+    content: string;
+    includeDate: boolean;
+    includeLogo: boolean;
+    includeProjectInfo: boolean;
+    formatting: SectionFormatting;
+}
+
+export interface TemplateFooter {
+    content: string;
+    includePageNumbers: boolean;
+    includeSignatures: boolean;
+    formatting: SectionFormatting;
+}
+
+export interface TemplateStyle {
+    fontFamily: string;
+    fontSize: number;
+    lineHeight: number;
+    margins: { top: number; right: number; bottom: number; left: number; };
+    colors: { primary: string; secondary: string; text: string; background: string; };
+    spacing: { section: number; paragraph: number; };
+}
+
+export interface DataMapping {
+    templateFieldId: string;
+    dataSource: string;
+    fieldPath: string;
+    transformation?: DataTransformation;
+    defaultValue?: any;
+    validation?: ValidationRule[];
+}
+
+export interface DataTransformation {
+    type: 'format' | 'calculate' | 'aggregate' | 'filter' | 'custom';
+    parameters: { [key: string]: any };
+    customFunction?: string;
+}
+
+export interface ValidationRule {
+    type: 'required' | 'type' | 'range' | 'pattern' | 'custom';
+    parameters: { [key: string]: any };
+    errorMessage: string;
+}
+
+export interface TemplateCondition {
+    field: string;
+    operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'exists';
+    value: any;
+    action: 'show' | 'hide' | 'required' | 'optional';
+}
+
+export interface SectionFormatting {
+    alignment: 'left' | 'center' | 'right' | 'justify';
+    fontSize?: number;
+    fontWeight?: 'normal' | 'bold';
+    color?: string;
+    backgroundColor?: string;
+    padding?: { top: number; right: number; bottom: number; left: number; };
+    border?: BorderStyle;
+}
+
+export interface BorderStyle {
+    width: number;
+    style: 'solid' | 'dashed' | 'dotted';
+    color: string;
+}
+
+export type OutputFormat = 'pdf' | 'docx' | 'html' | 'xlsx' | 'json';
+
+export interface TemplateMetadata {
+    industry: string;
+    regulatory: string[];
+    language: string;
+    region: string;
+    lastUsed?: Date;
+    usageCount: number;
+    rating?: number;
+    reviews?: TemplateReview[];
+}
+
+export interface TemplateReview {
+    userId: string;
+    userName: string;
+    rating: number;
+    comment: string;
+    date: Date;
+}
+
+// Digital Signatures Types
+export type SignatureStandard = 'eidas' | 'esign' | 'ueta' | 'indonesia' | 'custom';
+export type SignatureMethod = 'digital' | 'electronic' | 'biometric';
+
+export interface TemplateVariable {
+    name: string;
+    type: 'text' | 'number' | 'date' | 'boolean' | 'list';
+    defaultValue?: any;
+    description?: string;
+    required?: boolean;
+    validation?: string;
+}
+
+export interface ComplianceRule {
+    id: string;
+    name: string;
+    description: string;
+    type: 'mandatory' | 'optional' | 'conditional';
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    checkFunction: (document: any) => boolean;
+}
+
+// This interface is duplicated - see the main RiskAssessment interface above
+
+export interface DigitalSignature {
+    id: string;
+    documentId: string;
+    documentVersionId: string;
+    signerInfo: SignerInfo;
+    signatureData: SignatureData;
+    certificate: SignatureCertificate;
+    timestamp: Date;
+    status: SignatureStatus;
+    metadata: SignatureMetadata;
+    verification: SignatureVerification;
+    legalCompliance: LegalCompliance;
+    // Additional properties for component compatibility
+    isRevoked?: boolean;
+    expiresAt?: Date;
+    isValid?: boolean;
+    signerName?: string;
+    signerEmail?: string;
+    signedAt?: Date;
+    standard?: SignatureStandard;
+    signatureMethod?: SignatureMethod;
+    certificateId?: string;
+    algorithm?: string;
+    reason?: string;
+}
+
+export interface SignerInfo {
+    userId: string;
+    name: string;
+    email: string;
+    role: string;
+    organization: string;
+    ipAddress: string;
+    deviceInfo: string;
+    location?: GeolocationCoordinates;
+    authMethod: 'password' | 'otp' | 'biometric' | 'certificate';
+}
+
+export interface SignatureData {
+    type: 'digital' | 'electronic' | 'biometric';
+    data: string; // Base64 encoded signature data
+    algorithm: string;
+    hashValue: string;
+    encryptionKey?: string;
+    biometricData?: BiometricData;
+}
+
+export interface BiometricData {
+    type: 'fingerprint' | 'face' | 'voice' | 'handwriting';
+    template: string;
+    confidence: number;
+    quality: number;
+}
+
+export interface SignatureCertificate {
+    id: string;
+    issuer: string;
+    subject: string;
+    serialNumber: string;
+    validFrom: Date;
+    validTo: Date;
+    algorithm: string;
+    publicKey: string;
+    certificateChain: string[];
+    revocationStatus: 'valid' | 'revoked' | 'expired' | 'unknown';
+    trustLevel: 'high' | 'medium' | 'low';
+}
+
+export type SignatureStatus = 
+    | 'pending' 
+    | 'signed' 
+    | 'verified' 
+    | 'invalid' 
+    | 'expired' 
+    | 'revoked'
+    | 'disputed';
+
+export interface SignatureMetadata {
+    reason: string;
+    location: string;
+    contactInfo: string;
+    signingTime: Date;
+    timeStampAuthority?: string;
+    documentHash: string;
+    pageNumber?: number;
+    signatureBox?: BoundingBox;
+    workflow: SignatureWorkflow;
+}
+
+export interface SignatureWorkflow {
+    workflowId: string;
+    step: number;
+    totalSteps: number;
+    nextSigners: string[];
+    completedSigners: string[];
+    isRequired: boolean;
+    deadline?: Date;
+    reminderSchedule?: Date[];
+    // Additional properties for component compatibility
+    id?: string;
+    documentId?: string;
+    requiredSigners?: string[];
+    signatures?: DigitalSignature[];
+    title?: string;
+    description?: string;
+    createdBy?: string;
+    createdAt?: Date;
+    isCompleted?: boolean;
+    isCancelled?: boolean;
+}
+
+export interface SignatureVerification {
+    isValid: boolean;
+    verifiedAt: Date;
+    verifiedBy: string;
+    verificationMethod: string;
+    integrityCheck: boolean;
+    certificateValid: boolean;
+    timestampValid: boolean;
+    revocationChecked: boolean;
+    errors: string[];
+    warnings: string[];
+    verificationReport: string;
+}
+
+export interface LegalCompliance {
+    standard: 'eIDAS' | 'ESIGN' | 'UETA' | 'ISO27001' | 'SOX' | 'custom';
+    level: 'basic' | 'advanced' | 'qualified';
+    jurisdiction: string;
+    auditTrail: AuditTrailEntry[];
+    retention: RetentionPolicy;
+    dataProtection: DataProtectionCompliance;
+}
+
+export interface RetentionPolicy {
+    retentionPeriod: number; // in years
+    archivalLocation: string;
+    destructionDate?: Date;
+    legalHold: boolean;
+}
+
+export interface DataProtectionCompliance {
+    gdprCompliant: boolean;
+    dataProcessingBasis: string;
+    consentTimestamp?: Date;
+    dataSubjectRights: string[];
+    crossBorderTransfer: boolean;
+    adequacyDecision?: string;
+}
+
+// Document Version Control Types
+export interface DocumentVersion {
+    id: string;
+    documentId: string;
+    versionNumber: string;
+    majorVersion: number;
+    minorVersion: number;
+    patchVersion: number;
+    parentVersionId?: string;
+    branchName: string;
+    commitMessage: string;
+    authorId: string;
+    authorName: string;
+    timestamp: Date;
+    fileMetadata: FileMetadata;
+    contentHash: string;
+    changeSet: ChangeSet[];
+    status: VersionStatus;
+    tags: VersionTag[];
+    mergeInfo?: MergeInfo;
+    conflictResolution?: ConflictResolution[];
+    // Additional properties for component compatibility
+    comment?: string;
+    createdBy?: string;
+    createdAt?: Date;
+}
+
+export interface FileMetadata {
+    fileName: string;
+    fileSize: number;
+    mimeType: string;
+    encoding: string;
+    checksum: string;
+    storageLocation: string;
+    compressionRatio?: number;
+    encryptionInfo?: EncryptionInfo;
+}
+
+export interface EncryptionInfo {
+    algorithm: string;
+    keyId: string;
+    isEncrypted: boolean;
+    encryptionLevel: 'none' | 'transport' | 'storage' | 'end-to-end';
+}
+
+export interface ChangeSet {
+    type: 'insert' | 'delete' | 'modify' | 'move' | 'rename';
+    path: string;
+    oldValue?: any;
+    newValue?: any;
+    lineNumber?: number;
+    characterPosition?: number;
+    metadata?: { [key: string]: any };
+}
+
+export type VersionStatus = 
+    | 'draft' 
+    | 'review' 
+    | 'approved' 
+    | 'published' 
+    | 'archived' 
+    | 'deprecated'
+    | 'locked';
+
+export interface VersionTag {
+    name: string;
+    type: 'release' | 'milestone' | 'feature' | 'hotfix' | 'custom';
+    description?: string;
+    metadata?: { [key: string]: any };
+}
+
+export interface MergeInfo {
+    fromBranch: string;
+    toBranch: string;
+    mergeStrategy: 'fast-forward' | 'recursive' | 'ours' | 'theirs' | 'manual';
+    conflictsDetected: boolean;
+    mergedAt: Date;
+    mergedBy: string;
+    mergeCommitId: string;
+}
+
+export interface ConflictResolution {
+    conflictType: 'content' | 'metadata' | 'structure' | 'permission';
+    conflictPath: string;
+    resolution: 'accept_current' | 'accept_incoming' | 'merge_manual' | 'custom';
+    resolvedBy: string;
+    resolvedAt: Date;
+    resolutionDetails: string;
+}
+
+export interface DocumentBranch {
+    id: string;
+    name: string;
+    documentId: string;
+    parentBranchId?: string;
+    createdBy: string;
+    createdAt: Date;
+    lastCommitId: string;
+    lastActivityAt: Date;
+    isDefault: boolean;
+    isProtected: boolean;
+    mergeRules: MergeRule[];
+    access: BranchAccess;
+    status: 'active' | 'merged' | 'abandoned' | 'protected';
+}
+
+export interface MergeRule {
+    type: 'require_review' | 'require_approval' | 'require_signature' | 'auto_merge';
+    condition: string;
+    approvers?: string[];
+    minimumApprovals?: number;
+}
+
+export interface BranchAccess {
+    canRead: string[];
+    canWrite: string[];
+    canMerge: string[];
+    canDelete: string[];
+    inheritFromParent: boolean;
+}
+
+// Main Document System Types
+export interface IntelligentDocument {
+    id: string;
+    title: string;
+    description?: string;
+    category: DocumentCategory;
+    projectId: string;
+    createdBy: string;
+    createdAt: Date;
+    updatedAt: Date;
+    
+    // File Information
+    currentVersionId: string;
+    allVersions: DocumentVersion[];
+    branches: DocumentBranch[];
+    
+    // AI & OCR
+    ocrResults: OCRResult[];
+    extractedData: ExtractedData;
+    aiInsights: AIInsight[];
+    
+    // Templates & Generation
+    templateId?: string;
+    generatedFromTemplate: boolean;
+    autoGenerationSettings?: AutoGenerationSettings;
+    
+    // Digital Signatures
+    signatures: DigitalSignature[];
+    signatureWorkflow?: SignatureWorkflow;
+    requiresSignature: boolean;
+    
+    // Security & Compliance
+    accessControl: DocumentAccessControl;
+    encryptionStatus: EncryptionInfo;
+    complianceInfo: ComplianceInfo;
+    auditTrail: AuditTrailEntry[];
+    
+    // Metadata & Classification
+    tags: string[];
+    customFields: { [key: string]: any };
+    relatedDocuments: string[];
+    dependencies: DocumentDependency[];
+    
+    // Status & Workflow
+    status: DocumentStatus;
+    workflow: DocumentWorkflow;
+    notifications: DocumentNotification[];
+    
+    // Additional properties for component compatibility
+    collaborators?: string[];
+    fileSize?: number;
+    mimeType?: string;
+    checksum?: string;
+    
+    // Search & Discovery
+    searchableContent: string;
+    keywords: string[];
+    language: string;
+    region: string;
+}
+
+export type DocumentCategory = 
+    | 'contract'
+    | 'specification'
+    | 'drawing'
+    | 'report'
+    | 'permit'
+    | 'invoice'
+    | 'certificate'
+    | 'correspondence'
+    | 'procedure'
+    | 'policy'
+    | 'other';
+
+export interface AIInsight {
+    id: string;
+    type: 'summary' | 'risk_analysis' | 'compliance_check' | 'anomaly_detection' | 'recommendation';
+    title: string;
+    description: string;
+    confidence: number;
+    relevantSections: string[];
+    actionItems: string[];
+    priority: 'low' | 'medium' | 'high' | 'critical';
+    status: 'new' | 'reviewed' | 'acknowledged' | 'resolved' | 'dismissed';
+    generatedAt: Date;
+    metadata: { [key: string]: any };
+    // Additional properties for component compatibility
+    recommendations?: string[];
+    affectedSections?: string[];
+}
+
+export interface AutoGenerationSettings {
+    frequency: 'manual' | 'daily' | 'weekly' | 'monthly' | 'on_data_change';
+    dataSources: string[];
+    triggers: GenerationTrigger[];
+    outputFormat: OutputFormat;
+    distribution: DistributionSettings;
+}
+
+export interface GenerationTrigger {
+    type: 'data_threshold' | 'time_based' | 'event_based' | 'user_action';
+    condition: string;
+    parameters: { [key: string]: any };
+}
+
+export interface DistributionSettings {
+    recipients: string[];
+    deliveryMethod: 'email' | 'portal' | 'api' | 'print';
+    schedule?: DistributionSchedule;
+}
+
+export interface DistributionSchedule {
+    frequency: string;
+    time: string;
+    timezone: string;
+    excludeWeekends: boolean;
+    excludeHolidays: boolean;
+}
+
+export interface DocumentAccessControl {
+    visibility: 'public' | 'internal' | 'restricted' | 'confidential';
+    permissions: DocumentPermission[];
+    inheritFromProject: boolean;
+    watermark?: WatermarkSettings;
+    downloadRestrictions: DownloadRestriction[];
+}
+
+export interface DocumentPermission {
+    userId: string;
+    userName: string;
+    role: string;
+    permissions: DocumentAction[];
+    grantedBy: string;
+    grantedAt: Date;
+    expiresAt?: Date;
+    conditions?: PermissionCondition[];
+}
+
+export type DocumentAction = 
+    | 'view' 
+    | 'download' 
+    | 'edit' 
+    | 'comment' 
+    | 'share' 
+    | 'delete' 
+    | 'version' 
+    | 'sign' 
+    | 'approve';
+
+export interface PermissionCondition {
+    type: 'ip_range' | 'time_window' | 'device_type' | 'location' | 'vpn_required';
+    parameters: { [key: string]: any };
+}
+
+export interface WatermarkSettings {
+    text: string;
+    opacity: number;
+    position: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+    fontSize: number;
+    color: string;
+    includeTimestamp: boolean;
+    includeUserInfo: boolean;
+}
+
+export interface DownloadRestriction {
+    maxDownloads?: number;
+    timeWindow?: number; // hours
+    requiresApproval: boolean;
+    allowedFormats: string[];
+    includeWatermark: boolean;
+}
+
+export interface ComplianceInfo {
+    standards: ComplianceStandard[];
+    certifications: string[];
+    retentionPolicy: RetentionPolicy;
+    dataClassification: DataClassification;
+    regulatoryRequirements: RegulatoryRequirement[];
+}
+
+export interface ComplianceStandard {
+    name: string;
+    version: string;
+    applicable: boolean;
+    lastChecked: Date;
+    complianceLevel: 'compliant' | 'partial' | 'non_compliant' | 'unknown';
+    findings: ComplianceFinding[];
+}
+
+export interface ComplianceFinding {
+    type: 'violation' | 'warning' | 'recommendation';
+    description: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    remediation: string;
+    dueDate?: Date;
+    status: 'open' | 'in_progress' | 'resolved' | 'waived';
+}
+
+export type DataClassification = 
+    | 'public' 
+    | 'internal' 
+    | 'confidential' 
+    | 'restricted' 
+    | 'top_secret';
+
+export interface RegulatoryRequirement {
+    regulation: string;
+    jurisdiction: string;
+    applicability: string;
+    requirements: string[];
+    complianceDeadline?: Date;
+    status: 'compliant' | 'pending' | 'non_compliant';
+}
+
+export interface DocumentDependency {
+    dependentDocumentId: string;
+    dependencyType: 'reference' | 'prerequisite' | 'derived_from' | 'supersedes' | 'related';
+    description?: string;
+    isRequired: boolean;
+    lastChecked: Date;
+    status: 'valid' | 'broken' | 'outdated' | 'circular';
+}
+
+export type DocumentStatus = 
+    | 'draft' 
+    | 'in_review' 
+    | 'pending_approval' 
+    | 'approved' 
+    | 'published' 
+    | 'superseded' 
+    | 'archived' 
+    | 'deleted';
+
+export interface DocumentWorkflow {
+    workflowId: string;
+    currentStep: number;
+    totalSteps: number;
+    steps: WorkflowStep[];
+    isCompleted: boolean;
+    canSkipSteps: boolean;
+    escalationRules: EscalationRule[];
+}
+
+export interface WorkflowStep {
+    stepNumber: number;
+    name: string;
+    description: string;
+    assignedTo: string[];
+    requiredActions: DocumentAction[];
+    deadline?: Date;
+    isCompleted: boolean;
+    completedBy?: string;
+    completedAt?: Date;
+    comments?: string;
+    attachments?: string[];
+}
+
+export interface EscalationRule {
+    condition: string;
+    delayHours: number;
+    escalateTo: string[];
+    actionType: 'notify' | 'reassign' | 'auto_approve' | 'cancel';
+}
+
+export interface DocumentNotification {
+    id: string;
+    type: 'new_version' | 'review_required' | 'approval_needed' | 'signature_pending' | 'deadline_approaching' | 'workflow_completed';
+    recipientId: string;
+    message: string;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    isRead: boolean;
+    sentAt: Date;
+    readAt?: Date;
+    actionRequired: boolean;
+    actionDeadline?: Date;
+    relatedUrl?: string;
+}
+
+export interface AuditTrailEntry {
+    id: string;
+    timestamp: Date;
+    userId: string;
+    userName: string;
+    action: string;
+    resourceType: string;
+    resourceId: string;
+    details: { [key: string]: any };
+    ipAddress: string;
+    userAgent: string;
+    sessionId: string;
+    result: 'success' | 'failure' | 'partial';
+    errorMessage?: string;
 }

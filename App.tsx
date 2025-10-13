@@ -34,6 +34,7 @@ import FallbackView from './components/FallbackView';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/EnterpriseLoaders';
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 import { IntegratedAnalyticsView } from './views/IntegratedAnalyticsView';
+import IntelligentDocumentSystem from './views/IntelligentDocumentSystem';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
@@ -68,6 +69,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   strategic_cost: StrategicCostView,
   logistik: LogisticsView,
   dokumen: DokumenView,
+  documents: IntelligentDocumentSystem, // New Intelligent Document System
   laporan: ReportView,
   user_management: UserManagementView,
   master_data: MasterDataView,

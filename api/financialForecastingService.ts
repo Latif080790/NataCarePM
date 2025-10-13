@@ -269,7 +269,14 @@ export class FinancialForecastingService {
           mitigation: 'Diversify supplier base'
         }
       ],
-      recommendations: this.generateRiskMitigationRecommendations(riskLevel)
+      recommendations: this.generateRiskMitigationRecommendations(riskLevel),
+      // Additional properties for component compatibility
+      id: `risk_${Date.now()}`,
+      documentId: 'forecast_doc',
+      riskLevel: riskLevel.toLowerCase() as any,
+      factors: ['Market Volatility', 'Scope Creep', 'Resource Availability'],
+      mitigationStrategies: this.generateRiskMitigationRecommendations(riskLevel),
+      complianceIssues: []
     };
   }
 
