@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Notification } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { formatDate } from '../constants';

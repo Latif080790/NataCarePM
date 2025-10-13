@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useMemo } from 'react';
 import { Document as DocumentType } from '../types';
 import { DocumentWithVersions } from '../types/components';

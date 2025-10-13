@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';

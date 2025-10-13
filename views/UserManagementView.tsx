@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { User } from '../types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';

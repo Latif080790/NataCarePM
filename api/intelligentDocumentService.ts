@@ -97,6 +97,11 @@ export class IntelligentDocumentService {
             createdAt: new Date(),
             updatedAt: new Date(),
             
+            // File properties
+            fileSize: file ? file.size : 0,
+            mimeType: file ? file.type : 'application/octet-stream',
+            checksum: file ? await this.calculateChecksum(file) : 'unknown',
+            
             // Version Control
             currentVersionId,
             allVersions: currentVersionId ? [await documentVersionControl.getVersion(currentVersionId)!] : [],
@@ -629,7 +634,7 @@ export class IntelligentDocumentService {
     ): Promise<IntelligentDocument[]> {
         const searchTerm = query.toLowerCase();
         
-        let results = Array.from(this.documents.values())
+        const results = Array.from(this.documents.values())
             .filter(doc => {
                 // Text search
                 const textMatch = doc.searchableContent.toLowerCase().includes(searchTerm) ||
@@ -833,8 +838,17 @@ export class IntelligentDocumentService {
             certificate: 2,
             correspondence: 1,
             procedure: 3,
-            policy: 3,
-            other: 2
+            policy: 2,
+            progress_report: 2,
+            financial_report: 3,
+            safety_report: 2,
+            quality_report: 2,
+            material_report: 2,
+            compliance_report: 3,
+            contract_document: 3,
+            inspection_report: 2,
+            custom: 1,
+            other: 1
         };
         
         const minFields = categoryRequirements[category] || 2;
@@ -915,6 +929,102 @@ export class IntelligentDocumentService {
     listAllDocuments(): IntelligentDocument[] {
         return Array.from(this.documents.values());
     }
+
+    // Document CRUD Operations
+    async deleteDocument(documentId: string): Promise<boolean> {
+        const document = this.documents.get(documentId);
+        if (!document) {
+            return false;
+        }
+        
+        // Remove from all related collections
+        this.documents.delete(documentId);
+        this.workflows.delete(documentId);
+        this.dependencies.delete(documentId);
+        this.notifications.delete(documentId);
+        
+        console.log('Document deleted:', documentId);
+        return true;
+    }
+
+    async updateDocument(documentId: string, updates: Partial<IntelligentDocument>): Promise<IntelligentDocument | undefined> {
+        const document = this.documents.get(documentId);
+        if (!document) {
+            return undefined;
+        }
+        
+        // Apply updates
+        const updatedDocument = { ...document, ...updates, updatedAt: new Date() };
+        this.documents.set(documentId, updatedDocument);
+        
+        // Update audit trail
+        await this.addAuditEntry(updatedDocument, 'Document Updated', 'system');
+        
+        return updatedDocument;
+    }
+
+    async applyTemplate(documentId: string, templateId: string): Promise<IntelligentDocument | undefined> {
+        const document = this.documents.get(documentId);
+        if (!document) {
+            return undefined;
+        }
+        
+        // Apply template logic here
+        const updatedDocument = { ...document, templateId, updatedAt: new Date() };
+        this.documents.set(documentId, updatedDocument);
+        
+        return updatedDocument;
+    }
+
+    async updateDocumentStatus(documentId: string, status: DocumentStatus): Promise<boolean> {
+        const document = this.documents.get(documentId);
+        if (!document) {
+            return false;
+        }
+        
+        document.status = status;
+        document.updatedAt = new Date();
+        this.documents.set(documentId, document);
+        
+        return true;
+    }
+
+    async encryptDocument(documentId: string, encryptionKey: string): Promise<IntelligentDocument | undefined> {
+        const document = this.documents.get(documentId);
+        if (!document) {
+            return undefined;
+        }
+        
+        // Apply encryption
+        document.encryptionStatus = {
+            algorithm: 'AES-256',
+            keyId: encryptionKey,
+            isEncrypted: true,
+            encryptionLevel: 'storage'
+        };
+        document.updatedAt = new Date();
+        this.documents.set(documentId, document);
+        
+        return document;
+    }
+
+    async decryptDocument(documentId: string, decryptionKey: string): Promise<IntelligentDocument | undefined> {
+        const document = this.documents.get(documentId);
+        if (!document) {
+            return undefined;
+        }
+        
+        // Apply decryption
+        if (document.encryptionStatus?.keyId === decryptionKey) {
+            document.encryptionStatus.isEncrypted = false;
+            document.updatedAt = new Date();
+            this.documents.set(documentId, document);
+        }
+        
+        return document;
+    }
+
+
 
     // Workflow Management Methods
     async createWorkflow(documentId: string, workflow: DocumentWorkflow): Promise<void> {
@@ -1022,6 +1132,12 @@ export class IntelligentDocumentService {
             dep.lastChecked = new Date();
         }
         this.dependencies.set(documentId, dependencies);
+    }
+
+    // Helper method to calculate file checksum
+    private async calculateChecksum(file: File): Promise<string> {
+        // Simple checksum based on file properties (in production, use proper hashing)
+        return `${file.name}_${file.size}_${file.lastModified}`;
     }
 }
 

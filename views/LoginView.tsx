@@ -1,3 +1,4 @@
+import React from 'react';
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
@@ -46,10 +47,7 @@ export default function LoginView() {
         if (isLogin) {
             // --- PROSES LOGIN ---
             try {
-                const success = await login(email, password);
-                if (!success) {
-                    alert('Gagal masuk. Periksa email dan password Anda.');
-                }
+                await login(email, password);
                 // Jika berhasil, AuthContext akan menangani redirect
             } catch (error: any) {
                 alert(`Gagal Masuk: ${error.message}`);

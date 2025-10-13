@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { ProjectMetrics } from '../types';
 import { formatCurrency } from '../constants';

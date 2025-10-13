@@ -1,20 +1,16 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
-import { Modal } from '../components/Modal';
 import { 
     Upload, 
     FileText, 
     Image, 
     File, 
     X, 
-    Check, 
     AlertCircle,
-    Info,
     Brain,
     Zap,
-    Eye,
-    Download,
     RefreshCw,
     CheckCircle,
     Clock,
@@ -28,7 +24,7 @@ import {
 } from '../types';
 
 import { intelligentDocumentService } from '../api/intelligentDocumentService';
-import { ocrService } from '../api/ocrService';
+
 
 interface DocumentUploadProps {
     projectId?: string;
@@ -180,24 +176,13 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
             ));
 
             // Create document
-            const document = await intelligentDocumentService.createDocument(
-                uploadFile.file.name.split('.')[0], // Remove extension
+            const newDocument = await intelligentDocumentService.createDocument(
                 `Uploaded document: ${uploadFile.file.name}`,
+                'Auto-uploaded document via DocumentUpload component',
                 selectedCategory,
-                projectId || 'default',
+                projectId || 'default_project',
                 'current_user', // In production, get from auth context
-                uploadFile.file,
-                selectedTemplate?.id,
-                {
-                    enableOCR,
-                    enableAIProcessing,
-                    processingOptions: {
-                        extractStructuredData: true,
-                        generateInsights: enableAIProcessing,
-                        detectLanguage: true,
-                        analyzeCompliance: true
-                    }
-                }
+                uploadFile.file
             );
 
             // Update progress
@@ -207,7 +192,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
             // Process with AI if enabled
             if (enableAIProcessing) {
-                await intelligentDocumentService.processDocumentWithAI(document, file);
+                await intelligentDocumentService.processDocumentWithAI(newDocument, uploadFile.file);
             }
 
             // Complete
@@ -216,12 +201,12 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
                     ...f, 
                     status: 'completed', 
                     progress: 100, 
-                    document 
+                    document: newDocument 
                 } : f
             ));
 
             if (onUploadComplete) {
-                onUploadComplete(document);
+                onUploadComplete(newDocument);
             }
 
         } catch (error) {

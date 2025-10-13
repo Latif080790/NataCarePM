@@ -653,6 +653,33 @@ export class DigitalSignaturesService {
         return this.workflows.get(workflowId);
     }
 
+    getWorkflows(): SignatureWorkflow[] {
+        return Array.from(this.workflows.values());
+    }
+
+    async cancelWorkflow(workflowId: string): Promise<boolean> {
+        const workflow = this.workflows.get(workflowId);
+        if (!workflow) {
+            return false;
+        }
+        
+        workflow.isCancelled = true;
+        this.workflows.set(workflowId, workflow);
+        console.log('Workflow cancelled:', workflowId);
+        return true;
+    }
+
+    async sendReminder(workflowId: string, signerId: string): Promise<boolean> {
+        const workflow = this.workflows.get(workflowId);
+        if (!workflow) {
+            return false;
+        }
+        
+        // In real implementation, send actual reminder
+        console.log('Reminder sent for workflow:', workflowId, 'to signer:', signerId);
+        return true;
+    }
+
     getCertificate(certificateId: string): SignatureCertificate | undefined {
         return this.certificates.get(certificateId);
     }

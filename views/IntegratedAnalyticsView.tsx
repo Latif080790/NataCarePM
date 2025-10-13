@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { FinancialForecastingComponent } from '../components/FinancialForecastingComponent';

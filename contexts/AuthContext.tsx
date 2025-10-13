@@ -1,13 +1,12 @@
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { User } from '../types';
-import { projectService } from '../api/projectService';
 import { auth } from '../firebaseConfig';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
   loading: boolean;
 }
 
@@ -15,7 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -26,50 +25,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-        if (firebaseUser) {
-            // User is signed in, fetch our app-specific user profile from Firestore.
-            // The UID from Firebase Auth should match the document ID in our 'users' collection.
-            const userProfile = await projectService.getUserById(firebaseUser.uid);
-            setCurrentUser(userProfile);
-        } else {
-            // User is signed out.
-            setCurrentUser(null);
-        }
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser({
+          uid: user.uid,
+          id: user.uid,
+          email: user.email || '',
+          name: user.displayName || '',
+          roleId: 'user',
+          avatarUrl: user.photoURL || '',
+          isOnline: true,
+          permissions: []
+        });
+      } else {
+        setCurrentUser(null);
+      }
+      setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    if (!password || password.trim() === '') {
-        console.error("Password is required");
-        return false;
-    }
-    
-    setLoading(true);
     try {
-        await signInWithEmailAndPassword(auth, email, password);
-        return true;
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-        console.error("Firebase login failed", error);
-        // You could check for error.code === 'auth/user-not-found' to create a new user.
-        return false;
-    } finally {
-        // onAuthStateChanged will handle setting the user and loading state
+      setLoading(false);
+      if (error instanceof Error) {
+        throw new Error(`Login failed: ${error.message}`);
+      } else {
+        throw new Error('Login failed: Unknown error occurred');
+      }
     }
   }, []);
 
   const logout = useCallback(async () => {
     try {
-        await signOut(auth);
+      await signOut(auth);
+      setCurrentUser(null);
     } catch (error) {
-        console.error("Firebase logout failed", error);
+      console.error('Logout error:', error);
+      throw error;
     }
   }, []);
 
-  const value = { currentUser, login, logout, loading };
+  const value = {
+    currentUser,
+    login,
+    logout,
+    loading
+  };
 
   return (
     <AuthContext.Provider value={value}>

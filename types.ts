@@ -807,6 +807,16 @@ export interface DocumentTemplate {
 }
 
 export type TemplateCategory = 
+    | 'contract'
+    | 'specification'
+    | 'drawing'
+    | 'report'
+    | 'permit'
+    | 'invoice'
+    | 'certificate'
+    | 'correspondence'
+    | 'procedure'
+    | 'policy'
     | 'progress_report' 
     | 'financial_report' 
     | 'safety_report' 
@@ -815,7 +825,8 @@ export type TemplateCategory =
     | 'compliance_report'
     | 'contract_document'
     | 'inspection_report'
-    | 'custom';
+    | 'custom'
+    | 'other';
 
 export interface TemplateStructure {
     sections: TemplateSection[];
@@ -1270,9 +1281,9 @@ export interface IntelligentDocument {
     
     // Additional properties for component compatibility
     collaborators?: string[];
-    fileSize?: number;
-    mimeType?: string;
-    checksum?: string;
+    fileSize: number;
+    mimeType: string;
+    checksum: string;
     
     // Search & Discovery
     searchableContent: string;
@@ -1291,6 +1302,17 @@ export type DocumentCategory =
     | 'certificate'
     | 'correspondence'
     | 'procedure'
+    | 'policy'
+    | 'progress_report' 
+    | 'financial_report' 
+    | 'safety_report' 
+    | 'quality_report'
+    | 'material_report'
+    | 'compliance_report'
+    | 'contract_document'
+    | 'inspection_report'
+    | 'custom'
+    | 'other'
     | 'policy'
     | 'other';
 

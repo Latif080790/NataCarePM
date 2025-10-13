@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
@@ -122,20 +123,12 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
             const signerEmails = signers.map(s => s.email);
             const deadlineDate = deadline ? new Date(deadline) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-            const workflow = await intelligentDocumentService.initiateSignatureWorkflow(
+            await intelligentDocumentService.initiateSignatureWorkflow(
                 selectedDocumentId,
                 signerEmails,
                 sequentialSigning,
                 deadlineDate,
-                'current_user', // In production, get from auth context
-                {
-                    title: workflowTitle,
-                    description: workflowDescription,
-                    reminderInterval: reminderInterval * 60 * 60 * 1000, // Convert to milliseconds
-                    allowDelegation,
-                    requireReason,
-                    signerDetails: signers
-                }
+                'current_user' // In production, get from auth context
             );
 
             await loadWorkflows();
@@ -143,7 +136,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
             resetForm();
 
             if (onWorkflowComplete) {
-                onWorkflowComplete(workflow);
+                onWorkflowComplete(null);
             }
         } catch (error) {
             console.error('Failed to create workflow:', error);
@@ -159,7 +152,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
 
         setIsLoading(true);
         try {
-            await digitalSignaturesService.cancelWorkflow(workflowId, 'current_user');
+            await digitalSignaturesService.cancelWorkflow(workflowId);
             await loadWorkflows();
         } catch (error) {
             console.error('Failed to cancel workflow:', error);
@@ -466,7 +459,6 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                         resetForm();
                     }}
                     title="Create Signature Workflow"
-                    maxWidth="3xl"
                 >
                     <div className="p-6 space-y-6">
                         {/* Basic Information */}
@@ -702,7 +694,6 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                             setSelectedWorkflow(null);
                         }}
                         title={`Workflow Details: ${selectedWorkflow.title}`}
-                        maxWidth="3xl"
                     >
                         <div className="p-6">
                             {/* Workflow details content would go here */}

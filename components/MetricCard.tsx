@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card } from './Card';
 import { TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
 

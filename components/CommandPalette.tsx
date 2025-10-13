@@ -1,5 +1,6 @@
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
 import { Modal } from './Modal';
 import { Input } from './FormControls';
 import { useHotkeys } from '../hooks/useHotkeys';

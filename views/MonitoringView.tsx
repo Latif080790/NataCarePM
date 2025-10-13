@@ -1,9 +1,10 @@
+import React, { useState } from 'react';
 /**
  * 📊 MONITORING VIEW
  * Comprehensive system monitoring and analytics dashboard
  */
 
-import React, { useState } from 'react';
+
 import MonitoringDashboard from '../components/MonitoringDashboard';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';

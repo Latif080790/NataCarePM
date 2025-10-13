@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+
 import { Card } from './Card';
 import { Button } from './Button';
 import { LineChart } from './LineChart';

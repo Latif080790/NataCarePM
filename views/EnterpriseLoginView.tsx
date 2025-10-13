@@ -1,3 +1,4 @@
+import React from 'react';
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
@@ -44,10 +45,9 @@ export default function EnterpriseLoginView() {
 
         if (isLogin) {
             try {
-                const success = await login(email, password);
-                if (!success) {
-                    alert('🚨 Authentication failed. Please check your credentials.');
-                }
+                await login(email, password);
+                // Login successful - login function will handle navigation
+            
             } catch (error: any) {
                 alert(`❌ Login Error: ${error.message}`);
             }

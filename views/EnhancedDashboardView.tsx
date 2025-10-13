@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { Project, ProjectMetrics, Notification, AiInsight } from '../types';
 import { StatCard } from '../components/StatCard';

@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { X } from 'lucide-react';
 

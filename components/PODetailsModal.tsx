@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { Modal } from './Modal';
 import { PurchaseOrder } from '../types';
 import { formatCurrency, formatDate } from '../constants';

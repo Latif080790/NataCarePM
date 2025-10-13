@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
@@ -37,6 +37,7 @@ import {
 import { 
     DocumentTemplate, 
     DocumentCategory, 
+    TemplateCategory,
     TemplateVariable,
     IntelligentDocument
 } from '../types';
@@ -74,7 +75,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState<DocumentCategory | 'all'>('all');
+    const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
     const [sortBy, setSortBy] = useState<'name' | 'category' | 'updated' | 'usage'>('updated');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [formData, setFormData] = useState<TemplateFormData>({
@@ -168,15 +169,38 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
     const handleCreateTemplate = async () => {
         setIsLoading(true);
         try {
-            const newTemplate = smartTemplatesEngine.createTemplate(
-                formData.name,
-                formData.description,
-                formData.category,
-                formData.content,
-                formData.variables,
-                'current_user', // In production, get from auth context
-                formData.tags
-            );
+            const newTemplate = smartTemplatesEngine.createTemplate({
+                name: formData.name,
+                description: formData.description,
+                category: formData.category,
+                version: '1.0.0',
+                structure: { 
+                    sections: [],
+                    styling: {
+                        fontFamily: 'Arial',
+                        fontSize: 12,
+                        lineHeight: 1.5,
+                        margins: { top: 20, right: 20, bottom: 20, left: 20 },
+                        colors: { primary: '#000000', secondary: '#666666', text: '#000000', background: '#ffffff' },
+                        spacing: { section: 10, paragraph: 5 }
+                    }
+                },
+                dataMapping: [],
+                outputFormat: 'pdf',
+                content: formData.content,
+                variables: formData.variables,
+                createdBy: 'current_user', // In production, get from auth context
+                tags: formData.tags,
+                isPublic: formData.isPublic,
+                isActive: true,
+                metadata: { 
+                    industry: 'construction',
+                    regulatory: [],
+                    language: 'en',
+                    region: 'global',
+                    usageCount: 0
+                }
+            });
 
             await loadTemplates();
             setShowCreateModal(false);
@@ -204,8 +228,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                     content: formData.content,
                     variables: formData.variables,
                     tags: formData.tags
-                },
-                'current_user'
+                }
             );
 
             await loadTemplates();
@@ -252,7 +275,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
 
         setIsLoading(true);
         try {
-            smartTemplatesEngine.deleteTemplate(templateId, 'current_user');
+            await smartTemplatesEngine.deleteTemplate(templateId);
             await loadTemplates();
         } catch (error) {
             console.error('Failed to delete template:', error);
@@ -380,7 +403,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
             {/* Category Filter */}
             <select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as DocumentCategory | 'all')}
+                onChange={(e) => setCategoryFilter(e.target.value as TemplateCategory | 'all')}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
                 <option value="all">All Categories</option>
@@ -622,7 +645,6 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                         resetForm();
                     }}
                     title={showCreateModal ? 'Create New Template' : 'Edit Template'}
-                    maxWidth="4xl"
                 >
                     <div className="p-6 space-y-6">
                         {/* Basic Info */}
@@ -840,7 +862,6 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                         setGenerateData({});
                     }}
                     title={`Generate Document: ${selectedTemplate?.name}`}
-                    maxWidth="2xl"
                 >
                     <div className="p-6">
                         {selectedTemplate && (
@@ -935,7 +956,6 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                     isOpen={showPreviewModal}
                     onClose={() => setShowPreviewModal(false)}
                     title={`Template Preview: ${selectedTemplate?.name}`}
-                    maxWidth="4xl"
                 >
                     <div className="p-6">
                         {selectedTemplate && (

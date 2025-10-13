@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
 import { Button } from '../components/Button';
+import { DigitalSignature, VersionTag } from '../types';
 import { 
     FileText, 
     Download, 
     Share, 
     Edit, 
-    Eye, 
     GitBranch,
     History,
-    MessageCircle,
     AlertTriangle,
     CheckCircle,
     Info,
@@ -20,7 +20,15 @@ import {
     TrendingUp,
     Shield,
     ChevronDown,
-    ChevronRight
+    ChevronRight,
+    ExternalLink,
+    Target,
+    Zap,
+    Unlock,
+    Lock,
+    Users,
+    FileX,
+    PenTool as Signature
 } from 'lucide-react';
 
 import { 
@@ -43,9 +51,9 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<'content' | 'insights' | 'versions' | 'signatures' | 'compliance'>('content');
     const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
-    const [isLoading, setIsLoading] = useState(false);
     const [showEncryptionModal, setShowEncryptionModal] = useState(false);
     const [showSignatureModal, setShowSignatureModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Toggle insight expansion
     const toggleInsightExpansion = (insightId: string) => {
@@ -61,6 +69,11 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     // Get insight icon and color
     const getInsightIcon = (type: AIInsight['type'], priority: AIInsight['priority']) => {
         const icons = {
+            summary: <FileText className="w-4 h-4" />,
+            risk_analysis: <AlertTriangle className="w-4 h-4" />,
+            compliance_check: <Shield className="w-4 h-4" />,
+            anomaly_detection: <Zap className="w-4 h-4" />,
+            recommendation: <TrendingUp className="w-4 h-4" />,
             compliance: <Shield className="w-4 h-4" />,
             risk: <AlertTriangle className="w-4 h-4" />,
             optimization: <TrendingUp className="w-4 h-4" />,
@@ -341,7 +354,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                                     <div className="mt-4 pt-4 border-t border-gray-100">
                                         <p className="text-gray-700 mb-4">{insight.description}</p>
                                         
-                                        {insight.recommendations?.length > 0 && (
+                                        {insight.recommendations && insight.recommendations.length > 0 && (
                                             <div className="mb-4">
                                                 <h5 className="font-medium text-gray-900 mb-2">Recommendations</h5>
                                                 <ul className="space-y-1">
@@ -426,7 +439,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                                 <div className="mt-3 flex flex-wrap gap-1">
                                     {version.tags.map((tag, tagIndex) => (
                                         <span key={tagIndex} className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-700">
-                                            {tag}
+                                            {tag.name}
                                         </span>
                                     ))}
                                 </div>

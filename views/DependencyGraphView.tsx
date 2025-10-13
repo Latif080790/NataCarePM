@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '../components/Card';
 import { Button } from '../components/Button';

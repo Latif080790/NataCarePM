@@ -1310,6 +1310,42 @@ export class SmartTemplatesEngine {
         return this.templates.get(id);
     }
 
+    // Create new template
+    async createTemplate(template: Omit<DocumentTemplate, 'id' | 'createdAt' | 'updatedAt'>): Promise<DocumentTemplate> {
+        const newTemplate: DocumentTemplate = {
+            ...template,
+            id: this.generateId(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        
+        this.templates.set(newTemplate.id, newTemplate);
+        console.log('Template created:', newTemplate.id);
+        return newTemplate;
+    }
+
+    // Update existing template
+    async updateTemplate(id: string, updates: Partial<DocumentTemplate>): Promise<DocumentTemplate | undefined> {
+        const template = this.templates.get(id);
+        if (!template) {
+            return undefined;
+        }
+        
+        const updatedTemplate = { ...template, ...updates, updatedAt: new Date() };
+        this.templates.set(id, updatedTemplate);
+        console.log('Template updated:', id);
+        return updatedTemplate;
+    }
+
+    // Delete template
+    async deleteTemplate(id: string): Promise<boolean> {
+        const success = this.templates.delete(id);
+        if (success) {
+            console.log('Template deleted:', id);
+        }
+        return success;
+    }
+
     // List all templates
     listTemplates(category?: TemplateCategory): DocumentTemplate[] {
         const allTemplates = Array.from(this.templates.values());

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useRealtimeCollaboration } from '../contexts/RealtimeCollaborationContext';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';

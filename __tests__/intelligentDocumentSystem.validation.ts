@@ -82,7 +82,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
 
             for (const service of services) {
                 if (!service) {
-                    throw new Error(`Service not available: ${service.constructor.name}`);
+                    throw new Error(`Service not available: ${service?.constructor?.name || 'Unknown'}`);
                 }
             }
 
@@ -170,7 +170,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Document data integrity verified';
         }, 'Document data integrity');
@@ -214,7 +214,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Version control integrity verified';
         }, 'Version control integrity');
@@ -238,7 +238,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            smartTemplatesEngine.deleteTemplate(template.id, 'validation_user');
+            await smartTemplatesEngine.deleteTemplate(template.id);
 
             return 'Template data integrity verified';
         }, 'Template data integrity');
@@ -284,7 +284,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Document workflow validation passed';
         }, 'Document workflow logic');
@@ -336,7 +336,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Signature workflow validation passed';
         }, 'Signature workflow logic');
@@ -385,8 +385,8 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(generatedDocument.id, 'validation_user');
-            smartTemplatesEngine.deleteTemplate(template.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(generatedDocument.id);
+            await smartTemplatesEngine.deleteTemplate(template.id);
 
             return 'Template generation logic validated';
         }, 'Template generation logic');
@@ -424,7 +424,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'authorized_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Access control validation passed';
         }, 'Access control security');
@@ -459,7 +459,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Encryption validation passed';
         }, 'Document encryption');
@@ -507,7 +507,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Audit trail validation passed';
         }, 'Audit trail security');
@@ -538,7 +538,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             this.addPerformanceMetric('document_creation', creationTime);
             return `Document creation performance: ${creationTime}ms`;
@@ -580,7 +580,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
 
             // Cleanup
             for (const doc of documents) {
-                intelligentDocumentService.deleteDocument(doc.id, 'validation_user');
+                await intelligentDocumentService.deleteDocument(doc.id);
             }
 
             this.addPerformanceMetric('search', searchTime);
@@ -613,7 +613,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
 
             // Cleanup
             for (const doc of results) {
-                intelligentDocumentService.deleteDocument(doc.id, 'validation_user');
+                await intelligentDocumentService.deleteDocument(doc.id);
             }
 
             this.addPerformanceMetric('concurrent_operations', concurrentTime);
@@ -678,7 +678,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Service integration validation passed';
         }, 'Service integration');
@@ -726,7 +726,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Delete
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             try {
                 intelligentDocumentService.getDocument(document.id);
@@ -783,7 +783,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Cleanup
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Legal compliance validation passed';
         }, 'Legal compliance');
@@ -815,7 +815,7 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
             }
 
             // Test data deletion (Right to be forgotten)
-            intelligentDocumentService.deleteDocument(document.id, 'validation_user');
+            await intelligentDocumentService.deleteDocument(document.id);
 
             return 'Data protection compliance validation passed';
         }, 'Data protection compliance');
@@ -1054,3 +1054,4 @@ interface ValidationReport {
 }
 
 export type { ValidationReport, ValidationResult, PerformanceMetric };
+

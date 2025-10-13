@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import { DailyReport, RabItem, Worker, WorkProgress } from '../types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, CardHeader, CardTitle, CardContent } from './Card';
 import { LucideProps, TrendingUp, TrendingDown } from 'lucide-react';
 

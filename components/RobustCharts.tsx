@@ -1,9 +1,10 @@
+import React, { useState, useMemo, useRef } from 'react';
 /**
  * 📊 ROBUST CHART COMPONENTS
  * Advanced chart components with error handling, loading states, and comprehensive features
  */
 
-import React, { useState, useRef, useMemo } from 'react';
+
 import { Card } from './Card';
 import { Button } from './Button';
 import { TimeSeriesData } from '../types/monitoring';

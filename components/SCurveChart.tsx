@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+
 
 interface SCurveDataPoint {
   month: string;
