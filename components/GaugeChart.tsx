@@ -9,6 +9,23 @@ interface RadialProgressProps {
   className?: string;
 }
 
+interface GaugeChartProps {
+  value: number;
+  max: number;
+  thresholds: number[];
+}
+
+export function GaugeChart({ value, max }: GaugeChartProps) {
+  const percentage = Math.max(0, Math.min(100, (value / max) * 100));
+  return (
+    <RadialProgress 
+      title="Performance" 
+      description={`${value.toFixed(1)} / ${max}`} 
+      value={percentage} 
+    />
+  );
+}
+
 export function RadialProgress({ title, description, value, className = '' }: RadialProgressProps) {
   const normalizedValue = Math.max(0, Math.min(100, value));
   const circumference = 2 * Math.PI * 45; // 2 * pi * radius

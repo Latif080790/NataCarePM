@@ -12,8 +12,7 @@ import {
     Target
 } from 'lucide-react';
 import { 
-    EnhancedRabItem, 
-    VarianceAnalysis
+    EnhancedRabItem
 } from '../types';
 import { formatCurrency } from '../constants';
 

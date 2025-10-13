@@ -33,6 +33,7 @@ import OnlineUsersDisplay from './components/OnlineUsersDisplay';
 import FallbackView from './components/FallbackView';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/EnterpriseLoaders';
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
+import { IntegratedAnalyticsView } from './views/IntegratedAnalyticsView';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
@@ -48,6 +49,7 @@ import { monitoringService } from './api/monitoringService';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
+  analytics: IntegratedAnalyticsView, // Enhanced Analytics Dashboard
   rab_ahsp: EnhancedRabAhspView, // Using enhanced version
   rab_basic: RabAhspView, // Keep basic version available
   jadwal: GanttChartView,

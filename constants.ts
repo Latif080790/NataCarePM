@@ -45,6 +45,7 @@ export const navLinksConfig = [
         id: 'main-group', name: 'Utama',
         children: [
             { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, requiredPermission: 'view_dashboard' },
+            { id: 'analytics', name: 'Analytics Dashboard', icon: BarChart3, requiredPermission: 'view_dashboard' },
             { id: 'rab_ahsp', name: 'RAB & AHSP', icon: FileText, requiredPermission: 'view_rab' },
             { id: 'jadwal', name: 'Jadwal (Gantt)', icon: GanttChartSquare, requiredPermission: 'view_gantt' },
         ],

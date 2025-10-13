@@ -57,6 +57,7 @@ const statusColors = {
     'todo': '#6b7280',
     'in-progress': '#3b82f6', 
     'done': '#10b981',
+    'completed': '#10b981',
     'blocked': '#ef4444',
     'review': '#f59e0b'
 };

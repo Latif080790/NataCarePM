@@ -485,10 +485,12 @@ export interface Task {
     projectId: string;
     title: string;
     description: string;
-    status: 'todo' | 'in-progress' | 'review' | 'done' | 'blocked';
+    status: 'todo' | 'in-progress' | 'review' | 'done' | 'blocked' | 'completed';
     priority: 'low' | 'medium' | 'high' | 'critical';
     assignedTo: string[]; // User IDs
     createdBy: string; // User ID
+    startDate?: string; // Task start date
+    endDate?: string; // Task end date
     dueDate: string;
     dependencies: string[]; // Task IDs
     subtasks: Subtask[];
@@ -515,4 +517,147 @@ export interface TaskComment {
     authorAvatar: string;
     content: string;
     timestamp: string;
+}
+
+// Financial Forecasting Types
+export interface FinancialForecast {
+    projectId: string;
+    forecastDate: Date;
+    timeframe: number; // months
+    confidenceLevel: number;
+    baseForecast: PredictiveModel;
+    scenarios: ForecastScenario[];
+    riskAssessment: RiskAssessment;
+    cashFlowProjections: CashFlowProjection[];
+    recommendations: string[];
+    accuracy: number;
+}
+
+export interface PredictiveModel {
+    type: 'linear_regression' | 'polynomial' | 'exponential' | 'seasonal';
+    accuracy: number;
+    projections: {
+        period: number;
+        projectedCost: number;
+        cumulativeCost: number;
+        confidence: number;
+        variance: number;
+    }[];
+    parameters: {
+        slope?: number;
+        seasonality?: number[];
+        volatility?: number;
+        [key: string]: any;
+    };
+}
+
+export interface ForecastScenario {
+    name: string;
+    probability: number;
+    description: string;
+    projections: {
+        period: number;
+        projectedCost: number;
+        cumulativeCost: number;
+        confidence?: number;
+        variance?: number;
+    }[];
+    impactFactors: string[];
+}
+
+export interface RiskAssessment {
+    overallRiskLevel: 'Low' | 'Medium' | 'High';
+    costVariance: number;
+    budgetAtRisk: number;
+    probabilityOfOverrun: number;
+    keyRiskFactors: {
+        factor: string;
+        impact: 'Low' | 'Medium' | 'High';
+        probability: number;
+        mitigation: string;
+    }[];
+    recommendations: string[];
+}
+
+export interface CashFlowProjection {
+    period: number;
+    plannedInflow: number;
+    plannedOutflow: number;
+    optimisticInflow: number;
+    pessimisticInflow: number;
+    netCashFlow: number;
+    cumulativeCashFlow: number;
+    workingCapitalRequired: number;
+    paymentTiming: number;
+}
+
+// EVM (Earned Value Management) Types
+export interface EVMMetrics {
+    projectId: string;
+    reportDate: Date;
+    plannedValue: number; // PV - Planned Value
+    earnedValue: number; // EV - Earned Value
+    actualCost: number; // AC - Actual Cost
+    budgetAtCompletion: number; // BAC - Budget at Completion
+    
+    // Performance Indices
+    costPerformanceIndex: number; // CPI = EV/AC
+    schedulePerformanceIndex: number; // SPI = EV/PV
+    
+    // Variances
+    costVariance: number; // CV = EV - AC
+    scheduleVariance: number; // SV = EV - PV
+    
+    // Forecasts
+    estimateAtCompletion: number; // EAC
+    estimateToComplete: number; // ETC
+    varianceAtCompletion: number; // VAC = BAC - EAC
+    
+    // Time-based metrics
+    timeVariance: number; // TV in days
+    estimatedTimeToComplete: number; // days
+    
+    // Performance status
+    performanceStatus: 'On Track' | 'At Risk' | 'Critical';
+    healthScore: number; // 0-100
+}
+
+export interface EVMTrendData {
+    date: Date;
+    plannedValue: number;
+    earnedValue: number;
+    actualCost: number;
+    cpi: number;
+    spi: number;
+}
+
+export interface KPIMetrics {
+    // Financial KPIs
+    budgetUtilization: number; // percentage
+    costVariancePercentage: number;
+    returnOnInvestment: number;
+    
+    // Schedule KPIs
+    scheduleVariancePercentage: number;
+    taskCompletionRate: number;
+    milestoneAdherence: number;
+    
+    // Quality KPIs
+    defectRate: number;
+    reworkPercentage: number;
+    qualityScore: number;
+    
+    // Resource KPIs
+    resourceUtilization: number;
+    productivityIndex: number;
+    teamEfficiency: number;
+    
+    // Risk KPIs
+    riskExposure: number;
+    issueResolutionTime: number;
+    contingencyUtilization: number;
+    
+    // Overall performance
+    overallHealthScore: number;
+    performanceTrend: 'Improving' | 'Stable' | 'Declining';
 }

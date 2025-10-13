@@ -82,6 +82,7 @@ export default function KanbanBoardView({ projectId }: KanbanBoardViewProps) {
             'in-progress': [],
             review: [],
             done: [],
+            completed: [],
             blocked: []
         };
         

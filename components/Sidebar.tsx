@@ -41,6 +41,7 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
   const getIconForView = (viewId: string) => {
     const iconMap: { [key: string]: any } = {
       dashboard: BarChart3,
+      analytics: TrendingUp,
       rab_ahsp: FileText,
       jadwal: Calendar,
       tasks: CheckSquare,
