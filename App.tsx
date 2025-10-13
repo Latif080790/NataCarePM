@@ -3,6 +3,7 @@ import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
 import DashboardView from './views/DashboardView';
 import RabAhspView from './views/RabAhspView';
+import EnhancedRabAhspView from './views/EnhancedRabAhspView';
 import GanttChartView from './views/GanttChartView';
 import DailyReportView from './views/DailyReportView';
 import ProgressView from './views/ProgressView';
@@ -47,7 +48,8 @@ import { monitoringService } from './api/monitoringService';
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
-  rab_ahsp: RabAhspView,
+  rab_ahsp: EnhancedRabAhspView, // Using enhanced version
+  rab_basic: RabAhspView, // Keep basic version available
   jadwal: GanttChartView,
   tasks: TasksView,
   task_list: TaskListView,
@@ -251,7 +253,8 @@ function AppContent() {
       rab_ahsp: { 
         ...commonProps,
         items: safeProject.items || [], 
-        ahspData: safeActions.ahspData || []
+        ahspData: safeActions.ahspData || [],
+        projectLocation: safeProject.location || 'Jakarta'
       },
       jadwal: { 
         ...commonProps,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DailyReport, RabItem, Worker, WorkProgress } from '../types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/Card';
 import { Button } from '../components/Button';
@@ -26,7 +26,7 @@ const WeatherIcon = ({ weather }: { weather: DailyReport['weather'] }) => {
   }
 };
 
-export default function DailyReportView({ dailyReports, rabItems, workers, onAddReport }: DailyReportViewProps) {
+export default function DailyReportView({ dailyReports, rabItems, onAddReport }: DailyReportViewProps) {
   const { currentUser } = useAuth();
   const { handleAddComment } = useProject();
   const [isModalOpen, setIsModalOpen] = useState(false);

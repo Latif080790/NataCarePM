@@ -46,6 +46,89 @@ export interface RabItem {
     dependsOn?: number;
 }
 
+// Enhanced RAB with detailed cost analysis
+export interface EnhancedRabItem extends RabItem {
+    // Cost breakdown components
+    costBreakdown: CostBreakdown;
+    
+    // Price history and escalation
+    priceHistory: PriceHistory[];
+    escalationRate: number;
+    
+    // Variance analysis
+    budgetVariance: VarianceAnalysis;
+    
+    // Sensitivity analysis
+    sensitivityFactors: SensitivityFactor[];
+    
+    // Regional adjustments
+    regionalFactors: RegionalPriceFactor[];
+    
+    // Enhanced metadata
+    lastUpdated: string;
+    updatedBy: string;
+    dataSource: string;
+}
+
+export interface CostBreakdown {
+    laborCost: number;
+    laborPercentage: number;
+    materialCost: number;
+    materialPercentage: number;
+    equipmentCost: number;
+    equipmentPercentage: number;
+    overheadCost: number;
+    overheadPercentage: number;
+    profitMargin: number;
+    profitPercentage: number;
+    totalCost: number;
+}
+
+export interface PriceHistory {
+    id: string;
+    date: string;
+    price: number;
+    supplier: string;
+    location: string;
+    marketCondition: 'stable' | 'rising' | 'falling' | 'volatile';
+    dataSource: 'supplier_quote' | 'market_survey' | 'historical_data' | 'competitor_analysis';
+    reliability: number; // 0-100 scale
+    notes?: string;
+}
+
+export interface VarianceAnalysis {
+    budgetedCost: number;
+    actualCost: number;
+    costVariance: number; // Actual - Budget
+    costVariancePercentage: number;
+    timeVariance: number; // Days ahead/behind schedule
+    timeVariancePercentage: number;
+    performanceIndex: number; // Efficiency ratio
+    trend: 'improving' | 'deteriorating' | 'stable';
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface SensitivityFactor {
+    id: string;
+    factor: string; // e.g., "Steel Price", "Labor Availability", "Weather"
+    impact: number; // Percentage impact on total cost
+    probability: number; // 0-100 probability of occurrence
+    riskType: 'cost_increase' | 'cost_decrease' | 'schedule_delay' | 'quality_impact';
+    mitigation: string;
+    lastAssessment: string;
+}
+
+export interface RegionalPriceFactor {
+    id: string;
+    region: string;
+    adjustmentFactor: number; // Multiplier (1.0 = baseline)
+    category: 'labor' | 'material' | 'equipment' | 'overhead' | 'all';
+    effectiveDate: string;
+    expiryDate: string;
+    reason: string; // e.g., "Remote location", "High demand area"
+    isActive: boolean;
+}
+
 export interface User {
     uid: string; // Firebase UID
     id: string; // Application ID
@@ -85,6 +168,122 @@ export interface Workspace {
 export interface WorkProgress {
     rabItemId: number;
     completedVolume: number;
+}
+
+// Price Escalation Management
+export interface PriceEscalation {
+    id: string;
+    rabItemId: number;
+    escalationType: 'material' | 'labor' | 'equipment' | 'fuel' | 'overhead';
+    basePrice: number;
+    currentPrice: number;
+    escalationRate: number; // Annual percentage
+    projectedPrice: number;
+    effectiveDate: string;
+    projectionDate: string;
+    marketFactors: MarketFactor[];
+    escalationTriggers: EscalationTrigger[];
+    isActive: boolean;
+    lastCalculated: string;
+}
+
+export interface MarketFactor {
+    id: string;
+    factor: string; // e.g., "Inflation", "Oil Price", "Currency Exchange"
+    currentValue: number;
+    historicalValues: HistoricalValue[];
+    weight: number; // Influence weight 0-1
+    trend: 'increasing' | 'decreasing' | 'stable' | 'volatile';
+    source: string;
+    lastUpdated: string;
+}
+
+export interface HistoricalValue {
+    date: string;
+    value: number;
+    source: string;
+}
+
+export interface EscalationTrigger {
+    id: string;
+    triggerType: 'time_based' | 'percentage_based' | 'market_based' | 'manual';
+    threshold: number;
+    action: 'recalculate' | 'alert' | 'auto_adjust' | 'review_required';
+    isActive: boolean;
+    lastTriggered?: string;
+}
+
+// Enhanced Project with price analysis
+export interface EnhancedProject extends Project {
+    enhancedItems: EnhancedRabItem[];
+    priceEscalations: PriceEscalation[];
+    marketAnalysis: MarketAnalysis;
+    riskProfile: ProjectRiskProfile;
+    priceBaseline: PriceBaseline;
+}
+
+export interface MarketAnalysis {
+    id: string;
+    projectId: string;
+    analysisDate: string;
+    marketCondition: 'favorable' | 'neutral' | 'challenging' | 'volatile';
+    keyRisks: string[];
+    opportunities: string[];
+    recommendations: string[];
+    confidenceLevel: number; // 0-100
+    nextReviewDate: string;
+}
+
+export interface ProjectRiskProfile {
+    id: string;
+    overallRisk: 'low' | 'medium' | 'high' | 'critical';
+    costRisk: number; // Percentage potential cost increase
+    scheduleRisk: number; // Percentage potential delay
+    qualityRisk: number; // Risk score 0-100
+    riskFactors: RiskFactor[];
+    mitigationStrategies: MitigationStrategy[];
+    lastAssessment: string;
+}
+
+export interface RiskFactor {
+    id: string;
+    category: 'technical' | 'financial' | 'environmental' | 'regulatory' | 'market';
+    description: string;
+    probability: number; // 0-100
+    impact: number; // 0-100
+    riskScore: number; // probability * impact
+    status: 'identified' | 'monitored' | 'mitigated' | 'closed';
+}
+
+export interface MitigationStrategy {
+    id: string;
+    riskFactorId: string;
+    strategy: string;
+    cost: number;
+    effectiveness: number; // 0-100
+    status: 'planned' | 'implemented' | 'monitoring' | 'completed';
+    responsiblePerson: string;
+    targetDate: string;
+}
+
+export interface PriceBaseline {
+    id: string;
+    projectId: string;
+    baselineDate: string;
+    totalBaseline: number;
+    categoryBaselines: Record<string, number>;
+    escalationAssumptions: EscalationAssumption[];
+    reviewSchedule: string[];
+    approvedBy: string;
+    version: string;
+}
+
+export interface EscalationAssumption {
+    category: string;
+    annualRate: number;
+    rationale: string;
+    marketBasis: string;
+    confidenceLevel: number;
 }
 
 export interface MaterialConsumption {
