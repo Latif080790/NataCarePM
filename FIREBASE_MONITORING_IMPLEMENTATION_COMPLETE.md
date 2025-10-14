@@ -45,7 +45,7 @@ Successfully implemented comprehensive Firebase-integrated monitoring system for
 - **Export Capabilities**: Data export and log download features
 
 #### 5. **Environment Setup** (`.env.local`)
-- **Gemini AI Integration**: `VITE_GEMINI_API_KEY=AIzaSyAglu9iWK_kkNkDXCUu4I6GqG62KsTrkhw`
+- **Gemini AI Integration**: `VITE_GEMINI_API_KEY=<your-api-key>`
 - **Monitoring Configuration**: Interval settings and feature toggles
 - **Development Settings**: Debug mode and analytics configuration
 

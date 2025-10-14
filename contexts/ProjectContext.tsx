@@ -209,7 +209,12 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     // This is a client-side update only, as it doesn't persist.
     // In a real app, this would be a server-side function and saved to the DB.
     try {
-        const ai = new GoogleGenAI({apiKey: process.env.AIzaSyAglu9iWK_kkNkDXCUu4I6GqG62KsTrkhw as string});
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error('VITE_GEMINI_API_KEY not configured');
+        }
+        
+        const ai = new GoogleGenAI({ apiKey });
         const context = getProjectContextForAI();
         const prompt = `Based on the following project data, provide a short executive summary, identify the top 3 potential risks, and give a brief prediction of project outcome (cost and schedule). Format the response as a JSON object with keys: "summary", "risks" (an array of strings), and "predictions". Project data: ${context}`;
         
