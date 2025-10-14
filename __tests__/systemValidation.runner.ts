@@ -128,7 +128,7 @@ class SystemValidator {
 
             // Verify document properties
             const requiredProperties = ['id', 'title', 'createdAt', 'updatedAt', 'status', 'auditTrail'];
-            let missingProperties = [];
+            const missingProperties = [];
 
             for (const prop of requiredProperties) {
                 if (!(prop in document) || document[prop] === undefined) {

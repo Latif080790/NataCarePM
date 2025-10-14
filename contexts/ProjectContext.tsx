@@ -79,7 +79,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
             const allProjectIds = wsRes.flatMap(ws => ws.projects.map(p => p.id));
             const lastProjectId = localStorage.getItem('lastProjectId');
             
-            let projectIdToLoad = (lastProjectId && allProjectIds.includes(lastProjectId))
+            const projectIdToLoad = (lastProjectId && allProjectIds.includes(lastProjectId))
                 ? lastProjectId
                 : wsRes[0]?.projects[0]?.id;
 

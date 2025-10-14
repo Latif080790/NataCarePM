@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { mockServices } from './setup';
 
 describe('Intelligent Document System - Final System Validation', () => {
-    let validationResults: any = {
+    const validationResults: any = {
         systemHealth: {},
         performanceMetrics: {},
         integrationTests: {},
