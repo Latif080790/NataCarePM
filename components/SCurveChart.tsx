@@ -23,8 +23,8 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
   }
 
   const width = 1000;
-  const height = 280;
-  const padding = { top: 20, right: 60, bottom: 40, left: 60 };
+  const height = 300;
+  const padding = { top: 30, right: 80, bottom: 50, left: 70 };
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
@@ -54,7 +54,23 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
         height="100%" 
         viewBox={`0 0 ${width} ${height}`}
         className="overflow-visible"
+        style={{ minHeight: '300px' }}
       >
+        {/* Background gradient */}
+        <defs>
+          <linearGradient id="plannedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#F87941" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#F87941" stopOpacity="0.05" />
+          </linearGradient>
+          <linearGradient id="actualGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
+          </linearGradient>
+          <filter id="shadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+          </filter>
+        </defs>
+
         {/* Grid lines */}
         {[0, 25, 50, 75, 100].map((value) => {
           const y = yScale(value) + padding.top;
@@ -65,16 +81,16 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
                 y1={y}
                 x2={width - padding.right}
                 y2={y}
-                stroke="#334155"
-                strokeWidth="1"
-                strokeDasharray="4 4"
-                opacity="0.3"
+                stroke={value === 0 || value === 100 ? "#475569" : "#334155"}
+                strokeWidth={value === 0 || value === 100 ? "2" : "1"}
+                strokeDasharray={value === 0 || value === 100 ? "0" : "4 4"}
+                opacity={value === 0 || value === 100 ? "0.6" : "0.3"}
               />
               <text
-                x={padding.left - 10}
-                y={y + 4}
+                x={padding.left - 15}
+                y={y + 5}
                 textAnchor="end"
-                className="text-[10px] fill-slate-500 font-medium"
+                className="text-[12px] fill-slate-400 font-semibold"
               >
                 {value}%
               </text>
@@ -86,38 +102,59 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
         {data.map((point, index) => {
           const x = xScale(index) + padding.left;
           return (
-            <text
-              key={point.month}
-              x={x}
-              y={height - padding.bottom + 20}
-              textAnchor="middle"
-              className="text-[11px] fill-slate-400 font-medium"
-            >
-              {point.month}
-            </text>
+            <g key={point.month}>
+              <line
+                x1={x}
+                y1={padding.top}
+                x2={x}
+                y2={height - padding.bottom}
+                stroke="#334155"
+                strokeWidth="1"
+                strokeDasharray="2 2"
+                opacity="0.2"
+              />
+              <text
+                x={x}
+                y={height - padding.bottom + 25}
+                textAnchor="middle"
+                className="text-[12px] fill-slate-300 font-semibold"
+              >
+                {point.month}
+              </text>
+            </g>
           );
         })}
 
-        {/* Planned line */}
+        {/* Planned line with area fill */}
+        <path
+          d={`${plannedPath} L ${width - padding.right} ${height - padding.bottom} L ${padding.left} ${height - padding.bottom} Z`}
+          fill="url(#plannedGradient)"
+          opacity="0.3"
+        />
         <path
           d={plannedPath}
           fill="none"
           stroke="#F87941"
-          strokeWidth="3"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="drop-shadow-lg"
+          filter="url(#shadow)"
         />
 
-        {/* Actual line */}
+        {/* Actual line with area fill */}
+        <path
+          d={`${actualPath} L ${width - padding.right} ${height - padding.bottom} L ${padding.left} ${height - padding.bottom} Z`}
+          fill="url(#actualGradient)"
+          opacity="0.3"
+        />
         <path
           d={actualPath}
           fill="none"
           stroke="#3b82f6"
-          strokeWidth="3"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="drop-shadow-lg"
+          filter="url(#shadow)"
         />
 
         {/* Data points - Planned */}
@@ -129,14 +166,24 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
               <circle
                 cx={x}
                 cy={y}
-                r="5"
+                r="6"
                 fill="#F87941"
                 stroke="#1e293b"
-                strokeWidth="2"
-                className="cursor-pointer transition-all hover:r-7"
+                strokeWidth="3"
+                className="cursor-pointer transition-all hover:r-8"
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
                 onMouseEnter={() => setHoveredPoint(point)}
                 onMouseLeave={() => setHoveredPoint(null)}
               />
+              {index === data.length - 1 && (
+                <text
+                  x={x + 25}
+                  y={y + 5}
+                  className="text-[11px] fill-orange-400 font-bold"
+                >
+                  {point.planned}%
+                </text>
+              )}
             </g>
           );
         })}
@@ -150,49 +197,81 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
               <circle
                 cx={x}
                 cy={y}
-                r="5"
+                r="6"
                 fill="#3b82f6"
                 stroke="#1e293b"
-                strokeWidth="2"
-                className="cursor-pointer transition-all hover:r-7"
+                strokeWidth="3"
+                className="cursor-pointer transition-all hover:r-8"
+                style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
                 onMouseEnter={() => setHoveredPoint(point)}
                 onMouseLeave={() => setHoveredPoint(null)}
               />
+              {index === data.length - 1 && (
+                <text
+                  x={x + 25}
+                  y={y + 5}
+                  className="text-[11px] fill-blue-400 font-bold"
+                >
+                  {point.actual}%
+                </text>
+              )}
             </g>
           );
         })}
 
         {/* Y-axis label */}
         <text
-          x={20}
+          x={25}
           y={height / 2}
           textAnchor="middle"
-          transform={`rotate(-90 20 ${height / 2})`}
-          className="text-xs fill-slate-400 font-semibold"
+          transform={`rotate(-90 25 ${height / 2})`}
+          className="text-sm fill-slate-300 font-bold tracking-wide"
         >
           Progress (%)
         </text>
+        
+        {/* X-axis label */}
+        <text
+          x={width / 2}
+          y={height - 10}
+          textAnchor="middle"
+          className="text-sm fill-slate-300 font-bold tracking-wide"
+        >
+          Timeline (Months)
+        </text>
       </svg>
 
-      {/* Tooltip */}
+      {/* Enhanced Tooltip */}
       {hoveredPoint && (
-        <div className="absolute top-4 right-4 bg-slate-800 border border-slate-600/50 rounded-lg px-4 py-3 shadow-2xl z-50">
-          <div className="text-xs font-semibold text-slate-300 mb-2">{hoveredPoint.month}</div>
-          <div className="space-y-1">
-            <div className="flex items-center justify-between space-x-4">
-              <span className="text-xs text-slate-400">Rencana:</span>
-              <span className="text-sm font-bold text-orange-400">{hoveredPoint.planned}%</span>
+        <div className="absolute top-4 right-4 glass border border-slate-600/50 rounded-xl px-5 py-4 shadow-2xl z-50 backdrop-blur-xl">
+          <div className="text-sm font-bold text-slate-100 mb-3 flex items-center gap-2">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+            {hoveredPoint.month} 2025
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                <span className="text-xs text-slate-300 font-medium">Rencana:</span>
+              </div>
+              <span className="text-base font-bold text-orange-400">{hoveredPoint.planned}%</span>
             </div>
-            <div className="flex items-center justify-between space-x-4">
-              <span className="text-xs text-slate-400">Realisasi:</span>
-              <span className="text-sm font-bold text-blue-400">{hoveredPoint.actual}%</span>
+            <div className="flex items-center justify-between gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span className="text-xs text-slate-300 font-medium">Realisasi:</span>
+              </div>
+              <span className="text-base font-bold text-blue-400">{hoveredPoint.actual}%</span>
             </div>
-            <div className="pt-1 border-t border-slate-700 mt-2">
-              <div className="flex items-center justify-between space-x-4">
-                <span className="text-xs text-slate-400">Deviasi:</span>
-                <span className={`text-sm font-bold ${hoveredPoint.actual >= hoveredPoint.planned ? 'text-green-400' : 'text-red-400'}`}>
+            <div className="pt-2 border-t border-slate-700/50 mt-2">
+              <div className="flex items-center justify-between gap-6">
+                <span className="text-xs text-slate-400 font-medium">Deviasi:</span>
+                <span className={`text-base font-bold ${hoveredPoint.actual >= hoveredPoint.planned ? 'text-green-400' : 'text-red-400'}`}>
                   {hoveredPoint.actual >= hoveredPoint.planned ? '+' : ''}{hoveredPoint.actual - hoveredPoint.planned}%
                 </span>
+              </div>
+              <div className="text-[10px] text-slate-500 mt-1 text-right">
+                {hoveredPoint.actual >= hoveredPoint.planned ? '🎯 On Track' : '⚠️ Behind Schedule'}
               </div>
             </div>
           </div>

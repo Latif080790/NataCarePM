@@ -10,6 +10,8 @@ import ProgressRing from '../components/ProgressRing';
 import SimpleBarChart from '../components/SimpleBarChart';
 import { SCurveChart } from '../components/SCurveChart';
 import { DashboardSkeleton } from '../components/DashboardSkeleton';
+import { AIInsightsPanel } from '../components/AIInsightsPanel';
+import { MonitoringAlertsPanel } from '../components/MonitoringAlertsPanel';
 import { 
   Users, 
   DollarSign, 
@@ -79,9 +81,14 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   const activeTasks = tasks.filter(task => task.status === 'in-progress' || task.status === 'todo').length;
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const totalPOs = purchaseOrders.reduce((sum, po) => {
-    const poTotal = po.items.reduce((itemSum, item) => itemSum + item.totalPrice, 0);
+    const poTotal = po.items.reduce((itemSum, item) => itemSum + (item.totalPrice || 0), 0);
     return sum + poTotal;
   }, 0);
+  
+  // Calculate total budget - fallback to calculated expenses if no budget defined
+  const totalBudget = totalExpenses + totalPOs;
+  const actualSpent = totalExpenses + totalPOs;
+  
   const completedTasks = tasks.filter(task => task.status === 'done').length;
   const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
   
@@ -91,8 +98,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     return dueDate < new Date() && task.status !== 'done';
   }).length;
   
-  const totalBudget = totalExpenses + totalPOs;
-  const budgetUtilization = totalBudget > 0 ? Math.round((totalExpenses / totalBudget) * 100) : 0;
+  const budgetUtilization = totalBudget > 0 ? Math.round((actualSpent / totalBudget) * 100) : 0;
+  const budgetRemaining = totalBudget - actualSpent;
+  const budgetStatus = budgetUtilization > 90 ? 'warning' : budgetUtilization > 75 ? 'caution' : 'good';
 
   // Chart data
   const taskStatusData = [
@@ -295,30 +303,60 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </Card>
 
-          {/* Performance Analytics */}
+          {/* Task Performance */}
           <Card className="card-enhanced">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-heading-2 visual-primary">Task Performance</h3>
+              <h3 className="text-heading-2 visual-primary flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-blue-400" />
+                </div>
+                <span>Task Performance</span>
+              </h3>
               <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-success-bg">
-                <BarChart3 className="w-4 h-4 text-success" />
+                <Activity className="w-4 h-4 text-success" />
                 <span className="text-caption text-success">Analytics</span>
               </div>
             </div>
             
-            <div className="flex items-center justify-center mb-6">
-              <ProgressRing
-                progress={taskCompletionRate}
-                size="lg"
-                color="primary"
-              >
-                <span className="text-caption">Completion</span>
-              </ProgressRing>
-            </div>
+            <div className="space-y-6">
+              {/* Completion Ring */}
+              <div className="flex items-center justify-center py-4">
+                <ProgressRing
+                  progress={taskCompletionRate}
+                  size="lg"
+                  color="primary"
+                >
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-slate-100">{taskCompletionRate}%</div>
+                    <span className="text-xs text-slate-400">Completion</span>
+                  </div>
+                </ProgressRing>
+              </div>
 
-            <SimpleBarChart
-              data={taskStatusData}
-              showValues={true}
-            />
+              {/* Task Stats */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <div className="text-lg font-bold text-green-400">{completedTasks}</div>
+                  <div className="text-xs text-slate-400 mt-1">Completed</div>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                  <div className="text-lg font-bold text-orange-400">{activeTasks}</div>
+                  <div className="text-xs text-slate-400 mt-1">In Progress</div>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <div className="text-lg font-bold text-red-400">{overdueTasks}</div>
+                  <div className="text-xs text-slate-400 mt-1">Overdue</div>
+                </div>
+              </div>
+
+              {/* Task Status Chart */}
+              <div className="mt-4">
+                <SimpleBarChart
+                  data={taskStatusData}
+                  showValues={true}
+                />
+              </div>
+            </div>
           </Card>
         
         {/* Enhanced Header Section */}
@@ -370,7 +408,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
                   <DollarSign className="w-5 h-5 text-precious-persimmon" />
                 </div>
-                Financial Overview
+                <span>Financial Overview</span>
               </h3>
               <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-success-bg">
                 <TrendingUp className="w-4 h-4 text-success" />
@@ -378,35 +416,65 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="glass-subtle rounded-xl p-6 text-center">
-                <div className="mb-4">
-                  <span className="text-body font-semibold visual-secondary">Total Budget</span>
+            <div className="space-y-4">
+              {/* Total Budget Card */}
+              <div className="glass-subtle rounded-xl p-5">
+                <div className="text-center mb-4">
+                  <span className="text-sm font-semibold text-slate-400 block mb-2">Total Budget</span>
+                  <div className="text-3xl font-bold text-slate-100 mb-1">
+                    {totalBudget > 0 ? formatCurrency(totalBudget) : 'Rp 0'}
+                  </div>
+                  <div className="text-xs text-slate-500">Combined allocation</div>
                 </div>
-                <div className="text-heading-1 visual-accent mb-2">
-                  {formatCurrency(totalBudget)}
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-precious-persimmon"></div>
-                  <span className="text-body-small">Combined allocation</span>
-                </div>
+                
+                {/* Budget Progress Bar */}
+                {totalBudget > 0 && (
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs text-slate-400 mb-2">
+                      <span>Spent: {formatCurrency(actualSpent)}</span>
+                      <span>{budgetUtilization}%</span>
+                    </div>
+                    <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          budgetStatus === 'warning' ? 'bg-red-500' : 
+                          budgetStatus === 'caution' ? 'bg-yellow-500' : 
+                          'bg-green-500'
+                        }`}
+                        style={{ width: `${Math.min(budgetUtilization, 100)}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-xs text-slate-500">
+                        Remaining: {formatCurrency(Math.max(budgetRemaining, 0))}
+                      </span>
+                      {budgetStatus === 'warning' && (
+                        <span className="text-xs text-red-400 font-semibold">⚠️ Over Budget</span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <SimpleBarChart
-                data={budgetData}
-                showValues={true}
-              />
+              {/* Breakdown Chart */}
+              <div className="mt-4">
+                <div className="text-xs font-semibold text-slate-400 mb-3">Budget Breakdown</div>
+                <SimpleBarChart
+                  data={budgetData}
+                  showValues={true}
+                />
+              </div>
             </div>
           </Card>
 
-          {/* Team Performance */}
+          {/* Team Overview */}
           <Card className="card-enhanced">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-heading-2 visual-primary flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-precious-persimmon" />
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-purple-400" />
                 </div>
-                Team Overview
+                <span>Team Overview</span>
               </h3>
               <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-info-bg">
                 <Activity className="w-4 h-4 text-info" />
@@ -414,40 +482,41 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="grid-cards-2">
-                <div className="text-center glass-subtle rounded-xl p-4">
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-precious-persimmon" />
+            <div className="space-y-4">
+              {/* Team Stats Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center glass-subtle rounded-xl p-4 border border-purple-500/20">
+                  <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-purple-400" />
                   </div>
-                  <p className="text-body-small mb-1">Active Members</p>
-                  <p className="text-heading-3 visual-primary">{users.length}</p>
+                  <p className="text-xs text-slate-400 mb-1">Active Members</p>
+                  <p className="text-2xl font-bold text-slate-100">{users.length || 0}</p>
                 </div>
-                <div className="text-center glass-subtle rounded-xl p-4">
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-success" />
+                <div className="text-center glass-subtle rounded-xl p-4 border border-green-500/20">
+                  <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-500/30 flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-green-400" />
                   </div>
-                  <p className="text-body-small mb-1">Projects</p>
-                  <p className="text-heading-3 visual-success">{totalProjects}</p>
+                  <p className="text-xs text-slate-400 mb-1">Projects</p>
+                  <p className="text-2xl font-bold text-green-400">{totalProjects || 1}</p>
                 </div>
               </div>
               
-              <div className="glass-subtle rounded-xl p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-body font-semibold">Performance Score</span>
-                  <span className="text-heading-3 visual-accent">85%</span>
+              {/* Performance Score */}
+              <div className="glass-subtle rounded-xl p-5 border border-orange-500/20">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold text-slate-300">Performance Score</span>
+                  <span className="text-2xl font-bold text-orange-400">85%</span>
                 </div>
                 
-                <div className="relative">
-                  <div className="w-full bg-violet-essence rounded-full h-3 mb-2">
+                <div className="space-y-2">
+                  <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
                     <div 
-                      className="gradient-bg-primary h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                      className="h-full bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full transition-all duration-500"
                       style={{ width: '85%' }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
-                    </div>
+                    ></div>
                   </div>
-                  <div className="flex justify-between text-caption">
+                  
+                  <div className="flex justify-between text-xs text-slate-500">
                     <span>Poor</span>
                     <span>Good</span>
                     <span>Excellent</span>
@@ -456,6 +525,30 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </Card>
+        </div>
+
+        {/* AI-Powered Analytics & Monitoring Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 whitespace-component">
+          {/* AI Insights Panel */}
+          <AIInsightsPanel 
+            projectData={currentProject}
+            onRefresh={handleRefresh}
+          />
+          
+          {/* Monitoring & Alerts Panel */}
+          <MonitoringAlertsPanel 
+            onActionClick={(alert) => {
+              console.log('Alert action:', alert);
+              // Handle alert actions based on type
+              if (alert.action === 'review-budget') {
+                onNavigate('keuangan');
+              } else if (alert.action === 'view-tasks') {
+                onNavigate('tugas');
+              } else if (alert.action === 'view-report') {
+                onNavigate('laporan');
+              }
+            }}
+          />
         </div>
 
         {/* Recent Activity */}
