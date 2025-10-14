@@ -82,38 +82,38 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'risk':
-        return <AlertTriangle className="w-5 h-5 text-red-400" />;
+        return <AlertTriangle className="w-5 h-5 text-red-600" />;
       case 'opportunity':
-        return <TrendingUp className="w-5 h-5 text-green-400" />;
+        return <TrendingUp className="w-5 h-5 text-green-600" />;
       case 'prediction':
-        return <Target className="w-5 h-5 text-blue-400" />;
+        return <Target className="w-5 h-5 text-blue-600" />;
       case 'recommendation':
-        return <Sparkles className="w-5 h-5 text-purple-400" />;
+        return <Sparkles className="w-5 h-5 text-purple-600" />;
       default:
-        return <Brain className="w-5 h-5 text-slate-400" />;
+        return <Brain className="w-5 h-5 text-slate-600" />;
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'risk':
-        return 'from-red-500/20 to-red-600/10 border-red-500/30';
+        return 'from-red-50 to-red-100 border-red-200';
       case 'opportunity':
-        return 'from-green-500/20 to-green-600/10 border-green-500/30';
+        return 'from-green-50 to-green-100 border-green-200';
       case 'prediction':
-        return 'from-blue-500/20 to-blue-600/10 border-blue-500/30';
+        return 'from-blue-50 to-blue-100 border-blue-200';
       case 'recommendation':
-        return 'from-purple-500/20 to-purple-600/10 border-purple-500/30';
+        return 'from-purple-50 to-purple-100 border-purple-200';
       default:
-        return 'from-slate-500/20 to-slate-600/10 border-slate-500/30';
+        return 'from-slate-50 to-slate-100 border-slate-200';
     }
   };
 
   const getImpactBadge = (impact: string) => {
     const colors = {
-      high: 'bg-red-500/20 text-red-400 border-red-500/30',
-      medium: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      low: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+      high: 'bg-red-100 text-red-700 border-red-300',
+      medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+      low: 'bg-blue-100 text-blue-700 border-blue-300'
     };
     return colors[impact as keyof typeof colors] || colors.low;
   };
@@ -122,21 +122,21 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
     <Card className="card-enhanced">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
-            <Brain className="w-6 h-6 text-purple-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+            <Brain className="w-6 h-6 text-purple-600" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-100">AI-Powered Insights</h3>
-            <p className="text-xs text-slate-400">Predictive analytics & recommendations</p>
+            <h3 className="text-lg font-bold text-slate-800">AI-Powered Insights</h3>
+            <p className="text-xs text-slate-600 font-medium">Predictive analytics & recommendations</p>
           </div>
         </div>
         
         <button
           onClick={handleRefresh}
           disabled={isLoading}
-          className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors disabled:opacity-50"
+          className="p-2 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors disabled:opacity-50"
         >
-          <RefreshCw className={`w-4 h-4 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 text-purple-600 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
         {insights.map((insight, index) => (
           <div
             key={index}
-            className={`glass border rounded-xl p-4 bg-gradient-to-br ${getTypeColor(insight.type)} transition-all hover:scale-[1.02]`}
+            className={`glass border rounded-xl p-4 bg-gradient-to-br ${getTypeColor(insight.type)} transition-all hover:scale-[1.01] hover:shadow-md`}
           >
             <div className="flex items-start space-x-3">
               <div className="mt-1">
@@ -153,24 +153,24 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-slate-100">{insight.title}</h4>
+                  <h4 className="text-sm font-bold text-slate-800">{insight.title}</h4>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-xs px-2 py-1 rounded-full border ${getImpactBadge(insight.impact)}`}>
+                    <span className={`text-xs px-2 py-1 rounded-full border font-semibold ${getImpactBadge(insight.impact)}`}>
                       {insight.impact.toUpperCase()}
                     </span>
                   </div>
                 </div>
                 
-                <p className="text-xs text-slate-300 mb-2">
+                <p className="text-xs text-slate-700 mb-3 leading-relaxed">
                   {insight.description}
                 </p>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <div className="text-xs text-slate-400">
-                      Confidence: <span className="font-semibold text-slate-300">{insight.confidence}%</span>
+                    <div className="text-xs text-slate-600 font-medium">
+                      Confidence: <span className="font-bold text-slate-800">{insight.confidence}%</span>
                     </div>
-                    <div className="h-1.5 w-16 bg-slate-700/50 rounded-full overflow-hidden">
+                    <div className="h-2 w-20 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
                         style={{ width: `${insight.confidence}%` }}
@@ -179,7 +179,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
                   </div>
                   
                   {insight.action && (
-                    <button className="text-xs text-purple-400 hover:text-purple-300 font-semibold transition-colors">
+                    <button className="text-xs text-purple-600 hover:text-purple-700 font-bold transition-colors">
                       {insight.action} →
                     </button>
                   )}
@@ -191,7 +191,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
       </div>
 
       {/* AI Status Footer */}
-      <div className="mt-4 pt-4 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
+      <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 font-medium">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span>AI Engine Active</span>

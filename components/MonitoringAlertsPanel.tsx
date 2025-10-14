@@ -110,30 +110,30 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
   const getAlertIcon = (type: string) => {
     switch (type) {
       case 'critical':
-        return <AlertCircle className="w-5 h-5 text-red-400" />;
+        return <AlertCircle className="w-5 h-5 text-red-600" />;
       case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
+        return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
       case 'info':
-        return <Info className="w-5 h-5 text-blue-400" />;
+        return <Info className="w-5 h-5 text-blue-600" />;
       case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-400" />;
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
       default:
-        return <Activity className="w-5 h-5 text-slate-400" />;
+        return <Activity className="w-5 h-5 text-slate-600" />;
     }
   };
 
   const getAlertColor = (type: string) => {
     switch (type) {
       case 'critical':
-        return 'from-red-500/20 to-red-600/10 border-red-500/30';
+        return 'from-red-50 to-red-100 border-red-300';
       case 'warning':
-        return 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30';
+        return 'from-yellow-50 to-yellow-100 border-yellow-300';
       case 'info':
-        return 'from-blue-500/20 to-blue-600/10 border-blue-500/30';
+        return 'from-blue-50 to-blue-100 border-blue-300';
       case 'success':
-        return 'from-green-500/20 to-green-600/10 border-green-500/30';
+        return 'from-green-50 to-green-100 border-green-300';
       default:
-        return 'from-slate-500/20 to-slate-600/10 border-slate-500/30';
+        return 'from-slate-50 to-slate-100 border-slate-300';
     }
   };
 
@@ -155,26 +155,26 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
   const warningCount = alerts.filter(a => a.type === 'warning').length;
 
   return (
-    <Card className="card-enhanced">
+    <Card className="card-enhanced bg-white">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/30 to-red-500/30 flex items-center justify-center">
-            <Zap className="w-6 h-6 text-orange-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+            <Zap className="w-6 h-6 text-orange-600" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-100">System Monitoring</h3>
-            <p className="text-xs text-slate-400">Real-time alerts & notifications</p>
+            <h3 className="text-lg font-bold text-slate-800">System Monitoring</h3>
+            <p className="text-xs text-slate-600 font-medium">Real-time alerts & notifications</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-2">
           {criticalCount > 0 && (
-            <span className="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/30">
+            <span className="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-300">
               {criticalCount} Critical
             </span>
           )}
           {warningCount > 0 && (
-            <span className="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold border border-yellow-500/30">
+            <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold border border-yellow-300">
               {warningCount} Warning
             </span>
           )}
@@ -187,10 +187,10 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
           <button
             key={f}
             onClick={() => setFilter(f as any)}
-            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filter === f
-                ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50'
+                ? 'bg-orange-100 text-orange-700 border-2 border-orange-400'
+                : 'bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200'
             }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -206,15 +206,15 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
       {/* Alerts List */}
       <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
         {filteredAlerts.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
-            <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500/50" />
-            <p className="text-sm">No {filter !== 'all' ? filter : ''} alerts</p>
+          <div className="text-center py-8 text-slate-600">
+            <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
+            <p className="text-sm font-medium">No {filter !== 'all' ? filter : ''} alerts</p>
           </div>
         ) : (
           filteredAlerts.map((alert) => (
             <div
               key={alert.id}
-              className={`glass border rounded-xl p-4 bg-gradient-to-br ${getAlertColor(alert.type)} transition-all hover:scale-[1.01]`}
+              className={`glass border-2 rounded-xl p-4 bg-gradient-to-br ${getAlertColor(alert.type)} transition-all hover:scale-[1.01] hover:shadow-md`}
             >
               <div className="flex items-start space-x-3">
                 <div className="mt-0.5">
@@ -223,21 +223,21 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-1">
-                    <h4 className="text-sm font-semibold text-slate-100">{alert.title}</h4>
-                    <span className="text-xs text-slate-500 flex items-center space-x-1 ml-2">
+                    <h4 className="text-sm font-bold text-slate-800">{alert.title}</h4>
+                    <span className="text-xs text-slate-600 flex items-center space-x-1 ml-2 font-medium">
                       <Clock className="w-3 h-3" />
                       <span>{getTimeAgo(alert.timestamp)}</span>
                     </span>
                   </div>
                   
-                  <p className="text-xs text-slate-300 mb-2">
+                  <p className="text-xs text-slate-700 mb-2 leading-relaxed">
                     {alert.message}
                   </p>
                   
                   {alert.action && (
                     <button
                       onClick={() => onActionClick && onActionClick(alert)}
-                      className="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+                      className="text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors"
                     >
                       {alert.actionLabel || 'Take Action'} →
                     </button>
@@ -250,8 +250,8 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
       </div>
 
       {/* Status Footer */}
-      <div className="mt-4 pt-4 border-t border-slate-700/50 flex items-center justify-between text-xs">
-        <div className="flex items-center space-x-2 text-slate-500">
+      <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between text-xs font-medium">
+        <div className="flex items-center space-x-2 text-slate-600">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span>System Monitoring Active</span>
         </div>
