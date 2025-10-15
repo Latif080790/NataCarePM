@@ -111,7 +111,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
             // Note: Encryption/decryption methods not implemented yet
             console.log(encrypt ? 'Encrypting document' : 'Decrypting document');
             // Refresh document
-            const updated = intelligentDocumentService.getDocument(document.id);
+            const updated = await intelligentDocumentService.getDocument(document.id);
             if (updated && onDocumentUpdate) {
                 onDocumentUpdate(updated);
             }
@@ -136,7 +136,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                 'current_user'
             );
             // Refresh document
-            const updated = intelligentDocumentService.getDocument(document.id);
+            const updated = await intelligentDocumentService.getDocument(document.id);
             if (updated && onDocumentUpdate) {
                 onDocumentUpdate(updated);
             }

@@ -31,7 +31,7 @@ export default function LogisticsView({ purchaseOrders, inventory, onUpdatePOSta
         switch (status) {
             case 'Ditolak': return 'bg-red-100 text-red-800';
             case 'Menunggu Persetujuan': return 'bg-yellow-100 text-yellow-800';
-            case 'Disetujui': return 'bg-cyan-100 text-cyan-800';
+            case 'Disetujuan': return 'bg-cyan-100 text-cyan-800';
             case 'Diterima Penuh': return 'bg-green-100 text-green-800';
             default: return 'bg-violet-essence text-night-black';
         }
@@ -77,7 +77,7 @@ export default function LogisticsView({ purchaseOrders, inventory, onUpdatePOSta
                                     <td className="p-3"><span className={`px-2 py-1 text-xs rounded-full font-semibold ${getStatusColor(po.status)}`}>{po.status}</span></td>
                                     <td className="p-3 text-center">
                                         {po.status === 'Menunggu Persetujuan' && canApprovePO && (
-                                            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); onUpdatePOStatus(po.id, 'Disetujui'); }}>Setujui</Button>
+                                            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); onUpdatePOStatus(po.id, 'Disetujuan'); }}>Setujui</Button>
                                         )}
                                     </td>
                                 </tr>

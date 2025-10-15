@@ -109,10 +109,16 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
                 rabItemId: formData.rabItemId,
             };
             
-            const taskId = await taskService.createTask(currentProject.id, taskData, currentUser);
+            const taskIdResponse = await taskService.createTask(currentProject.id, taskData, currentUser);
+            const taskId = taskIdResponse.success ? taskIdResponse.data : '';
+            
+            if (!taskId) {
+                throw new Error('Failed to create task');
+            }
             
             // Get created task for callback
-            const createdTask = await taskService.getTaskById(currentProject.id, taskId);
+            const createdTaskResponse = await taskService.getTaskById(currentProject.id, taskId);
+            const createdTask = createdTaskResponse.success ? createdTaskResponse.data : null;
             
             addToast('Task berhasil dibuat!', 'success');
             

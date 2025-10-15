@@ -325,12 +325,12 @@ export const validateProject = (project: Partial<Project>): ValidationResult => 
   }
 
   // Description
-  if (project.description && project.description.length > 10000) {
+  if ('description' in project && project.description && typeof project.description === 'string' && project.description.length > 10000) {
     errors.push('Project description must not exceed 10000 characters');
   }
 
   // Budget
-  if (project.budget !== undefined) {
+  if ('budget' in project && project.budget !== undefined) {
     const budgetValidation = validators.isValidNumber(project.budget, 0);
     if (!budgetValidation.valid) {
       errors.push('Budget must be a non-negative number');
@@ -338,7 +338,7 @@ export const validateProject = (project: Partial<Project>): ValidationResult => 
   }
 
   // Dates
-  if (project.startDate && project.endDate) {
+  if ('startDate' in project && 'endDate' in project && project.startDate && project.endDate) {
     const dateValidation = validators.isValidDateRange(project.startDate, project.endDate);
     if (!dateValidation.valid) {
       errors.push(...dateValidation.errors);
@@ -346,11 +346,12 @@ export const validateProject = (project: Partial<Project>): ValidationResult => 
   }
 
   // Client info
-  if (project.client) {
-    if (project.client.email && !validators.isValidEmail(project.client.email)) {
+  if ('client' in project && project.client && typeof project.client === 'object') {
+    const client = project.client as { email?: string; phone?: string };
+    if (client.email && !validators.isValidEmail(client.email)) {
       errors.push('Invalid client email address');
     }
-    if (project.client.phone && !validators.isValidPhone(project.client.phone)) {
+    if (client.phone && !validators.isValidPhone(client.phone)) {
       errors.push('Invalid client phone number');
     }
   }
@@ -381,7 +382,7 @@ export const validateUser = (user: Partial<User>): ValidationResult => {
   }
 
   // Phone
-  if (user.phone && !validators.isValidPhone(user.phone)) {
+  if ('phone' in user && user.phone && typeof user.phone === 'string' && !validators.isValidPhone(user.phone)) {
     errors.push('Invalid phone number');
   }
 
@@ -397,9 +398,9 @@ export const validatePurchaseOrder = (po: Partial<PurchaseOrder>): ValidationRes
     errors.push('PR Number is required');
   }
 
-  // Vendor
-  if (!validators.isNonEmptyString(po.vendor)) {
-    errors.push('Vendor name is required');
+  // Vendor (using vendorId which is the correct property name)
+  if ('vendorId' in po && !validators.isNonEmptyString(po.vendorId)) {
+    errors.push('Vendor ID is required');
   }
 
   // Items
@@ -452,7 +453,7 @@ export const validateDocument = (doc: Partial<Document>): ValidationResult => {
   }
 
   // File size (if uploading)
-  if (doc.size !== undefined) {
+  if ('size' in doc && doc.size !== undefined && typeof doc.size === 'number') {
     const maxSize = 100 * 1024 * 1024; // 100 MB
     if (doc.size > maxSize) {
       errors.push('File size must not exceed 100 MB');

@@ -520,7 +520,7 @@ export const projectService = {
 
                     const validStatuses: PurchaseOrder['status'][] = [
                         'Menunggu Persetujuan', 
-                        'Disetujui', 
+                        'Disetujuan', 
                         'Ditolak', 
                         'PO Dibuat',
                         'Dipesan',

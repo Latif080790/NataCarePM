@@ -51,6 +51,9 @@ import WBSManagementView from './views/WBSManagementView';
 import GoodsReceiptView from './views/GoodsReceiptView';
 import MaterialRequestView from './views/MaterialRequestView';
 import VendorManagementView from './views/VendorManagementView';
+import InventoryManagementView from './views/InventoryManagementView';
+import IntegrationDashboardView from './views/IntegrationDashboardView';
+import CostControlDashboardView from './views/CostControlDashboardView';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
@@ -97,6 +100,9 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   goods_receipt: GoodsReceiptView,
   material_request: MaterialRequestView,
   vendor_management: VendorManagementView,
+  inventory_management: InventoryManagementView,
+  integration_dashboard: IntegrationDashboardView,
+  cost_control: CostControlDashboardView,
   
   logistik: LogisticsView,
   dokumen: DokumenView,

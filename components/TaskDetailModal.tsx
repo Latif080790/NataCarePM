@@ -122,7 +122,8 @@ export default function TaskDetailModal({
             addToast('Subtask berhasil ditambahkan', 'success');
             
             // Refresh task data to get updated subtasks and progress
-            const updatedTask = await taskService.getTaskById(currentProject.id, task.id);
+            const updatedTaskResponse = await taskService.getTaskById(currentProject.id, task.id);
+            const updatedTask = updatedTaskResponse.success ? updatedTaskResponse.data : null;
             if (updatedTask) {
                 setTaskData(updatedTask);
                 if (onTaskUpdated) onTaskUpdated(updatedTask);
@@ -147,7 +148,8 @@ export default function TaskDetailModal({
             );
             
             // Refresh task data
-            const updatedTask = await taskService.getTaskById(currentProject.id, task.id);
+            const updatedTaskResponse = await taskService.getTaskById(currentProject.id, task.id);
+            const updatedTask = updatedTaskResponse.success ? updatedTaskResponse.data : null;
             if (updatedTask) {
                 setTaskData(updatedTask);
                 if (onTaskUpdated) onTaskUpdated(updatedTask);
@@ -165,7 +167,8 @@ export default function TaskDetailModal({
             await taskService.deleteSubtask(currentProject.id, task.id, subtaskId);
             
             // Refresh task data
-            const updatedTask = await taskService.getTaskById(currentProject.id, task.id);
+            const updatedTaskResponse = await taskService.getTaskById(currentProject.id, task.id);
+            const updatedTask = updatedTaskResponse.success ? updatedTaskResponse.data : null;
             if (updatedTask) {
                 setTaskData(updatedTask);
                 if (onTaskUpdated) onTaskUpdated(updatedTask);

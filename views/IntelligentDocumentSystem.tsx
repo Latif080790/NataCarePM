@@ -72,9 +72,9 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
         try {
             let docs: IntelligentDocument[];
             if (projectId) {
-                docs = intelligentDocumentService.getDocumentsByProject(projectId);
+                docs = await intelligentDocumentService.getDocumentsByProject(projectId);
             } else {
-                docs = intelligentDocumentService.listAllDocuments();
+                docs = await intelligentDocumentService.listAllDocuments();
             }
             setDocuments(docs);
         } catch (error) {

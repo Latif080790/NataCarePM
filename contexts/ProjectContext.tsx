@@ -72,16 +72,23 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
                 projectService.getAhspData(),
                 projectService.getWorkers(),
             ]);
-            setWorkspaces(wsRes);
-            setAhspData(ahspRes);
-            setWorkers(workersRes);
+            
+            // Extract data from APIResponse wrapper
+            const workspacesData = wsRes.success ? wsRes.data : [];
+            const ahspData = ahspRes.success ? ahspRes.data : {} as AhspData;
+            const workersData = workersRes.success ? workersRes.data : [];
+            
+            setWorkspaces(workspacesData);
+            setAhspData(ahspData);
+            setWorkers(workersData);
 
-            const allProjectIds = wsRes.flatMap(ws => ws.projects.map(p => p.id));
+            // Now workspacesData is an array, we can use flatMap
+            const allProjectIds = workspacesData.flatMap(ws => ws.projects.map(p => p.id));
             const lastProjectId = localStorage.getItem('lastProjectId');
             
             const projectIdToLoad = (lastProjectId && allProjectIds.includes(lastProjectId))
                 ? lastProjectId
-                : wsRes[0]?.projects[0]?.id;
+                : workspacesData[0]?.projects[0]?.id;
 
             if (projectIdToLoad) {
                 if (projectIdToLoad !== currentProjectId) {

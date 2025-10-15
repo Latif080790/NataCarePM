@@ -963,16 +963,4 @@ export interface GeneralLedgerEntry {
     createdBy: string;
 }
 
-// Export all types
-export type {
-    // Re-export for convenience
-    AccountType,
-    AccountSubType,
-    AccountStatus,
-    JournalEntryStatus,
-    JournalEntryType,
-    PayableStatus,
-    ReceivableStatus,
-    PaymentMethod,
-    PaymentStatus
-};
+// Types are already exported above, no need to re-export

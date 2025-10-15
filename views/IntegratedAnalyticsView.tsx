@@ -59,7 +59,8 @@ export const IntegratedAnalyticsView: React.FC = () => {
     setIsLoading(true);
     try {
       // Load tasks
-      const projectTasks = await taskService.getTasksByProject(currentProject.id);
+      const projectTasksResponse = await taskService.getTasksByProject(currentProject.id);
+      const projectTasks = projectTasksResponse.success ? projectTasksResponse.data : [];
       setTasks(projectTasks);
 
       // Load RAB items (mock data for demonstration)

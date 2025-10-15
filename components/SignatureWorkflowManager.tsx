@@ -99,7 +99,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
 
     const loadDocuments = async () => {
         try {
-            const allDocs = intelligentDocumentService.listAllDocuments();
+            const allDocs = await intelligentDocumentService.listAllDocuments();
             setDocuments(allDocs);
             
             if (documentId) {

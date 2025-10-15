@@ -1,5 +1,5 @@
 import {
-    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor, Brain, BookOpen, BookText, FileDown, FileUp, Coins, Package, ClipboardList, Store
+    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor, Brain, BookOpen, BookText, FileDown, FileUp, Coins, Package, ClipboardList, Store, GitBranch, TrendingUp
 } from 'lucide-react';
 import { Role, User, Permission } from './types';
 
@@ -67,13 +67,14 @@ export const navLinksConfig = [
     {
         id: 'keuangan-group', name: 'Keuangan & Akuntansi',
         children: [
-             { id: 'arus_kas', name: 'Arus Kas', icon: DollarSign, requiredPermission: 'view_finances' },
-             { id: 'biaya_proyek', name: 'Biaya Proyek', icon: DollarSign, requiredPermission: 'view_finances' },
-             { id: 'strategic_cost', name: 'Kontrol Biaya (EVM)', icon: ShieldCheck, requiredPermission: 'view_evm' },
-             { id: 'chart_of_accounts', name: 'Chart of Accounts', icon: BookOpen, requiredPermission: 'view_finances' },
-             { id: 'journal_entries', name: 'Jurnal Umum', icon: BookText, requiredPermission: 'view_finances' },
-             { id: 'accounts_payable', name: 'Hutang (AP)', icon: FileDown, requiredPermission: 'view_finances' },
-             { id: 'accounts_receivable', name: 'Piutang (AR)', icon: FileUp, requiredPermission: 'view_finances' },
+            { id: 'arus_kas', name: 'Arus Kas', icon: DollarSign, requiredPermission: 'view_finances' },
+            { id: 'biaya_proyek', name: 'Biaya Proyek', icon: DollarSign, requiredPermission: 'view_finances' },
+            { id: 'strategic_cost', name: 'Biaya Strategis', icon: TrendingUp, requiredPermission: 'view_finances' },
+            { id: 'cost_control', name: 'Cost Control Dashboard', icon: BarChart3, requiredPermission: 'view_finances' },
+            { id: 'chart_of_accounts', name: 'Chart of Accounts', icon: BookOpen, requiredPermission: 'view_finances' },
+            { id: 'journal_entries', name: 'Jurnal Umum', icon: BookText, requiredPermission: 'view_finances' },
+            { id: 'accounts_payable', name: 'Hutang (AP)', icon: FileDown, requiredPermission: 'view_finances' },
+            { id: 'accounts_receivable', name: 'Piutang (AR)', icon: FileUp, requiredPermission: 'view_finances' },
         ]
     },
     {
@@ -83,6 +84,8 @@ export const navLinksConfig = [
             { id: 'material_request', name: 'Material Request', icon: ClipboardList, requiredPermission: 'view_logistics' },
             { id: 'goods_receipt', name: 'Goods Receipt', icon: Package, requiredPermission: 'view_logistics' },
             { id: 'vendor_management', name: 'Vendor Management', icon: Store, requiredPermission: 'view_logistics' },
+            { id: 'inventory_management', name: 'Inventory Management', icon: Package, requiredPermission: 'view_logistics' },
+            { id: 'integration_dashboard', name: 'Integration & Automation', icon: GitBranch, requiredPermission: 'manage_settings' },
             { id: 'dokumen', name: 'Dokumen', icon: FileArchive, requiredPermission: 'view_documents' },
             { id: 'documents', name: 'Intelligent Documents', icon: Brain, requiredPermission: 'view_documents' },
             { id: 'laporan', name: 'Laporan Proyek', icon: FileText, requiredPermission: 'view_reports' },
@@ -97,7 +100,6 @@ export const navLinksConfig = [
             { id: 'audit_trail', name: 'Jejak Audit', icon: History, requiredPermission: 'view_audit_trail' },
         ]
     }
-// FIX: Use 'as const' to infer literal types for permissions, which resolves a type error in Sidebar.tsx.
 ] as const;
 
 export const hasPermission = (user: User | null, permission: Permission): boolean => {
