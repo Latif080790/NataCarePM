@@ -396,8 +396,8 @@ import { documentVersionControl } from '../api/documentVersionControl';export cl
         console.log('🔒 Validating Security Features...');
 
         // Validate access control
-        await this.validateTest('SECURITY', 'CRITICAL', async () => {
-            const testFile = new File(['Security test'], 'security.txt', { type: 'text/plain' });
+        await this.validateTest('SECURITY', 'CRITICAL', async r() => {
+            const testFile = new File(['Security test'], 'secuity.txt', { type: 'text/plain' });
             
             const document = await intelligentDocumentService.createDocument(
                 'Security Test',

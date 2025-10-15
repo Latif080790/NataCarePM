@@ -44,6 +44,14 @@ import JournalEntriesView from './views/JournalEntriesView';
 import AccountsPayableView from './views/AccountsPayableView';
 import AccountsReceivableView from './views/AccountsReceivableView';
 
+// WBS Module
+import WBSManagementView from './views/WBSManagementView';
+
+// Logistics Module
+import GoodsReceiptView from './views/GoodsReceiptView';
+import MaterialRequestView from './views/MaterialRequestView';
+import VendorManagementView from './views/VendorManagementView';
+
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { useActivityTracker } from './hooks/useMonitoring';
@@ -81,6 +89,14 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   journal_entries: JournalEntriesView,
   accounts_payable: AccountsPayableView,
   accounts_receivable: AccountsReceivableView,
+  
+  // WBS Module
+  wbs_management: WBSManagementView,
+  
+  // Logistics Module
+  goods_receipt: GoodsReceiptView,
+  material_request: MaterialRequestView,
+  vendor_management: VendorManagementView,
   
   logistik: LogisticsView,
   dokumen: DokumenView,

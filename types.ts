@@ -13,6 +13,7 @@ export type Permission =
     | 'manage_expenses'
     | 'view_evm'
     | 'view_logistics'
+    | 'manage_logistics'  // Added for Goods Receipt operations
     | 'create_po'
     | 'approve_po'
     | 'manage_inventory'
@@ -44,6 +45,7 @@ export interface RabItem {
     ahspId: string;
     duration?: number;
     dependsOn?: number;
+    wbsElementId?: string;  // Link to WBS Element
 }
 
 // Enhanced RAB with detailed cost analysis
@@ -332,6 +334,7 @@ export interface Expense {
     date: string;
     type: 'Material' | 'Alat' | 'Upah Tenaga Kerja' | 'Lain-lain';
     rabItemId?: number;
+    wbsElementId?: string;  // Link to WBS Element
     invoiceId?: string; // Link to an invoice
 }
 
@@ -390,24 +393,33 @@ export interface ProjectMetrics {
 }
 
 export interface POItem {
+    id?: string;  // Add for tracking
+    materialCode?: string;  // Add for material reference
     materialName: string;
+    description?: string;  // Add for better description
     quantity: number;
     unit: string;
     pricePerUnit: number;
+    unitPrice?: number;  // Alias for pricePerUnit
     totalPrice: number;
+    receivedQuantity?: number;  // Track received quantity for GR
+    status?: 'pending' | 'partial' | 'completed';  // Item-level status
 }
 
 export interface PurchaseOrder {
     id: string;
     prNumber: string;
     poNumber?: string;
-    status: 'Menunggu Persetujuan' | 'Disetujui' | 'Ditolak' | 'PO Dibuat' | 'Dipesan' | 'Diterima Sebagian' | 'Diterima Penuh';
+    status: 'Menunggu Persetujuan' | 'Disetujuan' | 'Ditolak' | 'PO Dibuat' | 'Dipesan' | 'Diterima Sebagian' | 'Diterima Penuh';
     items: POItem[];
     requester: string;
     requestDate: string;
     approver?: string;
     approvalDate?: string;
     vendorId?: string;
+    vendorName?: string;  // Add vendor name for easy display
+    totalAmount?: number;  // Add for total PO amount
+    wbsElementId?: string;  // Link to WBS Element for cost tracking
     grnStatus?: 'Belum Diterima' | 'Sebagian Diterima' | 'Lengkap';
     notes?: string;
 }

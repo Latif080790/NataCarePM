@@ -1,5 +1,5 @@
 import {
-    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor, Brain
+    LayoutDashboard, FileText, GanttChartSquare, DollarSign, Construction, CalendarDays, Truck, FileArchive, ShieldCheck, Users, BarChart3, Settings, History, UserCircle, CheckSquare, Bell, Monitor, Brain, BookOpen, BookText, FileDown, FileUp, Coins, Package, ClipboardList, Store
 } from 'lucide-react';
 import { Role, User, Permission } from './types';
 
@@ -8,7 +8,7 @@ export const ROLES_CONFIG: Role[] = [
         id: 'admin', name: 'Admin', permissions: [
             'view_dashboard', 'view_rab', 'edit_rab', 'view_gantt', 'view_daily_reports', 'create_daily_reports',
             'view_progress', 'update_progress', 'view_attendance', 'manage_attendance', 'view_finances', 'manage_expenses',
-            'view_evm', 'view_logistics', 'create_po', 'approve_po', 'manage_inventory', 'view_documents', 'manage_documents',
+            'view_evm', 'view_logistics', 'manage_logistics', 'create_po', 'approve_po', 'manage_inventory', 'view_documents', 'manage_documents',
             'view_reports', 'view_users', 'manage_users', 'view_master_data', 'manage_master_data', 'view_audit_trail',
             'view_monitoring', 'manage_monitoring'
         ]
@@ -17,14 +17,14 @@ export const ROLES_CONFIG: Role[] = [
         id: 'pm', name: 'Project Manager', permissions: [
             'view_dashboard', 'view_rab', 'edit_rab', 'view_gantt', 'view_daily_reports', 'create_daily_reports',
             'view_progress', 'update_progress', 'view_attendance', 'manage_attendance', 'view_finances', 'manage_expenses',
-            'view_evm', 'view_logistics', 'create_po', 'approve_po', 'manage_inventory', 'view_documents', 'manage_documents',
+            'view_evm', 'view_logistics', 'manage_logistics', 'create_po', 'approve_po', 'manage_inventory', 'view_documents', 'manage_documents',
             'view_reports', 'view_users', 'view_master_data', 'view_audit_trail', 'view_monitoring'
         ]
     },
     {
         id: 'site_manager', name: 'Site Manager', permissions: [
             'view_dashboard', 'view_gantt', 'view_daily_reports', 'create_daily_reports', 'view_progress', 'update_progress',
-            'view_attendance', 'manage_attendance', 'view_logistics', 'create_po', 'manage_inventory', 'view_documents'
+            'view_attendance', 'manage_attendance', 'view_logistics', 'manage_logistics', 'create_po', 'manage_inventory', 'view_documents'
         ]
     },
     {
@@ -47,6 +47,7 @@ export const navLinksConfig = [
             { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, requiredPermission: 'view_dashboard' },
             { id: 'analytics', name: 'Analytics Dashboard', icon: BarChart3, requiredPermission: 'view_dashboard' },
             { id: 'rab_ahsp', name: 'RAB & AHSP', icon: FileText, requiredPermission: 'view_rab' },
+            { id: 'wbs_management', name: 'WBS Structure', icon: FileText, requiredPermission: 'view_rab' },
             { id: 'jadwal', name: 'Jadwal (Gantt)', icon: GanttChartSquare, requiredPermission: 'view_gantt' },
         ],
     },
@@ -64,17 +65,24 @@ export const navLinksConfig = [
         ]
     },
     {
-        id: 'keuangan-group', name: 'Keuangan',
+        id: 'keuangan-group', name: 'Keuangan & Akuntansi',
         children: [
              { id: 'arus_kas', name: 'Arus Kas', icon: DollarSign, requiredPermission: 'view_finances' },
              { id: 'biaya_proyek', name: 'Biaya Proyek', icon: DollarSign, requiredPermission: 'view_finances' },
              { id: 'strategic_cost', name: 'Kontrol Biaya (EVM)', icon: ShieldCheck, requiredPermission: 'view_evm' },
+             { id: 'chart_of_accounts', name: 'Chart of Accounts', icon: BookOpen, requiredPermission: 'view_finances' },
+             { id: 'journal_entries', name: 'Jurnal Umum', icon: BookText, requiredPermission: 'view_finances' },
+             { id: 'accounts_payable', name: 'Hutang (AP)', icon: FileDown, requiredPermission: 'view_finances' },
+             { id: 'accounts_receivable', name: 'Piutang (AR)', icon: FileUp, requiredPermission: 'view_finances' },
         ]
     },
     {
         id: 'lainnya-group', name: 'Lainnya',
         children: [
             { id: 'logistik', name: 'Logistik & PO', icon: Truck, requiredPermission: 'view_logistics' },
+            { id: 'material_request', name: 'Material Request', icon: ClipboardList, requiredPermission: 'view_logistics' },
+            { id: 'goods_receipt', name: 'Goods Receipt', icon: Package, requiredPermission: 'view_logistics' },
+            { id: 'vendor_management', name: 'Vendor Management', icon: Store, requiredPermission: 'view_logistics' },
             { id: 'dokumen', name: 'Dokumen', icon: FileArchive, requiredPermission: 'view_documents' },
             { id: 'documents', name: 'Intelligent Documents', icon: Brain, requiredPermission: 'view_documents' },
             { id: 'laporan', name: 'Laporan Proyek', icon: FileText, requiredPermission: 'view_reports' },
