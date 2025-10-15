@@ -36,6 +36,13 @@ import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/Ente
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 import { IntegratedAnalyticsView } from './views/IntegratedAnalyticsView';
 import IntelligentDocumentSystem from './views/IntelligentDocumentSystem';
+import { NavigationDebug } from './components/NavigationDebug';
+
+// Finance & Accounting Module Views
+import ChartOfAccountsView from './views/ChartOfAccountsView';
+import JournalEntriesView from './views/JournalEntriesView';
+import AccountsPayableView from './views/AccountsPayableView';
+import AccountsReceivableView from './views/AccountsReceivableView';
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
@@ -68,6 +75,13 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   biaya_proyek: FinanceView, // Remapped
   arus_kas: CashflowView,
   strategic_cost: StrategicCostView,
+  
+  // Finance & Accounting Module
+  chart_of_accounts: ChartOfAccountsView,
+  journal_entries: JournalEntriesView,
+  accounts_payable: AccountsPayableView,
+  accounts_receivable: AccountsReceivableView,
+  
   logistik: LogisticsView,
   dokumen: DokumenView,
   documents: IntelligentDocumentSystem, // New Intelligent Document System
@@ -86,6 +100,8 @@ const comingSoonViews: { [key: string]: { name: string; features: string[] } } =
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
   
   const { currentUser, loading: authLoading } = useAuth();
   const { currentProject, loading: projectLoading, error, ...projectActions } = useProject();
@@ -113,14 +129,42 @@ function AppContent() {
     return undefined;
   }, [currentUser]);
 
+  // 🐛 Debug panel keyboard shortcut (Ctrl+Shift+D)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        setShowDebug(prev => !prev);
+        console.log('🐛 Debug panel:', !showDebug ? 'ON' : 'OFF');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [showDebug]);
+
   const handleNavigate = (viewId: string) => {
+    console.log('🔄 Navigation attempt:', viewId);
+    console.log('📋 Available views:', Object.keys(viewComponents));
+    console.log('✅ View exists:', viewComponents[viewId] ? 'YES' : 'NO');
+    
     if (viewComponents[viewId]) {
-      setCurrentView(viewId);
+      setIsNavigating(true);
+      
+      // Smooth transition
+      setTimeout(() => {
+        setCurrentView(viewId);
+        setIsNavigating(false);
+        console.log('✨ Navigated to:', viewId);
+      }, 150);
+      
       // Update presence when navigating to different views
       updatePresence(viewId);
       
       // 📊 Track navigation activity
       trackActivity('navigate', 'view', viewId, true);
+    } else {
+      console.error('❌ View not found:', viewId);
+      console.log('💡 Did you mean one of these?', Object.keys(viewComponents).filter(v => v.includes(viewId.split('_')[0])));
     }
   };
 
@@ -395,7 +439,17 @@ function AppContent() {
             <Header isSidebarCollapsed={isSidebarCollapsed}>
                 <OnlineUsersDisplay compact showActivity={false} />
             </Header>
-            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 glass-bg">
+            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 glass-bg relative">
+                {/* Navigation Loading Overlay */}
+                {isNavigating && (
+                  <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-40 flex items-center justify-center">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
+                    </div>
+                  </div>
+                )}
+                
                 <EnterpriseErrorBoundary>
                     {CurrentViewComponent ? <CurrentViewComponent {...viewProps} /> : <div>View not found</div>}
                 </EnterpriseErrorBoundary>
@@ -405,6 +459,20 @@ function AppContent() {
         <AiAssistantChat />
         <OfflineIndicator />
         <LiveCursors containerId="app-container" showLabels />
+        
+        {/* Debug Panel (Ctrl+Shift+D to toggle) */}
+        {showDebug && (
+          <NavigationDebug 
+            currentView={currentView}
+            availableViews={Object.keys(viewComponents)}
+            userPermissions={currentUser?.roleId ? ['view_dashboard', 'view_rab', 'view_gantt'] : []}
+          />
+        )}
+        
+        {/* Debug Toggle Hint */}
+        <div className="fixed bottom-4 left-4 z-40 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs opacity-50 hover:opacity-100 transition-opacity">
+          Press <kbd className="bg-slate-700 px-1.5 py-0.5 rounded">Ctrl+Shift+D</kbd> for debug panel
+        </div>
       </div>
   );
 }

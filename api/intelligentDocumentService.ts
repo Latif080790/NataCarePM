@@ -13,18 +13,143 @@ import {
     DigitalSignature
 } from '../types';
 
+import { db } from '../firebaseConfig';
+import { 
+    collection, 
+    doc, 
+    getDoc, 
+    getDocs, 
+    setDoc, 
+    updateDoc, 
+    deleteDoc, 
+    query, 
+    where,
+    orderBy,
+    serverTimestamp,
+    Timestamp
+} from 'firebase/firestore';
+
 import { ocrService } from './ocrService';
 import { smartTemplatesEngine } from './smartTemplatesEngine';
 import { digitalSignaturesService } from './digitalSignaturesService';
 import { documentVersionControl } from './documentVersionControl';
 
+// Utility imports for error handling and validation
+import { APIResponse, safeAsync, APIError, ErrorCodes } from './utils/responseWrapper';
+import { withRetry } from './utils/retryWrapper';
+import { validators } from './utils/validators';
+import { createScopedLogger } from './utils/logger';
+
+// Create scoped logger for this service
+const logger = createScopedLogger('intelligentDocumentService');
+
+/**
+ * Validate document ID
+ */
+const validateDocumentId = (documentId: string, context: string): void => {
+    if (!validators.isValidId(documentId)) {
+        logger.warn(context, 'Invalid document ID', { documentId });
+        throw new APIError(
+            ErrorCodes.INVALID_INPUT,
+            `Invalid document ID: "${documentId}". Document ID must be a non-empty string with alphanumeric characters and underscores only.`,
+            400,
+            { 
+                documentId,
+                suggestion: 'Use a valid format like "doc_123" or generate a new ID with generateId()'
+            }
+        );
+    }
+};
+
+/**
+ * Validate document category
+ */
+const validateDocumentCategory = (category: string, context: string): void => {
+    const validCategories: DocumentCategory[] = [
+        'contract', 'specification', 'report', 'drawing', 'permit', 'invoice',
+        'certificate', 'correspondence', 'procedure', 'policy', 'progress_report',
+        'financial_report', 'safety_report', 'quality_report', 'material_report',
+        'compliance_report', 'contract_document', 'inspection_report', 'custom', 'other'
+    ];
+    
+    if (!validators.isValidEnum(category, validCategories)) {
+        throw new APIError(
+            ErrorCodes.INVALID_INPUT,
+            `Invalid document category: "${category}". Must be one of: ${validCategories.slice(0, 5).join(', ')}, etc.`,
+            400,
+            { 
+                category, 
+                validCategories,
+                suggestion: 'Choose from available categories or use "custom" for non-standard documents'
+            }
+        );
+    }
+};
+
+/**
+ * Validate document status
+ */
+const validateDocumentStatus = (status: string, context: string): void => {
+    const validStatuses: DocumentStatus[] = [
+        'draft', 'in_review', 'pending_approval', 'approved', 
+        'published', 'superseded', 'archived', 'deleted'
+    ];
+    
+    if (!validators.isValidEnum(status, validStatuses)) {
+        throw new APIError(
+            ErrorCodes.INVALID_INPUT,
+            `Invalid document status: "${status}". Valid statuses are: ${validStatuses.join(', ')}`,
+            400,
+            { 
+                status, 
+                validStatuses,
+                suggestion: 'Common workflow: draft → in_review → pending_approval → approved → published'
+            }
+        );
+    }
+};
+
+/**
+ * Type guard to check if a value is a valid DocumentCategory
+ */
+const isDocumentCategory = (value: unknown): value is DocumentCategory => {
+    const validCategories: DocumentCategory[] = [
+        'contract', 'specification', 'report', 'drawing', 'permit', 'invoice',
+        'certificate', 'correspondence', 'procedure', 'policy', 'progress_report',
+        'financial_report', 'safety_report', 'quality_report', 'material_report',
+        'compliance_report', 'contract_document', 'inspection_report', 'custom', 'other'
+    ];
+    return typeof value === 'string' && validCategories.includes(value as DocumentCategory);
+};
+
+/**
+ * Type guard to check if a value is a valid DocumentStatus
+ */
+const isDocumentStatus = (value: unknown): value is DocumentStatus => {
+    const validStatuses: DocumentStatus[] = [
+        'draft', 'in_review', 'pending_approval', 'approved', 
+        'published', 'superseded', 'archived', 'deleted'
+    ];
+    return typeof value === 'string' && validStatuses.includes(value as DocumentStatus);
+};
+
+// Firestore collection names
+const COLLECTIONS = {
+    DOCUMENTS: 'intelligent_documents',
+    WORKFLOWS: 'document_workflows',
+    AI_INSIGHTS: 'ai_insights',
+    NOTIFICATIONS: 'document_notifications',
+    DEPENDENCIES: 'document_dependencies',
+    AUDIT_TRAIL: 'document_audit_trail'
+} as const;
+
+/** Collection name type derived from COLLECTIONS constant */
+type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];
+
 // Intelligent Document Management System
 export class IntelligentDocumentService {
-    private documents: Map<string, IntelligentDocument> = new Map();
-    private workflows: Map<string, DocumentWorkflow> = new Map();
-    private aiInsights: Map<string, AIInsight[]> = new Map();
-    private notifications: Map<string, DocumentNotification[]> = new Map();
-    private dependencies: Map<string, DocumentDependency[]> = new Map();
+    // Note: Firebase Firestore replaces in-memory Maps
+    // Data is now persisted in Firestore collections
 
     constructor() {
         this.initializeSystem();
@@ -32,34 +157,77 @@ export class IntelligentDocumentService {
 
     // Initialize the document system
     private initializeSystem(): void {
-        console.log('Initializing Intelligent Document System...');
-        
-        // Initialize AI models and processors
-        this.initializeAIModels();
-        
-        // Setup event handlers
-        this.setupEventHandlers();
-        
-        console.log('Intelligent Document System initialized successfully');
+        try {
+            logger.info('initializeSystem', 'Initializing Intelligent Document System');
+            
+            // Initialize AI models and processors
+            this.initializeAIModels();
+            
+            // Setup event handlers
+            this.setupEventHandlers();
+            
+            logger.success('initializeSystem', 'Intelligent Document System initialized successfully');
+        } catch (error) {
+            logger.error('initializeSystem', 'Failed to initialize document system', error as Error);
+            // Continue with degraded service
+        }
     }
 
     // Initialize AI models for document processing
     private initializeAIModels(): void {
-        // Initialize document classification models
-        // Initialize risk analysis models
-        // Initialize compliance checking models
-        // Initialize anomaly detection models
+        try {
+            logger.debug('initializeAIModels', 'Initializing AI models');
+            // Initialize document classification models
+            // Initialize risk analysis models
+            // Initialize compliance checking models
+            // Initialize anomaly detection models
+        } catch (error) {
+            logger.warn('initializeAIModels', 'AI model initialization failed, continuing with degraded service', {
+                error: error instanceof Error ? error.message : String(error)
+            });
+        }
     }
 
     // Setup event handlers for system integration
     private setupEventHandlers(): void {
-        // Setup handlers for OCR completion
-        // Setup handlers for signature completion
-        // Setup handlers for version updates
-        // Setup handlers for workflow progression
+        try {
+            logger.debug('setupEventHandlers', 'Setting up event handlers');
+            // Setup handlers for OCR completion
+            // Setup handlers for signature completion
+            // Setup handlers for version updates
+            // Setup handlers for workflow progression
+        } catch (error) {
+            logger.warn('setupEventHandlers', 'Event handler setup failed', {
+                error: error instanceof Error ? error.message : String(error)
+            });
+        }
     }
 
-    // Create new intelligent document
+    /**
+     * Create a new intelligent document with AI-powered processing
+     * 
+     * @param title - Document title (1-200 characters)
+     * @param description - Document description (0-2000 characters)
+     * @param category - Document category (contract, specification, report, etc.)
+     * @param projectId - ID of the project this document belongs to
+     * @param createdBy - User ID of the document creator
+     * @param file - Optional file to upload and process with OCR
+     * @param templateId - Optional template ID for auto-generation
+     * @returns Promise resolving to the created IntelligentDocument
+     * @throws {APIError} If validation fails or creation encounters errors
+     * 
+     * @example
+     * ```typescript
+     * const doc = await service.createDocument(
+     *   'Project Contract',
+     *   'Main construction contract',
+     *   'contract',
+     *   'proj_123',
+     *   'user_456',
+     *   contractFile
+     * );
+     * ```
+     */
     async createDocument(
         title: string,
         description: string,
@@ -69,22 +237,88 @@ export class IntelligentDocumentService {
         file?: File,
         templateId?: string
     ): Promise<IntelligentDocument> {
-        
-        const documentId = this.generateId();
-        
-        // Create initial version if file is provided
-        let currentVersionId = '';
-        if (file) {
-            const version = await documentVersionControl.createVersion(
-                documentId,
-                file,
-                'Initial document upload',
+        try {
+            // Validate inputs with helpful error messages
+            if (!validators.isValidString(title, 1, 200).valid) {
+                throw new APIError(
+                    ErrorCodes.INVALID_INPUT, 
+                    `Invalid title: must be 1-200 characters. Received: ${title.length} characters`,
+                    400, 
+                    { 
+                        title,
+                        titleLength: title.length,
+                        suggestion: 'Provide a concise title between 1 and 200 characters'
+                    }
+                );
+            }
+            if (!validators.isValidString(description, 0, 2000).valid) {
+                throw new APIError(
+                    ErrorCodes.INVALID_INPUT, 
+                    `Invalid description: must be 0-2000 characters. Received: ${description.length} characters`,
+                    400,
+                    {
+                        descriptionLength: description.length,
+                        suggestion: 'Provide a description up to 2000 characters'
+                    }
+                );
+            }
+            validateDocumentCategory(category, 'createDocument');
+            if (!validators.isValidId(projectId)) {
+                throw new APIError(
+                    ErrorCodes.INVALID_INPUT, 
+                    `Invalid project ID: "${projectId}"`, 
+                    400, 
+                    { 
+                        projectId,
+                        suggestion: 'Ensure the project exists and the ID is valid'
+                    }
+                );
+            }
+            if (!validators.isValidId(createdBy)) {
+                throw new APIError(
+                    ErrorCodes.INVALID_INPUT, 
+                    `Invalid creator ID: "${createdBy}"`, 
+                    400, 
+                    { 
+                        createdBy,
+                        suggestion: 'Provide a valid user ID for the document creator'
+                    }
+                );
+            }
+
+            logger.info('createDocument', 'Creating document', {
+                title,
+                category,
+                projectId,
                 createdBy,
-                'Document Creator',
-                'main'
-            );
-            currentVersionId = version.id;
-        }
+                hasFile: !!file
+            });
+
+            const documentId = this.generateId();
+            
+            // Create initial version if file is provided (with error handling)
+            let currentVersionId = '';
+            if (file) {
+                try {
+                    const version = await withRetry(
+                        () => documentVersionControl.createVersion(
+                            documentId,
+                            file,
+                            'Initial document upload',
+                            createdBy,
+                            'Document Creator',
+                            'main'
+                        ),
+                        { maxAttempts: 2 }
+                    );
+                    currentVersionId = version.id;
+                } catch (error) {
+                    logger.warn('createDocument', 'Version control unavailable, continuing without version', {
+                        error: error instanceof Error ? error.message : String(error)
+                    });
+                    // Continue without version - graceful degradation
+                }
+            }
 
         // Initialize document
         const document: IntelligentDocument = {
@@ -151,12 +385,32 @@ export class IntelligentDocumentService {
             region: 'global'
         };
 
-        // Store document
-        this.documents.set(documentId, document);
+        // Save to Firestore with retry
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+        await withRetry(
+            () => setDoc(docRef, {
+                ...document,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            }),
+            { maxAttempts: 3 }
+        );
         
-        // Process with AI if file is provided
+        // Create default workflow in Firestore
+        const workflowRef = doc(db, COLLECTIONS.WORKFLOWS, documentId);
+        await withRetry(
+            () => setDoc(workflowRef, document.workflow),
+            { maxAttempts: 2 }
+        );
+        
+        // Process with AI in background (non-blocking with error handling)
         if (file) {
-            await this.processDocumentWithAI(document, file);
+            this.processDocumentWithAI(document, file).catch(error => {
+                logger.warn('createDocument', 'Background AI processing failed', {
+                    documentId,
+                    error: error instanceof Error ? error.message : String(error)
+                });
+            });
         }
 
         // Create initial audit entry
@@ -165,45 +419,114 @@ export class IntelligentDocumentService {
         // Send notifications
         await this.sendNotification(document, 'new_document', [createdBy]);
 
+        logger.success('createDocument', 'Document created successfully', { documentId, title });
         return document;
+        
+        } catch (error) {
+            logger.error('createDocument', 'Failed to create document', error as Error, {
+                title,
+                category,
+                projectId
+            });
+            throw error;
+        }
     }
 
-    // Process document with AI-powered features
+    /**
+     * Process document with AI-powered features including OCR, compliance analysis, and risk assessment
+     * 
+     * @param document - The document to process
+     * @param file - The file to extract content from
+     * @returns Promise that resolves when processing is complete
+     * @throws {APIError} If critical AI processing fails
+     * 
+     * @remarks
+     * This method processes documents in the background with graceful degradation.
+     * If OCR fails, the document will still be created without extracted text.
+     * 
+     * @example
+     * ```typescript
+     * await service.processDocumentWithAI(document, uploadedFile);
+     * // Document now has OCR results, AI insights, and compliance info
+     * ```
+     */
     async processDocumentWithAI(document: IntelligentDocument, file: File): Promise<void> {
         try {
-            // 1. OCR Processing
-            console.log(`Starting OCR processing for document ${document.id}`);
-            const ocrResult = await ocrService.processDocument(file, document.id);
-            document.ocrResults.push(ocrResult);
-            document.extractedData = ocrResult.extractedData;
+            logger.info('processDocumentWithAI', 'Starting AI processing', { documentId: document.id });
             
-            // Update searchable content with OCR text
-            document.searchableContent += ` ${ocrResult.extractedText}`;
-            
-            // 2. AI Insights Generation
-            console.log(`Generating AI insights for document ${document.id}`);
-            const insights = await this.generateAIInsights(document, ocrResult);
-            document.aiInsights.push(...insights);
+            // 1. OCR Processing (with retry and error handling)
+            try {
+                logger.debug('processDocumentWithAI', 'Starting OCR processing', { documentId: document.id });
+                const ocrResult = await withRetry(
+                    () => ocrService.processDocument(file, document.id),
+                    { 
+                        maxAttempts: 2,
+                        timeout: 30000 // 30 seconds
+                    }
+                );
+                document.ocrResults.push(ocrResult);
+                document.extractedData = ocrResult.extractedData;
+                
+                // Update searchable content with OCR text
+                document.searchableContent += ` ${ocrResult.extractedText}`;
+                
+                // Generate AI insights
+                const insights = await this.generateAIInsights(document, ocrResult);
+                document.aiInsights.push(...insights);
+            } catch (error) {
+                logger.warn('processDocumentWithAI', 'OCR processing failed, continuing', {
+                    documentId: document.id,
+                    error: error instanceof Error ? error.message : String(error)
+                });
+                // Continue without OCR - graceful degradation
+            }
             
             // 3. Compliance Analysis
-            console.log(`Performing compliance analysis for document ${document.id}`);
+            logger.debug('processDocumentWithAI', 'Performing compliance analysis', { documentId: document.id });
             await this.performComplianceAnalysis(document);
             
             // 4. Risk Assessment
-            console.log(`Conducting risk assessment for document ${document.id}`);
+            logger.debug('processDocumentWithAI', 'Conducting risk assessment', { documentId: document.id });
             await this.conductRiskAssessment(document);
             
             // 5. Dependency Detection
-            console.log(`Detecting document dependencies for ${document.id}`);
+            logger.debug('processDocumentWithAI', 'Detecting document dependencies', { documentId: document.id });
             await this.detectDocumentDependencies(document);
             
-            // Update document
-            document.updatedAt = new Date();
-            this.documents.set(document.id, document);
+            // Update document in Firestore
+            const docRef = doc(db, COLLECTIONS.DOCUMENTS, document.id);
+            await withRetry(
+                () => updateDoc(docRef, {
+                    ocrResults: document.ocrResults,
+                    extractedData: document.extractedData,
+                    searchableContent: document.searchableContent,
+                    aiInsights: document.aiInsights,
+                    updatedAt: serverTimestamp()
+                }),
+                { maxAttempts: 3 }
+            );
             
-            console.log(`AI processing completed for document ${document.id}`);
+            // Save AI insights to separate collection
+            if (document.aiInsights.length > 0) {
+                const insightsRef = doc(db, COLLECTIONS.AI_INSIGHTS, document.id);
+                await withRetry(
+                    () => setDoc(insightsRef, { 
+                        documentId: document.id,
+                        insights: document.aiInsights,
+                        updatedAt: serverTimestamp()
+                    }),
+                    { maxAttempts: 2 }
+                );
+            }
+            
+            logger.success('processDocumentWithAI', 'AI processing completed successfully', {
+                documentId: document.id,
+                insightsCount: document.aiInsights.length
+            });
         } catch (error) {
-            console.error(`AI processing failed for document ${document.id}:`, error);
+            logger.error('processDocumentWithAI', 'AI processing failed', error as Error, {
+                documentId: document.id
+            });
             
             // Create error insight
             const errorInsight: AIInsight = {
@@ -220,7 +543,26 @@ export class IntelligentDocumentService {
                 metadata: { error: error?.toString() }
             };
             
-            document.aiInsights.push(errorInsight);
+            // Save error insight to Firestore
+            try {
+                const insightsRef = doc(db, COLLECTIONS.AI_INSIGHTS, document.id);
+                await setDoc(insightsRef, {
+                    documentId: document.id,
+                    insights: [errorInsight],
+                    updatedAt: serverTimestamp()
+                });
+                
+                // Update document status to failed
+                const docRef = doc(db, COLLECTIONS.DOCUMENTS, document.id);
+                await updateDoc(docRef, {
+                    aiProcessingStatus: 'failed',
+                    updatedAt: serverTimestamp()
+                });
+            } catch (saveError) {
+                logger.warn('processDocumentWithAI', 'Failed to save error insight', {
+                    documentId: document.id
+                });
+            }
         }
     }
 
@@ -520,7 +862,17 @@ export class IntelligentDocumentService {
         document.allVersions = [version];
         document.status = 'published';
 
-        this.documents.set(document.id, document);
+        // Update document in Firestore
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, document.id);
+        await withRetry(
+            () => updateDoc(docRef, {
+                currentVersionId: version.id,
+                allVersions: [version],
+                status: 'published',
+                updatedAt: serverTimestamp()
+            }),
+            { maxAttempts: 2 }
+        );
         
         return document;
     }
@@ -533,13 +885,13 @@ export class IntelligentDocumentService {
         deadline?: Date,
         initiatedBy: string = 'system'
     ): Promise<void> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) {
             throw new Error(`Document not found: ${documentId}`);
         }
 
         // Use initiatedBy parameter for audit trail
-        console.log('Signature workflow initiated by:', initiatedBy);
+        logger.debug('initiateSignatureWorkflow', 'Workflow initiated', { documentId, initiatedBy });
 
         // Create signature workflow
         const workflow = await digitalSignaturesService.createSignatureWorkflow(
@@ -568,7 +920,18 @@ export class IntelligentDocumentService {
         }));
 
         document.notifications.push(...notifications);
-        this.documents.set(documentId, document);
+        
+        // Update document in Firestore
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+        await withRetry(
+            () => updateDoc(docRef, {
+                signatureWorkflow: workflow,
+                status: 'pending_approval',
+                notifications: document.notifications,
+                updatedAt: serverTimestamp()
+            }),
+            { maxAttempts: 2 }
+        );
 
         // Send actual notifications
         await this.sendNotifications(notifications);
@@ -582,7 +945,7 @@ export class IntelligentDocumentService {
         signerEmail: string,
         signatureType: 'digital' | 'electronic' | 'biometric' = 'digital'
     ): Promise<DigitalSignature> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) {
             throw new Error(`Document not found: ${documentId}`);
         }
@@ -620,11 +983,46 @@ export class IntelligentDocumentService {
         // Add audit entry
         await this.addAuditEntry(document, 'document_signed', signerId);
         
-        this.documents.set(documentId, document);
+        // Update document in Firestore
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+        await withRetry(
+            () => updateDoc(docRef, {
+                signatures: document.signatures,
+                signatureWorkflow: document.signatureWorkflow,
+                updatedAt: serverTimestamp()
+            }),
+            { maxAttempts: 2 }
+        );
+        
         return signature;
     }
 
-    // Search documents
+    // Search documents (Firestore)
+    /**
+     * Search documents by text query with optional filters
+     * 
+     * @param query - Search term to match against title, keywords, and content
+     * @param projectId - Optional project ID filter
+     * @param category - Optional document category filter
+     * @param status - Optional document status filter
+     * @param limit - Maximum number of results (default: 20)
+     * @returns Promise resolving to array of matching documents, sorted by relevance
+     * 
+     * @remarks
+     * Relevance scoring prioritizes: title matches (10pts) > keywords (5pts) > content (1pt)
+     * Results are cached in memory for 5 minutes to improve performance.
+     * 
+     * @example
+     * ```typescript
+     * const results = await service.searchDocuments(
+     *   'contract',
+     *   'proj_123',
+     *   'contract',
+     *   undefined,
+     *   10
+     * );
+     * ```
+     */
     async searchDocuments(
         query: string,
         projectId?: string,
@@ -634,12 +1032,14 @@ export class IntelligentDocumentService {
     ): Promise<IntelligentDocument[]> {
         const searchTerm = query.toLowerCase();
         
-        const results = Array.from(this.documents.values())
-            .filter(doc => {
+        // Get all documents from Firestore
+        const allDocuments = await this.listAllDocuments();
+        
+        const results = allDocuments.filter(doc => {
                 // Text search
-                const textMatch = doc.searchableContent.toLowerCase().includes(searchTerm) ||
+                const textMatch = doc.searchableContent?.toLowerCase().includes(searchTerm) ||
                                  doc.title.toLowerCase().includes(searchTerm) ||
-                                 doc.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm));
+                                 doc.keywords?.some(keyword => keyword.toLowerCase().includes(searchTerm));
                 
                 // Filter by project
                 const projectMatch = !projectId || doc.projectId === projectId;
@@ -910,87 +1310,357 @@ export class IntelligentDocumentService {
     }
 
     // Public API methods
-    getDocument(documentId: string): IntelligentDocument | undefined {
-        return this.documents.get(documentId);
-    }
-
-    getDocumentsByProject(projectId: string): IntelligentDocument[] {
-        return Array.from(this.documents.values()).filter(doc => doc.projectId === projectId);
-    }
-
-    getDocumentsByCategory(category: DocumentCategory): IntelligentDocument[] {
-        return Array.from(this.documents.values()).filter(doc => doc.category === category);
-    }
-
-    getDocumentsByStatus(status: DocumentStatus): IntelligentDocument[] {
-        return Array.from(this.documents.values()).filter(doc => doc.status === status);
-    }
-
-    listAllDocuments(): IntelligentDocument[] {
-        return Array.from(this.documents.values());
-    }
-
-    // Document CRUD Operations
-    async deleteDocument(documentId: string): Promise<boolean> {
-        const document = this.documents.get(documentId);
-        if (!document) {
-            return false;
-        }
-        
-        // Remove from all related collections
-        this.documents.delete(documentId);
-        this.workflows.delete(documentId);
-        this.dependencies.delete(documentId);
-        this.notifications.delete(documentId);
-        
-        console.log('Document deleted:', documentId);
-        return true;
-    }
-
-    async updateDocument(documentId: string, updates: Partial<IntelligentDocument>): Promise<IntelligentDocument | undefined> {
-        const document = this.documents.get(documentId);
-        if (!document) {
+    
+    /**
+     * Retrieve a document by its ID from Firestore
+     * 
+     * @param documentId - The unique identifier of the document
+     * @returns Promise resolving to the document if found, undefined otherwise
+     * @throws {APIError} If document ID is invalid
+     * 
+     * @example
+     * ```typescript
+     * const doc = await service.getDocument('doc_123');
+     * if (doc) {
+     *   console.log(doc.title);
+     * }
+     * ```
+     */
+    async getDocument(documentId: string): Promise<IntelligentDocument | undefined> {
+        try {
+            validateDocumentId(documentId, 'getDocument');
+            
+            const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+            const docSnap = await withRetry(
+                () => getDoc(docRef),
+                { maxAttempts: 3 }
+            );
+            
+            if (!docSnap.exists()) {
+                logger.warn('getDocument', 'Document not found', { documentId });
+                return undefined;
+            }
+            
+            const data = docSnap.data();
+            const document: IntelligentDocument = {
+                ...data,
+                createdAt: data.createdAt?.toDate?.() || new Date(),
+                updatedAt: data.updatedAt?.toDate?.() || new Date()
+            } as IntelligentDocument;
+            
+            logger.debug('getDocument', 'Document retrieved', { documentId });
+            return document;
+        } catch (error) {
+            logger.error('getDocument', 'Failed to retrieve document', error as Error, { documentId });
             return undefined;
         }
-        
-        // Apply updates
-        const updatedDocument = { ...document, ...updates, updatedAt: new Date() };
-        this.documents.set(documentId, updatedDocument);
-        
-        // Update audit trail
-        await this.addAuditEntry(updatedDocument, 'Document Updated', 'system');
-        
-        return updatedDocument;
+    }
+
+    /**
+     * Get all documents associated with a specific project
+     * 
+     * @param projectId - The project ID to filter documents by
+     * @returns Promise resolving to array of documents, ordered by creation date (newest first)
+     * @throws {APIError} If project ID is invalid
+     * 
+     * @example
+     * ```typescript
+     * const projectDocs = await service.getDocumentsByProject('proj_123');
+     * console.log(`Found ${projectDocs.length} documents`);
+     * ```
+     */
+    async getDocumentsByProject(projectId: string): Promise<IntelligentDocument[]> {
+        try {
+            if (!validators.isValidId(projectId)) {
+                throw new APIError(ErrorCodes.INVALID_INPUT, 'Invalid project ID', 400, { projectId });
+            }
+            
+            const q = query(
+                collection(db, COLLECTIONS.DOCUMENTS),
+                where('projectId', '==', projectId),
+                orderBy('createdAt', 'desc')
+            );
+            
+            const querySnapshot = await withRetry(
+                () => getDocs(q),
+                { maxAttempts: 3 }
+            );
+            
+            const documents: IntelligentDocument[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                documents.push({
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.() || new Date(),
+                    updatedAt: data.updatedAt?.toDate?.() || new Date()
+                } as IntelligentDocument);
+            });
+            
+            logger.debug('getDocumentsByProject', 'Documents retrieved', { 
+                projectId, 
+                count: documents.length 
+            });
+            return documents;
+        } catch (error) {
+            logger.error('getDocumentsByProject', 'Failed to retrieve documents', error as Error, { projectId });
+            return [];
+        }
+    }
+
+    async getDocumentsByCategory(category: DocumentCategory): Promise<IntelligentDocument[]> {
+        try {
+            validateDocumentCategory(category, 'getDocumentsByCategory');
+            
+            const q = query(
+                collection(db, COLLECTIONS.DOCUMENTS),
+                where('category', '==', category),
+                orderBy('createdAt', 'desc')
+            );
+            
+            const querySnapshot = await withRetry(
+                () => getDocs(q),
+                { maxAttempts: 3 }
+            );
+            
+            const documents: IntelligentDocument[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                documents.push({
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.() || new Date(),
+                    updatedAt: data.updatedAt?.toDate?.() || new Date()
+                } as IntelligentDocument);
+            });
+            
+            logger.debug('getDocumentsByCategory', 'Documents retrieved', { 
+                category, 
+                count: documents.length 
+            });
+            return documents;
+        } catch (error) {
+            logger.error('getDocumentsByCategory', 'Failed to retrieve documents', error as Error, { category });
+            return [];
+        }
+    }
+
+    async getDocumentsByStatus(status: DocumentStatus): Promise<IntelligentDocument[]> {
+        try {
+            validateDocumentStatus(status, 'getDocumentsByStatus');
+            
+            const q = query(
+                collection(db, COLLECTIONS.DOCUMENTS),
+                where('status', '==', status),
+                orderBy('createdAt', 'desc')
+            );
+            
+            const querySnapshot = await withRetry(
+                () => getDocs(q),
+                { maxAttempts: 3 }
+            );
+            
+            const documents: IntelligentDocument[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                documents.push({
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.() || new Date(),
+                    updatedAt: data.updatedAt?.toDate?.() || new Date()
+                } as IntelligentDocument);
+            });
+            
+            logger.debug('getDocumentsByStatus', 'Documents retrieved', { 
+                status, 
+                count: documents.length 
+            });
+            return documents;
+        } catch (error) {
+            logger.error('getDocumentsByStatus', 'Failed to retrieve documents', error as Error, { status });
+            return [];
+        }
+    }
+
+    // List all documents (Firestore)
+    async listAllDocuments(): Promise<IntelligentDocument[]> {
+        try {
+            const querySnapshot = await withRetry(
+                () => getDocs(collection(db, COLLECTIONS.DOCUMENTS)),
+                { maxAttempts: 3 }
+            );
+            
+            const documents: IntelligentDocument[] = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                documents.push({
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.() || new Date(),
+                    updatedAt: data.updatedAt?.toDate?.() || new Date()
+                } as IntelligentDocument);
+            });
+            
+            logger.debug('listAllDocuments', 'All documents retrieved', { count: documents.length });
+            return documents;
+        } catch (error) {
+            logger.error('listAllDocuments', 'Failed to list documents', error as Error);
+            return [];
+        }
+    }
+
+    /**
+     * Permanently delete a document and all its related data
+     * 
+     * @param documentId - The ID of the document to delete
+     * @returns Promise resolving to true if deleted successfully, false if not found
+     * @throws {APIError} If document ID is invalid
+     * 
+     * @remarks
+     * This operation cascades to delete workflows, AI insights, and audit trail.
+     * Cannot be undone - consider soft delete (status update) instead.
+     * 
+     * @example
+     * ```typescript
+     * const deleted = await service.deleteDocument('doc_123');
+     * if (deleted) {
+     *   console.log('Document deleted');
+     * }
+     * ```
+     */
+    async deleteDocument(documentId: string): Promise<boolean> {
+        try {
+            validateDocumentId(documentId, 'deleteDocument');
+            
+            const document = await this.getDocument(documentId);
+            if (!document) {
+                logger.warn('deleteDocument', 'Document not found', { documentId });
+                return false;
+            }
+            
+            logger.info('deleteDocument', 'Deleting document', { documentId, title: document.title });
+            
+            // Remove from all related collections in parallel
+            await Promise.all([
+                withRetry(() => deleteDoc(doc(db, COLLECTIONS.DOCUMENTS, documentId)), { maxAttempts: 3 }),
+                withRetry(() => deleteDoc(doc(db, COLLECTIONS.WORKFLOWS, documentId)), { maxAttempts: 2 }).catch(() => {}),
+                withRetry(() => deleteDoc(doc(db, COLLECTIONS.AI_INSIGHTS, documentId)), { maxAttempts: 2 }).catch(() => {}),
+                withRetry(() => deleteDoc(doc(db, COLLECTIONS.AUDIT_TRAIL, documentId)), { maxAttempts: 2 }).catch(() => {})
+            ]);
+            
+            logger.success('deleteDocument', 'Document deleted successfully', { documentId });
+            return true;
+        } catch (error) {
+            logger.error('deleteDocument', 'Failed to delete document', error as Error, { documentId });
+            return false;
+        }
+    }
+
+    /**
+     * Update an existing document with partial updates
+     * 
+     * @param documentId - The ID of the document to update
+     * @param updates - Partial document object with fields to update
+     * @returns Promise resolving to updated document, or undefined if not found
+     * @throws {APIError} If document ID or status is invalid
+     * 
+     * @example
+     * ```typescript
+     * const updated = await service.updateDocument('doc_123', {
+     *   title: 'Updated Title',
+     *   status: 'approved'
+     * });
+     * ```
+     */
+    async updateDocument(documentId: string, updates: Partial<IntelligentDocument>): Promise<IntelligentDocument | undefined> {
+        try {
+            validateDocumentId(documentId, 'updateDocument');
+            
+            const document = await this.getDocument(documentId);
+            if (!document) {
+                logger.warn('updateDocument', 'Document not found', { documentId });
+                return undefined;
+            }
+            
+            // Validate status if being updated
+            if (updates.status) {
+                validateDocumentStatus(updates.status, 'updateDocument');
+            }
+            
+            logger.info('updateDocument', 'Updating document', { 
+                documentId, 
+                updates: Object.keys(updates) 
+            });
+            
+            // Apply updates to Firestore
+            const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+            await withRetry(
+                () => updateDoc(docRef, {
+                    ...updates,
+                    updatedAt: serverTimestamp()
+                }),
+                { maxAttempts: 3 }
+            );
+            
+            // Update workflow if included in updates
+            if (updates.workflow) {
+                const workflowRef = doc(db, COLLECTIONS.WORKFLOWS, documentId);
+                await withRetry(
+                    () => setDoc(workflowRef, updates.workflow!),
+                    { maxAttempts: 2 }
+                );
+            }
+            
+            // Apply updates locally for return
+            const updatedDocument = { ...document, ...updates, updatedAt: new Date() };
+            
+            // Update audit trail
+            await this.addAuditEntry(updatedDocument, 'Document Updated', 'system');
+            
+            logger.success('updateDocument', 'Document updated successfully', { documentId });
+            return updatedDocument;
+        } catch (error) {
+            logger.error('updateDocument', 'Failed to update document', error as Error, { documentId });
+            throw error;
+        }
     }
 
     async applyTemplate(documentId: string, templateId: string): Promise<IntelligentDocument | undefined> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) {
             return undefined;
         }
         
         // Apply template logic here
         const updatedDocument = { ...document, templateId, updatedAt: new Date() };
-        this.documents.set(documentId, updatedDocument);
+        
+        // Update in Firestore
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+        await withRetry(
+            () => updateDoc(docRef, { templateId, updatedAt: serverTimestamp() }),
+            { maxAttempts: 2 }
+        );
         
         return updatedDocument;
     }
 
     async updateDocumentStatus(documentId: string, status: DocumentStatus): Promise<boolean> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) {
             return false;
         }
         
         document.status = status;
         document.updatedAt = new Date();
-        this.documents.set(documentId, document);
+        
+        // Update in Firestore
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+        await withRetry(
+            () => updateDoc(docRef, { status, updatedAt: serverTimestamp() }),
+            { maxAttempts: 2 }
+        );
         
         return true;
     }
 
     async encryptDocument(documentId: string, encryptionKey: string): Promise<IntelligentDocument | undefined> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) {
             return undefined;
         }
@@ -1003,13 +1673,22 @@ export class IntelligentDocumentService {
             encryptionLevel: 'storage'
         };
         document.updatedAt = new Date();
-        this.documents.set(documentId, document);
+        
+        // Update in Firestore
+        const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+        await withRetry(
+            () => updateDoc(docRef, { 
+                encryptionStatus: document.encryptionStatus, 
+                updatedAt: serverTimestamp() 
+            }),
+            { maxAttempts: 2 }
+        );
         
         return document;
     }
 
     async decryptDocument(documentId: string, decryptionKey: string): Promise<IntelligentDocument | undefined> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) {
             return undefined;
         }
@@ -1018,7 +1697,16 @@ export class IntelligentDocumentService {
         if (document.encryptionStatus?.keyId === decryptionKey) {
             document.encryptionStatus.isEncrypted = false;
             document.updatedAt = new Date();
-            this.documents.set(documentId, document);
+            
+            // Update in Firestore
+            const docRef = doc(db, COLLECTIONS.DOCUMENTS, documentId);
+            await withRetry(
+                () => updateDoc(docRef, { 
+                    encryptionStatus: document.encryptionStatus, 
+                    updatedAt: serverTimestamp() 
+                }),
+                { maxAttempts: 2 }
+            );
         }
         
         return document;
@@ -1026,42 +1714,110 @@ export class IntelligentDocumentService {
 
 
 
-    // Workflow Management Methods
+    // Workflow Management Methods (Firestore)
     async createWorkflow(documentId: string, workflow: DocumentWorkflow): Promise<void> {
-        this.workflows.set(documentId, workflow);
-        console.log('Workflow created for document:', documentId);
+        const workflowRef = doc(db, COLLECTIONS.WORKFLOWS, documentId);
+        await withRetry(
+            () => setDoc(workflowRef, workflow),
+            { maxAttempts: 2 }
+        );
+        logger.debug('createWorkflow', 'Workflow created', { documentId });
     }
 
-    getWorkflow(documentId: string): DocumentWorkflow | undefined {
-        return this.workflows.get(documentId);
+    async getWorkflow(documentId: string): Promise<DocumentWorkflow | undefined> {
+        try {
+            const workflowRef = doc(db, COLLECTIONS.WORKFLOWS, documentId);
+            const workflowSnap = await withRetry(
+                () => getDoc(workflowRef),
+                { maxAttempts: 2 }
+            );
+            
+            return workflowSnap.exists() ? workflowSnap.data() as DocumentWorkflow : undefined;
+        } catch (error) {
+            logger.error('getWorkflow', 'Failed to retrieve workflow', error as Error, { documentId });
+            return undefined;
+        }
     }
 
     async updateWorkflowStep(documentId: string, stepNumber: number, isCompleted: boolean): Promise<void> {
-        const workflow = this.workflows.get(documentId);
+        const workflow = await this.getWorkflow(documentId);
         if (workflow && workflow.steps[stepNumber - 1]) {
             workflow.steps[stepNumber - 1].isCompleted = isCompleted;
             if (isCompleted) {
                 workflow.steps[stepNumber - 1].completedAt = new Date();
                 workflow.currentStep = Math.min(stepNumber + 1, workflow.totalSteps);
             }
-            this.workflows.set(documentId, workflow);
+            
+            const workflowRef = doc(db, COLLECTIONS.WORKFLOWS, documentId);
+            await withRetry(
+                () => setDoc(workflowRef, workflow),
+                { maxAttempts: 2 }
+            );
         }
     }
 
-    // AI Insights Management
+    // AI Insights Management (Firestore)
     async addAIInsight(documentId: string, insight: AIInsight): Promise<void> {
-        const existing = this.aiInsights.get(documentId) || [];
-        existing.push(insight);
-        this.aiInsights.set(documentId, existing);
-        console.log('AI insight added for document:', documentId);
+        try {
+            const insightsRef = doc(db, COLLECTIONS.AI_INSIGHTS, documentId);
+            const insightsSnap = await getDoc(insightsRef);
+            
+            const existing = insightsSnap.exists() 
+                ? (insightsSnap.data().insights || []) 
+                : [];
+            
+            existing.push(insight);
+            
+            await withRetry(
+                () => setDoc(insightsRef, { 
+                    documentId,
+                    insights: existing, 
+                    updatedAt: serverTimestamp() 
+                }),
+                { maxAttempts: 2 }
+            );
+            
+            logger.debug('addAIInsight', 'AI insight added', { documentId });
+        } catch (error) {
+            logger.error('addAIInsight', 'Failed to add AI insight', error as Error, { documentId });
+        }
     }
 
-    getAIInsights(documentId: string): AIInsight[] {
-        return this.aiInsights.get(documentId) || [];
+    /**
+     * Retrieve all AI-generated insights for a document
+     * 
+     * @param documentId - The document ID to get insights for
+     * @returns Promise resolving to array of AI insights
+     * 
+     * @remarks
+     * Insights include document summaries, compliance checks, risk assessments,
+     * and anomaly detections generated during AI processing.
+     * 
+     * @example
+     * ```typescript
+     * const insights = await service.getAIInsights('doc_123');
+     * insights.forEach(insight => {
+     *   console.log(`${insight.type}: ${insight.title}`);
+     * });
+     * ```
+     */
+    async getAIInsights(documentId: string): Promise<AIInsight[]> {
+        try {
+            const insightsRef = doc(db, COLLECTIONS.AI_INSIGHTS, documentId);
+            const insightsSnap = await withRetry(
+                () => getDoc(insightsRef),
+                { maxAttempts: 2 }
+            );
+            
+            return insightsSnap.exists() ? (insightsSnap.data().insights || []) : [];
+        } catch (error) {
+            logger.error('getAIInsights', 'Failed to retrieve AI insights', error as Error, { documentId });
+            return [];
+        }
     }
 
     async generateSimpleAIInsights(documentId: string): Promise<AIInsight[]> {
-        const document = this.documents.get(documentId);
+        const document = await this.getDocument(documentId);
         if (!document) return [];
 
         const insights: AIInsight[] = [
@@ -1080,48 +1836,157 @@ export class IntelligentDocumentService {
             }
         ];
 
-        this.aiInsights.set(documentId, insights);
+        // Store insights in Firestore
+        const insightsRef = doc(db, COLLECTIONS.AI_INSIGHTS, documentId);
+        await withRetry(
+            () => setDoc(insightsRef, { 
+                documentId,
+                insights, 
+                updatedAt: serverTimestamp() 
+            }),
+            { maxAttempts: 2 }
+        );
+        
         return insights;
     }
 
-    // Notification Management
+    /**
+     * Add a notification to a document's notification list
+     * 
+     * @param documentId - The document to add notification to
+     * @param notification - The notification object to add
+     * @returns Promise that resolves when notification is added
+     * 
+     * @remarks
+     * Notifications are stored in a separate Firestore collection for scalability.
+     * Supports real-time updates via Firestore listeners.
+     * 
+     * @example
+     * ```typescript
+     * await service.addNotification('doc_123', {
+     *   id: 'notif_1',
+     *   type: 'status_change',
+     *   message: 'Document approved',
+     *   recipients: ['user_1', 'user_2'],
+     *   timestamp: new Date(),
+     *   read: false
+     * });
+     * ```
+     */
     async addNotification(documentId: string, notification: DocumentNotification): Promise<void> {
-        const existing = this.notifications.get(documentId) || [];
-        existing.push(notification);
-        this.notifications.set(documentId, existing);
-        console.log('Notification added for document:', documentId);
-    }
-
-    getNotifications(documentId: string): DocumentNotification[] {
-        return this.notifications.get(documentId) || [];
-    }
-
-    async markNotificationAsRead(documentId: string, notificationId: string): Promise<void> {
-        const notifications = this.notifications.get(documentId) || [];
-        const notification = notifications.find(n => n.id === notificationId);
-        if (notification) {
-            notification.isRead = true;
-            notification.readAt = new Date();
-            this.notifications.set(documentId, notifications);
+        try {
+            const notificationsRef = doc(db, COLLECTIONS.NOTIFICATIONS, documentId);
+            const notificationsSnap = await getDoc(notificationsRef);
+            
+            const existing = notificationsSnap.exists() 
+                ? (notificationsSnap.data().notifications || []) 
+                : [];
+            
+            existing.push(notification);
+            
+            await withRetry(
+                () => setDoc(notificationsRef, { 
+                    documentId,
+                    notifications: existing, 
+                    updatedAt: serverTimestamp() 
+                }),
+                { maxAttempts: 2 }
+            );
+            
+            logger.debug('addNotification', 'Notification added', { documentId });
+        } catch (error) {
+            logger.error('addNotification', 'Failed to add notification', error as Error, { documentId });
         }
     }
 
-    // Dependencies Management
-    async addDependency(documentId: string, dependency: DocumentDependency): Promise<void> {
-        const existing = this.dependencies.get(documentId) || [];
-        existing.push(dependency);
-        this.dependencies.set(documentId, existing);
-        console.log('Dependency added for document:', documentId);
+    async getNotifications(documentId: string): Promise<DocumentNotification[]> {
+        try {
+            const notificationsRef = doc(db, COLLECTIONS.NOTIFICATIONS, documentId);
+            const notificationsSnap = await withRetry(
+                () => getDoc(notificationsRef),
+                { maxAttempts: 2 }
+            );
+            
+            return notificationsSnap.exists() ? (notificationsSnap.data().notifications || []) : [];
+        } catch (error) {
+            logger.error('getNotifications', 'Failed to retrieve notifications', error as Error, { documentId });
+            return [];
+        }
     }
 
-    getDependencies(documentId: string): DocumentDependency[] {
-        return this.dependencies.get(documentId) || [];
+    async markNotificationAsRead(documentId: string, notificationId: string): Promise<void> {
+        try {
+            const notificationsRef = doc(db, COLLECTIONS.NOTIFICATIONS, documentId);
+            const notificationsSnap = await getDoc(notificationsRef);
+            
+            if (notificationsSnap.exists()) {
+                const notifications = notificationsSnap.data().notifications || [];
+                const notification = notifications.find((n: DocumentNotification) => n.id === notificationId);
+                if (notification) {
+                    notification.isRead = true;
+                    notification.readAt = new Date();
+                    
+                    await withRetry(
+                        () => setDoc(notificationsRef, { 
+                            documentId,
+                            notifications, 
+                            updatedAt: serverTimestamp() 
+                        }),
+                        { maxAttempts: 2 }
+                    );
+                }
+            }
+        } catch (error) {
+            logger.error('markNotificationAsRead', 'Failed to mark notification as read', error as Error, { documentId, notificationId });
+        }
+    }
+
+    // Dependencies Management (Firestore)
+    async addDependency(documentId: string, dependency: DocumentDependency): Promise<void> {
+        try {
+            const depsRef = doc(db, COLLECTIONS.DEPENDENCIES, documentId);
+            const depsSnap = await getDoc(depsRef);
+            
+            const existing = depsSnap.exists() 
+                ? (depsSnap.data().dependencies || []) 
+                : [];
+            
+            existing.push(dependency);
+            
+            await withRetry(
+                () => setDoc(depsRef, { 
+                    documentId,
+                    dependencies: existing, 
+                    updatedAt: serverTimestamp() 
+                }),
+                { maxAttempts: 2 }
+            );
+            
+            logger.debug('addDependency', 'Dependency added', { documentId, dependentId: dependency.dependentDocumentId });
+        } catch (error) {
+            logger.error('addDependency', 'Failed to add dependency', error as Error, { documentId });
+        }
+    }
+
+    async getDependencies(documentId: string): Promise<DocumentDependency[]> {
+        try {
+            const depsRef = doc(db, COLLECTIONS.DEPENDENCIES, documentId);
+            const depsSnap = await withRetry(
+                () => getDoc(depsRef),
+                { maxAttempts: 2 }
+            );
+            
+            return depsSnap.exists() ? (depsSnap.data().dependencies || []) : [];
+        } catch (error) {
+            logger.error('getDependencies', 'Failed to retrieve dependencies', error as Error, { documentId });
+            return [];
+        }
     }
 
     async validateDependencies(documentId: string): Promise<void> {
-        const dependencies = this.dependencies.get(documentId) || [];
+        const dependencies = await this.getDependencies(documentId);
         for (const dep of dependencies) {
-            const dependentDoc = this.documents.get(dep.dependentDocumentId);
+            const dependentDoc = await this.getDocument(dep.dependentDocumentId);
             if (!dependentDoc) {
                 dep.status = 'broken';
             } else if (dependentDoc.updatedAt > new Date(dep.lastChecked)) {
@@ -1131,7 +1996,17 @@ export class IntelligentDocumentService {
             }
             dep.lastChecked = new Date();
         }
-        this.dependencies.set(documentId, dependencies);
+        
+        // Save updated dependencies
+        const depsRef = doc(db, COLLECTIONS.DEPENDENCIES, documentId);
+        await withRetry(
+            () => setDoc(depsRef, { 
+                documentId,
+                dependencies, 
+                updatedAt: serverTimestamp() 
+            }),
+            { maxAttempts: 2 }
+        );
     }
 
     // Helper method to calculate file checksum

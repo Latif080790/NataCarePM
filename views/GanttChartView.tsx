@@ -96,6 +96,53 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
         return () => unsubscribe();
     }, [projectId]);
 
+    // Simple critical path calculation - MOVED HERE to avoid hoisting issues
+    const calculateCriticalPath = useCallback((ganttTasks: GanttTask[]): string[] => {
+        // Find the longest path through the network
+        const taskMap = new Map(ganttTasks.map(gt => [gt.id, gt]));
+        
+        // Find tasks with no successors (end tasks)
+        const endTasks = ganttTasks.filter(gt => 
+            !ganttTasks.some(other => other.dependencies.includes(gt.id))
+        );
+        
+        if (endTasks.length === 0) return [];
+        
+        // Find the end task with the latest finish
+        const latestEndTask = endTasks.reduce((latest, current) => 
+            current.endDate > latest.endDate ? current : latest
+        );
+        
+        // Trace back through dependencies to find critical path
+        const tracePath = (taskId: string, visited = new Set<string>()): string[] => {
+            if (visited.has(taskId)) return [];
+            visited.add(taskId);
+            
+            const task = taskMap.get(taskId);
+            if (!task || task.dependencies.length === 0) return [taskId];
+            
+            // Find the dependency with the latest finish that leads to this task
+            let criticalDep = '';
+            let latestFinish = new Date(0);
+            
+            task.dependencies.forEach(depId => {
+                const depTask = taskMap.get(depId);
+                if (depTask && depTask.endDate > latestFinish) {
+                    latestFinish = depTask.endDate;
+                    criticalDep = depId;
+                }
+            });
+            
+            if (criticalDep) {
+                return [...tracePath(criticalDep, visited), taskId];
+            }
+            
+            return [taskId];
+        };
+        
+        return tracePath(latestEndTask.id);
+    }, []);
+
     // Calculate project timeline and critical path
     const ganttData = useMemo(() => {
         if (tasks.length === 0) return { ganttTasks: [], projectStart: new Date(), projectEnd: new Date(), criticalPath: [] };
@@ -165,53 +212,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
         const projectEnd = new Date(Math.max(...ganttTasks.map(gt => gt.endDate.getTime())));
         
         return { ganttTasks, projectStart, projectEnd, criticalPath };
-    }, [tasks, settings.autoSchedule]);
-
-    // Simple critical path calculation
-    const calculateCriticalPath = (ganttTasks: GanttTask[]): string[] => {
-        // Find the longest path through the network
-        const taskMap = new Map(ganttTasks.map(gt => [gt.id, gt]));
-        
-        // Find tasks with no successors (end tasks)
-        const endTasks = ganttTasks.filter(gt => 
-            !ganttTasks.some(other => other.dependencies.includes(gt.id))
-        );
-        
-        if (endTasks.length === 0) return [];
-        
-        // Find the end task with the latest finish
-        const latestEndTask = endTasks.reduce((latest, current) => 
-            current.endDate > latest.endDate ? current : latest
-        );
-        
-        // Trace back through dependencies to find critical path
-        const tracePath = (taskId: string, visited = new Set<string>()): string[] => {
-            if (visited.has(taskId)) return [];
-            visited.add(taskId);
-            
-            const task = taskMap.get(taskId);
-            if (!task || task.dependencies.length === 0) return [taskId];
-            
-            // Find the dependency with the latest finish that leads to this task
-            let criticalDep = '';
-            let latestFinish = new Date(0);
-            
-            task.dependencies.forEach(depId => {
-                const depTask = taskMap.get(depId);
-                if (depTask && depTask.endDate > latestFinish) {
-                    latestFinish = depTask.endDate;
-                    criticalDep = depId;
-                }
-            });
-            
-            if (criticalDep) {
-                return [...tracePath(criticalDep, visited), taskId];
-            }
-            return [taskId];
-        };
-        
-        return tracePath(latestEndTask.id);
-    };
+    }, [tasks, settings.autoSchedule, calculateCriticalPath]);
 
     // Filter tasks based on search and settings
     const filteredTasks = useMemo(() => {

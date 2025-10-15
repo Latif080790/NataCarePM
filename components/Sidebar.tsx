@@ -37,7 +37,14 @@ interface SidebarProps {
 
 export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCollapsed }: SidebarProps) {
   const { currentUser, logout } = useAuth();
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(['main-group']);
+  // Expand all groups by default for better UX
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([
+    'main-group',
+    'monitoring-group', 
+    'keuangan-group',
+    'lainnya-group',
+    'pengaturan-group'
+  ]);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const getIconForView = (viewId: string) => {
@@ -160,33 +167,46 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
         {navLinksConfig.map((group, groupIndex) => (
           <div key={group.id || groupIndex} className="mb-4 last:mb-0">
             {!isCollapsed && (
-              <div className="flex items-center justify-between mb-2 px-2">
-                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+              <button
+                onClick={() => toggleGroup(group.id)}
+                className="
+                  w-full flex items-center justify-between mb-2 px-2 py-1.5
+                  rounded-md hover:bg-slate-700/30 transition-all duration-200
+                  group cursor-pointer
+                "
+                aria-label={`Toggle ${group.name} section`}
+                aria-expanded={expandedGroups.includes(group.id)}
+              >
+                <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider group-hover:text-slate-400">
                   {group.name}
                 </h3>
-                <button
-                  onClick={() => toggleGroup(group.id)}
-                  className="
-                    p-1 rounded-md text-slate-400 hover:text-slate-200 
-                    hover:bg-slate-700/50 transition-all duration-200
-                  "
-                  aria-label={`Toggle ${group.name} section`}
-                  aria-expanded={expandedGroups.includes(group.id)}
-                >
+                <div className="p-1 rounded-md text-slate-400 group-hover:text-slate-200 transition-colors">
                   {expandedGroups.includes(group.id) ? (
                     <ChevronDown size={12} />
                   ) : (
                     <ChevronRight size={12} />
                   )}
-                </button>
-              </div>
+                </div>
+              </button>
             )}
 
             {(isCollapsed || expandedGroups.includes(group.id)) && (
               <div className="space-y-0.5">
-                {group.children
-                  ?.filter(item => hasPermission(currentUser, item.requiredPermission))
-                  .map((item, itemIndex) => {
+                {(() => {
+                  const allChildren = group.children || [];
+                  const filteredChildren = allChildren.filter((item: any) => hasPermission(currentUser, item.requiredPermission));
+                  
+                  console.log(`📋 Group "${group.name}":`, {
+                    totalChildren: allChildren.length,
+                    filteredChildren: filteredChildren.length,
+                    expanded: expandedGroups.includes(group.id),
+                    userRole: currentUser?.roleId,
+                    allChildrenIds: allChildren.map((c: any) => c.id)
+                  });
+                  
+                  return filteredChildren;
+                })()
+                  .map((item: any, itemIndex: number) => {
                     const isActive = currentView === item.id;
                     const Icon = getIconForView(item.id);
 

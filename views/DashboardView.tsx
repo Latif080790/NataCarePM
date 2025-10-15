@@ -544,7 +544,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* AI-Powered Analytics & Monitoring Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 whitespace-component">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 whitespace-component">
           {/* AI Insights Panel */}
           <AIInsightsPanel 
             projectData={currentProject}
