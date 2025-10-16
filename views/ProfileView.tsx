@@ -6,8 +6,9 @@ import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
 import { ProfilePhotoUpload } from '../src/components/ProfilePhotoUpload';
+import { PasswordChangeModal } from '../src/components/PasswordChangeModal';
 import { User, Lock, Save, Camera } from 'lucide-react';
-import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 
@@ -15,17 +16,12 @@ export default function ProfileView() {
     const { currentUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
     
     // Profile form state
     const [name, setName] = useState(currentUser?.name || '');
     const [email] = useState(currentUser?.email || '');
     const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl || '');
-    
-    // Password change state
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -63,55 +59,7 @@ export default function ProfileView() {
         }
     };
 
-    const handleChangePassword = async (e: FormEvent) => {
-        e.preventDefault();
-        if (!auth.currentUser) return;
-        
-        setError('');
-        setSuccess('');
-        
-        // Validate passwords
-        if (newPassword.length < 6) {
-            setError('Password baru harus minimal 6 karakter.');
-            return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-            setError('Password baru dan konfirmasi tidak cocok.');
-            return;
-        }
-        
-        setIsSaving(true);
-        
-        try {
-            // Re-authenticate user before changing password
-            const credential = EmailAuthProvider.credential(
-                auth.currentUser.email!,
-                currentPassword
-            );
-            await reauthenticateWithCredential(auth.currentUser, credential);
-            
-            // Update password
-            await updatePassword(auth.currentUser, newPassword);
-            
-            setSuccess('Password berhasil diubah!');
-            setIsChangingPassword(false);
-            setCurrentPassword('');
-            setNewPassword('');
-            setConfirmPassword('');
-        } catch (err: any) {
-            console.error('Error changing password:', err);
-            if (err.code === 'auth/wrong-password') {
-                setError('Password saat ini salah.');
-            } else if (err.code === 'auth/weak-password') {
-                setError('Password terlalu lemah. Gunakan kombinasi huruf, angka, dan simbol.');
-            } else {
-                setError('Gagal mengubah password: ' + err.message);
-            }
-        } finally {
-            setIsSaving(false);
-        }
-    };
+
 
     if (!currentUser) {
         return (
@@ -229,73 +177,34 @@ export default function ProfileView() {
             {/* Change Password Card */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Ubah Password</CardTitle>
-                    <CardDescription>Update password akun Anda untuk keamanan</CardDescription>
+                    <CardTitle>Keamanan Akun</CardTitle>
+                    <CardDescription>Kelola password dan keamanan akun Anda</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {!isChangingPassword ? (
-                        <Button onClick={() => setIsChangingPassword(true)}>
-                            <Lock className="w-4 h-4 mr-2" />
-                            Ubah Password
-                        </Button>
-                    ) : (
-                        <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
-                            <div>
-                                <label className="block text-sm font-medium text-palladium mb-1">Password Saat Ini</label>
-                                <Input 
-                                    type="password" 
-                                    value={currentPassword} 
-                                    onChange={(e) => setCurrentPassword(e.target.value)} 
-                                    disabled={isSaving}
-                                    required 
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-palladium mb-1">Password Baru</label>
-                                <Input 
-                                    type="password" 
-                                    value={newPassword} 
-                                    onChange={(e) => setNewPassword(e.target.value)} 
-                                    disabled={isSaving}
-                                    required 
-                                    minLength={6}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-palladium mb-1">Konfirmasi Password Baru</label>
-                                <Input 
-                                    type="password" 
-                                    value={confirmPassword} 
-                                    onChange={(e) => setConfirmPassword(e.target.value)} 
-                                    disabled={isSaving}
-                                    required 
-                                />
-                            </div>
-                            
-                            <div className="flex gap-2">
-                                <Button type="submit" disabled={isSaving}>
-                                    {isSaving ? <Spinner size="sm" /> : <Save className="w-4 h-4 mr-2" />}
-                                    Simpan Password
-                                </Button>
-                                <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    onClick={() => {
-                                        setIsChangingPassword(false);
-                                        setCurrentPassword('');
-                                        setNewPassword('');
-                                        setConfirmPassword('');
-                                        setError('');
-                                    }}
-                                    disabled={isSaving}
-                                >
-                                    Batal
-                                </Button>
-                            </div>
-                        </form>
-                    )}
+                    <div className="space-y-4">
+                        <div>
+                            <p className="text-sm text-palladium mb-3">
+                                Gunakan password yang kuat untuk melindungi akun Anda. 
+                                Disarankan mengubah password secara berkala.
+                            </p>
+                            <Button onClick={() => setShowPasswordModal(true)}>
+                                <Lock className="w-4 h-4 mr-2" />
+                                Ubah Password
+                            </Button>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
+
+            {/* Password Change Modal */}
+            <PasswordChangeModal
+                isOpen={showPasswordModal}
+                onClose={() => setShowPasswordModal(false)}
+                onSuccess={() => {
+                    setSuccess('Password berhasil diubah!');
+                    setTimeout(() => setSuccess(''), 5000);
+                }}
+            />
         </div>
     );
 }
