@@ -57,7 +57,7 @@ service firebase.storage {
     }
     
     // ============================================
-    // USER AVATARS
+    // USER AVATARS (Legacy - for backward compatibility)
     // ============================================
     
     match /avatars/{userId}/{fileName} {
@@ -72,6 +72,44 @@ service firebase.storage {
       
       // Users can delete their own avatar
       allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ============================================
+    // PROFILE PHOTOS (New Enhanced System)
+    // ============================================
+    
+    match /profile-photos/{userId}/{fileName} {
+      // Public read for all profile photos (for display across app)
+      allow read: if true;
+      
+      // Users can only upload/update their own profile photo
+      allow create, update: if isAuthenticated() && 
+                               request.auth.uid == userId &&
+                               isImage() &&
+                               isValidImageSize() &&
+                               // Additional validation: only specific image formats
+                               (request.resource.contentType == 'image/jpeg' ||
+                                request.resource.contentType == 'image/png' ||
+                                request.resource.contentType == 'image/webp' ||
+                                request.resource.contentType == 'image/heic');
+      
+      // Users can delete their own profile photo
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Thumbnails subfolder
+      match /thumbnails/{thumbnailName} {
+        // Public read for thumbnails
+        allow read: if true;
+        
+        // Users can only upload/update their own thumbnails
+        allow create, update: if isAuthenticated() && 
+                                 request.auth.uid == userId &&
+                                 isImage() &&
+                                 request.resource.size <= 1 * 1024 * 1024; // 1MB for thumbnails
+        
+        // Users can delete their own thumbnails
+        allow delete: if isAuthenticated() && request.auth.uid == userId;
+      }
     }
     
     // ============================================

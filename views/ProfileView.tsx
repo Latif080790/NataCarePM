@@ -5,6 +5,7 @@ import { Button } from '../components/Button';
 import { Input } from '../components/FormControls';
 import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components/Spinner';
+import { ProfilePhotoUpload } from '../src/components/ProfilePhotoUpload';
 import { User, Lock, Save, Camera } from 'lucide-react';
 import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -131,21 +132,8 @@ export default function ProfileView() {
                 <CardContent>
                     <div className="flex items-start gap-6 mb-6">
                         <div className="flex-shrink-0">
-                            <div className="relative">
-                                <img 
-                                    src={avatarUrl || currentUser.avatarUrl} 
-                                    alt={name}
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-violet-essence"
-                                />
-                                {isEditing && (
-                                    <button 
-                                        className="absolute bottom-0 right-0 bg-persimmon text-white p-2 rounded-full hover:bg-persimmon/90"
-                                        title="Ubah foto profil"
-                                    >
-                                        <Camera className="w-4 h-4" />
-                                    </button>
-                                )}
-                            </div>
+                            {/* New ProfilePhotoUpload component with interactive crop */}
+                            <ProfilePhotoUpload />
                         </div>
                         
                         <div className="flex-1">
