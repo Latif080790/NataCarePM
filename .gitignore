@@ -38,3 +38,15 @@ firestore-debug.log
 # Security & Reports
 security-audit.json
 eslint-report.txt
+
+# Backup files
+*.backup
+*.backup.*
+*.bak
+*-OLD.*
+*-before-*
+*_backup.*
+
+# Test coverage
+coverage/
+.nyc_output/
