@@ -310,7 +310,10 @@ export async function updateVendor(
 export async function deleteVendor(vendorId: string, userId: string): Promise<void> {
   try {
     // Check if vendor has active POs
-    // TODO: Integration with PO service
+    const activePOs = await getVendorPurchaseOrders(vendorId, ['Menunggu Persetujuan', 'Disetujui', 'PO Dibuat', 'Dipesan']);
+    if (activePOs.length > 0) {
+      throw new Error(`Cannot delete vendor with ${activePOs.length} active purchase order(s)`);
+    }
     
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
@@ -320,7 +323,7 @@ export async function deleteVendor(vendorId: string, userId: string): Promise<vo
     });
   } catch (error) {
     console.error('Error deleting vendor:', error);
-    throw new Error('Failed to delete vendor');
+    throw error;
   }
 }
 
@@ -846,5 +849,132 @@ export async function searchVendors(searchTerm: string): Promise<Vendor[]> {
   } catch (error) {
     console.error('Error searching vendors:', error);
     throw new Error('Failed to search vendors');
+  }
+}
+
+// ============================================================================
+// PO INTEGRATION
+// ============================================================================
+
+/**
+ * Get all Purchase Orders for a specific vendor
+ */
+export async function getVendorPurchaseOrders(
+  vendorId: string,
+  statusFilter?: Array<'Menunggu Persetujuan' | 'Disetujui' | 'Ditolak' | 'PO Dibuat' | 'Dipesan' | 'Diterima Sebagian' | 'Diterima Penuh'>
+): Promise<any[]> {
+  try {
+    // Query all projects' purchase orders that have this vendorId
+    const projectsSnapshot = await getDocs(collection(db, 'projects'));
+    const allPOs: any[] = [];
+    
+    for (const projectDoc of projectsSnapshot.docs) {
+      const projectId = projectDoc.id;
+      
+      // Query POs for this project with vendorId
+      let poQuery = query(
+        collection(db, `projects/${projectId}/purchaseOrders`),
+        where('vendorId', '==', vendorId)
+      );
+      
+      const poSnapshot = await getDocs(poQuery);
+      
+      poSnapshot.forEach(doc => {
+        const poData = doc.data();
+        const po = { id: doc.id, projectId, ...poData };
+        
+        // Filter by status if provided
+        if (!statusFilter || statusFilter.includes(poData.status as any)) {
+          allPOs.push(po);
+        }
+      });
+    }
+    
+    return allPOs;
+  } catch (error) {
+    console.error('Error getting vendor purchase orders:', error);
+    return [];
+  }
+}
+
+/**
+ * Get vendor statistics including PO count and total value
+ */
+export async function getVendorStatistics(vendorId: string): Promise<{
+  totalPOs: number;
+  activePOs: number;
+  completedPOs: number;
+  totalValue: number;
+  averagePOValue: number;
+  pendingValue: number;
+}> {
+  try {
+    const allPOs = await getVendorPurchaseOrders(vendorId);
+    
+    const activePOs = allPOs.filter(po => 
+      ['Menunggu Persetujuan', 'Disetujui', 'PO Dibuat', 'Dipesan'].includes(po.status)
+    );
+    
+    const completedPOs = allPOs.filter(po => 
+      ['Diterima Penuh'].includes(po.status)
+    );
+    
+    const totalValue = allPOs.reduce((sum, po) => sum + (po.totalAmount || 0), 0);
+    const pendingValue = activePOs.reduce((sum, po) => sum + (po.totalAmount || 0), 0);
+    const averagePOValue = allPOs.length > 0 ? totalValue / allPOs.length : 0;
+    
+    return {
+      totalPOs: allPOs.length,
+      activePOs: activePOs.length,
+      completedPOs: completedPOs.length,
+      totalValue,
+      averagePOValue,
+      pendingValue
+    };
+  } catch (error) {
+    console.error('Error getting vendor statistics:', error);
+    return {
+      totalPOs: 0,
+      activePOs: 0,
+      completedPOs: 0,
+      totalValue: 0,
+      averagePOValue: 0,
+      pendingValue: 0
+    };
+  }
+}
+
+/**
+ * Link existing PO to vendor (retroactive linking)
+ */
+export async function linkPOToVendor(
+  projectId: string,
+  poId: string,
+  vendorId: string
+): Promise<void> {
+  try {
+    const poRef = doc(db, `projects/${projectId}/purchaseOrders`, poId);
+    const poDoc = await getDoc(poRef);
+    
+    if (!poDoc.exists()) {
+      throw new Error('Purchase Order not found');
+    }
+    
+    // Get vendor name
+    const vendorDoc = await getDoc(doc(db, VENDORS_COLLECTION, vendorId));
+    if (!vendorDoc.exists()) {
+      throw new Error('Vendor not found');
+    }
+    
+    const vendorData = vendorDoc.data();
+    
+    await updateDoc(poRef, {
+      vendorId,
+      vendorName: vendorData.vendorName,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error linking PO to vendor:', error);
+    throw error;
   }
 }

@@ -46,10 +46,10 @@ import {
   getMaterialRequestById,
   approveMaterialRequest,
   convertMRtoPO,
-  validateMaterialRequest
+  validateMaterialRequest,
+  checkBudgetAvailability
 } from '../api/materialRequestService';
-// import { checkBudgetAvailability } from '../api/materialRequestService'; // TODO: Implement budget checking
-// import { checkStockLevel } from '../api/inventoryService'; // TODO: Priority 6
+import { checkStockLevel } from '../api/inventoryTransactionService';
 
 // ============================================================================
 // CREATE MR MODAL
@@ -101,15 +101,38 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
     const checkStock = async () => {
       if (!currentProject) return;
       
-      // TODO: Priority 6 - Implement stock checking when inventoryService is available
-      /*
+      // Real stock checking implementation
       const stockPromises = items.map(async (item) => {
-        if (item.materialCode) {
+        if (item.materialCode && item.requestedQty) {
           try {
-            const stock = await checkStockLevel(currentProject.id, item.materialCode);
-            return { code: item.materialCode, stock };
+            // Check stock level for the material
+            const stock = await checkStockLevel(
+              item.materialCode,
+              item.materialCode,
+              item.requestedQty
+            );
+            return { 
+              code: item.materialCode, 
+              stock: {
+                available: stock.available,
+                currentStock: stock.currentStock,
+                shortfall: stock.shortfall,
+                message: stock.message,
+                suggestions: stock.suggestions
+              }
+            };
           } catch (error) {
-            return { code: item.materialCode, stock: { available: 0, reserved: 0 } };
+            console.error('Error checking stock:', error);
+            return { 
+              code: item.materialCode, 
+              stock: { 
+                available: false, 
+                currentStock: 0,
+                shortfall: item.requestedQty,
+                message: 'Error checking stock',
+                suggestions: []
+              } 
+            };
           }
         }
         return null;
@@ -123,7 +146,6 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
         }
       });
       setStockInfo(stockMap);
-      */
     };
 
     checkStock();

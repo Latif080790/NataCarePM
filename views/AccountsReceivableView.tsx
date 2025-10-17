@@ -100,8 +100,32 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
     };
 
     const handleSendReminder = async (arId: string) => {
-        // TODO: Implement send reminder functionality
-        alert('Reminder sent!');
+        try {
+            // Get AR to determine reminder type based on aging
+            const ar = receivables.find(r => r.id === arId);
+            if (!ar) {
+                alert('Receivable not found');
+                return;
+            }
+            
+            // Determine reminder type based on aging
+            let reminderType: 'gentle' | 'firm' | 'final' = 'gentle';
+            if (ar.agingDays > 15) {
+                reminderType = 'final';
+            } else if (ar.agingDays > 0) {
+                reminderType = 'firm';
+            }
+            
+            await accountsReceivableService.sendPaymentReminder(
+                arId,
+                'current_user', // Replace with actual user ID from AuthContext
+                reminderType
+            );
+            
+            alert(`${reminderType.charAt(0).toUpperCase() + reminderType.slice(1)} reminder sent successfully!`);
+        } catch (error) {
+            alert('Failed to send reminder: ' + (error as Error).message);
+        }
     };
 
     const getStatusColor = (status: ReceivableStatus): string => {

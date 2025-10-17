@@ -517,36 +517,116 @@ export async function checkBudgetAvailability(
 ): Promise<{
   status: 'sufficient' | 'insufficient' | 'needs_reallocation';
   message: string;
+  details?: {
+    totalRequired: number;
+    totalAvailable: number;
+    wbsBreakdown: Array<{
+      wbsCode: string;
+      wbsName: string;
+      required: number;
+      available: number;
+      status: string;
+    }>;
+  };
 }> {
   try {
-    // TODO: Integrate with WBS service to check actual budgets
-    // For now, return mock validation
+    // Get WBS data from cost control service
+    const { getWBSBudgetStatus } = await import('./costControlService');
     
-    let totalRequiredBudget = mr.totalEstimatedValue;
-    let availableBudget = totalRequiredBudget * 1.2; // Mock: 120% available
+    // Group MR items by WBS code
+    const wbsMap = new Map<string, number>();
+    mr.items.forEach(item => {
+      if (item.wbsCode) {
+        const current = wbsMap.get(item.wbsCode) || 0;
+        wbsMap.set(item.wbsCode, current + (item.requestedQty * item.estimatedUnitPrice));
+      }
+    });
     
-    if (availableBudget >= totalRequiredBudget) {
-      return {
-        status: 'sufficient',
-        message: `Budget sufficient. Required: ${totalRequiredBudget}, Available: ${availableBudget}`
-      };
-    } else if (availableBudget >= totalRequiredBudget * 0.8) {
-      return {
-        status: 'needs_reallocation',
-        message: `Budget tight. May need reallocation. Required: ${totalRequiredBudget}, Available: ${availableBudget}`
-      };
-    } else {
-      return {
-        status: 'insufficient',
-        message: `Budget insufficient. Required: ${totalRequiredBudget}, Available: ${availableBudget}`
-      };
+    let totalRequired = mr.totalEstimatedValue;
+    let totalAvailable = 0;
+    const wbsBreakdown = [];
+    let allSufficient = true;
+    let needsReallocation = false;
+    
+    // Check each WBS element
+    for (const [wbsCode, requiredAmount] of wbsMap.entries()) {
+      try {
+        const wbsStatus = await getWBSBudgetStatus(mr.projectId, wbsCode);
+        
+        if (wbsStatus) {
+          const available = wbsStatus.remainingBudget || 0;
+          totalAvailable += available;
+          
+          let status = 'sufficient';
+          if (available < requiredAmount) {
+            status = 'insufficient';
+            allSufficient = false;
+          } else if (available < requiredAmount * 1.2) {
+            status = 'tight';
+            needsReallocation = true;
+          }
+          
+          wbsBreakdown.push({
+            wbsCode,
+            wbsName: wbsStatus.wbsName || wbsCode,
+            required: requiredAmount,
+            available,
+            status
+          });
+        } else {
+          // WBS not found - assume insufficient
+          allSufficient = false;
+          wbsBreakdown.push({
+            wbsCode,
+            wbsName: wbsCode,
+            required: requiredAmount,
+            available: 0,
+            status: 'not_found'
+          });
+        }
+      } catch (error) {
+        console.error(`Error checking WBS ${wbsCode}:`, error);
+        allSufficient = false;
+      }
     }
+    
+    // Determine overall status
+    let status: 'sufficient' | 'insufficient' | 'needs_reallocation';
+    let message: string;
+    
+    if (wbsBreakdown.length === 0) {
+      // No WBS codes assigned - cannot check budget
+      status = 'needs_reallocation';
+      message = 'No WBS codes assigned to MR items. Budget check cannot be performed.';
+    } else if (allSufficient && !needsReallocation) {
+      status = 'sufficient';
+      message = `Budget sufficient across all WBS elements. Required: $${totalRequired.toFixed(2)}, Available: $${totalAvailable.toFixed(2)}`;
+    } else if (needsReallocation && !allSufficient) {
+      status = 'insufficient';
+      message = `Budget insufficient. Required: $${totalRequired.toFixed(2)}, Available: $${totalAvailable.toFixed(2)}. Some WBS elements exceed budget.`;
+    } else if (needsReallocation) {
+      status = 'needs_reallocation';
+      message = `Budget tight. May need reallocation. Required: $${totalRequired.toFixed(2)}, Available: $${totalAvailable.toFixed(2)}`;
+    } else {
+      status = 'insufficient';
+      message = `Budget insufficient. Required: $${totalRequired.toFixed(2)}, Available: $${totalAvailable.toFixed(2)}`;
+    }
+    
+    return {
+      status,
+      message,
+      details: {
+        totalRequired,
+        totalAvailable,
+        wbsBreakdown
+      }
+    };
     
   } catch (error) {
     console.error('Error checking budget:', error);
     return {
       status: 'insufficient',
-      message: 'Error checking budget availability'
+      message: 'Error checking budget availability. Please try again.'
     };
   }
 }

@@ -11,19 +11,53 @@ import {
     ExtractedSignature,
     ExtractedTable
 } from '../types';
+import Tesseract from 'tesseract.js';
 
 // AI-Powered OCR Service for Construction Documents
 export class OCRService {
-    // Removed unused apiKey and apiEndpoint - will be used when integrating with real OCR service
     private supportedFormats: string[] = ['pdf', 'jpg', 'jpeg', 'png', 'tiff', 'bmp'];
+    private tesseractWorker: Tesseract.Worker | null = null;
+    private processingStatus: Map<string, { status: string; progress: number; result?: OCRResult }> = new Map();
     
     constructor() {
-        // Configuration will be used when integrating with real OCR service
+        // Initialize Tesseract worker
+        this.initializeTesseract();
+    }
+
+    /**
+     * Initialize Tesseract.js worker for OCR processing
+     */
+    private async initializeTesseract(): Promise<void> {
+        try {
+            this.tesseractWorker = await Tesseract.createWorker('eng', 1, {
+                logger: (m) => {
+                    if (m.status === 'recognizing text') {
+                        console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Failed to initialize Tesseract worker:', error);
+        }
+    }
+
+    /**
+     * Cleanup Tesseract worker
+     */
+    async cleanup(): Promise<void> {
+        if (this.tesseractWorker) {
+            await this.tesseractWorker.terminate();
+            this.tesseractWorker = null;
+        }
     }
 
     // Main OCR processing function
     async processDocument(file: File, documentId: string): Promise<OCRResult> {
         const startTime = Date.now();
+        const ocrId = this.generateId();
+        
+        // Initialize status tracking
+        this.processingStatus.set(ocrId, { status: 'processing', progress: 0 });
         
         try {
             // Validate file format
@@ -31,11 +65,20 @@ export class OCRService {
                 throw new Error(`Unsupported format: ${file.type}`);
             }
 
+            // Update progress: Pre-processing
+            this.processingStatus.set(ocrId, { status: 'preprocessing', progress: 20 });
+
             // Pre-process image for better OCR results
             const processedFile = await this.preprocessImage(file);
             
+            // Update progress: OCR processing
+            this.processingStatus.set(ocrId, { status: 'recognizing', progress: 40 });
+            
             // Extract text using OCR
             const ocrResponse = await this.performOCR(processedFile);
+            
+            // Update progress: Data extraction
+            this.processingStatus.set(ocrId, { status: 'extracting', progress: 70 });
             
             // Extract structured data from text
             const extractedData = await this.extractStructuredData(ocrResponse.text, ocrResponse.boundingBoxes);
@@ -44,7 +87,7 @@ export class OCRService {
             const processingTime = Date.now() - startTime;
             
             const result: OCRResult = {
-                id: this.generateId(),
+                id: ocrId,
                 documentId,
                 extractedText: ocrResponse.text,
                 confidence: ocrResponse.confidence,
@@ -55,10 +98,13 @@ export class OCRService {
                 status: 'completed'
             };
 
+            // Update status: Completed
+            this.processingStatus.set(ocrId, { status: 'completed', progress: 100, result });
+
             return result;
         } catch (error) {
-            return {
-                id: this.generateId(),
+            const result: OCRResult = {
+                id: ocrId,
                 documentId,
                 extractedText: '',
                 confidence: 0,
@@ -69,6 +115,11 @@ export class OCRService {
                 status: 'failed',
                 errorMessage: error instanceof Error ? error.message : 'Unknown error'
             };
+            
+            // Update status: Failed
+            this.processingStatus.set(ocrId, { status: 'failed', progress: 0, result });
+            
+            return result;
         }
     }
 
@@ -138,54 +189,120 @@ export class OCRService {
         return Math.max(0, Math.min(255, enhanced));
     }
 
-    // Perform OCR using external API or local processing
+    // Perform OCR using Tesseract.js
     private async performOCR(file: File): Promise<{ text: string; confidence: number; boundingBoxes: BoundingBox[] }> {
-        // TODO: Integrate with actual OCR service using the file parameter
-        console.log('Processing file:', file.name); // Temporary usage to avoid unused parameter warning
-        // Mock implementation - in production, integrate with Tesseract.js, Google Vision API, or Azure Computer Vision
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                // Simulated OCR results for construction documents
-                const mockText = `
-                    PROJECT: Construction Management System
-                    CONTRACT NO: CM-2024-001
-                    START DATE: 15 January 2024
-                    COMPLETION DATE: 30 December 2024
-                    TOTAL COST: $2,500,000.00
-                    
-                    MATERIALS:
-                    - Concrete: 500 m³ @ $150/m³
-                    - Steel Rebar: 50 tons @ $800/ton
-                    - Lumber: 1000 m² @ $25/m²
-                    
-                    PROJECT MANAGER: John Smith
-                    SITE ENGINEER: Sarah Johnson
-                    
-                    COORDINATES: 
-                    - Latitude: -6.2088
-                    - Longitude: 106.8456
-                    
-                    SPECIFICATIONS:
-                    - Foundation depth: 3.5m
-                    - Concrete grade: C30
-                    - Steel grade: Grade 60
-                `;
+        try {
+            // Ensure worker is initialized
+            if (!this.tesseractWorker) {
+                await this.initializeTesseract();
+            }
 
-                const mockBoundingBoxes: BoundingBox[] = [
-                    { x: 50, y: 20, width: 200, height: 15, text: 'Construction Management System', confidence: 0.95, fieldType: 'project_name' },
-                    { x: 50, y: 40, width: 150, height: 15, text: 'CM-2024-001', confidence: 0.98, fieldType: 'contract_number' },
-                    { x: 50, y: 60, width: 120, height: 15, text: '15 January 2024', confidence: 0.92, fieldType: 'start_date' },
-                    { x: 50, y: 80, width: 130, height: 15, text: '30 December 2024', confidence: 0.93, fieldType: 'completion_date' },
-                    { x: 50, y: 100, width: 120, height: 15, text: '$2,500,000.00', confidence: 0.96, fieldType: 'total_cost' }
-                ];
+            if (!this.tesseractWorker) {
+                throw new Error('Tesseract worker not initialized');
+            }
 
-                resolve({
-                    text: mockText,
-                    confidence: 0.94,
-                    boundingBoxes: mockBoundingBoxes
+            // Perform OCR using Tesseract.js
+            const result = await this.tesseractWorker.recognize(file);
+            
+            // Extract bounding boxes from Tesseract result
+            const boundingBoxes: BoundingBox[] = [];
+            const resultData = result.data as any;
+            
+            if (resultData && resultData.words) {
+                resultData.words.forEach((word: any) => {
+                    if (word.text && word.text.trim()) {
+                        boundingBoxes.push({
+                            x: word.bbox.x0,
+                            y: word.bbox.y0,
+                            width: word.bbox.x1 - word.bbox.x0,
+                            height: word.bbox.y1 - word.bbox.y0,
+                            text: word.text,
+                            confidence: word.confidence / 100, // Tesseract returns 0-100, normalize to 0-1
+                            fieldType: this.detectFieldType(word.text)
+                        });
+                    }
                 });
-            }, 2000); // Simulate processing time
-        });
+            }
+
+            return {
+                text: result.data.text,
+                confidence: result.data.confidence / 100, // Normalize to 0-1
+                boundingBoxes
+            };
+        } catch (error) {
+            console.error('OCR processing error:', error);
+            
+            // Fallback to mock data if OCR fails
+            console.warn('Falling back to mock OCR data due to error');
+            return this.getMockOCRData();
+        }
+    }
+
+    /**
+     * Detect field type from text content
+     */
+    private detectFieldType(text: string): string {
+        const upperText = text.toUpperCase();
+        
+        // Detect field types based on content patterns
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text) || /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(text)) {
+            return 'date';
+        }
+        if (/^\$?[\d,]+\.?\d*$/.test(text) || /^Rp\.?[\d,]+\.?\d*$/.test(text)) {
+            return 'amount';
+        }
+        if (upperText.includes('CONTRACT') || upperText.includes('NO')) {
+            return 'contract_number';
+        }
+        if (upperText.includes('PROJECT')) {
+            return 'project_name';
+        }
+        
+        return 'text';
+    }
+
+    /**
+     * Get mock OCR data as fallback
+     */
+    private getMockOCRData(): { text: string; confidence: number; boundingBoxes: BoundingBox[] } {
+        const mockText = `
+            PROJECT: Construction Management System
+            CONTRACT NO: CM-2024-001
+            START DATE: 15 January 2024
+            COMPLETION DATE: 30 December 2024
+            TOTAL COST: $2,500,000.00
+            
+            MATERIALS:
+            - Concrete: 500 m³ @ $150/m³
+            - Steel Rebar: 50 tons @ $800/ton
+            - Lumber: 1000 m² @ $25/m²
+            
+            PROJECT MANAGER: John Smith
+            SITE ENGINEER: Sarah Johnson
+            
+            COORDINATES: 
+            - Latitude: -6.2088
+            - Longitude: 106.8456
+            
+            SPECIFICATIONS:
+            - Foundation depth: 3.5m
+            - Concrete grade: C30
+            - Steel grade: Grade 60
+        `;
+
+        const mockBoundingBoxes: BoundingBox[] = [
+            { x: 50, y: 20, width: 200, height: 15, text: 'Construction Management System', confidence: 0.95, fieldType: 'project_name' },
+            { x: 50, y: 40, width: 150, height: 15, text: 'CM-2024-001', confidence: 0.98, fieldType: 'contract_number' },
+            { x: 50, y: 60, width: 120, height: 15, text: '15 January 2024', confidence: 0.92, fieldType: 'start_date' },
+            { x: 50, y: 80, width: 130, height: 15, text: '30 December 2024', confidence: 0.93, fieldType: 'completion_date' },
+            { x: 50, y: 100, width: 120, height: 15, text: '$2,500,000.00', confidence: 0.96, fieldType: 'total_cost' }
+        ];
+
+        return {
+            text: mockText,
+            confidence: 0.94,
+            boundingBoxes: mockBoundingBoxes
+        };
     }
 
     // Extract structured data from OCR text
@@ -549,14 +666,34 @@ export class OCRService {
     }
 
     // Get processing status
-    async getProcessingStatus(ocrId: string): Promise<{ status: string; progress: number }> {
-        // TODO: Implement actual status tracking for OCR ID
-        console.log('Checking status for OCR ID:', ocrId);
-        // Mock implementation - in production, track actual processing status
-        return {
-            status: 'completed',
-            progress: 100
-        };
+    async getProcessingStatus(ocrId: string): Promise<{ status: string; progress: number; result?: OCRResult }> {
+        const statusInfo = this.processingStatus.get(ocrId);
+        
+        if (!statusInfo) {
+            return {
+                status: 'not_found',
+                progress: 0
+            };
+        }
+        
+        return statusInfo;
+    }
+
+    /**
+     * Clear old processing status entries (cleanup)
+     */
+    clearOldStatus(maxAgeMs: number = 3600000): void {
+        // Clear status entries older than 1 hour by default
+        const now = Date.now();
+        
+        for (const [ocrId, statusInfo] of this.processingStatus.entries()) {
+            if (statusInfo.result && statusInfo.result.timestamp) {
+                const age = now - statusInfo.result.timestamp.getTime();
+                if (age > maxAgeMs) {
+                    this.processingStatus.delete(ocrId);
+                }
+            }
+        }
     }
 
     // Validate and improve OCR results

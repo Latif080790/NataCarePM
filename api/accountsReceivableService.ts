@@ -690,6 +690,184 @@ export class AccountsReceivableService {
     }
     
     /**
+     * Send payment reminder to customer
+     */
+    async sendPaymentReminder(
+        arId: string,
+        userId: string,
+        reminderType: 'gentle' | 'firm' | 'final' = 'gentle'
+    ): Promise<void> {
+        try {
+            logger.info('sendPaymentReminder', 'Sending payment reminder', { arId, reminderType });
+            
+            const ar = await this.getAccountsReceivable(arId);
+            if (!ar) {
+                throw new Error('Accounts receivable not found');
+            }
+            
+            // Import notification service  
+            const { createNotification } = await import('./notificationService');
+            
+            // Import notification types
+            const { NotificationType, NotificationPriority, NotificationChannel } = await import('../types/automation');
+            
+            // Determine message based on reminder type and aging
+            let title = '';
+            let message = '';
+            let notifType = NotificationType.INFO;
+            let priority = NotificationPriority.NORMAL;
+            let channels = [NotificationChannel.IN_APP];
+            
+            switch (reminderType) {
+                case 'gentle':
+                    title = `Payment Reminder: Invoice ${ar.arNumber}`;
+                    message = `Invoice ${ar.arNumber} for ${ar.totalAmount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} is due on ${new Date(ar.dueDate).toLocaleDateString()}. Please arrange payment at your earliest convenience.`;
+                    notifType = NotificationType.INFO;
+                    priority = NotificationPriority.NORMAL;
+                    channels = [NotificationChannel.IN_APP, NotificationChannel.EMAIL];
+                    break;
+                case 'firm':
+                    title = `Payment Overdue: Invoice ${ar.arNumber}`;
+                    message = `Invoice ${ar.arNumber} for ${ar.totalAmount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} is now ${ar.agingDays} days overdue. Please settle this invoice immediately.`;
+                    notifType = NotificationType.WARNING;
+                    priority = NotificationPriority.HIGH;
+                    channels = [NotificationChannel.IN_APP, NotificationChannel.EMAIL];
+                    break;
+                case 'final':
+                    title = `FINAL NOTICE: Invoice ${ar.arNumber}`;
+                    message = `Invoice ${ar.arNumber} for ${ar.totalAmount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} is ${ar.agingDays} days overdue. Immediate payment required.`;
+                    notifType = NotificationType.ERROR;
+                    priority = NotificationPriority.URGENT;
+                    channels = [NotificationChannel.IN_APP, NotificationChannel.EMAIL, NotificationChannel.SMS];
+                    break;
+            }
+            
+            // Get customer contact info (from customer record via customerId)
+            const customerId = (ar as any).customerId;
+            
+            // Create in-app notification
+            await createNotification({
+                recipientId: customerId || 'customer_' + arId,
+                title,
+                message,
+                type: notifType,
+                priority,
+                channels,
+                category: 'payment_reminder',
+                relatedEntityType: 'accounts_receivable',
+                relatedEntityId: arId,
+                data: {
+                    arId,
+                    arNumber: ar.arNumber,
+                    amount: ar.totalAmount,
+                    dueDate: ar.dueDate,
+                    agingDays: ar.agingDays,
+                    reminderType
+                }
+            });
+            
+            // Update AR with reminder sent timestamp
+            const arRef = doc(db, COLLECTIONS.RECEIVABLES, arId);
+            const lastReminderSent = new Date().toISOString();
+            const reminderCount = ((ar as any).reminderCount || 0) + 1;
+            
+            await updateDoc(arRef, {
+                lastReminderSent,
+                reminderCount,
+                updatedAt: new Date().toISOString(),
+                updatedBy: userId
+            });
+            
+            // Add audit trail
+            await this.addAuditEntry(arId, 'reminder_sent', userId, { 
+                reminderType, 
+                reminderCount,
+                timestamp: lastReminderSent 
+            });
+            
+            logger.success('sendPaymentReminder', 'Reminder sent successfully', { 
+                arId, 
+                reminderType, 
+                reminderCount 
+            });
+            
+        } catch (error) {
+            logger.error('sendPaymentReminder', 'Failed to send reminder', error as Error, { arId });
+            throw error;
+        }
+    }
+    
+    /**
+     * Send automated reminders for overdue invoices
+     * Called by scheduled job/cron
+     */
+    async sendAutomatedReminders(): Promise<{
+        gentle: number;
+        firm: number;
+        final: number;
+    }> {
+        try {
+            logger.info('sendAutomatedReminders', 'Starting automated reminder process');
+            
+            const allARs = await this.getAllAccountsReceivable();
+            const now = new Date();
+            
+            let gentleCount = 0;
+            let firmCount = 0;
+            let finalCount = 0;
+            
+            for (const ar of allARs) {
+                if (ar.status === 'paid' || ar.status === 'cancelled' || ar.status === 'void') {
+                    continue;
+                }
+                
+                const dueDate = new Date(ar.dueDate);
+                const daysSinceDue = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+                
+                // Get last reminder sent date
+                const lastReminderSent = (ar as any).lastReminderSent;
+                const daysSinceLastReminder = lastReminderSent 
+                    ? Math.floor((now.getTime() - new Date(lastReminderSent).getTime()) / (1000 * 60 * 60 * 24))
+                    : 999;
+                
+                // Don't send reminders more than once every 3 days
+                if (daysSinceLastReminder < 3) {
+                    continue;
+                }
+                
+                // Gentle reminder: 3-7 days before due date
+                if (daysSinceDue >= -7 && daysSinceDue <= -3) {
+                    await this.sendPaymentReminder(ar.id, 'system', 'gentle');
+                    gentleCount++;
+                }
+                // Firm reminder: 1-15 days overdue
+                else if (daysSinceDue > 0 && daysSinceDue <= 15) {
+                    await this.sendPaymentReminder(ar.id, 'system', 'firm');
+                    firmCount++;
+                }
+                // Final reminder: 16+ days overdue
+                else if (daysSinceDue > 15) {
+                    await this.sendPaymentReminder(ar.id, 'system', 'final');
+                    finalCount++;
+                }
+            }
+            
+            logger.success('sendAutomatedReminders', 'Automated reminders sent', {
+                gentle: gentleCount,
+                firm: firmCount,
+                final: finalCount,
+                total: gentleCount + firmCount + finalCount
+            });
+            
+            return { gentle: gentleCount, firm: firmCount, final: finalCount };
+            
+        } catch (error) {
+            logger.error('sendAutomatedReminders', 'Failed to send automated reminders', error as Error);
+            throw error;
+        }
+    }
+    
+    /**
      * Add audit trail entry
      */
     private async addAuditEntry(

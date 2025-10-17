@@ -22,6 +22,9 @@ import {
   NotificationPriority,
   NotificationType
 } from '../types/automation';
+import { emailService } from './channels/emailChannel';
+import { smsService } from './channels/smsChannel';
+import { pushService } from './channels/pushChannel';
 
 // ============================================================================
 // NOTIFICATION MANAGEMENT
@@ -317,21 +320,14 @@ const sendEmail = async (notification: Notification): Promise<void> => {
     throw new Error('Recipient email not provided');
   }
 
-  // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
-  console.log('Email notification:', {
-    to: notification.recipientEmail,
-    subject: notification.title,
-    body: notification.message,
-    priority: notification.priority
-  });
-
-  // Placeholder for actual email sending
-  // await emailService.send({
-  //   to: notification.recipientEmail,
-  //   subject: notification.title,
-  //   html: formatEmailTemplate(notification),
-  //   priority: notification.priority
-  // });
+  // Use integrated email service
+  const result = await emailService.sendNotification(notification);
+  
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to send email');
+  }
+  
+  console.log('Email sent successfully:', result.messageId);
 };
 
 const sendSMS = async (notification: Notification): Promise<void> => {
@@ -339,39 +335,25 @@ const sendSMS = async (notification: Notification): Promise<void> => {
     throw new Error('Recipient phone not provided');
   }
 
-  // TODO: Integrate with SMS service (Twilio, AWS SNS, etc.)
-  console.log('SMS notification:', {
-    to: notification.recipientPhone,
-    message: notification.message
-  });
-
-  // Placeholder for actual SMS sending
-  // await smsService.send({
-  //   to: notification.recipientPhone,
-  //   message: `${notification.title}: ${notification.message}`
-  // });
+  // Use integrated SMS service
+  const result = await smsService.sendNotification(notification);
+  
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to send SMS');
+  }
+  
+  console.log('SMS sent successfully:', result.messageId);
 };
 
 const sendPushNotification = async (notification: Notification): Promise<void> => {
-  // TODO: Integrate with push notification service (Firebase Cloud Messaging, etc.)
-  console.log('Push notification:', {
-    recipientId: notification.recipientId,
-    title: notification.title,
-    body: notification.message,
-    data: notification.data
-  });
-
-  // Placeholder for actual push notification
-  // await pushService.send({
-  //   userId: notification.recipientId,
-  //   notification: {
-  //     title: notification.title,
-  //     body: notification.message,
-  //     icon: getNotificationIcon(notification.type),
-  //     badge: await getUnreadCount(notification.recipientId)
-  //   },
-  //   data: notification.data
-  // });
+  // Use integrated push notification service
+  const result = await pushService.sendNotification(notification);
+  
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to send push notification');
+  }
+  
+  console.log('Push notification sent successfully');
 };
 
 const sendWebhook = async (notification: Notification): Promise<void> => {

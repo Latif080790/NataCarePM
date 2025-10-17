@@ -17,8 +17,9 @@ import {
   arrayUnion,
   Timestamp,
 } from 'firebase/firestore';
+import bcrypt from 'bcryptjs';
 import { auth, db } from '../../firebaseConfig';
-import { validatePassword, isPasswordInHistory } from '../utils/passwordValidator';
+import { validatePassword } from '../utils/passwordValidator';
 import type { APIResponse, PasswordHistory } from '../types/userProfile';
 import { PASSWORD_REQUIREMENTS } from '../types/userProfile';
 
@@ -266,20 +267,23 @@ const checkPasswordHistory = async (
     const userData = userDoc.data();
     const passwordHistory: PasswordHistory[] = userData.passwordHistory || [];
 
-    // Note: In production, passwords should be hashed before storing
-    // This is a simplified version for MVP
-    const recentPasswords = passwordHistory
+    // Get recent password hashes
+    const recentHashes = passwordHistory
       .slice(-PASSWORD_REQUIREMENTS.historyCount)
-      .map(entry => entry.passwordHash); // Should be hash, but MVP uses plain for demo
+      .map(entry => entry.passwordHash);
 
-    if (isPasswordInHistory(newPassword, recentPasswords)) {
-      return {
-        success: false,
-        error: {
-          code: 'PASSWORD_REUSED',
-          message: `Password ini sudah pernah digunakan. Gunakan password berbeda dari ${PASSWORD_REQUIREMENTS.historyCount} password terakhir.`,
-        },
-      };
+    // Check if new password matches any recent hash using bcrypt
+    for (const hash of recentHashes) {
+      const isMatch = await bcrypt.compare(newPassword, hash);
+      if (isMatch) {
+        return {
+          success: false,
+          error: {
+            code: 'PASSWORD_REUSED',
+            message: `Password ini sudah pernah digunakan. Gunakan password berbeda dari ${PASSWORD_REQUIREMENTS.historyCount} password terakhir.`,
+          },
+        };
+      }
     }
 
     return {
@@ -297,6 +301,14 @@ const checkPasswordHistory = async (
 };
 
 /**
+ * Hash password using bcrypt
+ */
+const hashPassword = async (password: string): Promise<string> => {
+  const saltRounds = 10;
+  return bcrypt.hash(password, saltRounds);
+};
+
+/**
  * Add password to user's history
  */
 const addToPasswordHistory = async (
@@ -311,12 +323,11 @@ const addToPasswordHistory = async (
       return;
     }
 
-    // Create history entry
-    // WARNING: In production, hash the password before storing!
-    // This is simplified for MVP demonstration
+    // Create history entry with hashed password
+    const passwordHash = await hashPassword(password);
     const historyEntry: PasswordHistory = {
       userId: userId,
-      passwordHash: password, // Should be hashed in production!
+      passwordHash: passwordHash,
       createdAt: new Date(),
     };
 

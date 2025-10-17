@@ -775,3 +775,74 @@ export const exportToPDF = async (
   console.log('Exporting to PDF:', summary);
   return new Blob(['PDF data'], { type: 'application/pdf' });
 };
+
+// ============================================================================
+// WBS BUDGET CHECKING (for Material Request validation)
+// ============================================================================
+
+/**
+ * Get WBS budget status for a specific WBS code
+ */
+export const getWBSBudgetStatus = async (
+  projectId: string,
+  wbsCode: string
+): Promise<{
+  wbsCode: string;
+  wbsName: string;
+  budget: number;
+  actual: number;
+  committed: number;
+  remainingBudget: number;
+  variance: number;
+  variancePercent: number;
+  status: 'within_budget' | 'near_limit' | 'over_budget' | 'depleted';
+} | null> => {
+  try {
+    // Query WBS data
+    const wbsQuery = query(
+      collection(db, 'wbs_elements'),
+      where('projectId', '==', projectId),
+      where('code', '==', wbsCode)
+    );
+    
+    const wbsSnapshot = await getDocs(wbsQuery);
+    
+    if (wbsSnapshot.empty) {
+      return null;
+    }
+    
+    const doc = wbsSnapshot.docs[0];
+    const wbs = doc.data();
+    const budget = wbs.budgetAmount || 0;
+    const actual = wbs.actualAmount || 0;
+    const committed = wbs.commitments || 0;
+    const remainingBudget = budget - actual - committed;
+    const variance = budget - actual;
+    const variancePercent = budget > 0 ? (variance / budget) * 100 : 0;
+    
+    let status: 'within_budget' | 'near_limit' | 'over_budget' | 'depleted' = 'within_budget';
+    if (actual > budget) {
+      status = 'over_budget';
+    } else if (actual > budget * 0.9) {
+      status = 'near_limit';
+    } else if (remainingBudget <= 0) {
+      status = 'depleted';
+    }
+    
+    return {
+      wbsCode: wbs.code,
+      wbsName: wbs.name,
+      budget,
+      actual,
+      committed,
+      remainingBudget,
+      variance,
+      variancePercent,
+      status
+    };
+    
+  } catch (error) {
+    console.error('Error getting WBS budget status:', error);
+    return null;
+  }
+};

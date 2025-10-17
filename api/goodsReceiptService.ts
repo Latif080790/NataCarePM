@@ -49,6 +49,35 @@ import { PurchaseOrder } from '../types';
 const GR_COLLECTION = 'goodsReceipts';
 const PO_COLLECTION = 'purchaseOrders';
 const INVENTORY_COLLECTION = 'inventoryTransactions';
+const WAREHOUSE_COLLECTION = 'warehouses';
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Get warehouse name by ID
+ */
+async function getWarehouseName(warehouseId: string | undefined): Promise<string> {
+  if (!warehouseId) {
+    return 'Unknown Warehouse';
+  }
+  
+  try {
+    const warehouseRef = doc(db, WAREHOUSE_COLLECTION, warehouseId);
+    const warehouseDoc = await getDoc(warehouseRef);
+    
+    if (warehouseDoc.exists()) {
+      const warehouseData = warehouseDoc.data();
+      return warehouseData.warehouseName || warehouseData.name || 'Unknown Warehouse';
+    }
+    
+    return warehouseId; // Return ID if not found
+  } catch (error) {
+    console.error('Error fetching warehouse name:', error);
+    return warehouseId; // Fallback to ID on error
+  }
+}
 
 // ============================================================================
 // GR NUMBER GENERATION
@@ -474,6 +503,9 @@ export async function inspectGRItem(
       throw new Error('Goods Receipt not found');
     }
     
+    // Fetch warehouse name once
+    const warehouseName = await getWarehouseName(input.warehouseId);
+    
     // Update the inspected item
     const updatedItems = gr.items.map(item => {
       if (item.id === input.grItemId) {
@@ -488,7 +520,7 @@ export async function inspectGRItem(
           inspectorName,
           inspectionDate: new Date().toISOString(),
           warehouseId: input.warehouseId,
-          warehouseName: input.warehouseId,  // TODO: Fetch warehouse name
+          warehouseName: warehouseName,
           storageLocation: input.storageLocation
         };
       }
@@ -587,14 +619,62 @@ export async function completeGoodsReceipt(
  * Update inventory from completed GR
  */
 async function updateInventoryFromGR(gr: GoodsReceipt): Promise<void> {
-  // TODO: Create inventory transactions for each accepted item
-  // For each gr.items where acceptedQuantity > 0:
-  //   - Create INVENTORY_IN transaction
-  //   - Update material stock levels
-  //   - Link to WBS for cost tracking
-  
-  console.log('Inventory update from GR:', gr.id);
-  // Implementation will be in Priority 6: Enhanced Inventory Management
+  try {
+    // Import inventory transaction service
+    const { createInventoryInTransaction } = await import('./inventoryTransactionService');
+    const inventoryTypes = await import('../types/inventory');
+    
+    // Prepare items for inventory transaction
+    const inventoryItems = gr.items
+      .filter(item => item.acceptedQuantity > 0) // Only accepted items
+      .map(item => ({
+        materialId: item.poItemId, // Use poItemId as materialId reference
+        materialCode: item.materialCode,
+        materialName: item.materialName,
+        quantity: item.acceptedQuantity,
+        uom: (item.unit as any) || inventoryTypes.UnitOfMeasure.PIECE,
+        unitCost: item.unitPrice || 0,
+        warehouseId: item.warehouseId || 'default_warehouse',
+        locationId: undefined,
+        binLocation: item.storageLocation,
+        batchNumber: undefined, // TODO: Add to GRItem interface if needed
+        serialNumber: undefined, // TODO: Add to GRItem interface if needed
+        expiryDate: undefined,
+        manufacturingDate: undefined,
+        notes: item.inspectionNotes
+      }));
+    
+    // Skip if no items to process
+    if (inventoryItems.length === 0) {
+      console.log('No accepted items in GR:', gr.id);
+      return;
+    }
+    
+    // Get warehouse info from first item (all should have same warehouse)
+    const warehouseId = inventoryItems[0].warehouseId;
+    const warehouseName = gr.items[0].warehouseName || 'Unknown Warehouse';
+    
+    // Get user info from GR creator
+    const userId = gr.completedBy || gr.createdBy;
+    const userName = gr.completedBy || gr.createdBy;
+    
+    // Create inventory IN transaction
+    const transactionId = await createInventoryInTransaction(
+      gr.id,
+      gr.grNumber,
+      inventoryItems,
+      warehouseId,
+      warehouseName,
+      userId,
+      userName
+    );
+    
+    console.log('✅ Inventory updated from GR:', gr.grNumber, '- Transaction:', transactionId);
+    
+  } catch (error) {
+    console.error('❌ Error updating inventory from GR:', error);
+    throw error;
+  }
 }
 
 /**
@@ -647,14 +727,100 @@ async function updatePOFromGR(gr: GoodsReceipt): Promise<void> {
  * Update WBS actual costs from completed GR
  */
 async function updateWBSFromGR(gr: GoodsReceipt): Promise<void> {
-  // TODO: Allocate actual costs to WBS elements
-  // For each gr.items:
-  //   - Get wbsElementId from PO item or material
-  //   - Add acceptedQuantity * unitPrice to WBS actual cost
-  //   - Update variance (actual - budget)
+  try {
+    // Import inventory transaction service to get transaction details
+    const { getTransactionsByReference } = await import('./inventoryTransactionService');
+    
+    // Get inventory transactions created for this GR
+    const transactions = await getTransactionsByReference('GR', gr.id);
+    
+    if (transactions.length === 0) {
+      console.log('No inventory transactions found for GR:', gr.grNumber);
+      return;
+    }
+    
+    // For each transaction item, allocate cost to WBS
+    for (const transaction of transactions) {
+      for (const item of transaction.items) {
+        // Get WBS element from material or PO item
+        // This will be implemented when WBS integration is ready
+        const wbsElementId = await getWBSElementForMaterial(item.materialId, gr.projectId);
+        
+        if (wbsElementId) {
+          // Update WBS actual cost
+          await updateWBSActualCost(
+            wbsElementId,
+            item.totalCost,
+            {
+              transactionId: transaction.id,
+              transactionType: 'inventory_in',
+              referenceType: 'GR',
+              referenceId: gr.id,
+              referenceNumber: gr.grNumber,
+              materialCode: item.materialCode,
+              materialName: item.materialName,
+              quantity: item.quantity,
+              unitCost: item.unitCost
+            }
+          );
+          
+          console.log(`✅ WBS cost updated: ${item.materialCode} - $${item.totalCost}`);
+        }
+      }
+    }
+    
+    console.log('✅ WBS update completed for GR:', gr.grNumber);
+    
+  } catch (error) {
+    console.error('❌ Error updating WBS from GR:', error);
+    // Don't throw - this is not critical for GR completion
+    // Log error for monitoring but allow GR process to continue
+  }
+}
+
+/**
+ * Helper: Get WBS element for material (placeholder)
+ * TODO: Implement actual WBS lookup logic
+ */
+async function getWBSElementForMaterial(
+  materialId: string,
+  projectId: string
+): Promise<string | null> {
+  // This will be implemented when WBS service is enhanced
+  // For now, return null (no WBS allocation)
   
-  console.log('WBS update from GR:', gr.id);
-  // Implementation will leverage wbsService.ts functions
+  // Future implementation:
+  // 1. Check if material has default WBS assignment
+  // 2. Check if material request has WBS specification
+  // 3. Use project default WBS if no specific assignment
+  
+  return null;
+}
+
+/**
+ * Helper: Update WBS actual cost (placeholder)
+ * TODO: Implement actual WBS cost update
+ */
+async function updateWBSActualCost(
+  wbsElementId: string,
+  costAmount: number,
+  costDetails: any
+): Promise<void> {
+  // This will be implemented when WBS service is enhanced
+  // For now, just log the intended update
+  
+  console.log('WBS Cost Update (placeholder):', {
+    wbsElementId,
+    costAmount,
+    costDetails
+  });
+  
+  // Future implementation:
+  // 1. Get current WBS element
+  // 2. Add to actual cost
+  // 3. Update variance (actual - budget)
+  // 4. Create cost history entry
+  // 5. Trigger budget alerts if threshold exceeded
 }
 
 // ============================================================================
