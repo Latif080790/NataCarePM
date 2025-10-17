@@ -1547,3 +1547,478 @@ export interface AuditTrailEntry {
     result: 'success' | 'failure' | 'partial';
     errorMessage?: string;
 }
+
+// ============================================
+// USER PROFILE MANAGEMENT TYPES
+// ============================================
+
+/**
+ * Enhanced User Profile with complete information
+ */
+export interface EnhancedUserProfile {
+    // Basic Information
+    uid: string;
+    email: string;
+    displayName: string;
+    username?: string;
+    
+    // Profile Photo
+    photoURL?: string;
+    photoStoragePath?: string;
+    photoUploadedAt?: Date;
+    
+    // Contact Information
+    phoneNumber?: string;
+    alternativeEmail?: string;
+    department?: string;
+    position?: string;
+    employeeId?: string;
+    
+    // Account Settings
+    role: Role;
+    permissions: Permission[];
+    isActive: boolean;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+    
+    // Security Features
+    twoFactorEnabled: boolean;
+    twoFactorMethod?: 'sms' | 'app' | 'email';
+    twoFactorPhone?: string;
+    twoFactorBackupCodes?: string[];
+    lastPasswordChange?: Date;
+    passwordExpiresAt?: Date;
+    requirePasswordChange: boolean;
+    
+    // Session Management
+    currentSessionId?: string;
+    activeSessions?: UserSession[];
+    lastLoginAt?: Date;
+    lastLoginIP?: string;
+    lastLoginDevice?: string;
+    
+    // Notification Preferences
+    notificationPreferences: NotificationPreferences;
+    
+    // Activity Tracking
+    activityLogEnabled: boolean;
+    lastActivityAt?: Date;
+    
+    // Account Metadata
+    createdAt: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+    
+    // Additional Settings
+    locale?: string;
+    timezone?: string;
+    dateFormat?: string;
+    timeFormat?: '12h' | '24h';
+    currency?: string;
+}
+
+/**
+ * User Session Information
+ */
+export interface UserSession {
+    sessionId: string;
+    userId: string;
+    deviceInfo: DeviceInfo;
+    loginAt: Date;
+    lastActivityAt: Date;
+    ipAddress: string;
+    location?: GeoLocation;
+    isCurrentSession: boolean;
+    expiresAt?: Date;
+    status: 'active' | 'expired' | 'invalidated';
+    invalidatedAt?: Date;
+    invalidatedReason?: string;
+}
+
+/**
+ * Device Information
+ */
+export interface DeviceInfo {
+    deviceId: string;
+    deviceType: 'desktop' | 'mobile' | 'tablet';
+    os: string;
+    osVersion?: string;
+    browser: string;
+    browserVersion?: string;
+    userAgent: string;
+    screenResolution?: string;
+    isTrusted: boolean;
+}
+
+/**
+ * Geographic Location from IP
+ */
+export interface GeoLocation {
+    country?: string;
+    countryCode?: string;
+    region?: string;
+    city?: string;
+    latitude?: number;
+    longitude?: number;
+    timezone?: string;
+}
+
+/**
+ * Notification Preferences
+ */
+export interface NotificationPreferences {
+    // Email Notifications
+    emailNotifications: {
+        enabled: boolean;
+        taskAssignments: boolean;
+        approvalRequests: boolean;
+        budgetAlerts: boolean;
+        deadlineReminders: boolean;
+        documentUpdates: boolean;
+        systemAlerts: boolean;
+        weeklyDigest: boolean;
+        monthlyReport: boolean;
+    };
+    
+    // In-App Notifications
+    inAppNotifications: {
+        enabled: boolean;
+        sound: boolean;
+        desktop: boolean;
+        taskAssignments: boolean;
+        approvalRequests: boolean;
+        budgetAlerts: boolean;
+        mentions: boolean;
+        comments: boolean;
+        statusUpdates: boolean;
+    };
+    
+    // SMS Notifications
+    smsNotifications: {
+        enabled: boolean;
+        criticalAlertsOnly: boolean;
+        budgetThreshold: boolean;
+        approvalUrgent: boolean;
+        securityAlerts: boolean;
+    };
+    
+    // Push Notifications (Mobile/PWA)
+    pushNotifications: {
+        enabled: boolean;
+        taskReminders: boolean;
+        approvalRequests: boolean;
+        chatMessages: boolean;
+        criticalAlerts: boolean;
+    };
+    
+    // Notification Timing
+    quietHours: {
+        enabled: boolean;
+        startTime: string; // "22:00"
+        endTime: string;   // "08:00"
+        timezone: string;
+    };
+    
+    // Frequency Control
+    frequencySettings: {
+        maxEmailsPerDay: number;
+        maxSMSPerDay: number;
+        batchNotifications: boolean;
+        batchInterval: number; // minutes
+    };
+}
+
+/**
+ * User Activity Log Entry
+ */
+export interface UserActivityLog {
+    id: string;
+    userId: string;
+    timestamp: Date;
+    
+    // Activity Details
+    action: UserActivityAction;
+    category: ActivityCategory;
+    description: string;
+    
+    // Context
+    resourceType?: string;
+    resourceId?: string;
+    resourceName?: string;
+    projectId?: string;
+    
+    // Technical Details
+    ipAddress: string;
+    deviceInfo: DeviceInfo;
+    location?: GeoLocation;
+    sessionId: string;
+    
+    // Result
+    status: 'success' | 'failure' | 'warning';
+    errorMessage?: string;
+    errorCode?: string;
+    
+    // Additional Data
+    metadata?: { [key: string]: any };
+    changes?: ActivityChange[];
+    
+    // Security Relevance
+    securityRelevant: boolean;
+    riskLevel?: 'low' | 'medium' | 'high' | 'critical';
+}
+
+/**
+ * User Activity Actions
+ */
+export type UserActivityAction =
+    // Authentication
+    | 'login'
+    | 'logout'
+    | 'login_failed'
+    | 'logout_all_sessions'
+    | 'password_change'
+    | 'password_reset_request'
+    | 'password_reset_complete'
+    | '2fa_enabled'
+    | '2fa_disabled'
+    | '2fa_verified'
+    | '2fa_failed'
+    
+    // Profile Management
+    | 'profile_updated'
+    | 'profile_photo_uploaded'
+    | 'profile_photo_deleted'
+    | 'email_changed'
+    | 'phone_changed'
+    | 'preferences_updated'
+    
+    // Session Management
+    | 'session_created'
+    | 'session_invalidated'
+    | 'device_trusted'
+    | 'device_removed'
+    
+    // Project Activities
+    | 'project_created'
+    | 'project_updated'
+    | 'project_deleted'
+    | 'project_viewed'
+    | 'project_archived'
+    
+    // Task Activities
+    | 'task_created'
+    | 'task_updated'
+    | 'task_completed'
+    | 'task_assigned'
+    | 'task_commented'
+    
+    // Document Activities
+    | 'document_uploaded'
+    | 'document_downloaded'
+    | 'document_deleted'
+    | 'document_shared'
+    | 'document_viewed'
+    
+    // Approval Activities
+    | 'approval_requested'
+    | 'approval_given'
+    | 'approval_rejected'
+    | 'approval_delegated'
+    
+    // Financial Activities
+    | 'budget_created'
+    | 'budget_updated'
+    | 'expense_recorded'
+    | 'payment_processed'
+    | 'invoice_generated'
+    
+    // Administrative Activities
+    | 'user_created'
+    | 'user_updated'
+    | 'user_deactivated'
+    | 'role_changed'
+    | 'permissions_modified'
+    
+    // Security Events
+    | 'suspicious_login'
+    | 'security_alert'
+    | 'data_export'
+    | 'settings_changed';
+
+/**
+ * Activity Categories
+ */
+export type ActivityCategory =
+    | 'authentication'
+    | 'profile'
+    | 'security'
+    | 'project_management'
+    | 'task_management'
+    | 'document_management'
+    | 'financial'
+    | 'approval'
+    | 'administration'
+    | 'system';
+
+/**
+ * Activity Change Record
+ */
+export interface ActivityChange {
+    field: string;
+    oldValue: any;
+    newValue: any;
+    changeType: 'created' | 'updated' | 'deleted';
+}
+
+/**
+ * Password Change Request
+ */
+export interface PasswordChangeRequest {
+    userId: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
+/**
+ * Password Validation Result
+ */
+export interface PasswordValidationResult {
+    isValid: boolean;
+    strength: 'weak' | 'fair' | 'good' | 'strong' | 'very_strong';
+    score: number; // 0-100
+    requirements: {
+        minLength: boolean;
+        hasUppercase: boolean;
+        hasLowercase: boolean;
+        hasNumber: boolean;
+        hasSpecialChar: boolean;
+        notCommon: boolean;
+        notSimilarToEmail: boolean;
+    };
+    suggestions: string[];
+    estimatedCrackTime: string;
+}
+
+/**
+ * Two-Factor Authentication Enrollment
+ */
+export interface TwoFactorEnrollment {
+    userId: string;
+    method: 'sms' | 'app' | 'email';
+    phoneNumber?: string;
+    email?: string;
+    secretKey?: string; // For authenticator apps
+    qrCode?: string;    // For authenticator apps
+    backupCodes: string[];
+    enrolledAt: Date;
+    verified: boolean;
+}
+
+/**
+ * Two-Factor Verification Request
+ */
+export interface TwoFactorVerificationRequest {
+    userId: string;
+    code: string;
+    method: 'sms' | 'app' | 'email' | 'backup_code';
+    sessionId: string;
+}
+
+/**
+ * Profile Photo Upload Request
+ */
+export interface ProfilePhotoUpload {
+    userId: string;
+    file: File;
+    filename: string;
+    mimeType: string;
+    size: number;
+}
+
+/**
+ * Profile Photo Response
+ */
+export interface ProfilePhotoResponse {
+    success: boolean;
+    photoURL: string;
+    storagePath: string;
+    uploadedAt: Date;
+    error?: string;
+}
+
+/**
+ * Session Summary for Dashboard
+ */
+export interface SessionSummary {
+    totalActiveSessions: number;
+    currentSession: UserSession;
+    otherSessions: UserSession[];
+    suspiciousSessions: UserSession[];
+    lastLoginInfo: {
+        timestamp: Date;
+        location: string;
+        device: string;
+        ipAddress: string;
+    };
+}
+
+/**
+ * Activity Log Filter Options
+ */
+export interface ActivityLogFilter {
+    userId?: string;
+    actions?: UserActivityAction[];
+    categories?: ActivityCategory[];
+    dateFrom?: Date;
+    dateTo?: Date;
+    status?: ('success' | 'failure' | 'warning')[];
+    securityRelevantOnly?: boolean;
+    resourceType?: string;
+    resourceId?: string;
+    projectId?: string;
+    limit?: number;
+    offset?: number;
+    sortBy?: 'timestamp' | 'action' | 'status';
+    sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Activity Log Response
+ */
+export interface ActivityLogResponse {
+    logs: UserActivityLog[];
+    totalCount: number;
+    hasMore: boolean;
+    filters: ActivityLogFilter;
+}
+
+/**
+ * Notification Preference Update Request
+ */
+export interface NotificationPreferenceUpdate {
+    userId: string;
+    section: 'email' | 'inApp' | 'sms' | 'push' | 'quietHours' | 'frequency';
+    settings: Partial<NotificationPreferences>;
+}
+
+/**
+ * Device Trust Request
+ */
+export interface DeviceTrustRequest {
+    userId: string;
+    deviceId: string;
+    trustDevice: boolean;
+    trustDuration?: number; // days
+}
+
+/**
+ * Bulk Session Invalidation Request
+ */
+export interface BulkSessionInvalidationRequest {
+    userId: string;
+    keepCurrentSession: boolean;
+    sessionIdsToKeep?: string[];
+    reason: string;
+}

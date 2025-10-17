@@ -1,0 +1,745 @@
+/**
+ * Mobile Responsive Design System
+ * 
+ * Comprehensive CSS utilities for mobile-first responsive design
+ * Includes touch targets, mobile navigation, responsive modals, forms, tables, and gestures
+ * 
+ * Breakpoints:
+ * - mobile-xs: 320px (iPhone SE)
+ * - mobile-sm: 375px (iPhone 12/13)
+ * - mobile-md: 390px (iPhone 14)
+ * - mobile-lg: 430px (iPhone 14 Pro Max)
+ * - tablet: 768px (iPad)
+ * - tablet-lg: 1024px (iPad Pro)
+ * - desktop: 1440px (Desktop)
+ */
+
+/* ============================================
+   TOUCH TARGET UTILITIES
+   iOS minimum: 44px × 44px
+   ============================================ */
+
+.touch-target-sm {
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.touch-target-md {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.touch-target-lg {
+  min-width: 56px;
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Increase touch target size on mobile only */
+@media (max-width: 768px) {
+  button, a, input[type="checkbox"], input[type="radio"], select {
+    min-height: 44px;
+  }
+  
+  .btn, .button {
+    min-height: 48px;
+    padding: 12px 24px;
+  }
+}
+
+/* ============================================
+   MOBILE NAVIGATION SYSTEM
+   ============================================ */
+
+/* Hamburger menu button */
+.mobile-menu-button {
+  display: none;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+@media (max-width: 1024px) {
+  .mobile-menu-button {
+    display: flex;
+  }
+}
+
+/* Hamburger icon animation */
+.hamburger-icon {
+  width: 24px;
+  height: 2px;
+  background-color: currentColor;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: currentColor;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon::before {
+  top: -8px;
+}
+
+.hamburger-icon::after {
+  bottom: -8px;
+}
+
+.hamburger-icon.open {
+  background-color: transparent;
+}
+
+.hamburger-icon.open::before {
+  transform: rotate(45deg);
+  top: 0;
+}
+
+.hamburger-icon.open::after {
+  transform: rotate(-45deg);
+  bottom: 0;
+}
+
+/* Mobile navigation drawer */
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 280px;
+  height: 100%;
+  background-color: #ffffff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav-drawer.open {
+  left: 0;
+}
+
+.mobile-nav-drawer-dark {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Mobile navigation overlay */
+.mobile-nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-nav-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Bottom navigation bar */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 900;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+}
+
+.mobile-bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 8px;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  min-height: 48px;
+}
+
+.mobile-bottom-nav-item.active {
+  color: #0ea5e9;
+}
+
+.mobile-bottom-nav-item:hover {
+  color: #0284c7;
+}
+
+.mobile-bottom-nav-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.mobile-bottom-nav-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ============================================
+   RESPONSIVE MODALS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Make modals full screen on mobile */
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    animation: slideUpModal 0.3s ease !important;
+  }
+
+  /* Slide up animation for mobile modals */
+  @keyframes slideUpModal {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Modal header with close button */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
+    z-index: 10;
+  }
+
+  /* Modal body with proper scroll */
+  .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    max-height: calc(100vh - 140px);
+  }
+
+  /* Modal footer sticky at bottom */
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    padding: 16px;
+    border-top: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    display: flex;
+    gap: 12px;
+    justify-content: stretch;
+  }
+
+  .modal-footer button {
+    flex: 1;
+    min-height: 48px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE FORMS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Force single column layout on mobile */
+  .form-grid,
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Increase input height for touch */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    min-height: 48px !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px 16px !important;
+  }
+
+  /* Full width form elements */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    width: 100% !important;
+  }
+
+  /* Increase label spacing */
+  label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* Form groups with proper spacing */
+  .form-group {
+    margin-bottom: 20px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE TABLES
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Convert table to card-based layout */
+  .responsive-table {
+    display: block;
+  }
+
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table tbody {
+    display: block;
+  }
+
+  .responsive-table tr {
+    display: block;
+    margin-bottom: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    background-color: #ffffff;
+  }
+
+  .responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  .responsive-table td:last-child {
+    border-bottom: none;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 12px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  /* Alternative: Horizontal scroll for complex tables */
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  .table-scroll-wrapper table {
+    min-width: 600px;
+  }
+}
+
+/* ============================================
+   TOUCH GESTURE UTILITIES
+   ============================================ */
+
+/* Swipeable container */
+.swipeable {
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+  position: relative;
+  overflow: hidden;
+}
+
+.swipeable:active {
+  cursor: grabbing;
+}
+
+/* Vertical swipe only */
+.swipeable-y {
+  touch-action: pan-x;
+  user-select: none;
+}
+
+/* Disable tap highlight (better for custom touch interactions) */
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Pull to refresh indicator */
+.pull-to-refresh {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: top 0.3s ease;
+}
+
+.pull-to-refresh.active {
+  top: 10px;
+}
+
+/* Swipe indicator for cards */
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.swipe-indicator.left {
+  left: 20px;
+  background-color: #10b981; /* Green for approve */
+}
+
+.swipe-indicator.right {
+  right: 20px;
+  background-color: #ef4444; /* Red for reject */
+}
+
+.swipe-indicator.visible {
+  opacity: 1;
+}
+
+/* ============================================
+   SAFE AREA SUPPORT (iOS notch)
+   ============================================ */
+
+/* Add padding for iOS safe areas */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+.safe-area-all {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ============================================
+   MOBILE-SPECIFIC UTILITIES
+   ============================================ */
+
+/* Show only on mobile */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .mobile-only-flex {
+    display: flex;
+  }
+
+  .mobile-only-grid {
+    display: grid;
+  }
+}
+
+/* Hide on mobile */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+/* Show only on tablet */
+.tablet-only {
+  display: none;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-only {
+    display: block;
+  }
+}
+
+/* Show only on desktop */
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 1025px) {
+  .desktop-only {
+    display: block;
+  }
+
+  .desktop-only-flex {
+    display: flex;
+  }
+
+  .desktop-only-grid {
+    display: grid;
+  }
+}
+
+/* Full width on mobile */
+@media (max-width: 768px) {
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Mobile padding adjustments */
+@media (max-width: 768px) {
+  .mobile-p-4 {
+    padding: 16px !important;
+  }
+
+  .mobile-px-4 {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .mobile-py-4 {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+  }
+
+  .mobile-m-0 {
+    margin: 0 !important;
+  }
+}
+
+/* ============================================
+   MOBILE CARD LAYOUTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Stack cards vertically */
+  .card-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  /* Make cards full width */
+  .card {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Reduce card padding on mobile */
+  .card-body {
+    padding: 16px !important;
+  }
+
+  /* Swipeable card container */
+  .card-swipeable-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    margin: 0 -16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .card-swipeable-container .card {
+    flex: 0 0 85%;
+    scroll-snap-align: center;
+  }
+}
+
+/* ============================================
+   MOBILE HEADER ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Sticky header on mobile */
+  .mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 16px;
+  }
+
+  /* Compact header on mobile */
+  .header-title {
+    font-size: 18px !important;
+  }
+
+  /* Hide secondary header elements */
+  .header-secondary {
+    display: none;
+  }
+}
+
+/* ============================================
+   MOBILE GANTT CHART FIX
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Fix Gantt chart fixed width issue */
+  .gantt-chart-container {
+    min-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Switch to vertical timeline on mobile */
+  .gantt-chart-mobile {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .gantt-chart-mobile .gantt-task {
+    width: 100% !important;
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #ffffff;
+  }
+}
+
+/* ============================================
+   MOBILE LOADING STATES
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Larger loading spinner on mobile */
+  .loading-spinner {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  /* Full screen loading overlay */
+  .loading-overlay-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+}
+
+/* ============================================
+   MOBILE ACCESSIBILITY
+   ============================================ */
+
+/* Focus states for touch */
+@media (max-width: 768px) {
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #0ea5e9;
+    outline-offset: 2px;
+  }
+}
+
+/* Increase contrast on mobile */
+@media (max-width: 768px) and (prefers-contrast: high) {
+  .card {
+    border-width: 2px;
+  }
+
+  button {
+    font-weight: 600;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-drawer,
+  .modal-content,
+  .hamburger-icon,
+  .swipeable {
+    animation: none !important;
+    transition: none !important;
+  }
+}

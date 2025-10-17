@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
+import MobileNavigation from './components/MobileNavigation';
 import DashboardView from './views/DashboardView';
 import RabAhspView from './views/RabAhspView';
 import EnhancedRabAhspView from './views/EnhancedRabAhspView';
@@ -451,17 +452,28 @@ function AppContent() {
 
   return (
       <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
-        <Sidebar 
-            currentView={currentView} 
-            onNavigate={handleNavigate}
-            isCollapsed={isSidebarCollapsed}
-            setIsCollapsed={setIsSidebarCollapsed}
+        {/* Desktop Sidebar - Hidden on mobile */}
+        <div className="hidden md:block">
+          <Sidebar 
+              currentView={currentView} 
+              onNavigate={handleNavigate}
+              isCollapsed={isSidebarCollapsed}
+              setIsCollapsed={setIsSidebarCollapsed}
+          />
+        </div>
+        
+        {/* Mobile Navigation - Only shown on mobile */}
+        <MobileNavigation
+          currentView={currentView}
+          onNavigate={handleNavigate}
+          showBottomNav={true}
         />
+        
         <main className="flex-1 flex flex-col overflow-hidden">
             <Header isSidebarCollapsed={isSidebarCollapsed}>
                 <OnlineUsersDisplay compact showActivity={false} />
             </Header>
-            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 glass-bg relative">
+            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 mobile-p-4 glass-bg relative pb-20 md:pb-6">
                 {/* Navigation Loading Overlay */}
                 {isNavigating && (
                   <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-40 flex items-center justify-center">
