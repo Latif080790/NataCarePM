@@ -1,9 +1,63 @@
 import '@testing-library/jest-dom';
 
-// Mock Firebase
+// Mock Firebase Firestore functions
+jest.mock('firebase/firestore', () => ({
+  getFirestore: jest.fn(() => ({})),
+  collection: jest.fn((db, path) => ({ db, path })),
+  doc: jest.fn((db, path, id) => ({ db, path, id })),
+  getDoc: jest.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
+  getDocs: jest.fn(() => Promise.resolve({ docs: [], empty: true })),
+  setDoc: jest.fn(() => Promise.resolve()),
+  addDoc: jest.fn(() => Promise.resolve({ id: 'mock-doc-id' })),
+  updateDoc: jest.fn(() => Promise.resolve()),
+  deleteDoc: jest.fn(() => Promise.resolve()),
+  query: jest.fn((collection) => collection),
+  where: jest.fn((field, op, value) => ({ field, op, value })),
+  orderBy: jest.fn((field, direction) => ({ field, direction })),
+  limit: jest.fn((count) => ({ limit: count })),
+  onSnapshot: jest.fn((ref, callback) => {
+    // Return unsubscribe function
+    return jest.fn();
+  }),
+  serverTimestamp: jest.fn(() => new Date()),
+  Timestamp: {
+    now: jest.fn(() => ({ seconds: Date.now() / 1000, nanoseconds: 0 })),
+    fromDate: jest.fn((date) => ({ seconds: date.getTime() / 1000, nanoseconds: 0 }))
+  }
+}));
+
+// Mock Firebase Auth
+jest.mock('firebase/auth', () => ({
+  getAuth: jest.fn(() => ({
+    currentUser: { uid: 'test-user-id', email: 'test@example.com' }
+  })),
+  signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: { uid: 'test-user-id' } })),
+  signOut: jest.fn(() => Promise.resolve()),
+  onAuthStateChanged: jest.fn((auth, callback) => {
+    callback({ uid: 'test-user-id', email: 'test@example.com' });
+    return jest.fn(); // unsubscribe
+  })
+}));
+
+// Mock Firebase Storage
+jest.mock('firebase/storage', () => ({
+  getStorage: jest.fn(() => ({})),
+  ref: jest.fn((storage, path) => ({ storage, path })),
+  uploadBytes: jest.fn(() => Promise.resolve({ ref: {}, metadata: {} })),
+  uploadBytesResumable: jest.fn(() => ({
+    on: jest.fn(),
+    pause: jest.fn(),
+    resume: jest.fn(),
+    cancel: jest.fn()
+  })),
+  getDownloadURL: jest.fn(() => Promise.resolve('https://mock-url.com/file')),
+  deleteObject: jest.fn(() => Promise.resolve())
+}));
+
+// Mock Firebase Config
 jest.mock('./firebaseConfig', () => ({
   db: {},
-  auth: {},
+  auth: { currentUser: { uid: 'test-user-id', email: 'test@example.com' } },
   storage: {}
 }));
 

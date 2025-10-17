@@ -1,0 +1,35 @@
+{
+  "admin": {
+    "uid": "admin-uid-123",
+    "id": "admin-123",
+    "email": "admin@natacare.com",
+    "name": "Admin User",
+    "roleId": "super-admin",
+    "avatarUrl": "https://example.com/avatars/admin.jpg",
+    "isOnline": true,
+    "lastSeen": "2025-10-17T00:00:00.000Z",
+    "permissions": ["all"]
+  },
+  "projectManager": {
+    "uid": "pm-uid-456",
+    "id": "pm-456",
+    "email": "pm@natacare.com",
+    "name": "Project Manager",
+    "roleId": "project-manager",
+    "avatarUrl": "https://example.com/avatars/pm.jpg",
+    "isOnline": true,
+    "lastSeen": "2025-10-17T00:00:00.000Z",
+    "permissions": ["project.read", "project.write", "task.read", "task.write"]
+  },
+  "engineer": {
+    "uid": "eng-uid-789",
+    "id": "eng-789",
+    "email": "engineer@natacare.com",
+    "name": "Senior Engineer",
+    "roleId": "engineer",
+    "avatarUrl": "https://example.com/avatars/engineer.jpg",
+    "isOnline": false,
+    "lastSeen": "2025-10-16T18:30:00.000Z",
+    "permissions": ["task.read", "document.read"]
+  }
+}

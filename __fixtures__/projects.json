@@ -1,0 +1,50 @@
+{
+  "activeProject": {
+    "id": "project-active-001",
+    "name": "Mall Construction Project",
+    "location": "Jakarta Selatan",
+    "startDate": "2025-01-01",
+    "items": [],
+    "members": [],
+    "dailyReports": [],
+    "attendances": [],
+    "expenses": [],
+    "documents": [],
+    "purchaseOrders": [],
+    "inventory": [],
+    "termins": [],
+    "auditLog": []
+  },
+  "completedProject": {
+    "id": "project-completed-002",
+    "name": "Office Building Renovation",
+    "location": "Jakarta Pusat",
+    "startDate": "2024-06-01",
+    "items": [],
+    "members": [],
+    "dailyReports": [],
+    "attendances": [],
+    "expenses": [],
+    "documents": [],
+    "purchaseOrders": [],
+    "inventory": [],
+    "termins": [],
+    "auditLog": []
+  },
+  "largeProject": {
+    "id": "project-large-003",
+    "name": "Highway Infrastructure Development",
+    "location": "Jawa Barat",
+    "startDate": "2025-03-01",
+    "items": [],
+    "members": [],
+    "dailyReports": [],
+    "attendances": [],
+    "expenses": [],
+    "documents": [],
+    "purchaseOrders": [],
+    "inventory": [],
+    "termins": [],
+    "auditLog": []
+  }
+}

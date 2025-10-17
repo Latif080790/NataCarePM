@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/135</span>
+                <span class='fraction'>0/138</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/76</span>
+                <span class='fraction'>0/82</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/117</span>
+                <span class='fraction'>0/120</span>
             </div>
         
             
@@ -314,7 +314,14 @@
 <a name='L249'></a><a href='#L249'>249</a>
 <a name='L250'></a><a href='#L250'>250</a>
 <a name='L251'></a><a href='#L251'>251</a>
-<a name='L252'></a><a href='#L252'>252</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,9 +395,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -639,16 +653,23 @@ export const ProjectProvider: React.FC&lt;{ children: ReactNode }&gt; = <span cl
                 projectService.getAhspData(),
                 projectService.getWorkers(),
             ]);
-<span class="cstat-no" title="statement not covered" >            setWorkspaces(wsRes);</span>
-<span class="cstat-no" title="statement not covered" >            setAhspData(ahspRes);</span>
-<span class="cstat-no" title="statement not covered" >            setWorkers(workersRes);</span>
+            
+            // Extract data from APIResponse wrapper
+            const workspacesData = <span class="cstat-no" title="statement not covered" >wsRes.success ? wsRes.data : [];</span>
+            const ahspData = <span class="cstat-no" title="statement not covered" >ahspRes.success ? ahspRes.data : {} as AhspData;</span>
+            const workersData = <span class="cstat-no" title="statement not covered" >workersRes.success ? workersRes.data : [];</span>
+            
+<span class="cstat-no" title="statement not covered" >            setWorkspaces(workspacesData);</span>
+<span class="cstat-no" title="statement not covered" >            setAhspData(ahspData);</span>
+<span class="cstat-no" title="statement not covered" >            setWorkers(workersData);</span>
 &nbsp;
-            const allProjectIds = <span class="cstat-no" title="statement not covered" >wsRes.flatMap(<span class="fstat-no" title="function not covered" >ws </span>=&gt; <span class="cstat-no" title="statement not covered" >ws.projects.map(<span class="fstat-no" title="function not covered" >p </span>=&gt; <span class="cstat-no" title="statement not covered" >p.id)</span>)</span>;</span>
+            // Now workspacesData is an array, we can use flatMap
+            const allProjectIds = <span class="cstat-no" title="statement not covered" >workspacesData.flatMap(<span class="fstat-no" title="function not covered" >ws </span>=&gt; <span class="cstat-no" title="statement not covered" >ws.projects.map(<span class="fstat-no" title="function not covered" >p </span>=&gt; <span class="cstat-no" title="statement not covered" >p.id)</span>)</span>;</span>
             const lastProjectId = <span class="cstat-no" title="statement not covered" >localStorage.getItem('lastProjectId');</span>
             
             const projectIdToLoad = <span class="cstat-no" title="statement not covered" >(lastProjectId &amp;&amp; allProjectIds.includes(lastProjectId))</span>
                 ? lastProjectId
-                : wsRes[0]?.projects[0]?.id;
+                : workspacesData[0]?.projects[0]?.id;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            if (projectIdToLoad) {</span>
 <span class="cstat-no" title="statement not covered" >                if (projectIdToLoad !== currentProjectId) {</span>
@@ -823,7 +844,7 @@ export const ProjectProvider: React.FC&lt;{ children: ReactNode }&gt; = <span cl
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-15T03:44:31.993Z
+                at 2025-10-17T09:33:12.781Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -396,18 +396,8 @@ export const forcePasswordChange = async (
  */
 const logPasswordChange = async (userId: string): Promise<void> => {
   try {
-    // Import activityLogService dynamically to avoid circular dependency
-    const { logUserActivity } = await import('./activityLogService');
-    
-    await logUserActivity({
-      userId,
-      action: 'password_change',
-      category: 'security',
-      description: 'User changed their password',
-      status: 'success',
-      securityRelevant: true,
-      riskLevel: 'low'
-    });
+    // TODO: Implement activity logging when activityLogService is created
+    logger.info('Password change activity', { userId, action: 'password_change' });
 
   } catch (error: any) {
     // Log error but don't fail the password change

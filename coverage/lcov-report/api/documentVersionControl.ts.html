@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">4.11% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/243</span>
+                <span class='fraction'>0/242</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.44% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/58</span>
+                <span class='fraction'>0/58</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">4.27% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/234</span>
+                <span class='fraction'>0/233</span>
             </div>
         
             
@@ -1074,23 +1074,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1117,7 +1117,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2061,7 +2061,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import {
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import {
     DocumentVersion,
     FileMetadata,
     ChangeSet,
@@ -2074,22 +2074,22 @@
 &nbsp;
 // Document Version Control System (Git-like)
 export class DocumentVersionControl {
-    private versions: Map&lt;string, DocumentVersion&gt; = new Map();
-    private branches: Map&lt;string, DocumentBranch&gt; = new Map();
-    private commits: Map&lt;string, CommitInfo&gt; = new Map();
+    private <span class="cstat-no" title="statement not covered" >versions: Map&lt;string, DocumentVersion&gt; = new Map();</span>
+    private <span class="cstat-no" title="statement not covered" >branches: Map&lt;string, DocumentBranch&gt; = new Map();</span>
+    private <span class="cstat-no" title="statement not covered" >commits: Map&lt;string, CommitInfo&gt; = new Map();</span>
     private conflictResolver: ConflictResolver;
 &nbsp;
-    constructor() {
-        this.conflictResolver = new ConflictResolver();
-        this.initializeDefaultBranches();
+<span class="fstat-no" title="function not covered" >    constructor() {</span>
+<span class="cstat-no" title="statement not covered" >        this.conflictResolver = new ConflictResolver();</span>
+<span class="cstat-no" title="statement not covered" >        this.initializeDefaultBranches();</span>
         
         // TODO: Implement conflict resolver functionality
-        console.log('Conflict resolver initialized:', this.conflictResolver);
+<span class="cstat-no" title="statement not covered" >        console.log('Conflict resolver initialized:', this.conflictResolver);</span>
     }
 &nbsp;
     // Initialize default branches
-    private initializeDefaultBranches(): void {
-        const mainBranch: DocumentBranch = {
+    private <span class="fstat-no" title="function not covered" >initializeDefaultBranches(</span>): void {
+        const mainBranch: DocumentBranch = <span class="cstat-no" title="statement not covered" >{</span>
             id: 'main',
             name: 'main',
             documentId: '',
@@ -2116,7 +2116,7 @@ export class DocumentVersionControl {
             status: 'active'
         };
 &nbsp;
-        this.branches.set('main', mainBranch);
+<span class="cstat-no" title="statement not covered" >        this.branches.set('main', mainBranch);</span>
     }
 &nbsp;
     // Create new document version (commit)
@@ -3060,14 +3060,14 @@ interface VersionDifference {
 }
 &nbsp;
 // Export singleton instance
-export const documentVersionControl = new DocumentVersionControl();</pre></td></tr></table></pre>
+export const documentVersionControl = <span class="cstat-no" title="statement not covered" >new DocumentVersionControl();</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-15T03:44:31.993Z
+                at 2025-10-17T09:33:12.781Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -88,10 +88,11 @@ describe('IntelligentDocumentService', () => {
 
                 const document = await intelligentDocumentService.createDocument(
                     'Test Document',
-                    'contract' as DocumentCategory,
+                    'Test document description',
+                    'contracts' as DocumentCategory,
                     'project-1',
-                    new File(['test'], 'test.pdf', { type: 'application/pdf' }),
-                    'user-1'
+                    'user-1',
+                    new File(['test'], 'test.pdf', { type: 'application/pdf' })
                 );
 
                 expect(document).toBeDefined();
@@ -105,10 +106,11 @@ describe('IntelligentDocumentService', () => {
                 await expect(
                     intelligentDocumentService.createDocument(
                         '', // Empty title
-                        'contract' as DocumentCategory,
+                        'Empty title test',
+                        'contracts' as DocumentCategory,
                         'project-1',
-                        new File(['test'], 'test.pdf'),
-                        'user-1'
+                        'user-1',
+                        new File(['test'], 'test.pdf')
                     )
                 ).rejects.toThrow();
             });
@@ -117,10 +119,11 @@ describe('IntelligentDocumentService', () => {
                 await expect(
                     intelligentDocumentService.createDocument(
                         'Test Document',
+                        'Test description',
                         'invalid' as DocumentCategory,
                         'project-1',
-                        new File(['test'], 'test.pdf'),
-                        'user-1'
+                        'user-1',
+                        new File(['test'], 'test.pdf')
                     )
                 ).rejects.toThrow();
             });
@@ -132,10 +135,11 @@ describe('IntelligentDocumentService', () => {
 
                 await intelligentDocumentService.createDocument(
                     'Test Document',
-                    'contract' as DocumentCategory,
+                    'Test description',
+                    'contracts' as DocumentCategory,
                     'project-1',
-                    new File(['test'], 'test.pdf'),
-                    'user-1'
+                    'user-1',
+                    new File(['test'], 'test.pdf')
                 );
 
                 // Should call setDoc twice: once for document, once for workflow
@@ -268,10 +272,13 @@ describe('IntelligentDocumentService', () => {
                 };
 
                 const mockWorkflow: DocumentWorkflow = {
+                    workflowId: 'test-workflow-1',
                     currentStep: 2,
                     totalSteps: 5,
                     steps: [],
-                    isCompleted: false
+                    isCompleted: false,
+                    canSkipSteps: false,
+                    escalationRules: []
                 };
 
                 mockGetDoc.mockResolvedValue(mockDocSnap);
@@ -466,10 +473,11 @@ describe('IntelligentDocumentService', () => {
             await expect(
                 intelligentDocumentService.createDocument(
                     'Test',
+                    'Test description',
                     'invalid-category' as DocumentCategory,
                     'project-1',
-                    new File(['test'], 'test.pdf'),
-                    'user-1'
+                    'user-1',
+                    new File(['test'], 'test.pdf')
                 )
             ).rejects.toThrow();
         });
@@ -499,10 +507,13 @@ describe('IntelligentDocumentService', () => {
     describe('Workflow Management', () => {
         it('should create workflow for document', async () => {
             const workflow: DocumentWorkflow = {
+                workflowId: 'test-workflow-2',
                 currentStep: 1,
                 totalSteps: 3,
                 steps: [],
-                isCompleted: false
+                isCompleted: false,
+                canSkipSteps: false,
+                escalationRules: []
             };
 
             mockSetDoc.mockResolvedValue(undefined);
@@ -665,9 +676,8 @@ describe('IntelligentDocumentService', () => {
                 dependentDocumentId: 'doc-2',
                 dependencyType: 'reference',
                 description: 'Test dependency',
-                isMandatory: true,
+                isRequired: true,
                 status: 'valid',
-                createdAt: new Date(),
                 lastChecked: new Date()
             };
 
@@ -744,10 +754,11 @@ describe('IntelligentDocumentService', () => {
 
             const document = await intelligentDocumentService.createDocument(
                 'Test Document',
-                'contract' as DocumentCategory,
+                'Test description',
+                'contracts' as DocumentCategory,
                 'project-1',
-                new File(['test'], 'test.pdf'),
-                'user-1'
+                'user-1',
+                new File(['test'], 'test.pdf')
             );
 
             expect(document).toBeDefined();

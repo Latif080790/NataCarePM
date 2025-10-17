@@ -493,17 +493,18 @@ const logTwoFactorActivity = async (
   action: string
 ): Promise<void> => {
   try {
-    // Import activityLogService dynamically to avoid circular dependency
-    const { logUserActivity } = await import('./activityLogService');
-    
-    await logUserActivity({
+    // Log 2FA activity to Firestore
+    const activityRef = doc(db, 'activityLogs', `${userId}_${Date.now()}`);
+    await setDoc(activityRef, {
       userId,
-      action: action as any,
+      action: 'security_setting_change',
       category: 'security',
       description: `Two-factor authentication: ${action.replace('2fa_', '').replace(/_/g, ' ')}`,
+      details: { twoFactorAction: action },
       status: 'success',
       securityRelevant: true,
-      riskLevel: 'medium'
+      riskLevel: 'medium',
+      timestamp: serverTimestamp()
     });
 
   } catch (error: any) {

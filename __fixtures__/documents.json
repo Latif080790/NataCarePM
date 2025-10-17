@@ -1,0 +1,50 @@
+{
+  "contract": {
+    "id": "doc-contract-001",
+    "title": "Main Construction Contract",
+    "description": "Primary contract document for Mall Construction Project",
+    "category": "contract",
+    "projectId": "project-active-001",
+    "createdBy": "admin-123",
+    "createdAt": "2025-01-15T00:00:00.000Z",
+    "updatedAt": "2025-01-15T00:00:00.000Z",
+    "currentVersionId": "v1",
+    "status": "approved",
+    "fileSize": 2048000,
+    "mimeType": "application/pdf",
+    "requiresSignature": true,
+    "tags": ["contract", "main", "construction"]
+  },
+  "permit": {
+    "id": "doc-permit-002",
+    "title": "Building Permit IMB",
+    "description": "IMB permit from local government",
+    "category": "permit",
+    "projectId": "project-active-001",
+    "createdBy": "pm-456",
+    "createdAt": "2025-01-10T00:00:00.000Z",
+    "updatedAt": "2025-01-10T00:00:00.000Z",
+    "currentVersionId": "v1",
+    "status": "approved",
+    "fileSize": 512000,
+    "mimeType": "application/pdf",
+    "requiresSignature": false,
+    "tags": ["permit", "imb", "government"]
+  },
+  "drawing": {
+    "id": "doc-drawing-003",
+    "title": "Architectural Drawing - Floor Plan",
+    "description": "Detailed floor plan for level 1-3",
+    "category": "drawing",
+    "projectId": "project-active-001",
+    "createdBy": "eng-789",
+    "createdAt": "2025-02-01T00:00:00.000Z",
+    "updatedAt": "2025-02-05T00:00:00.000Z",
+    "currentVersionId": "v2",
+    "status": "in_review",
+    "fileSize": 8192000,
+    "mimeType": "application/pdf",
+    "requiresSignature": false,
+    "tags": ["drawing", "architecture", "floor-plan"]
+  }
+}
