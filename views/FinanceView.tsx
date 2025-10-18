@@ -5,6 +5,9 @@ import { formatCurrency, formatDate } from '../constants';
 import { Progress } from '../components/Progress';
 import { LineChart } from '../components/LineChart';
 import { useElementSize } from '../hooks/useElementSize';
+import { PermissionGate } from '../components/PermissionGate';
+import { useRequirePermission } from '../hooks/usePermissions';
+import { Lock } from 'lucide-react';
 
 
 interface FinanceViewProps {
@@ -13,6 +16,21 @@ interface FinanceViewProps {
 }
 
 export default function FinanceView({ expenses, projectMetrics }: FinanceViewProps) {
+  // Require permission to view finances
+  const { allowed, reason, suggestedAction } = useRequirePermission('view_finances');
+  
+  if (!allowed) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[600px] text-center p-8">
+        <Lock className="w-16 h-16 text-palladium mb-4" />
+        <h2 className="text-2xl font-bold text-night-black mb-2">Access Restricted</h2>
+        <p className="text-palladium mb-4">{reason}</p>
+        {suggestedAction && (
+          <p className="text-sm text-persimmon">{suggestedAction}</p>
+        )}
+      </div>
+    );
+  }
   const { totalBudget, actualCost, sCurveData } = projectMetrics;
   const expensePercentage = totalBudget > 0 ? (actualCost / totalBudget) * 100 : 0;
   const [chartContainerRef, { width }] = useElementSize();

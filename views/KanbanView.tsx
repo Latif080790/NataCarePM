@@ -17,6 +17,7 @@ import {
   Eye,
   Activity
 } from 'lucide-react';
+import { sanitizeBasic } from '../utils/sanitizer';
 
 interface KanbanViewProps {
   tasks: Task[];
@@ -322,7 +323,10 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
                         {/* Task Description */}
                         {task.description && (
-                          <p className="text-xs text-gray-600 line-clamp-2">{task.description}</p>
+                          <div 
+                            className="text-xs text-gray-600 line-clamp-2"
+                            dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
+                          />
                         )}
 
                         {/* Task Metadata */}
@@ -450,7 +454,10 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                 <Eye className="w-8 h-8 text-indigo-600" />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
-              <p className="text-gray-600 mb-6">{selectedTask.description}</p>
+              <div 
+                className="text-gray-600 mb-6"
+                dangerouslySetInnerHTML={{ __html: sanitizeBasic(selectedTask.description) }}
+              />
               <Button 
                 onClick={() => setSelectedTask(null)}
                 className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"

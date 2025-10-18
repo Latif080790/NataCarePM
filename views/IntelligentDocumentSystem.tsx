@@ -33,6 +33,7 @@ import {
 
 import { intelligentDocumentService } from '../api/intelligentDocumentService';
 import { smartTemplatesEngine } from '../api/smartTemplatesEngine';
+import { sanitizeBasic } from '../utils/sanitizer';
 
 interface IntelligentDocumentSystemProps {
     projectId?: string;
@@ -258,7 +259,10 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
                 
                 <CardContent className="pt-0">
                     {document.description && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{document.description}</p>
+                        <div 
+                            className="text-sm text-gray-600 mb-3 line-clamp-2"
+                            dangerouslySetInnerHTML={{ __html: sanitizeBasic(document.description) }}
+                        />
                     )}
                     
                     {/* AI Insights Summary */}

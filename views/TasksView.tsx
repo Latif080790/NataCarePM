@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Zap
 } from 'lucide-react';
+import { sanitizeBasic } from '../utils/sanitizer';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -287,7 +288,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   </div>
                   
                   {task.description && (
-                    <p className="text-gray-600 mb-4 line-clamp-2">{task.description}</p>
+                    <div 
+                      className="text-gray-600 mb-4 line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
+                    />
                   )}
                   
                   <div className="flex items-center space-x-6 text-sm text-gray-500">
@@ -381,7 +385,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <Eye className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
-              <p className="text-gray-600 mb-6">{selectedTask.description}</p>
+              <div 
+                className="text-gray-600 mb-6"
+                dangerouslySetInnerHTML={{ __html: sanitizeBasic(selectedTask.description) }}
+              />
               <Button 
                 onClick={() => setSelectedTask(null)}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"

@@ -14,6 +14,7 @@ import {
     Tag, CheckCircle
 } from 'lucide-react';
 import { formatDate } from '../constants';
+import { sanitizeBasic } from '../utils/sanitizer';
 
 interface TaskListViewProps {
     projectId: string;
@@ -246,7 +247,10 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
                                                     {task.priority}
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-palladium mb-3">{task.description}</p>
+                                            <div 
+                                                className="text-sm text-palladium mb-3"
+                                                dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
+                                            />
                                             
                                             <div className="flex items-center gap-4 text-xs text-palladium">
                                                 <div className="flex items-center gap-1">

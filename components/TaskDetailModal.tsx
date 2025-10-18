@@ -16,6 +16,7 @@ import {
     Trash2
 } from 'lucide-react';
 import { formatDate } from '../constants';
+import { sanitizeBasic } from '../utils/sanitizer';
 
 interface TaskDetailModalProps {
     isOpen: boolean;
@@ -328,7 +329,10 @@ export default function TaskDetailModal({
                             </div>
                         </div>
                     ) : (
-                        <p className="text-palladium whitespace-pre-wrap">{taskData.description}</p>
+                        <div 
+                            className="text-palladium whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: sanitizeBasic(taskData.description) }}
+                        />
                     )}
                 </div>
 
@@ -476,7 +480,10 @@ export default function TaskDetailModal({
                                             {formatDate(comment.timestamp)}
                                         </span>
                                     </div>
-                                    <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                                    <div 
+                                        className="text-sm whitespace-pre-wrap"
+                                        dangerouslySetInnerHTML={{ __html: sanitizeBasic(comment.content) }}
+                                    />
                                 </div>
                             </div>
                         ))}

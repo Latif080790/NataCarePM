@@ -5,27 +5,49 @@ import react from '@vitejs/plugin-react';
 /**
  * Security Headers Plugin
  * Adds HTTP security headers to development server responses
+ * 
+ * CSP LEVELS:
+ * - Development: Relaxed for hot reload, inline styles
+ * - Production: Strict policy with nonces/hashes
  */
 function securityHeadersPlugin() {
   return {
     name: 'security-headers',
     configureServer(server: any) {
       server.middlewares.use((_req: any, res: any, next: any) => {
-        // Content Security Policy
-        res.setHeader(
-          'Content-Security-Policy',
-          [
-            "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-inline needed for Vite dev
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-            "font-src 'self' https://fonts.gstatic.com data:",
-            "img-src 'self' data: https: blob:",
-            "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com wss://*.firebaseio.com",
-            "frame-ancestors 'none'",
-            "base-uri 'self'",
-            "form-action 'self'"
-          ].join('; ')
-        );
+        const isDev = process.env.NODE_ENV !== 'production';
+        
+        // Content Security Policy (CSP)
+        // Development: More permissive for HMR and dev tools
+        // Production: Strict policy for maximum security
+        const cspDirectives = isDev ? [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for Vite HMR
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com data:",
+          "img-src 'self' data: https: blob:",
+          "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com wss://*.firebaseio.com ws://localhost:* http://localhost:*",
+          "frame-ancestors 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "object-src 'none'",
+          "upgrade-insecure-requests"
+        ] : [
+          "default-src 'self'",
+          "script-src 'self' 'sha256-PRODUCTION_HASH'", // Replace with actual hash in production
+          "style-src 'self' 'sha256-PRODUCTION_HASH' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com data:",
+          "img-src 'self' data: https://*.googleapis.com https://firebasestorage.googleapis.com blob:",
+          "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://generativelanguage.googleapis.com wss://*.firebaseio.com",
+          "frame-ancestors 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "object-src 'none'",
+          "upgrade-insecure-requests",
+          "block-all-mixed-content"
+        ];
+        
+        res.setHeader('Content-Security-Policy', cspDirectives.join('; '));
         
         // X-Frame-Options: Prevent clickjacking
         res.setHeader('X-Frame-Options', 'DENY');
@@ -33,25 +55,30 @@ function securityHeadersPlugin() {
         // X-Content-Type-Options: Prevent MIME type sniffing
         res.setHeader('X-Content-Type-Options', 'nosniff');
         
-        // X-XSS-Protection: Enable XSS filter (legacy, but doesn't hurt)
+        // X-XSS-Protection: Enable XSS filter (legacy browsers)
         res.setHeader('X-XSS-Protection', '1; mode=block');
         
         // Referrer-Policy: Control referrer information
         res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
         
-        // Permissions-Policy: Control browser features
+        // Permissions-Policy: Restrict browser features
         res.setHeader(
           'Permissions-Policy',
-          'camera=(), microphone=(), geolocation=(), payment=()'
+          'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
         );
         
         // Strict-Transport-Security (HSTS): Force HTTPS (production only)
-        if (process.env.NODE_ENV === 'production') {
+        if (!isDev) {
           res.setHeader(
             'Strict-Transport-Security',
             'max-age=31536000; includeSubDomains; preload'
           );
         }
+        
+        // Cross-Origin Policies
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
         
         next();
       });
