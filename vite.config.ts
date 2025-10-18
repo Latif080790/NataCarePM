@@ -2,6 +2,63 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
+/**
+ * Security Headers Plugin
+ * Adds HTTP security headers to development server responses
+ */
+function securityHeadersPlugin() {
+  return {
+    name: 'security-headers',
+    configureServer(server: any) {
+      server.middlewares.use((_req: any, res: any, next: any) => {
+        // Content Security Policy
+        res.setHeader(
+          'Content-Security-Policy',
+          [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-inline needed for Vite dev
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com data:",
+            "img-src 'self' data: https: blob:",
+            "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com wss://*.firebaseio.com",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'"
+          ].join('; ')
+        );
+        
+        // X-Frame-Options: Prevent clickjacking
+        res.setHeader('X-Frame-Options', 'DENY');
+        
+        // X-Content-Type-Options: Prevent MIME type sniffing
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        
+        // X-XSS-Protection: Enable XSS filter (legacy, but doesn't hurt)
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        
+        // Referrer-Policy: Control referrer information
+        res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        
+        // Permissions-Policy: Control browser features
+        res.setHeader(
+          'Permissions-Policy',
+          'camera=(), microphone=(), geolocation=(), payment=()'
+        );
+        
+        // Strict-Transport-Security (HSTS): Force HTTPS (production only)
+        if (process.env.NODE_ENV === 'production') {
+          res.setHeader(
+            'Strict-Transport-Security',
+            'max-age=31536000; includeSubDomains; preload'
+          );
+        }
+        
+        next();
+      });
+    }
+  };
+}
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
@@ -9,7 +66,10 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
       },
-      plugins: [react()],
+      plugins: [
+        react(),
+        securityHeadersPlugin()
+      ],
       esbuild: {
         jsx: 'automatic',
         jsxImportSource: 'react',

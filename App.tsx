@@ -1,72 +1,82 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import './styles/enterprise-design-system.css';
 import Sidebar from './components/Sidebar';
 import MobileNavigation from './components/MobileNavigation';
-import DashboardView from './views/DashboardView';
-import RabAhspView from './views/RabAhspView';
-import EnhancedRabAhspView from './views/EnhancedRabAhspView';
-import GanttChartView from './views/GanttChartView';
-import DailyReportView from './views/DailyReportView';
-import ProgressView from './views/ProgressView';
-import AttendanceView from './views/AttendanceView';
-import FinanceView from './views/FinanceView';
-import CashflowView from './views/CashflowView';
-import StrategicCostView from './views/StrategicCostView';
-import LogisticsView from './views/LogisticsView';
-import DokumenView from './views/DokumenView';
-import ReportView from './views/ReportView';
-import UserManagementView from './views/UserManagementView';
-import MasterDataView from './views/MasterDataView';
-import AuditTrailView from './views/AuditTrailView';
-import LoginView from './views/LoginView';
-import EnterpriseLoginView from './views/EnterpriseLoginView';
-import ProfileView from './views/ProfileView';
-import TaskListView from './views/TaskListView';
-import TasksView from './views/TasksView';
-import KanbanBoardView from './views/KanbanBoardView';
-import KanbanView from './views/KanbanView';
-import DependencyGraphView from './views/DependencyGraphView';
-import NotificationCenterView from './views/NotificationCenterView';
-import MonitoringView from './views/MonitoringView';
 import OfflineIndicator from './components/OfflineIndicator';
 import LiveCursors from './components/LiveCursors';
 import OnlineUsersDisplay from './components/OnlineUsersDisplay';
 import FallbackView from './components/FallbackView';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from './components/EnterpriseLoaders';
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
-import { IntegratedAnalyticsView } from './views/IntegratedAnalyticsView';
-import IntelligentDocumentSystem from './views/IntelligentDocumentSystem';
 import { NavigationDebug } from './components/NavigationDebug';
+import FailoverStatusIndicator from './src/components/FailoverStatusIndicator';
 
-// Finance & Accounting Module Views
-import ChartOfAccountsView from './views/ChartOfAccountsView';
-import JournalEntriesView from './views/JournalEntriesView';
-import AccountsPayableView from './views/AccountsPayableView';
-import AccountsReceivableView from './views/AccountsReceivableView';
+// Eager-loaded components (critical for initial render)
+import LoginView from './views/LoginView';
+import EnterpriseLoginView from './views/EnterpriseLoginView';
 
-// WBS Module
-import WBSManagementView from './views/WBSManagementView';
+// Lazy-loaded Views (loaded on demand)
+const DashboardView = lazy(() => import('./views/DashboardView'));
+const RabAhspView = lazy(() => import('./views/RabAhspView'));
+const EnhancedRabAhspView = lazy(() => import('./views/EnhancedRabAhspView'));
+const GanttChartView = lazy(() => import('./views/GanttChartView'));
+const DailyReportView = lazy(() => import('./views/DailyReportView'));
+const ProgressView = lazy(() => import('./views/ProgressView'));
+const AttendanceView = lazy(() => import('./views/AttendanceView'));
+const FinanceView = lazy(() => import('./views/FinanceView'));
+const CashflowView = lazy(() => import('./views/CashflowView'));
+const StrategicCostView = lazy(() => import('./views/StrategicCostView'));
+const LogisticsView = lazy(() => import('./views/LogisticsView'));
+const DokumenView = lazy(() => import('./views/DokumenView'));
+const ReportView = lazy(() => import('./views/ReportView'));
+const UserManagementView = lazy(() => import('./views/UserManagementView'));
+const MasterDataView = lazy(() => import('./views/MasterDataView'));
+const AuditTrailView = lazy(() => import('./views/AuditTrailView'));
+const ProfileView = lazy(() => import('./views/ProfileView'));
+const TaskListView = lazy(() => import('./views/TaskListView'));
+const TasksView = lazy(() => import('./views/TasksView'));
+const KanbanBoardView = lazy(() => import('./views/KanbanBoardView'));
+const KanbanView = lazy(() => import('./views/KanbanView'));
+const DependencyGraphView = lazy(() => import('./views/DependencyGraphView'));
+const NotificationCenterView = lazy(() => import('./views/NotificationCenterView'));
+const MonitoringView = lazy(() => import('./views/MonitoringView'));
+const IntegratedAnalyticsView = lazy(() => import('./views/IntegratedAnalyticsView').then(module => ({ default: module.IntegratedAnalyticsView })));
+const IntelligentDocumentSystem = lazy(() => import('./views/IntelligentDocumentSystem'));
 
-// Logistics Module
-import GoodsReceiptView from './views/GoodsReceiptView';
-import MaterialRequestView from './views/MaterialRequestView';
-import VendorManagementView from './views/VendorManagementView';
-import InventoryManagementView from './views/InventoryManagementView';
-import IntegrationDashboardView from './views/IntegrationDashboardView';
-import CostControlDashboardView from './views/CostControlDashboardView';
+// Finance & Accounting Module Views (lazy-loaded)
+const ChartOfAccountsView = lazy(() => import('./views/ChartOfAccountsView'));
+const JournalEntriesView = lazy(() => import('./views/JournalEntriesView'));
+const AccountsPayableView = lazy(() => import('./views/AccountsPayableView'));
+const AccountsReceivableView = lazy(() => import('./views/AccountsReceivableView'));
+
+// WBS Module (lazy-loaded)
+const WBSManagementView = lazy(() => import('./views/WBSManagementView'));
+
+// Logistics Module (lazy-loaded)
+const GoodsReceiptView = lazy(() => import('./views/GoodsReceiptView'));
+const MaterialRequestView = lazy(() => import('./views/MaterialRequestView'));
+const VendorManagementView = lazy(() => import('./views/VendorManagementView'));
+const InventoryManagementView = lazy(() => import('./views/InventoryManagementView'));
+const IntegrationDashboardView = lazy(() => import('./views/IntegrationDashboardView'));
+const CostControlDashboardView = lazy(() => import('./views/CostControlDashboardView'));
 
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { useActivityTracker } from './hooks/useMonitoring';
 import { Spinner } from './components/Spinner';
-import { CommandPalette } from './components/CommandPalette';
 import Header from './components/Header';
 import { useAuth } from './contexts/AuthContext';
 import { useProject } from './contexts/ProjectContext';
 import { RealtimeCollaborationProvider, useRealtimeCollaboration } from './contexts/RealtimeCollaborationContext';
-import AiAssistantChat from './components/AiAssistantChat';
 import { monitoringService } from './api/monitoringService';
+import { failoverManager } from './src/utils/failoverManager';
+import { healthMonitor } from './src/utils/healthCheck';
+import { useRoutePreload } from './src/hooks/useRoutePreload';
+
+// Lazy-loaded heavy components
+const CommandPalette = lazy(() => import('./components/CommandPalette').then(module => ({ default: module.CommandPalette })));
+const AiAssistantChat = lazy(() => import('./components/AiAssistantChat'));
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
@@ -207,6 +217,24 @@ function AppContent() {
         completedVolume: completedVolumeMap.get(item.id) || 0,
     }));
   }, [currentProject]);
+
+  // Initialize Failover Manager
+  useEffect(() => {
+    failoverManager.initialize().catch(error => {
+      console.error('Failover manager initialization failed:', error);
+    });
+    
+    // Start health monitoring (every 60 seconds)
+    healthMonitor.start(60000);
+    
+    return () => {
+      failoverManager.stopHealthMonitoring();
+      healthMonitor.stop();
+    };
+  }, []);
+
+  // Initialize Route Preloading
+  useRoutePreload(currentView, currentUser?.roleId);
 
   if (authLoading && !currentUser) {
     return <EnterpriseAuthLoader />;
@@ -485,14 +513,28 @@ function AppContent() {
                 )}
                 
                 <EnterpriseErrorBoundary>
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center h-full">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
+                      </div>
+                    </div>
+                  }>
                     {CurrentViewComponent ? <CurrentViewComponent {...viewProps} /> : <div>View not found</div>}
+                  </Suspense>
                 </EnterpriseErrorBoundary>
             </div>
         </main>
-        <CommandPalette onNavigate={handleNavigate} />
-        <AiAssistantChat />
+        <Suspense fallback={null}>
+          <CommandPalette onNavigate={handleNavigate} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <AiAssistantChat />
+        </Suspense>
         <OfflineIndicator />
         <LiveCursors containerId="app-container" showLabels />
+        <FailoverStatusIndicator />
         
         {/* Debug Panel (Ctrl+Shift+D to toggle) */}
         {showDebug && (

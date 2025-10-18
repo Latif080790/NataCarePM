@@ -12,6 +12,8 @@ import {
   LogIn, UserPlus
 } from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';
+import { TwoFactorVerify } from '../components/TwoFactorVerify';
+import { loginSchema, registrationSchema, validateData } from '../utils/validation';
 
 // Firebase imports
 import {
@@ -21,7 +23,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 
 export default function LoginView() {
-    const { loading: authLoading, login } = useAuth();
+    const { loading: authLoading, login, requires2FA, pending2FAUserId, verify2FA, cancel2FA } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     
@@ -29,7 +31,9 @@ export default function LoginView() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
     
     // Animation state
     useEffect(() => {
@@ -43,41 +47,78 @@ export default function LoginView() {
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setIsSubmitting(true);
+        setErrors({});
 
         if (isLogin) {
-            // --- PROSES LOGIN ---
-            try {
-                await login(email, password);
-                // Jika berhasil, AuthContext akan menangani redirect
-            } catch (error: any) {
-                alert(`Gagal Masuk: ${error.message}`);
-            }
-        } else {
-            // --- PROSES SIGN UP ---
-            if (!name) {
-                alert("Nama tidak boleh kosong.");
+            // --- PROSES LOGIN dengan Validasi ---
+            const validation = validateData(loginSchema, { email, password });
+            
+            if (!validation.success) {
+                // Format errors untuk display
+                const formattedErrors: Record<string, string> = {};
+                const errorRecord = (validation as any).errors as Record<string, string[]>;
+                Object.entries(errorRecord).forEach(([field, messages]) => {
+                    formattedErrors[field] = messages[0]; // Ambil error pertama
+                });
+                setErrors(formattedErrors);
                 setIsSubmitting(false);
                 return;
             }
+            
+            try {
+                await login(validation.data.email, validation.data.password);
+                // Jika berhasil, AuthContext akan menangani redirect
+            } catch (error: any) {
+                setErrors({ general: error.message || 'Gagal masuk' });
+            }
+        } else {
+            // --- PROSES SIGN UP dengan Validasi ---
+            const validation = validateData(registrationSchema, { 
+                name, 
+                email, 
+                password, 
+                confirmPassword 
+            });
+            
+            if (!validation.success) {
+                // Format errors untuk display
+                const formattedErrors: Record<string, string> = {};
+                const errorRecord = (validation as any).errors as Record<string, string[]>;
+                Object.entries(errorRecord).forEach(([field, messages]) => {
+                    formattedErrors[field] = messages[0];
+                });
+                setErrors(formattedErrors);
+                setIsSubmitting(false);
+                return;
+            }
+            
             try {
                 // Langkah 1: Buat user di Firebase Authentication
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(
+                    auth, 
+                    validation.data.email, 
+                    validation.data.password
+                );
                 const firebaseUser = userCredential.user;
 
                 // Langkah 2: Buat dokumen baru di koleksi 'users' Firestore
-                // ID dokumen = UID dari Firebase Auth
                 await setDoc(doc(db, "users", firebaseUser.uid), {
-                    name: name,
+                    name: validation.data.name,
                     email: firebaseUser.email,
-                    roleId: 'viewer', // Atur peran default untuk pengguna baru
-                    avatarUrl: `https://i.pravatar.cc/150?u=${firebaseUser.uid}` // Avatar default
+                    roleId: 'viewer',
+                    avatarUrl: `https://i.pravatar.cc/150?u=${firebaseUser.uid}`
                 });
 
                 alert('Akun berhasil dibuat! Silakan masuk.');
-                setIsLogin(true); // Arahkan pengguna ke tampilan login setelah berhasil mendaftar
+                setIsLogin(true);
+                // Reset form
+                setName('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
 
             } catch (error: any) {
-                alert(`Gagal Mendaftar: ${error.message}`);
+                setErrors({ general: error.message || 'Gagal mendaftar' });
             }
         }
         setIsSubmitting(false);
@@ -89,8 +130,29 @@ export default function LoginView() {
         return <ForgotPasswordView onBack={() => setShowForgotPassword(false)} />;
     }
 
+    // Handle 2FA verification success
+    const handle2FASuccess = () => {
+        // AuthContext will handle the login completion automatically
+        // The user will be redirected by App.tsx when currentUser is set
+    };
+
+    // Handle 2FA cancellation
+    const handle2FACancel = () => {
+        cancel2FA();
+    };
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-alabaster">
+            {/* 2FA Verification Modal */}
+            {requires2FA && pending2FAUserId && (
+                <TwoFactorVerify
+                    userId={pending2FAUserId}
+                    onSuccess={handle2FASuccess}
+                    onCancel={handle2FACancel}
+                    showBackupCodeOption={true}
+                />
+            )}
+
             <Card className="w-full max-w-sm">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">NATA'CARA</CardTitle>
@@ -100,20 +162,78 @@ export default function LoginView() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* General Error Message */}
+                        {errors.general && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                                <p className="text-sm text-red-600">{errors.general}</p>
+                            </div>
+                        )}
+                        
                         {!isLogin && (
                              <div>
                                 <label className="block text-sm font-medium text-palladium mb-1">Nama</label>
-                                <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama Lengkap" disabled={isLoading} required />
+                                <Input 
+                                    type="text" 
+                                    value={name} 
+                                    onChange={(e) => {
+                                        setName(e.target.value);
+                                        if (errors.name) setErrors({ ...errors, name: '' });
+                                    }} 
+                                    placeholder="Nama Lengkap" 
+                                    disabled={isLoading} 
+                                    className={errors.name ? 'border-red-500' : ''}
+                                />
+                                {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
                             </div>
                         )}
                         <div>
                             <label className="block text-sm font-medium text-palladium mb-1">Email</label>
-                            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@contoh.com" disabled={isLoading} required />
+                            <Input 
+                                type="email" 
+                                value={email} 
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (errors.email) setErrors({ ...errors, email: '' });
+                                }} 
+                                placeholder="email@contoh.com" 
+                                disabled={isLoading} 
+                                className={errors.email ? 'border-red-500' : ''}
+                            />
+                            {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-palladium mb-1">Password</label>
-                            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="******" disabled={isLoading} required />
+                            <Input 
+                                type="password" 
+                                value={password} 
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (errors.password) setErrors({ ...errors, password: '' });
+                                }} 
+                                placeholder="******" 
+                                disabled={isLoading} 
+                                className={errors.password ? 'border-red-500' : ''}
+                            />
+                            {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
                         </div>
+                        
+                        {!isLogin && (
+                            <div>
+                                <label className="block text-sm font-medium text-palladium mb-1">Konfirmasi Password</label>
+                                <Input 
+                                    type="password" 
+                                    value={confirmPassword} 
+                                    onChange={(e) => {
+                                        setConfirmPassword(e.target.value);
+                                        if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
+                                    }} 
+                                    placeholder="******" 
+                                    disabled={isLoading} 
+                                    className={errors.confirmPassword ? 'border-red-500' : ''}
+                                />
+                                {errors.confirmPassword && <p className="text-xs text-red-600 mt-1">{errors.confirmPassword}</p>}
+                            </div>
+                        )}
                         
                         <Button type="submit" className="w-full" disabled={isLoading}>
                              {isLoading ? <Spinner size="sm" /> : (isLogin ? <LogIn className="w-4 h-4 mr-2"/> : <UserPlus className="w-4 h-4 mr-2"/>)}

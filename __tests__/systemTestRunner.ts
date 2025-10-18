@@ -2,7 +2,11 @@
 
 // Comprehensive Test Runner for Intelligent Document System
 import { IntelligentDocumentValidator } from './intelligentDocumentSystem.validation';
-import { intelligentDocumentService, ocrService, smartTemplatesEngine, digitalSignaturesService, documentVersionControl } from '../api';
+import { intelligentDocumentService } from '../api/intelligentDocumentService';
+import { ocrService } from '../api/ocrService';
+import { smartTemplatesEngine } from '../api/smartTemplatesEngine';
+import { digitalSignaturesService } from '../api/digitalSignaturesService';
+import { documentVersionControl } from '../api/documentVersionControl';
 
 interface SystemHealthStatus {
     overall: 'HEALTHY' | 'WARNING' | 'CRITICAL' | 'UNKNOWN';
@@ -194,21 +198,21 @@ class IntelligentDocumentSystemTester {
             {
                 name: 'Document Service Basic Operations',
                 test: async () => {
-                    const docs = intelligentDocumentService.listAllDocuments();
+                    const docs = await intelligentDocumentService.listAllDocuments();
                     return `✅ Retrieved ${docs.length} documents`;
                 }
             },
             {
                 name: 'Template Service Basic Operations',
                 test: async () => {
-                    const templates = smartTemplatesEngine.listTemplates();
+                    const templates = await smartTemplatesEngine.listTemplates();
                     return `✅ Retrieved ${templates.length} templates`;
                 }
             },
             {
                 name: 'Signature Service Basic Operations',
                 test: async () => {
-                    const workflows = digitalSignaturesService.getWorkflows();
+                    const workflows = await digitalSignaturesService.getWorkflows();
                     return `✅ Retrieved ${workflows.length} workflows`;
                 }
             },
@@ -328,7 +332,7 @@ class IntelligentDocumentSystemTester {
                         times.push(endTime - startTime);
                         
                         // Cleanup
-                        intelligentDocumentService.deleteDocument(document.id, 'benchmark_user');
+                        intelligentDocumentService.deleteDocument(document.id);
                     }
                     
                     const avgTime = times.reduce((sum, time) => sum + time, 0) / times.length;
@@ -398,7 +402,7 @@ class IntelligentDocumentSystemTester {
                     
                     // Cleanup
                     for (const doc of results) {
-                        intelligentDocumentService.deleteDocument(doc.id, 'stress_user');
+                        intelligentDocumentService.deleteDocument(doc.id);
                     }
                     
                     return `${concurrency} concurrent operations completed in ${endTime - startTime}ms`;
@@ -431,7 +435,7 @@ class IntelligentDocumentSystemTester {
                     
                     // Cleanup
                     for (const doc of documents) {
-                        intelligentDocumentService.deleteDocument(doc.id, 'memory_user');
+                        intelligentDocumentService.deleteDocument(doc.id);
                     }
                     
                     return `Memory increase: ${memoryIncrease.toFixed(2)}MB (peak: ${peakMemory.toFixed(2)}MB)`;
@@ -475,8 +479,7 @@ class IntelligentDocumentSystemTester {
                         // Attempt unauthorized access
                         intelligentDocumentService.updateDocument(
                             document.id,
-                            { title: 'Unauthorized Update' },
-                            'unauthorized_user'
+                            { title: 'Unauthorized Update' }
                         );
                         throw new Error('Unauthorized access was allowed');
                     } catch (error) {
@@ -489,7 +492,7 @@ class IntelligentDocumentSystemTester {
                     }
                     
                     // Cleanup
-                    intelligentDocumentService.deleteDocument(document.id, 'authorized_user');
+                    intelligentDocumentService.deleteDocument(document.id);
                     
                     return 'Access control working correctly';
                 }
@@ -517,12 +520,12 @@ class IntelligentDocumentSystemTester {
                             );
                             
                             // Check if input was sanitized
-                            const retrievedDoc = intelligentDocumentService.getDocument(document.id);
-                            if (retrievedDoc.title === input || retrievedDoc.description === input) {
+                            const retrievedDoc = await intelligentDocumentService.getDocument(document.id);
+                            if (retrievedDoc && (retrievedDoc.title === input || retrievedDoc.description === input)) {
                                 console.warn(`  ⚠️ Potential security issue: malicious input not sanitized`);
                             }
                             
-                            intelligentDocumentService.deleteDocument(document.id, 'security_user');
+                            intelligentDocumentService.deleteDocument(document.id);
                         } catch (error) {
                             // Expected behavior for malicious input
                         }

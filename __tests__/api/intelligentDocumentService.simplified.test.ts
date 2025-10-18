@@ -11,33 +11,33 @@ jest.mock('../../firebaseConfig', () => ({
 }));
 
 // Mock Firestore functions
-const mockSetDoc = jest.fn();
-const mockGetDoc = jest.fn();
-const mockUpdateDoc = jest.fn();
-const mockDeleteDoc = jest.fn();
-const mockGetDocs = jest.fn();
-const mockQuery = jest.fn((collection: any) => collection);
-const mockWhere = jest.fn((field: string, operator: string, value: any) => ({ field, operator, value }));
-const mockOrderBy = jest.fn((field: string, direction?: string) => ({ field, direction }));
-const mockServerTimestamp = jest.fn(() => ({ _seconds: Date.now() / 1000, _nanoseconds: 0 }));
-const mockAddDoc = jest.fn(); // Added for MonitoringService
-const mockCollection = jest.fn((db: any, collectionName: string) => ({ collectionName }));
-const mockDoc = jest.fn((db: any, collectionName: string, docId: string) => ({ collectionName, docId }));
+const mockSetDoc = jest.fn() as jest.MockedFunction<any>;
+const mockGetDoc = jest.fn() as jest.MockedFunction<any>;
+const mockUpdateDoc = jest.fn() as jest.MockedFunction<any>;
+const mockDeleteDoc = jest.fn() as jest.MockedFunction<any>;
+const mockGetDocs = jest.fn() as jest.MockedFunction<any>;
+const mockQuery = jest.fn((collection: any) => collection) as jest.MockedFunction<any>;
+const mockWhere = jest.fn((...args: any[]) => ({ field: args[0], operator: args[1], value: args[2] })) as jest.MockedFunction<any>;
+const mockOrderBy = jest.fn((...args: any[]) => ({ field: args[0], direction: args[1] })) as jest.MockedFunction<any>;
+const mockServerTimestamp = jest.fn(() => ({ _seconds: Date.now() / 1000, _nanoseconds: 0 })) as jest.MockedFunction<any>;
+const mockAddDoc = jest.fn() as jest.MockedFunction<any>; // Added for MonitoringService
+const mockCollection = jest.fn((...args: any[]) => ({ collectionName: args[1] })) as jest.MockedFunction<any>;
+const mockDoc = jest.fn((...args: any[]) => ({ collectionName: args[1], docId: args[2] })) as jest.MockedFunction<any>;
 
 jest.mock('firebase/firestore', () => ({
     getFirestore: jest.fn(),
-    collection: (...args: any[]) => mockCollection(...args),
-    doc: (...args: any[]) => mockDoc(...args),
-    setDoc: (...args: any[]) => mockSetDoc(...args),
-    getDoc: (...args: any[]) => mockGetDoc(...args),
-    updateDoc: (...args: any[]) => mockUpdateDoc(...args),
-    deleteDoc: (...args: any[]) => mockDeleteDoc(...args),
-    getDocs: (...args: any[]) => mockGetDocs(...args),
-    query: (...args: any[]) => mockQuery(...args),
-    where: (...args: any[]) => mockWhere(...args),
-    orderBy: (...args: any[]) => mockOrderBy(...args),
-    serverTimestamp: () => mockServerTimestamp(),
-    addDoc: (...args: any[]) => mockAddDoc(...args),
+    collection: jest.fn((...args: any[]) => mockCollection(...args)),
+    doc: jest.fn((...args: any[]) => mockDoc(...args)),
+    setDoc: jest.fn((...args: any[]) => mockSetDoc(...args)),
+    getDoc: jest.fn((...args: any[]) => mockGetDoc(...args)),
+    updateDoc: jest.fn((...args: any[]) => mockUpdateDoc(...args)),
+    deleteDoc: jest.fn((...args: any[]) => mockDeleteDoc(...args)),
+    getDocs: jest.fn((...args: any[]) => mockGetDocs(...args)),
+    query: jest.fn((coll: any, ...constraints: any[]) => mockQuery(coll)),
+    where: jest.fn((...args: any[]) => mockWhere(...args)),
+    orderBy: jest.fn((...args: any[]) => mockOrderBy(...args)),
+    serverTimestamp: jest.fn(() => mockServerTimestamp()),
+    addDoc: jest.fn((...args: any[]) => mockAddDoc(...args)),
     Timestamp: {
         fromDate: (date: Date) => ({
             toDate: () => date,
@@ -87,14 +87,15 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
         describe('createDocument', () => {
             it('should create document with valid data', async () => {
                 mockSetDoc.mockResolvedValue(undefined);
+                mockGetDoc.mockResolvedValue({ exists: () => false } as any);
 
-                const document = await intelligentDocumentService.createDocument({
-                    title: 'Test Document',
-                    category: 'contract' as DocumentCategory,
-                    content: 'Test content',
-                    projectId: 'project-123',
-                    uploadedBy: 'user-123'
-                });
+                const document = await intelligentDocumentService.createDocument(
+                    'Test Document',
+                    'Test description',
+                    'contract' as DocumentCategory,
+                    'project-123',
+                    'user-123'
+                );
 
                 expect(document).toBeDefined();
                 expect(document.id).toBeDefined();
@@ -105,35 +106,30 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
             it('should throw error for empty title', async () => {
                 await expect(
-                    intelligentDocumentService.createDocument({
-                        title: '',
-                        category: 'contract' as DocumentCategory,
-                        content: 'Test content',
-                        projectId: 'project-123',
-                        uploadedBy: 'user-123'
-                    })
+                    intelligentDocumentService.createDocument(
+                        '',
+                        'Test description',
+                        'contract' as DocumentCategory,
+                        'project-123',
+                        'user-123'
+                    )
                 ).rejects.toThrow();
             });
 
             it('should create workflow when provided', async () => {
                 mockSetDoc.mockResolvedValue(undefined);
+                mockGetDoc.mockResolvedValue({ exists: () => false } as any);
 
-                const document = await intelligentDocumentService.createDocument({
-                    title: 'Document with Workflow',
-                    category: 'contract' as DocumentCategory,
-                    content: 'Content',
-                    projectId: 'project-123',
-                    uploadedBy: 'user-123',
-                    workflow: {
-                        currentStep: 1,
-                        totalSteps: 3,
-                        steps: [],
-                        isCompleted: false
-                    }
-                });
+                const document = await intelligentDocumentService.createDocument(
+                    'Document with Workflow',
+                    'Description',
+                    'contract' as DocumentCategory,
+                    'project-123',
+                    'user-123'
+                );
 
                 expect(document).toBeDefined();
-                expect(mockSetDoc).toHaveBeenCalled(); // Called for both document and workflow
+                expect(mockSetDoc).toHaveBeenCalled();
             });
         });
 
@@ -262,10 +258,13 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
                 await intelligentDocumentService.updateDocument('doc-123', {
                     workflow: {
+                        workflowId: 'wf-123',
                         currentStep: 2,
                         totalSteps: 5,
                         steps: [],
-                        isCompleted: false
+                        isCompleted: false,
+                        canSkipSteps: false,
+                        escalationRules: []
                     }
                 });
 
@@ -291,7 +290,6 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
                 expect(result).toBe(true);
                 expect(mockDeleteDoc).toHaveBeenCalled();
-            }); expect(mockDeleteDoc).toHaveBeenCalled();
             });
 
             it('should return false for non-existent document', async () => {
@@ -374,7 +372,7 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
     describe('Query Operations', () => {
         const createMockDocs = (count: number) => {
-            const mockDocs = [];
+            const mockDocs: any[] = [];
             for (let i = 0; i < count; i++) {
                 mockDocs.push({
                     id: `doc-${i}`,
@@ -429,10 +427,13 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
             mockSetDoc.mockResolvedValue(undefined);
 
             await intelligentDocumentService.createWorkflow('doc-123', {
+                workflowId: 'wf-123',
                 currentStep: 1,
                 totalSteps: 3,
                 steps: [],
-                isCompleted: false
+                isCompleted: false,
+                canSkipSteps: false,
+                escalationRules: []
             });
 
             expect(mockSetDoc).toHaveBeenCalled();
@@ -442,10 +443,13 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
             mockGetDoc.mockResolvedValue({
                 exists: () => true,
                 data: () => ({
+                    workflowId: 'wf-123',
                     currentStep: 2,
                     totalSteps: 5,
                     steps: [],
-                    isCompleted: false
+                    isCompleted: false,
+                    canSkipSteps: false,
+                    escalationRules: []
                 })
             });
 
@@ -459,24 +463,20 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
             mockGetDoc.mockResolvedValue({
                 exists: () => true,
                 data: () => ({
+                    workflowId: 'wf-123',
                     currentStep: 1,
                     totalSteps: 3,
                     steps: [
-                        { stepNumber: 1, name: 'Step 1', status: 'completed' }
+                        { stepNumber: 1, name: 'Step 1', description: '', assignedTo: [], requiredActions: [], isCompleted: true }
                     ],
-                    isCompleted: false
+                    isCompleted: false,
+                    canSkipSteps: false,
+                    escalationRules: []
                 })
             });
             mockUpdateDoc.mockResolvedValue(undefined);
 
-            await intelligentDocumentService.updateWorkflowStep('doc-123', 2, {
-                stepNumber: 2,
-                name: 'Step 2',
-                description: 'Description',
-                completedAt: new Date(),
-                completedBy: 'user-123',
-                status: 'completed'
-            });
+            await intelligentDocumentService.updateWorkflowStep('doc-123', 2, true);
 
             expect(mockUpdateDoc).toHaveBeenCalled();
         });
@@ -497,7 +497,7 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
             await intelligentDocumentService.addAIInsight('doc-123', {
                 id: 'insight-1',
-                type: 'risk_assessment',
+                type: 'risk_analysis',
                 title: 'Risk Identified',
                 description: 'Potential risk found',
                 confidence: 0.9,
@@ -505,7 +505,8 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
                 actionItems: [],
                 priority: 'high',
                 status: 'new',
-                generatedAt: new Date()
+                generatedAt: new Date(),
+                metadata: {}
             });
 
             expect(mockUpdateDoc).toHaveBeenCalled();
@@ -557,11 +558,13 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
             await intelligentDocumentService.addNotification('doc-123', {
                 id: 'notif-1',
-                documentId: 'doc-123',
-                type: 'document_created',
+                type: 'new_version',
+                recipientId: 'user-123',
                 message: 'Document was created',
-                timestamp: new Date(),
-                read: false
+                priority: 'medium',
+                isRead: false,
+                sentAt: new Date(),
+                actionRequired: false
             });
 
             expect(mockUpdateDoc).toHaveBeenCalled();
@@ -604,7 +607,13 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
         it('should add dependency', async () => {
             mockSetDoc.mockResolvedValue(undefined);
 
-            await intelligentDocumentService.addDependency('doc-123', 'dep-doc-456', 'requires');
+            await intelligentDocumentService.addDependency('doc-123', {
+                dependentDocumentId: 'dep-doc-456',
+                dependencyType: 'reference',
+                isRequired: true,
+                lastChecked: new Date(),
+                status: 'valid'
+            });
 
             expect(mockSetDoc).toHaveBeenCalled();
         });
@@ -616,9 +625,11 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
                     data: () => ({
                         id: 'dep-1',
                         sourceDocumentId: 'doc-123',
-                        targetDocumentId: 'dep-doc-456',
-                        type: 'requires',
-                        createdAt: { toDate: () => new Date() }
+                        dependentDocumentId: 'dep-doc-456',
+                        dependencyType: 'reference',
+                        isRequired: true,
+                        lastChecked: { toDate: () => new Date() },
+                        status: 'valid' as const
                     })
                 }
             ];
@@ -630,7 +641,7 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
             const dependencies = await intelligentDocumentService.getDependencies('doc-123');
 
             expect(dependencies).toHaveLength(1);
-            expect(dependencies[0].targetDocumentId).toBe('dep-doc-456');
+            expect(dependencies[0].dependentDocumentId).toBe('dep-doc-456');
         });
 
         it('should validate dependencies', async () => {
@@ -640,8 +651,11 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
                     id: 'dep-1',
                     data: () => ({
                         sourceDocumentId: 'doc-123',
-                        targetDocumentId: 'dep-doc-456',
-                        type: 'requires'
+                        dependentDocumentId: 'dep-doc-456',
+                        dependencyType: 'reference',
+                        isRequired: true,
+                        lastChecked: { toDate: () => new Date() },
+                        status: 'valid'
                     })
                 }
             ];
@@ -673,14 +687,16 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
                 .mockRejectedValueOnce(new Error('Network error'))
                 .mockRejectedValueOnce(new Error('Network error'))
                 .mockResolvedValueOnce(undefined);
+            
+            mockGetDoc.mockResolvedValue({ exists: () => false } as any);
 
-            const document = await intelligentDocumentService.createDocument({
-                title: 'Retry Test',
-                category: 'contract' as DocumentCategory,
-                content: 'Content',
-                projectId: 'project-123',
-                uploadedBy: 'user-123'
-            });
+            const document = await intelligentDocumentService.createDocument(
+                'Retry Test',
+                'Test description',
+                'contract' as DocumentCategory,
+                'project-123',
+                'user-123'
+            );
 
             expect(document).toBeDefined();
             expect(mockSetDoc).toHaveBeenCalledTimes(3); // 3 attempts
