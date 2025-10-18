@@ -1,7 +1,8 @@
 
 import React from 'react';
 
-const Card = React.forwardRef<
+// Memoized Card component to prevent unnecessary re-renders
+const Card = React.memo(React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -10,10 +11,10 @@ const Card = React.forwardRef<
     className={`rounded-2xl border border-violet-essence/20 glass-subtle text-night-black shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02] hover:border-violet-essence/30 backdrop-blur-sm ${className}`}
     {...props}
   />
-));
+)));
 Card.displayName = 'Card';
 
-const CardHeader = React.forwardRef<
+const CardHeader = React.memo(React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -22,10 +23,10 @@ const CardHeader = React.forwardRef<
     className={`flex flex-col space-y-2 p-6 border-b border-violet-essence/10 ${className}`}
     {...props}
   />
-));
+)));
 CardHeader.displayName = 'CardHeader';
 
-const CardTitle = React.forwardRef<
+const CardTitle = React.memo(React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
@@ -34,10 +35,10 @@ const CardTitle = React.forwardRef<
     className={`text-xl font-bold leading-tight tracking-tight text-night-black ${className}`}
     {...props}
   />
-));
+)));
 CardTitle.displayName = 'CardTitle';
 
-const CardDescription = React.forwardRef<
+const CardDescription = React.memo(React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -46,7 +47,7 @@ const CardDescription = React.forwardRef<
     className={`text-sm text-palladium leading-relaxed ${className}`}
     {...props}
   />
-));
+)));
 CardDescription.displayName = 'CardDescription';
 
 const CardContent = React.forwardRef<

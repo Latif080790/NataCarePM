@@ -21,7 +21,8 @@ interface VarianceAnalysisComponentProps {
     rabItems: EnhancedRabItem[];
 }
 
-export const VarianceAnalysisComponent: React.FC<VarianceAnalysisComponentProps> = ({
+// Memoized component with custom comparison
+export const VarianceAnalysisComponent: React.FC<VarianceAnalysisComponentProps> = React.memo(({
     rabItems
 }) => {
     const [sortBy, setSortBy] = useState<'variance' | 'risk' | 'impact'>('variance');
@@ -386,6 +387,9 @@ export const VarianceAnalysisComponent: React.FC<VarianceAnalysisComponentProps>
             </div>
         </div>
     );
-};
+}, (prevProps, nextProps) => {
+    // Custom comparison: Only re-render if rabItems actually changed
+    return JSON.stringify(prevProps.rabItems) === JSON.stringify(nextProps.rabItems);
+});
 
 export default VarianceAnalysisComponent;
