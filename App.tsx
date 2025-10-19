@@ -12,6 +12,10 @@ import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 import { NavigationDebug } from './components/NavigationDebug';
 import FailoverStatusIndicator from './src/components/FailoverStatusIndicator';
 
+// Priority 2C: Monitoring & Analytics initialization
+import { initializeSentry, setSentryUser, clearSentryUser } from './src/config/sentry.config';
+import { initializeGA4, setGA4UserId, trackPageView } from './src/config/ga4.config';
+
 // Eager-loaded components (critical for initial render)
 import LoginView from './views/LoginView';
 import EnterpriseLoginView from './views/EnterpriseLoginView';
@@ -77,6 +81,8 @@ import { useRoutePreload } from './src/hooks/useRoutePreload';
 // Lazy-loaded heavy components
 const CommandPalette = lazy(() => import('./components/CommandPalette').then(module => ({ default: module.CommandPalette })));
 const AiAssistantChat = lazy(() => import('./components/AiAssistantChat'));
+const PWAInstallPrompt = lazy(() => import('./src/components/PWAInstallPrompt'));
+const UserFeedbackWidget = lazy(() => import('./src/components/UserFeedbackWidget'));
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
@@ -161,6 +167,47 @@ function AppContent() {
     
     return undefined;
   }, [currentUser]);
+
+  // 🔒 Priority 2C: Initialize Sentry & GA4 on app start
+  useEffect(() => {
+    // Initialize Sentry (Error Tracking)
+    initializeSentry();
+    console.log('[Sentry] Error tracking initialized');
+
+    // Initialize Google Analytics 4
+    initializeGA4();
+    console.log('[GA4] Analytics initialized');
+  }, []);
+
+  // 👤 Priority 2C: Set user context for Sentry & GA4
+  useEffect(() => {
+    if (currentUser) {
+      // Set Sentry user context
+      setSentryUser({
+        id: currentUser.id,
+        email: currentUser.email,
+        username: currentUser.name,
+        role: currentUser.roleId,
+      });
+
+      // Set GA4 user ID
+      setGA4UserId(currentUser.id);
+
+      console.log('[Monitoring] User context set:', currentUser.id);
+    } else {
+      // Clear user context on logout
+      clearSentryUser();
+      console.log('[Monitoring] User context cleared');
+    }
+  }, [currentUser]);
+
+  // 📊 Priority 2C: Track page views in GA4
+  useEffect(() => {
+    if (currentUser) {
+      trackPageView(`/${currentView}`, `NataCarePM - ${currentView}`);
+      console.log('[GA4] Page view tracked:', currentView);
+    }
+  }, [currentView, currentUser]);
 
   // 🐛 Debug panel keyboard shortcut (Ctrl+Shift+D)
   useEffect(() => {
@@ -531,6 +578,12 @@ function AppContent() {
         </Suspense>
         <Suspense fallback={null}>
           <AiAssistantChat />
+        </Suspense>
+        <Suspense fallback={null}>
+          <PWAInstallPrompt />
+        </Suspense>
+        <Suspense fallback={null}>
+          <UserFeedbackWidget position="bottom-right" />
         </Suspense>
         <OfflineIndicator />
         <LiveCursors containerId="app-container" showLabels />
