@@ -43,8 +43,7 @@ jobs:
           file: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -74,7 +73,7 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+          VITE_GEMINI_API_KEY: ${{ vars.VITE_GEMINI_API_KEY }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -112,7 +111,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+          firebaseServiceAccount: ${{ vars.FIREBASE_SERVICE_ACCOUNT_STAGING }}
           channelId: staging
           projectId: natacare-staging
 
@@ -145,7 +144,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
+          firebaseServiceAccount: ${{ vars.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
           channelId: live
           projectId: natacare-production
 
@@ -177,8 +176,7 @@ jobs:
 
       - name: Run Snyk security scan
         uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
+          token: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
