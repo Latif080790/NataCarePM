@@ -25,6 +25,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { usePredictiveAnalytics } from '@/contexts/PredictiveAnalyticsContext';
+import { useProject } from '@/contexts/ProjectContext';
 import type {
   GenerateForecastRequest,
   ForecastType,
@@ -46,6 +47,8 @@ const PredictiveAnalyticsView: React.FC = () => {
     clearError,
   } = usePredictiveAnalytics();
 
+  const { currentProject } = useProject();
+
   const [activeTab, setActiveTab] = useState<'cost' | 'schedule' | 'risk' | 'quality'>('cost');
   const [forecastDialogOpen, setForecastDialogOpen] = useState(false);
   const [forecastType, setForecastType] = useState<ForecastType>('cost');
@@ -59,8 +62,13 @@ const PredictiveAnalyticsView: React.FC = () => {
 
   // Event Handlers
   const handleGenerateForecast = async () => {
+    if (!currentProject?.id) {
+      console.error('No project selected');
+      return;
+    }
+
     const request: GenerateForecastRequest = {
-      projectId: 'project_1', // TODO: Get from context
+      projectId: currentProject.id,
       forecastTypes: [forecastType],
       config: {
         forecastHorizon: parseInt(forecastHorizon),

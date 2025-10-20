@@ -27,6 +27,7 @@ import {
   Play,
 } from 'lucide-react';
 import { useAIResource } from '@/contexts/AIResourceContext';
+import { useProject } from '@/contexts/ProjectContext';
 import type {
   ResourceOptimizationRequest,
   OptimizationGoal,
@@ -55,6 +56,8 @@ const AIResourceOptimizationView: React.FC = () => {
     clearError,
   } = useAIResource();
 
+  const { currentProject } = useProject();
+
   const [activeTab, setActiveTab] = useState<'overview' | 'recommendations' | 'bottlenecks'>('overview');
   const [optimizationDialogOpen, setOptimizationDialogOpen] = useState(false);
   const [optimizationGoal, setOptimizationGoal] = useState<OptimizationGoal>('balance_cost_time');
@@ -80,9 +83,14 @@ const AIResourceOptimizationView: React.FC = () => {
 
   // Event Handlers
   const handleOptimizationRequest = async () => {
+    if (!currentProject?.id) {
+      console.error('No project selected');
+      return;
+    }
+
     const request: ResourceOptimizationRequest = {
       requestId: `opt_req_${Date.now()}`,
-      projectIds: ['project_1'], // TODO: Get from context or props
+      projectIds: [currentProject.id],
       optimizationGoal,
       constraints: budgetLimit ? { budgetLimit: parseFloat(budgetLimit) } : {},
       preferences: {},

@@ -19,6 +19,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useProject } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import { hasPermission } from '../constants';
 import {
@@ -43,6 +44,7 @@ import {
 
 const InventoryManagementView: React.FC = () => {
   const { currentUser } = useAuth();
+  const { currentProject } = useProject();
   const { addToast } = useToast();
   
   // State
@@ -116,8 +118,13 @@ const InventoryManagementView: React.FC = () => {
   };
   
   const loadSummary = async () => {
+    if (!currentProject?.id) {
+      console.warn('No project selected');
+      return;
+    }
+
     try {
-      const data = await getInventorySummary('current-project'); // TODO: Get actual project ID
+      const data = await getInventorySummary(currentProject.id);
       setSummary(data);
     } catch (error) {
       console.error('Error loading summary:', error);

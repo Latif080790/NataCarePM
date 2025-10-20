@@ -9,6 +9,7 @@ import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Camera, Plus, Trash2, Save, CheckCircle, XCircle, MinusCircle, WifiOff, Wifi } from 'lucide-react';
 import { useOffline } from '@/contexts/OfflineContext';
+import { useProject } from '@/contexts/ProjectContext';
 import type { OfflineInspection } from '@/types/offline.types';
 
 type ChecklistItem = OfflineInspection['data']['checklist'][0];
@@ -17,6 +18,7 @@ const OfflineInspectionFormView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isOnline, createInspection, updateInspection, addAttachment } = useOffline();
+  const { currentProject } = useProject();
   
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -113,6 +115,10 @@ const OfflineInspectionFormView: React.FC = () => {
   // Save inspection
   const handleSave = useCallback(async () => {
     if (!isValid) return;
+    if (!currentProject?.id) {
+      alert('No project selected');
+      return;
+    }
 
     setLoading(true);
     setSaved(false);
@@ -129,7 +135,7 @@ const OfflineInspectionFormView: React.FC = () => {
         inspectionId = id;
       } else {
         const inspection = await createInspection(
-          'project-1', // TODO: Get from context or params
+          currentProject.id,
           'general',
           {
             ...formData,
@@ -160,7 +166,7 @@ const OfflineInspectionFormView: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [isValid, currentInspectionId, id, formData, overallResult, attachments, updateInspection, createInspection, addAttachment, navigate]);
+  }, [isValid, currentProject, currentInspectionId, id, formData, overallResult, attachments, updateInspection, createInspection, addAttachment, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
