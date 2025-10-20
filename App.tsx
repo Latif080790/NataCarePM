@@ -65,6 +65,10 @@ const InventoryManagementView = lazy(() => import('./views/InventoryManagementVi
 const IntegrationDashboardView = lazy(() => import('./views/IntegrationDashboardView'));
 const CostControlDashboardView = lazy(() => import('./views/CostControlDashboardView'));
 
+// Phase 4: AI & Analytics Views (lazy-loaded)
+const AIResourceOptimizationView = lazy(() => import('./views/AIResourceOptimizationView'));
+const PredictiveAnalyticsView = lazy(() => import('./views/PredictiveAnalyticsView'));
+
 import { useProjectCalculations } from './hooks/useProjectCalculations';
 import { useSessionTimeout } from './hooks/useSessionTimeout';
 import { useActivityTracker } from './hooks/useMonitoring';
@@ -129,6 +133,10 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   master_data: MasterDataView,
   audit_trail: AuditTrailView,
   profile: ProfileView,
+  
+  // Phase 4: AI & Analytics
+  ai_resource_optimization: AIResourceOptimizationView,
+  predictive_analytics: PredictiveAnalyticsView,
 };
 
 // Views that show fallback "coming soon" page

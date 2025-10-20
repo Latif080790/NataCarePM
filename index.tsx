@@ -5,6 +5,8 @@ import App from './App';
 import { ToastProvider } from './contexts/ToastContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProjectProvider } from './contexts/ProjectContext';
+import { AIResourceProvider } from './contexts/AIResourceContext';
+import { PredictiveAnalyticsProvider } from './contexts/PredictiveAnalyticsContext';
 import EnterpriseErrorBoundary from './components/EnterpriseErrorBoundary';
 import { registerServiceWorker } from './src/utils/pwa';
 
@@ -17,7 +19,11 @@ if (container) {
         <ToastProvider>
           <AuthProvider>
             <ProjectProvider>
-              <App />
+              <AIResourceProvider>
+                <PredictiveAnalyticsProvider>
+                  <App />
+                </PredictiveAnalyticsProvider>
+              </AIResourceProvider>
             </ProjectProvider>
           </AuthProvider>
         </ToastProvider>
