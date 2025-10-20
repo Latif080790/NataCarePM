@@ -1,5 +1,13 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
+import * as tf from '@tensorflow/tfjs';
+
+// Configure TensorFlow.js to use CPU backend for testing
+if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+  tf.setBackend('cpu').catch(() => {
+    // Fallback silently if CPU backend not available
+  });
+}
 
 // ========================================
 // FIREBASE MOCKS
@@ -146,9 +154,100 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
+// IndexedDB Mock for TensorFlow.js Model Persistence
+const createIndexedDBMock = () => {
+  const databases: Map<string, any> = new Map();
+  const stores: Map<string, Map<string, any>> = new Map();
+  
+  // Initialize default stores
+  stores.set('tensorflowjs_models', new Map());
+  
+  return {
+    open: vi.fn((name: string, version?: number) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            result: {
+              objectStoreNames: { contains: vi.fn(() => true), length: 1, item: vi.fn(() => 'tensorflowjs_models') },
+              createObjectStore: vi.fn((storeName: string, options?: any) => ({
+                createIndex: vi.fn(),
+                add: vi.fn((data: any) => ({ onsuccess: null, onerror: null })),
+                put: vi.fn((data: any) => ({ onsuccess: null, onerror: null })),
+              })),
+              transaction: vi.fn((storeNames: string | string[], mode?: string) => {
+                const storeName = Array.isArray(storeNames) ? storeNames[0] : storeNames;
+                if (!stores.has(storeName)) {
+                  stores.set(storeName, new Map());
+                }
+                
+                return {
+                  objectStore: vi.fn((storeName: string) => {
+                    const store = stores.get(storeName) || new Map();
+                    return {
+                      put: vi.fn((data: any, key?: any) => {
+                        if (key) store.set(key, data);
+                        return Promise.resolve({ onsuccess: null, onerror: null });
+                      }),
+                      add: vi.fn((data: any, key?: any) => {
+                        if (key) store.set(key, data);
+                        return Promise.resolve({ onsuccess: null, onerror: null });
+                      }),
+                      get: vi.fn((key: any) => {
+                        const result = store.get(key);
+                        return Promise.resolve({ 
+                          onsuccess: null, 
+                          onerror: null, 
+                          result: result || null 
+                        });
+                      }),
+                      delete: vi.fn((key: any) => {
+                        store.delete(key);
+                        return Promise.resolve({ onsuccess: null, onerror: null });
+                      }),
+                      getAllKeys: vi.fn(() => {
+                        const keys = Array.from(store.keys());
+                        return Promise.resolve({ 
+                          onsuccess: null, 
+                          onerror: null, 
+                          result: keys 
+                        });
+                      }),
+                      getAll: vi.fn(() => {
+                        const values = Array.from(store.values());
+                        return Promise.resolve({ 
+                          onsuccess: null, 
+                          onerror: null, 
+                          result: values 
+                        });
+                      }),
+                      clear: vi.fn(() => Promise.resolve({ onsuccess: null, onerror: null })),
+                    };
+                  }),
+                  oncomplete: null,
+                  onerror: null,
+                  onabort: null,
+                };
+              }),
+            },
+            onsuccess: null,
+            onerror: null,
+            onupgradeneeded: null,
+          });
+        }, 10);
+      });
+    }),
+    deleteDatabase: vi.fn((name: string) => Promise.resolve()),
+    databases: databases,
+    stores: stores,
+  };
+};
+
+global.indexedDB = createIndexedDBMock() as any;
+
 // Performance API
 global.performance = {
   ...global.performance,
+  now: vi.fn(() => Date.now()),  // Fixed for TensorFlow.js
   mark: vi.fn(),
   measure: vi.fn(),
   getEntriesByType: vi.fn(() => []),

@@ -39,6 +39,7 @@ const mockGetDoc = vi.fn();
 const mockUpdateDoc = vi.fn();
 const mockDeleteDoc = vi.fn();
 const mockGetDocs = vi.fn();
+const mockAddDoc = vi.fn(); // Added missing addDoc mock
 const mockQuery = vi.fn();
 const mockWhere = vi.fn();
 const mockOrderBy = vi.fn();
@@ -52,6 +53,7 @@ vi.mock('firebase/firestore', () => ({
     getDoc: (...args: any[]) => mockGetDoc(...args),
     getDocs: (...args: any[]) => mockGetDocs(...args),
     setDoc: (...args: any[]) => mockSetDoc(...args),
+    addDoc: (...args: any[]) => mockAddDoc(...args), // Added missing addDoc
     updateDoc: (...args: any[]) => mockUpdateDoc(...args),
     deleteDoc: (...args: any[]) => mockDeleteDoc(...args),
     query: (...args: any[]) => mockQuery(...args),
@@ -90,7 +92,7 @@ describe('IntelligentDocumentService', () => {
                 const document = await intelligentDocumentService.createDocument(
                     'Test Document',
                     'Test document description',
-                    'contracts' as DocumentCategory,
+                    'contract' as DocumentCategory,  // Fixed: was 'contracts'
                     'project-1',
                     'user-1',
                     new File(['test'], 'test.pdf', { type: 'application/pdf' })
@@ -108,7 +110,7 @@ describe('IntelligentDocumentService', () => {
                     intelligentDocumentService.createDocument(
                         '', // Empty title
                         'Empty title test',
-                        'contracts' as DocumentCategory,
+                        'contract' as DocumentCategory,  // Fixed: was 'contracts'
                         'project-1',
                         'user-1',
                         new File(['test'], 'test.pdf')
@@ -137,7 +139,7 @@ describe('IntelligentDocumentService', () => {
                 await intelligentDocumentService.createDocument(
                     'Test Document',
                     'Test description',
-                    'contracts' as DocumentCategory,
+                    'contract' as DocumentCategory,  // Fixed: was 'contracts'
                     'project-1',
                     'user-1',
                     new File(['test'], 'test.pdf')
@@ -159,7 +161,8 @@ describe('IntelligentDocumentService', () => {
                         projectId: 'project-1',
                         status: 'draft',
                         createdAt: { toDate: () => new Date('2025-01-01') },
-                        updatedAt: { toDate: () => new Date('2025-01-02') }
+                        updatedAt: { toDate: () => new Date('2025-01-02') },
+                        auditTrail: []  // Added missing auditTrail
                     })
                 };
 
@@ -196,7 +199,7 @@ describe('IntelligentDocumentService', () => {
             it('should validate document ID before querying', async () => {
                 await expect(
                     intelligentDocumentService.getDocument('')
-                ).rejects.toThrow();
+                ).rejects.toThrow('Document ID is required');
             });
         });
 
@@ -210,7 +213,8 @@ describe('IntelligentDocumentService', () => {
                         title: 'Old Title',
                         status: 'draft',
                         createdAt: { toDate: () => new Date() },
-                        updatedAt: { toDate: () => new Date() }
+                        updatedAt: { toDate: () => new Date() },
+                        auditTrail: []  // Added missing auditTrail
                     })
                 };
 
@@ -464,10 +468,10 @@ describe('IntelligentDocumentService', () => {
     });
 
     describe('Validation Functions', () => {
-        it('should validate document ID', () => {
-            expect(() => 
-                intelligentDocumentService.getDocument('')
-            ).rejects.toThrow();
+        it('should validate document ID', async () => {
+            await expect(async () => 
+                await intelligentDocumentService.getDocument('')
+            ).rejects.toThrow('Document ID is required');
         });
 
         it('should validate document category', async () => {
@@ -490,6 +494,7 @@ describe('IntelligentDocumentService', () => {
                     id: 'doc-123',
                     title: 'Test',
                     status: 'draft',
+                    auditTrail: [], // Add audit trail
                     createdAt: { toDate: () => new Date() },
                     updatedAt: { toDate: () => new Date() }
                 })
