@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { RoutePreloader } from '../utils/componentPreloader';
+import { RoutePreloader } from '@/utils/componentPreloader';
 import { routePreloadConfig, criticalComponents, getComponentsForRole } from '../config/routePreload';
 
 export function useRoutePreload(currentRoute: string, userRole?: string) {

@@ -4,7 +4,7 @@
  */
 
 import { lazy } from 'react';
-import { RoutePreloadConfig } from '../utils/componentPreloader';
+import { RoutePreloadConfig } from '@/utils/componentPreloader';
 
 // Import lazy components (will be defined in App.tsx)
 export const lazyViews = {

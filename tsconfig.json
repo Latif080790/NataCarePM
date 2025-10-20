@@ -21,7 +21,7 @@
     "jsxImportSource": "react",
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
       ]
     },
     "allowImportingTsExtensions": true,
@@ -46,8 +46,8 @@
     "declarationMap": false
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
@@ -55,4 +55,4 @@
     "**/*.test.ts",
     "**/*.spec.ts"
   ]
-}
+} 

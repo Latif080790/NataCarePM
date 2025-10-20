@@ -4,7 +4,7 @@
  * Inspired by zxcvbn-like heuristics for security and UX
  */
 
-import { PASSWORD_REQUIREMENTS } from '../types/userProfile';
+import { PASSWORD_REQUIREMENTS } from '@/types/userProfile';
 
 // ========================================
 // TYPES

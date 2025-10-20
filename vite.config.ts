@@ -200,7 +200,7 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(__dirname, './src'),
         }
       },
       build: {
@@ -218,33 +218,33 @@ export default defineConfig(({ mode }) => {
               
               // Large dashboard components
               dashboards: [
-                './views/DashboardView.tsx',
-                './views/EnhancedDashboardView.tsx',
-                './views/EnterpriseAdvancedDashboardView.tsx'
+                './src/views/DashboardView.tsx',
+                './src/views/EnhancedDashboardView.tsx',
+                './src/views/EnterpriseAdvancedDashboardView.tsx'
               ],
               
               // Chart and visualization components
               charts: [
-                './components/LineChart.tsx',
-                './components/GaugeChart.tsx',
-                './components/SimpleBarChart.tsx',
-                './components/RobustCharts.tsx'
+                './src/components/LineChart.tsx',
+                './src/components/GaugeChart.tsx',
+                './src/components/SimpleBarChart.tsx',
+                './src/components/RobustCharts.tsx'
               ],
               
               // Project management views
               projectViews: [
-                './views/GanttChartView.tsx',
-                './views/InteractiveGanttView.tsx',
-                './views/KanbanView.tsx',
-                './views/TasksView.tsx',
-                './views/TaskListView.tsx'
+                './src/views/GanttChartView.tsx',
+                './src/views/InteractiveGanttView.tsx',
+                './src/views/KanbanView.tsx',
+                './src/views/TasksView.tsx',
+                './src/views/TaskListView.tsx'
               ],
               
               // AI and monitoring features
               aiMonitoring: [
-                './components/AiAssistantChat.tsx',
-                './components/MonitoringDashboard.tsx',
-                './api/monitoringService.ts'
+                './src/components/AiAssistantChat.tsx',
+                './src/components/MonitoringDashboard.tsx',
+                './src/api/monitoringService.ts'
               ]
             }
           }

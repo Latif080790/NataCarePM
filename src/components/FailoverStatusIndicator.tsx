@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { useFailover } from '../hooks/useFailover';
+import { useFailover } from '@/hooks/useFailover';
 import { Modal } from '../../components/Modal';
 
 const FailoverStatusIndicator: React.FC = () => {

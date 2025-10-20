@@ -19,9 +19,9 @@ import {
 } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 import { auth, db } from '../../firebaseConfig';
-import { validatePassword } from '../utils/passwordValidator';
-import type { APIResponse, PasswordHistory } from '../types/userProfile';
-import { PASSWORD_REQUIREMENTS } from '../types/userProfile';
+import { validatePassword } from '@/utils/passwordValidator';
+import type { APIResponse, PasswordHistory } from '@/types/userProfile';
+import { PASSWORD_REQUIREMENTS } from '@/types/userProfile';
 
 // ========================================
 // TYPES

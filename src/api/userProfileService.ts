@@ -25,14 +25,14 @@ import {
   validateImageFile,
   validateImageDimensions,
   generateUniqueFilename,
-} from '../utils/imageProcessing';
+} from '@/utils/imageProcessing';
 import type {
   UserProfile,
   APIResponse,
   PhotoUploadResult,
   NotificationPreferences,
   DeepPartial,
-} from '../types/userProfile';
+} from '@/types/userProfile';
 
 // ========================================
 // USER PROFILE CRUD

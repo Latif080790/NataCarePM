@@ -7,13 +7,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { X, Lock, Eye, EyeOff, Check, AlertCircle, Shield, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
-import { changePassword } from '../api/authService';
+import { changePassword } from '@/api/authService';
 import {
   validatePassword,
   quickStrengthCheck,
   getPasswordRequirements,
   type PasswordValidationResult,
-} from '../utils/passwordValidator';
+} from '@/utils/passwordValidator';
 
 // ========================================
 // TYPES

@@ -4,8 +4,8 @@
  */
 
 import imageCompression from 'browser-image-compression';
-import { IMAGE_REQUIREMENTS } from '../types/userProfile';
-import type { ImageValidation, CropArea } from '../types/userProfile';
+import { IMAGE_REQUIREMENTS } from '@/types/userProfile';
+import type { ImageValidation, CropArea } from '@/types/userProfile';
 
 // ========================================
 // IMAGE VALIDATION
