@@ -1,110 +1,163 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
-// Mock Firebase Firestore functions
-jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(() => ({})),
-  collection: jest.fn((db, path) => ({ db, path })),
-  doc: jest.fn((db, path, id) => ({ db, path, id })),
-  getDoc: jest.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
-  getDocs: jest.fn(() => Promise.resolve({ docs: [], empty: true })),
-  setDoc: jest.fn(() => Promise.resolve()),
-  addDoc: jest.fn(() => Promise.resolve({ id: 'mock-doc-id' })),
-  updateDoc: jest.fn(() => Promise.resolve()),
-  deleteDoc: jest.fn(() => Promise.resolve()),
-  query: jest.fn((collection) => collection),
-  where: jest.fn((field, op, value) => ({ field, op, value })),
-  orderBy: jest.fn((field, direction) => ({ field, direction })),
-  limit: jest.fn((count) => ({ limit: count })),
-  onSnapshot: jest.fn((ref, callback) => {
-    // Return unsubscribe function
-    return jest.fn();
-  }),
-  serverTimestamp: jest.fn(() => new Date()),
-  Timestamp: {
-    now: jest.fn(() => ({ seconds: Date.now() / 1000, nanoseconds: 0 })),
-    fromDate: jest.fn((date) => ({ seconds: date.getTime() / 1000, nanoseconds: 0 }))
+// ========================================
+// FIREBASE MOCKS
+// ========================================
+
+// Mock Firebase Firestore
+vi.mock('firebase/firestore', () => {
+  // Create a proper Timestamp class mock
+  class MockTimestamp {
+    seconds: number;
+    nanoseconds: number;
+
+    constructor(seconds: number, nanoseconds: number) {
+      this.seconds = seconds;
+      this.nanoseconds = nanoseconds;
+    }
+
+    toDate(): Date {
+      return new Date(this.seconds * 1000);
+    }
+
+    static now(): MockTimestamp {
+      return new MockTimestamp(Date.now() / 1000, 0);
+    }
+
+    static fromDate(date: Date): MockTimestamp {
+      return new MockTimestamp(date.getTime() / 1000, 0);
+    }
   }
-}));
+
+  return {
+    getFirestore: vi.fn(() => ({})),
+    collection: vi.fn((db, path) => ({ db, path })),
+    doc: vi.fn((db, path, id) => ({ db, path, id })),
+    getDoc: vi.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
+    getDocs: vi.fn(() => Promise.resolve({ docs: [], empty: true })),
+    setDoc: vi.fn(() => Promise.resolve()),
+    addDoc: vi.fn(() => Promise.resolve({ id: 'mock-doc-id' })),
+    updateDoc: vi.fn(() => Promise.resolve()),
+    deleteDoc: vi.fn(() => Promise.resolve()),
+    query: vi.fn((collection) => collection),
+    where: vi.fn((field, op, value) => ({ field, op, value })),
+    orderBy: vi.fn((field, direction) => ({ field, direction })),
+    limit: vi.fn((count) => ({ limit: count })),
+    onSnapshot: vi.fn((ref, callback) => vi.fn()),
+    serverTimestamp: vi.fn(() => new Date()),
+    arrayUnion: vi.fn((...args) => args),
+    Timestamp: MockTimestamp,
+  };
+});
 
 // Mock Firebase Auth
-jest.mock('firebase/auth', () => ({
-  getAuth: jest.fn(() => ({
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({
     currentUser: { uid: 'test-user-id', email: 'test@example.com' }
   })),
-  signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: { uid: 'test-user-id' } })),
-  signOut: jest.fn(() => Promise.resolve()),
-  onAuthStateChanged: jest.fn((auth, callback) => {
+  signInWithEmailAndPassword: vi.fn(() => Promise.resolve({ user: { uid: 'test-user-id' } })),
+  signOut: vi.fn(() => Promise.resolve()),
+  onAuthStateChanged: vi.fn((auth, callback) => {
     callback({ uid: 'test-user-id', email: 'test@example.com' });
-    return jest.fn(); // unsubscribe
-  })
+    return vi.fn();
+  }),
+  updatePassword: vi.fn(() => Promise.resolve()),
+  EmailAuthProvider: {
+    credential: vi.fn((email, password) => ({ email, password })),
+  },
+  reauthenticateWithCredential: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock Firebase Storage
-jest.mock('firebase/storage', () => ({
-  getStorage: jest.fn(() => ({})),
-  ref: jest.fn((storage, path) => ({ storage, path })),
-  uploadBytes: jest.fn(() => Promise.resolve({ ref: {}, metadata: {} })),
-  uploadBytesResumable: jest.fn(() => ({
-    on: jest.fn(),
-    pause: jest.fn(),
-    resume: jest.fn(),
-    cancel: jest.fn()
+vi.mock('firebase/storage', () => ({
+  getStorage: vi.fn(() => ({})),
+  ref: vi.fn((storage, path) => ({ storage, path })),
+  uploadBytes: vi.fn(() => Promise.resolve({ ref: {}, metadata: {} })),
+  uploadBytesResumable: vi.fn(() => ({
+    on: vi.fn(),
+    pause: vi.fn(),
+    resume: vi.fn(),
+    cancel: vi.fn()
   })),
-  getDownloadURL: jest.fn(() => Promise.resolve('https://mock-url.com/file')),
-  deleteObject: jest.fn(() => Promise.resolve())
+  getDownloadURL: vi.fn(() => Promise.resolve('https://mock-url.com/file')),
+  deleteObject: vi.fn(() => Promise.resolve())
 }));
 
 // Mock Firebase Config
-jest.mock('./firebaseConfig', () => ({
+vi.mock('./firebaseConfig', () => ({
   db: {},
   auth: { currentUser: { uid: 'test-user-id', email: 'test@example.com' } },
   storage: {}
 }));
 
-// Mock environment variables
-process.env.VITE_GEMINI_API_KEY = 'mock-api-key';
-
-// Global test utilities
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
+// Mock bcryptjs
+vi.mock('bcryptjs', () => ({
+  default: {
+    hash: vi.fn((password) => Promise.resolve(`hashed_${password}`)),
+    compare: vi.fn((password, hash) => Promise.resolve(password === hash.replace('hashed_', ''))),
+  },
+  hash: vi.fn((password) => Promise.resolve(`hashed_${password}`)),
+  compare: vi.fn((password, hash) => Promise.resolve(password === hash.replace('hashed_', ''))),
 }));
 
-// Mock window.matchMedia
+// ========================================
+// ENVIRONMENT VARIABLES
+// ========================================
+
+process.env.VITE_GEMINI_API_KEY = 'mock-api-key';
+process.env.VITE_FIREBASE_API_KEY = 'mock-firebase-api-key';
+process.env.VITE_FIREBASE_AUTH_DOMAIN = 'mock-project.firebaseapp.com';
+process.env.VITE_FIREBASE_PROJECT_ID = 'mock-project';
+process.env.VITE_FIREBASE_STORAGE_BUCKET = 'mock-project.appspot.com';
+process.env.VITE_FIREBASE_MESSAGING_SENDER_ID = '123456789';
+process.env.VITE_FIREBASE_APP_ID = '1:123456789:web:abcdef';
+
+// ========================================
+// GLOBAL MOCKS
+// ========================================
+
+// ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 
-// Mock IntersectionObserver
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
+// IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }));
 
-// Mock performance
+// Performance API
 global.performance = {
   ...global.performance,
-  mark: jest.fn(),
-  measure: jest.fn(),
-  getEntriesByType: jest.fn(() => []),
-  getEntriesByName: jest.fn(() => []),
-  clearMarks: jest.fn(),
-  clearMeasures: jest.fn(),
-};
+  mark: vi.fn(),
+  measure: vi.fn(),
+  getEntriesByType: vi.fn(() => []),
+  getEntriesByName: vi.fn(() => []),
+  clearMarks: vi.fn(),
+  clearMeasures: vi.fn(),
+} as any;
 
-// Mock navigator APIs
+// Navigator APIs
 Object.defineProperty(global.navigator, 'connection', {
   writable: true,
   value: {
@@ -117,7 +170,7 @@ Object.defineProperty(global.navigator, 'connection', {
 
 Object.defineProperty(global.navigator, 'getBattery', {
   writable: true,
-  value: jest.fn(() => Promise.resolve({
+  value: vi.fn(() => Promise.resolve({
     level: 0.8,
     charging: true,
     chargingTime: 3600,
@@ -125,20 +178,35 @@ Object.defineProperty(global.navigator, 'getBattery', {
   }))
 });
 
-// Silence console warnings in tests
+// ========================================
+// CONSOLE CLEANUP
+// ========================================
+
 const originalError = console.error;
+const originalWarn = console.warn;
+
 beforeAll(() => {
+  // Suppress known React warnings
   console.error = (...args: any[]) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is deprecated')
+      (args[0].includes('ReactDOM.render is deprecated') ||
+       args[0].includes('Warning: '))
     ) {
       return;
     }
     originalError.call(console, ...args);
   };
+  
+  console.warn = (...args: any[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('Warning: ')) {
+      return;
+    }
+    originalWarn.call(console, ...args);
+  };
 });
 
 afterAll(() => {
   console.error = originalError;
+  console.warn = originalWarn;
 });

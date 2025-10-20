@@ -1,25 +1,34 @@
-# Logs
-logs
-*.log
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# ============================================
+# Build outputs
+# ============================================
+dist/
+dist-ssr/
+build/
 *.local
 
-# Environment variables
+# ============================================
+# Environment files (CRITICAL - NEVER COMMIT)
+# ============================================
 .env
 .env.local
-.env.*.local
 .env.production
 .env.development
+.env.*.local
+*.env
 
+# ============================================
 # Editor directories and files
+# ============================================
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -30,23 +39,58 @@ dist-ssr
 *.sln
 *.sw?
 
+# ============================================
 # Firebase
+# ============================================
 .firebase/
 firebase-debug.log
 firestore-debug.log
+ui-debug.log
+.firebaserc
 
-# Security & Reports
-security-audit.json
-eslint-report.txt
-
-# Backup files
-*.backup
-*.backup.*
-*.bak
-*-OLD.*
-*-before-*
-*_backup.*
-
-# Test coverage
+# ============================================
+# Testing
+# ============================================
 coverage/
-.nyc_output/
+*.lcov
+.nyc_output
+
+# ============================================
+# Logs
+# ============================================
+logs
+*.log
+
+# ============================================
+# OS
+# ============================================
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Temporary files
+# ============================================
+*.tmp
+*.temp
+.cache/
+
+# ============================================
+# Build artifacts
+# ============================================
+*.tsbuildinfo
+lint-report.html
+
+# ============================================
+# PWA
+# ============================================
+dev-dist/
+workbox-*.js
+sw.js.map
+
+# ============================================
+# Sensitive data (NEVER COMMIT)
+# ============================================
+serviceAccountKey.json
+*.pem
+*.key
+secrets/

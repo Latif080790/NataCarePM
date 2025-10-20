@@ -9,11 +9,13 @@
  * - OSHA Metrics Calculation
  */
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/dom';
+import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { SafetyProvider } from '@/contexts/SafetyContext';
-import { SafetyDashboardView } from '@/views/SafetyDashboardView';
-import { IncidentManagementView } from '@/views/IncidentManagementView';
+import SafetyDashboardView from '@/views/SafetyDashboardView';
+import IncidentManagementView from '@/views/IncidentManagementView';
 import { TrainingManagementView } from '@/views/TrainingManagementView';
 import { PPEManagementView } from '@/views/PPEManagementView';
 import { safetyService } from '@/api/safetyService';

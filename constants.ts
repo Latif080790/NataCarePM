@@ -52,6 +52,13 @@ export const navLinksConfig = [
         ],
     },
     {
+        id: 'ai-analytics-group', name: 'AI & Analytics',
+        children: [
+            { id: 'ai_resource_optimization', name: 'AI Resource Optimization', icon: Brain, requiredPermission: 'view_dashboard' },
+            { id: 'predictive_analytics', name: 'Predictive Analytics', icon: TrendingUp, requiredPermission: 'view_dashboard' },
+        ],
+    },
+    {
         id: 'monitoring-group', name: 'Monitoring',
         children: [
             { id: 'monitoring', name: 'System Monitoring', icon: Monitor, requiredPermission: 'view_monitoring' },

@@ -1,4 +1,6 @@
 import { 
+import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { 
   MonitoringService, 
   MonitoringValidator,
   monitoringService 
@@ -6,22 +8,22 @@ import {
 import { SystemMetrics, UserActivity, ErrorLog } from '../../types/monitoring';
 
 // Mock Firebase
-jest.mock('../../firebaseConfig', () => ({
+vi.mock('../../firebaseConfig', () => ({
   db: {
-    collection: jest.fn(() => ({
-      add: jest.fn(() => Promise.resolve({ id: 'mock-id' })),
-      doc: jest.fn(() => ({
-        set: jest.fn(() => Promise.resolve()),
-        get: jest.fn(() => Promise.resolve({ 
+    collection: vi.fn(() => ({
+      add: vi.fn(() => Promise.resolve({ id: 'mock-id' })),
+      doc: vi.fn(() => ({
+        set: vi.fn(() => Promise.resolve()),
+        get: vi.fn(() => Promise.resolve({ 
           exists: true, 
           data: () => ({ value: 100 }) 
         })),
-        update: jest.fn(() => Promise.resolve())
+        update: vi.fn(() => Promise.resolve())
       })),
-      where: jest.fn(() => ({
-        orderBy: jest.fn(() => ({
-          limit: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({
+      where: vi.fn(() => ({
+        orderBy: vi.fn(() => ({
+          limit: vi.fn(() => ({
+            get: vi.fn(() => Promise.resolve({
               docs: [
                 { 
                   id: 'doc1', 

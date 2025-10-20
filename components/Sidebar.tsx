@@ -40,6 +40,7 @@ export default function Sidebar({ currentView, onNavigate, isCollapsed, setIsCol
   // Expand all groups by default for better UX
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
     'main-group',
+    'ai-analytics-group',
     'monitoring-group', 
     'keuangan-group',
     'lainnya-group',

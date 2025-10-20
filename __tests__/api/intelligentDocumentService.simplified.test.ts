@@ -1,43 +1,43 @@
 // Unit tests for Intelligent Document Service (Simplified & Practical Approach)
 // Focus on integration with proper mocking, less on internal validation functions
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock Firebase before importing service
-jest.mock('../../firebaseConfig', () => ({
+vi.mock('../../firebaseConfig', () => ({
     db: {},
     analytics: null,
     functions: {}
 }));
 
 // Mock Firestore functions
-const mockSetDoc = jest.fn() as jest.MockedFunction<any>;
-const mockGetDoc = jest.fn() as jest.MockedFunction<any>;
-const mockUpdateDoc = jest.fn() as jest.MockedFunction<any>;
-const mockDeleteDoc = jest.fn() as jest.MockedFunction<any>;
-const mockGetDocs = jest.fn() as jest.MockedFunction<any>;
-const mockQuery = jest.fn((collection: any) => collection) as jest.MockedFunction<any>;
-const mockWhere = jest.fn((...args: any[]) => ({ field: args[0], operator: args[1], value: args[2] })) as jest.MockedFunction<any>;
-const mockOrderBy = jest.fn((...args: any[]) => ({ field: args[0], direction: args[1] })) as jest.MockedFunction<any>;
-const mockServerTimestamp = jest.fn(() => ({ _seconds: Date.now() / 1000, _nanoseconds: 0 })) as jest.MockedFunction<any>;
-const mockAddDoc = jest.fn() as jest.MockedFunction<any>; // Added for MonitoringService
-const mockCollection = jest.fn((...args: any[]) => ({ collectionName: args[1] })) as jest.MockedFunction<any>;
-const mockDoc = jest.fn((...args: any[]) => ({ collectionName: args[1], docId: args[2] })) as jest.MockedFunction<any>;
+const mockSetDoc = vi.fn();
+const mockGetDoc = vi.fn();
+const mockUpdateDoc = vi.fn();
+const mockDeleteDoc = vi.fn();
+const mockGetDocs = vi.fn();
+const mockQuery = vi.fn((collection: any) => collection);
+const mockWhere = vi.fn((...args: any[]) => ({ field: args[0], operator: args[1], value: args[2] }));
+const mockOrderBy = vi.fn((...args: any[]) => ({ field: args[0], direction: args[1] }));
+const mockServerTimestamp = vi.fn(() => ({ _seconds: Date.now() / 1000, _nanoseconds: 0 }));
+const mockAddDoc = vi.fn(); // Added for MonitoringService
+const mockCollection = vi.fn((...args: any[]) => ({ collectionName: args[1] }));
+const mockDoc = vi.fn((...args: any[]) => ({ collectionName: args[1], docId: args[2] }));
 
-jest.mock('firebase/firestore', () => ({
-    getFirestore: jest.fn(),
-    collection: jest.fn((...args: any[]) => mockCollection(...args)),
-    doc: jest.fn((...args: any[]) => mockDoc(...args)),
-    setDoc: jest.fn((...args: any[]) => mockSetDoc(...args)),
-    getDoc: jest.fn((...args: any[]) => mockGetDoc(...args)),
-    updateDoc: jest.fn((...args: any[]) => mockUpdateDoc(...args)),
-    deleteDoc: jest.fn((...args: any[]) => mockDeleteDoc(...args)),
-    getDocs: jest.fn((...args: any[]) => mockGetDocs(...args)),
-    query: jest.fn((coll: any, ...constraints: any[]) => mockQuery(coll)),
-    where: jest.fn((...args: any[]) => mockWhere(...args)),
-    orderBy: jest.fn((...args: any[]) => mockOrderBy(...args)),
-    serverTimestamp: jest.fn(() => mockServerTimestamp()),
-    addDoc: jest.fn((...args: any[]) => mockAddDoc(...args)),
+vi.mock('firebase/firestore', () => ({
+    getFirestore: vi.fn(),
+    collection: vi.fn((...args: any[]) => mockCollection(...args)),
+    doc: vi.fn((...args: any[]) => mockDoc(...args)),
+    setDoc: vi.fn((...args: any[]) => mockSetDoc(...args)),
+    getDoc: vi.fn((...args: any[]) => mockGetDoc(...args)),
+    updateDoc: vi.fn((...args: any[]) => mockUpdateDoc(...args)),
+    deleteDoc: vi.fn((...args: any[]) => mockDeleteDoc(...args)),
+    getDocs: vi.fn((...args: any[]) => mockGetDocs(...args)),
+    query: vi.fn((coll: any, ...constraints: any[]) => mockQuery(coll)),
+    where: vi.fn((...args: any[]) => mockWhere(...args)),
+    orderBy: vi.fn((...args: any[]) => mockOrderBy(...args)),
+    serverTimestamp: vi.fn(() => mockServerTimestamp()),
+    addDoc: vi.fn((...args: any[]) => mockAddDoc(...args)),
     Timestamp: {
         fromDate: (date: Date) => ({
             toDate: () => date,
@@ -53,19 +53,19 @@ jest.mock('firebase/firestore', () => ({
 }));
 
 // Mock logger to reduce noise
-jest.mock('../../api/utils/logger', () => ({
-    createScopedLogger: jest.fn(() => ({
-        debug: jest.fn(),
-        info: jest.fn(),
-        warn: jest.fn(),
-        error: jest.fn(),
-        success: jest.fn()
+vi.mock('../../api/utils/logger', () => ({
+    createScopedLogger: vi.fn(() => ({
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        success: vi.fn()
     })),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    success: jest.fn()
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn()
 }));
 
 // Import service after mocking
@@ -75,7 +75,7 @@ import type { IntelligentDocument, DocumentCategory, DocumentStatus } from '../.
 describe('Intelligent Document Service - Comprehensive Tests', () => {
     beforeEach(() => {
         // Clear all mocks before each test
-        jest.clearAllMocks();
+        vi.clearAllMocks();
         mockAddDoc.mockResolvedValue({ id: 'mock-log-id' }); // Prevent monitoring service errors
     });
 

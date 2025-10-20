@@ -6,6 +6,11 @@ export default {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   preset: 'ts-jest/presets/default-esm',
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json',
+    },
+  },
   testMatch: [
     '<rootDir>/**/__tests__/**/*.(ts|tsx)',
     '<rootDir>/**/*.(test|spec).(ts|tsx)'

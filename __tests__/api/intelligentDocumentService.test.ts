@@ -15,6 +15,7 @@
  * Target: 80%+ Code Coverage
  */
 
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { intelligentDocumentService } from '../../api/intelligentDocumentService';
 import type { 
     IntelligentDocument, 
@@ -27,25 +28,25 @@ import type {
 } from '../../types';
 
 // Mock Firebase Firestore
-jest.mock('../../firebaseConfig', () => ({
+vi.mock('../../firebaseConfig', () => ({
     db: {},
     storage: {},
 }));
 
 // Mock Firestore functions
-const mockSetDoc = jest.fn();
-const mockGetDoc = jest.fn();
-const mockUpdateDoc = jest.fn();
-const mockDeleteDoc = jest.fn();
-const mockGetDocs = jest.fn();
-const mockQuery = jest.fn();
-const mockWhere = jest.fn();
-const mockOrderBy = jest.fn();
-const mockDoc = jest.fn();
-const mockCollection = jest.fn();
-const mockServerTimestamp = jest.fn(() => new Date());
+const mockSetDoc = vi.fn();
+const mockGetDoc = vi.fn();
+const mockUpdateDoc = vi.fn();
+const mockDeleteDoc = vi.fn();
+const mockGetDocs = vi.fn();
+const mockQuery = vi.fn();
+const mockWhere = vi.fn();
+const mockOrderBy = vi.fn();
+const mockDoc = vi.fn();
+const mockCollection = vi.fn();
+const mockServerTimestamp = vi.fn(() => new Date());
 
-jest.mock('firebase/firestore', () => ({
+vi.mock('firebase/firestore', () => ({
     doc: (...args: any[]) => mockDoc(...args),
     collection: (...args: any[]) => mockCollection(...args),
     getDoc: (...args: any[]) => mockGetDoc(...args),
@@ -64,19 +65,19 @@ jest.mock('firebase/firestore', () => ({
 }));
 
 // Mock logger to avoid console noise in tests
-jest.mock('../../api/utils/logger', () => ({
+vi.mock('../../api/utils/logger', () => ({
     createScopedLogger: () => ({
-        debug: jest.fn(),
-        info: jest.fn(),
-        warn: jest.fn(),
-        error: jest.fn(),
-        success: jest.fn()
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        success: vi.fn()
     })
 }));
 
 describe('IntelligentDocumentService', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('CRUD Operations', () => {
