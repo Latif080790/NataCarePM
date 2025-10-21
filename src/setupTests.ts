@@ -62,7 +62,7 @@ vi.mock('firebase/firestore', () => {
 // Mock Firebase Auth
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({
-    currentUser: { uid: 'test-user-id', email: 'test@example.com' }
+    currentUser: { uid: 'test-user-id', email: 'test@example.com' },
   })),
   signInWithEmailAndPassword: vi.fn(() => Promise.resolve({ user: { uid: 'test-user-id' } })),
   signOut: vi.fn(() => Promise.resolve()),
@@ -86,26 +86,26 @@ vi.mock('firebase/storage', () => ({
     on: vi.fn(),
     pause: vi.fn(),
     resume: vi.fn(),
-    cancel: vi.fn()
+    cancel: vi.fn(),
   })),
   getDownloadURL: vi.fn(() => Promise.resolve('https://mock-url.com/file')),
-  deleteObject: vi.fn(() => Promise.resolve())
+  deleteObject: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock Firebase Config
 vi.mock('./firebaseConfig', () => ({
   db: {},
   auth: { currentUser: { uid: 'test-user-id', email: 'test@example.com' } },
-  storage: {}
+  storage: {},
 }));
 
 // Mock TensorFlow.js IO functions for model persistence
 vi.mock('./utils/mlModelPersistence', async (importOriginal) => {
-  const actual = await importOriginal() as any;
-  
+  const actual = (await importOriginal()) as any;
+
   // Track saved models for testing
   const savedModels = new Map();
-  
+
   return {
     ...(actual || {}),
     saveModelToIndexedDB: vi.fn((modelId, model, metadata) => {
@@ -119,13 +119,13 @@ vi.mock('./utils/mlModelPersistence', async (importOriginal) => {
         const mockModel = {
           predict: vi.fn(() => ({
             data: vi.fn(() => Promise.resolve([1, 2, 3])),
-            dispose: vi.fn()
+            dispose: vi.fn(),
           })),
           dispose: vi.fn(),
         };
         return Promise.resolve({
           model: mockModel,
-          metadata: saved.metadata
+          metadata: saved.metadata,
         });
       }
       return Promise.resolve(null);
@@ -135,7 +135,7 @@ vi.mock('./utils/mlModelPersistence', async (importOriginal) => {
       return Promise.resolve();
     }),
     listSavedModels: vi.fn(() => {
-      const models = Array.from(savedModels.values()).map(item => item.metadata);
+      const models = Array.from(savedModels.values()).map((item) => item.metadata);
       return Promise.resolve(models);
     }),
     modelExists: vi.fn((modelId) => {
@@ -176,7 +176,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 // matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -199,13 +199,13 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 const createIndexedDBMock = () => {
   const databases: Map<string, any> = new Map();
   const stores: Map<string, Map<string, any>> = new Map();
-  
+
   // Initialize default stores
   stores.set('tensorflowjs_models', new Map());
   stores.set('NataCarePM_ML_Models', new Map());
   stores.set('models', new Map());
   stores.set('metadata', new Map());
-  
+
   return {
     open: vi.fn((name: string, version?: number) => {
       return new Promise((resolve) => {
@@ -220,51 +220,51 @@ const createIndexedDBMock = () => {
                   return dbStores.has(storeName);
                 }),
                 length: 0,
-                item: vi.fn(() => null)
+                item: vi.fn(() => null),
               },
               createObjectStore: vi.fn((storeName: string, options?: any) => ({
                 createIndex: vi.fn(),
-                add: vi.fn((data: any) => ({ 
-                  onsuccess: null, 
+                add: vi.fn((data: any) => ({
+                  onsuccess: null,
                   onerror: null,
-                  result: 'mock-key'
+                  result: 'mock-key',
                 })),
-                put: vi.fn((data: any) => ({ 
-                  onsuccess: null, 
+                put: vi.fn((data: any) => ({
+                  onsuccess: null,
                   onerror: null,
-                  result: 'mock-key'
+                  result: 'mock-key',
                 })),
               })),
               transaction: vi.fn((storeNames: string | string[], mode?: string) => {
                 const storeName = Array.isArray(storeNames) ? storeNames[0] : storeNames;
                 const store = stores.get(storeName) || new Map();
-                
+
                 return {
                   objectStore: vi.fn((storeName: string) => {
                     const store = stores.get(storeName) || new Map();
                     return {
                       put: vi.fn((data: any, key?: any) => {
                         if (key) store.set(key, data);
-                        return Promise.resolve({ 
-                          onsuccess: null, 
+                        return Promise.resolve({
+                          onsuccess: null,
                           onerror: null,
-                          result: key || 'mock-key'
+                          result: key || 'mock-key',
                         });
                       }),
                       add: vi.fn((data: any, key?: any) => {
                         if (key) store.set(key, data);
-                        return Promise.resolve({ 
-                          onsuccess: null, 
+                        return Promise.resolve({
+                          onsuccess: null,
                           onerror: null,
-                          result: key || 'mock-key'
+                          result: key || 'mock-key',
                         });
                       }),
                       get: vi.fn((key: any) => {
                         const result = store.get(key);
-                        return Promise.resolve({ 
-                          onsuccess: null, 
-                          onerror: null, 
-                          result: result || null 
+                        return Promise.resolve({
+                          onsuccess: null,
+                          onerror: null,
+                          result: result || null,
                         });
                       }),
                       delete: vi.fn((key: any) => {
@@ -273,18 +273,18 @@ const createIndexedDBMock = () => {
                       }),
                       getAllKeys: vi.fn(() => {
                         const keys = Array.from(store.keys());
-                        return Promise.resolve({ 
-                          onsuccess: null, 
-                          onerror: null, 
-                          result: keys 
+                        return Promise.resolve({
+                          onsuccess: null,
+                          onerror: null,
+                          result: keys,
                         });
                       }),
                       getAll: vi.fn(() => {
                         const values = Array.from(store.values());
-                        return Promise.resolve({ 
-                          onsuccess: null, 
-                          onerror: null, 
-                          result: values 
+                        return Promise.resolve({
+                          onsuccess: null,
+                          onerror: null,
+                          result: values,
                         });
                       }),
                       clear: vi.fn(() => Promise.resolve({ onsuccess: null, onerror: null })),
@@ -314,7 +314,7 @@ global.indexedDB = createIndexedDBMock() as any;
 // Performance API
 global.performance = {
   ...global.performance,
-  now: vi.fn(() => Date.now()),  // Fixed for TensorFlow.js
+  now: vi.fn(() => Date.now()), // Fixed for TensorFlow.js
   mark: vi.fn(),
   measure: vi.fn(),
   getEntriesByType: vi.fn(() => []),
@@ -330,18 +330,20 @@ Object.defineProperty(global.navigator, 'connection', {
     effectiveType: '4g',
     downlink: 10,
     rtt: 50,
-    saveData: false
-  }
+    saveData: false,
+  },
 });
 
 Object.defineProperty(global.navigator, 'getBattery', {
   writable: true,
-  value: vi.fn(() => Promise.resolve({
-    level: 0.8,
-    charging: true,
-    chargingTime: 3600,
-    dischargingTime: Infinity
-  }))
+  value: vi.fn(() =>
+    Promise.resolve({
+      level: 0.8,
+      charging: true,
+      chargingTime: 3600,
+      dischargingTime: Infinity,
+    })
+  ),
 });
 
 // ========================================
@@ -356,14 +358,13 @@ beforeAll(() => {
   console.error = (...args: any[]) => {
     if (
       typeof args[0] === 'string' &&
-      (args[0].includes('ReactDOM.render is deprecated') ||
-       args[0].includes('Warning: '))
+      (args[0].includes('ReactDOM.render is deprecated') || args[0].includes('Warning: '))
     ) {
       return;
     }
     originalError.call(console, ...args);
   };
-  
+
   console.warn = (...args: any[]) => {
     if (typeof args[0] === 'string' && args[0].includes('Warning: ')) {
       return;

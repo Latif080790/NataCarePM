@@ -1,44 +1,48 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { 
-  MonitoringService, 
+import {
+  MonitoringService,
   MonitoringValidator,
-  monitoringService 
+  monitoringService,
 } from '../../api/monitoringService';
 import { SystemMetrics, UserActivity, ErrorLog } from '../../types/monitoring';
 
 // Mock Firebase
-vi.mock('../../firebaseConfig', () => ({
+vi.mock('@/firebaseConfig', () => ({
   db: {
     collection: vi.fn(() => ({
       add: vi.fn(() => Promise.resolve({ id: 'mock-id' })),
       doc: vi.fn(() => ({
         set: vi.fn(() => Promise.resolve()),
-        get: vi.fn(() => Promise.resolve({ 
-          exists: true, 
-          data: () => ({ value: 100 }) 
-        })),
-        update: vi.fn(() => Promise.resolve())
+        get: vi.fn(() =>
+          Promise.resolve({
+            exists: true,
+            data: () => ({ value: 100 }),
+          })
+        ),
+        update: vi.fn(() => Promise.resolve()),
       })),
       where: vi.fn(() => ({
         orderBy: vi.fn(() => ({
           limit: vi.fn(() => ({
-            get: vi.fn(() => Promise.resolve({
-              docs: [
-                { 
-                  id: 'doc1', 
-                  data: () => ({ 
-                    timestamp: { seconds: Date.now() / 1000 },
-                    cpu: 45,
-                    memory: 60 
-                  }) 
-                }
-              ]
-            }))
-          }))
-        }))
-      }))
-    }))
-  }
+            get: vi.fn(() =>
+              Promise.resolve({
+                docs: [
+                  {
+                    id: 'doc1',
+                    data: () => ({
+                      timestamp: { seconds: Date.now() / 1000 },
+                      cpu: 45,
+                      memory: 60,
+                    }),
+                  },
+                ],
+              })
+            ),
+          })),
+        })),
+      })),
+    })),
+  },
 }));
 
 // Mock performance API
@@ -46,17 +50,17 @@ const mockPerformance = {
   memory: {
     usedJSHeapSize: 10485760,
     totalJSHeapSize: 20971520,
-    jsHeapSizeLimit: 2147483648
+    jsHeapSizeLimit: 2147483648,
   },
   timing: {
     navigationStart: Date.now() - 5000,
-    loadEventEnd: Date.now() - 1000
-  }
+    loadEventEnd: Date.now() - 1000,
+  },
 };
 
 Object.defineProperty(global, 'performance', {
   writable: true,
-  value: mockPerformance
+  value: mockPerformance,
 });
 
 describe('MonitoringValidator', () => {
@@ -71,7 +75,7 @@ describe('MonitoringValidator', () => {
         errorRate: 0.02,
         networkStatus: 'online',
         batteryLevel: 85,
-        connectionType: 'wifi'
+        connectionType: 'wifi',
       };
 
       const result = MonitoringValidator.validateSystemMetrics(validMetrics);
@@ -87,7 +91,7 @@ describe('MonitoringValidator', () => {
         activeUsers: 15,
         responseTime: 250,
         errorRate: 0.02,
-        networkStatus: 'online'
+        networkStatus: 'online',
       };
 
       const result = MonitoringValidator.validateSystemMetrics(invalidMetrics);
@@ -103,7 +107,7 @@ describe('MonitoringValidator', () => {
         activeUsers: -5, // Invalid: negative
         responseTime: 250,
         errorRate: 0.02,
-        networkStatus: 'online'
+        networkStatus: 'online',
       };
 
       const result = MonitoringValidator.validateSystemMetrics(invalidMetrics);
@@ -129,8 +133,8 @@ describe('MonitoringValidator', () => {
           browser: 'Chrome',
           version: '91.0.4472.124',
           isMobile: false,
-          language: 'en-US'
-        }
+          language: 'en-US',
+        },
       };
 
       const result = MonitoringValidator.validateUserActivity(validActivity);
@@ -145,7 +149,7 @@ describe('MonitoringValidator', () => {
         action: 'page_view',
         resource: '/dashboard',
         timestamp: new Date(),
-        success: true
+        success: true,
       };
 
       const result = MonitoringValidator.validateUserActivity(invalidActivity);
@@ -165,7 +169,7 @@ describe('MonitoringValidator', () => {
         environment: 'production',
         component: 'database',
         userId: 'user123',
-        userName: 'John Doe'
+        userName: 'John Doe',
       };
 
       const result = MonitoringValidator.validateErrorLog(validError);
@@ -180,7 +184,7 @@ describe('MonitoringValidator', () => {
         severity: 'invalid' as any, // Invalid severity
         timestamp: new Date(),
         resolved: false,
-        environment: 'production'
+        environment: 'production',
       };
 
       const result = MonitoringValidator.validateErrorLog(invalidError);
@@ -195,7 +199,7 @@ describe('MonitoringValidator', () => {
         severity: 'high',
         timestamp: new Date(),
         resolved: false,
-        environment: 'production'
+        environment: 'production',
       };
 
       const result = MonitoringValidator.validateErrorLog(invalidError);
@@ -214,7 +218,7 @@ describe('MonitoringService', () => {
     test('should return singleton instance', () => {
       const instance1 = MonitoringService.getInstance();
       const instance2 = MonitoringService.getInstance();
-      
+
       expect(instance1).toBe(instance2);
       expect(instance1).toBeInstanceOf(MonitoringService);
     });
@@ -227,7 +231,7 @@ describe('MonitoringService', () => {
         severity: 'high' as const,
         component: 'test-component',
         userId: 'user123',
-        userName: 'John Doe'
+        userName: 'John Doe',
       };
 
       await expect(monitoringService.logError(error)).resolves.not.toThrow();
@@ -241,7 +245,7 @@ describe('MonitoringService', () => {
         userName: 'John Doe',
         action: 'test_action',
         resource: '/test',
-        success: true
+        success: true,
       };
 
       await expect(monitoringService.logUserActivity(activity)).resolves.not.toThrow();
@@ -251,7 +255,7 @@ describe('MonitoringService', () => {
   describe('getProjectMetrics', () => {
     test('should retrieve project metrics', async () => {
       const metrics = await monitoringService.getProjectMetrics('project123');
-      
+
       // Since the mock doesn't return the exact structure, we just check it doesn't throw
       expect(metrics).toBeDefined();
     });

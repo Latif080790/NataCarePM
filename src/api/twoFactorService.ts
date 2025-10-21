@@ -1,9 +1,9 @@
 /**
  * Two-Factor Authentication Service
- * 
+ *
  * Implements TOTP-based 2FA using OTPAuth library.
  * Provides QR code generation, backup codes, and verification.
- * 
+ *
  * Security Features:
  * - TOTP (Time-based One-Time Password) with SHA1
  * - 6-digit codes, 30-second intervals
@@ -54,7 +54,7 @@ export const twoFactorService = {
   /**
    * Generate 2FA secret and QR code for user
    * Step 1 of 2FA setup process
-   * 
+   *
    * @param userId - User ID
    * @param email - User email for QR code label
    * @returns Secret, QR code, and backup codes
@@ -63,7 +63,7 @@ export const twoFactorService = {
     try {
       // Generate cryptographically secure secret
       const secret = new OTPAuth.Secret({ size: 20 });
-      
+
       // Create TOTP instance
       const totp = new OTPAuth.TOTP({
         issuer: 'NataCarePM',
@@ -71,7 +71,7 @@ export const twoFactorService = {
         algorithm: 'SHA1',
         digits: 6,
         period: 30,
-        secret: secret
+        secret: secret,
       });
 
       // Generate QR code as data URL
@@ -82,8 +82,8 @@ export const twoFactorService = {
         width: 300,
         color: {
           dark: '#000000',
-          light: '#FFFFFF'
-        }
+          light: '#FFFFFF',
+        },
       });
 
       // Generate 10 backup codes
@@ -93,10 +93,10 @@ export const twoFactorService = {
       const twoFactorData: TwoFactorData = {
         userId,
         secret: secret.base32,
-        backupCodes: backupCodes.map(code => this.hashBackupCode(code)),
+        backupCodes: backupCodes.map((code) => this.hashBackupCode(code)),
         enabled: false,
         createdAt: new Date(),
-        verificationAttempts: 0
+        verificationAttempts: 0,
       };
 
       await setDoc(doc(db, 'twoFactorAuth', userId), twoFactorData);
@@ -108,7 +108,7 @@ export const twoFactorService = {
         qrCode,
         backupCodes, // Return unhashed for user to save
         enabled: false,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
     } catch (error) {
       console.error('[2FA] Error generating secret:', error);
@@ -119,7 +119,7 @@ export const twoFactorService = {
   /**
    * Verify TOTP code and enable 2FA
    * Step 2 of 2FA setup process
-   * 
+   *
    * @param userId - User ID
    * @param code - 6-digit TOTP code from authenticator app
    * @returns Success status
@@ -133,16 +133,16 @@ export const twoFactorService = {
       }
 
       const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-      
+
       if (!twoFactorDoc.exists()) {
         throw new Error('2FA not initialized. Generate secret first.');
       }
 
       const data = twoFactorDoc.data() as TwoFactorData;
-      
+
       // Verify code
       const isValid = this.verifyTOTP(data.secret, code);
-      
+
       if (!isValid) {
         throw new Error('Invalid verification code. Please try again.');
       }
@@ -151,7 +151,7 @@ export const twoFactorService = {
       await updateDoc(doc(db, 'twoFactorAuth', userId), {
         enabled: true,
         lastUsed: new Date(),
-        verificationAttempts: 0
+        verificationAttempts: 0,
       });
 
       // Reset rate limit on success
@@ -167,7 +167,7 @@ export const twoFactorService = {
 
   /**
    * Verify TOTP code or backup code during login
-   * 
+   *
    * @param userId - User ID
    * @param code - 6-digit TOTP code or 8-character backup code
    * @returns Verification success status
@@ -182,14 +182,14 @@ export const twoFactorService = {
       }
 
       const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-      
+
       if (!twoFactorDoc.exists()) {
         console.warn('[2FA] No 2FA data found for user:', userId);
         return false;
       }
 
       const data = twoFactorDoc.data() as TwoFactorData;
-      
+
       if (!data.enabled) {
         console.warn('[2FA] 2FA not enabled for user:', userId);
         return false;
@@ -201,7 +201,7 @@ export const twoFactorService = {
         if (totpValid) {
           await updateDoc(doc(db, 'twoFactorAuth', userId), {
             lastUsed: new Date(),
-            verificationAttempts: 0
+            verificationAttempts: 0,
           });
           rateLimiter.reset(userId, '2fa');
           console.log('[2FA] TOTP verification successful for user:', userId);
@@ -222,7 +222,7 @@ export const twoFactorService = {
       // Increment failed attempts
       const attempts = (data.verificationAttempts || 0) + 1;
       await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        verificationAttempts: attempts
+        verificationAttempts: attempts,
       });
 
       console.warn('[2FA] Verification failed for user:', userId, 'Attempts:', attempts);
@@ -238,14 +238,14 @@ export const twoFactorService = {
 
   /**
    * Check if user has 2FA enabled
-   * 
+   *
    * @param userId - User ID
    * @returns 2FA enabled status
    */
   async isEnabled(userId: string): Promise<boolean> {
     try {
       const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-      
+
       if (!twoFactorDoc.exists()) {
         return false;
       }
@@ -260,26 +260,24 @@ export const twoFactorService = {
 
   /**
    * Get 2FA status for user
-   * 
+   *
    * @param userId - User ID
    * @returns 2FA status details
    */
   async getStatus(userId: string): Promise<TwoFactorStatus | null> {
     try {
       const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-      
+
       if (!twoFactorDoc.exists()) {
         return null;
       }
 
       const data = twoFactorDoc.data() as TwoFactorData;
-      
+
       return {
         enabled: data.enabled,
-        lastUsed: data.lastUsed instanceof Timestamp 
-          ? data.lastUsed.toDate() 
-          : data.lastUsed,
-        backupCodesRemaining: data.backupCodes.length
+        lastUsed: data.lastUsed instanceof Timestamp ? data.lastUsed.toDate() : data.lastUsed,
+        backupCodesRemaining: data.backupCodes.length,
       };
     } catch (error) {
       console.error('[2FA] Error getting status:', error);
@@ -289,7 +287,7 @@ export const twoFactorService = {
 
   /**
    * Disable 2FA (requires verification)
-   * 
+   *
    * @param userId - User ID
    * @param code - Current TOTP code or backup code
    * @returns Success status
@@ -297,13 +295,13 @@ export const twoFactorService = {
   async disable(userId: string, code: string): Promise<boolean> {
     try {
       const isValid = await this.verifyCode(userId, code);
-      
+
       if (!isValid) {
         throw new Error('Invalid verification code');
       }
 
       await deleteDoc(doc(db, 'twoFactorAuth', userId));
-      
+
       console.log('[2FA] Disabled for user:', userId);
       return true;
     } catch (error) {
@@ -314,7 +312,7 @@ export const twoFactorService = {
 
   /**
    * Regenerate backup codes (requires verification)
-   * 
+   *
    * @param userId - User ID
    * @param code - Current TOTP code
    * @returns New backup codes
@@ -322,13 +320,13 @@ export const twoFactorService = {
   async regenerateBackupCodes(userId: string, code: string): Promise<string[]> {
     try {
       const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-      
+
       if (!twoFactorDoc.exists()) {
         throw new Error('2FA not setup');
       }
 
       const data = twoFactorDoc.data() as TwoFactorData;
-      
+
       // Verify current code
       const isValid = this.verifyTOTP(data.secret, code);
       if (!isValid) {
@@ -340,7 +338,7 @@ export const twoFactorService = {
 
       // Update Firestore
       await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        backupCodes: newBackupCodes.map(code => this.hashBackupCode(code))
+        backupCodes: newBackupCodes.map((code) => this.hashBackupCode(code)),
       });
 
       console.log('[2FA] Backup codes regenerated for user:', userId);
@@ -354,7 +352,7 @@ export const twoFactorService = {
   /**
    * Verify TOTP code against secret
    * Allows 1 time step before/after for clock drift
-   * 
+   *
    * @param secret - Base32 encoded secret
    * @param code - 6-digit TOTP code
    * @returns Verification success
@@ -365,7 +363,7 @@ export const twoFactorService = {
         algorithm: 'SHA1',
         digits: 6,
         period: 30,
-        secret: OTPAuth.Secret.fromBase32(secret)
+        secret: OTPAuth.Secret.fromBase32(secret),
       });
 
       // Allow 1 time step (30 seconds) before/after for clock drift
@@ -379,14 +377,14 @@ export const twoFactorService = {
 
   /**
    * Generate cryptographically random backup codes
-   * 
+   *
    * @param count - Number of codes to generate
    * @returns Array of backup codes
    */
   generateBackupCodes(count: number): string[] {
     const codes: string[] = [];
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous characters
-    
+
     for (let i = 0; i < count; i++) {
       let code = '';
       for (let j = 0; j < 8; j++) {
@@ -395,14 +393,14 @@ export const twoFactorService = {
       }
       codes.push(code);
     }
-    
+
     return codes;
   },
 
   /**
    * Hash backup code for storage
    * Simple base64 encoding - in production consider bcrypt
-   * 
+   *
    * @param code - Backup code
    * @returns Hashed code
    */
@@ -414,36 +412,32 @@ export const twoFactorService = {
   /**
    * Verify and consume backup code
    * Backup codes are single-use
-   * 
+   *
    * @param userId - User ID
    * @param code - Backup code to verify
    * @param hashedCodes - Array of hashed backup codes
    * @returns Verification success
    */
-  async verifyBackupCode(
-    userId: string, 
-    code: string, 
-    hashedCodes: string[]
-  ): Promise<boolean> {
+  async verifyBackupCode(userId: string, code: string, hashedCodes: string[]): Promise<boolean> {
     try {
       const hashedInput = this.hashBackupCode(code.toUpperCase());
       const index = hashedCodes.indexOf(hashedInput);
-      
+
       if (index === -1) {
         return false;
       }
 
       // Remove used backup code
       hashedCodes.splice(index, 1);
-      
+
       await updateDoc(doc(db, 'twoFactorAuth', userId), {
         backupCodes: hashedCodes,
         lastUsed: new Date(),
-        verificationAttempts: 0
+        verificationAttempts: 0,
       });
 
       console.log('[2FA] Backup code used. Remaining:', hashedCodes.length);
-      
+
       // Warn if running low on backup codes
       if (hashedCodes.length <= 2) {
         console.warn('[2FA] User', userId, 'has', hashedCodes.length, 'backup codes remaining');
@@ -454,7 +448,7 @@ export const twoFactorService = {
       console.error('[2FA] Error verifying backup code:', error);
       return false;
     }
-  }
+  },
 };
 
 export default twoFactorService;

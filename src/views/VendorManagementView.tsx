@@ -1,13 +1,13 @@
 /**
  * VENDOR MANAGEMENT VIEW
- * 
+ *
  * Comprehensive vendor management UI including:
  * - Vendor list with advanced filtering
  * - Performance dashboard
  * - Evaluation history
  * - Blacklist management
  * - Contact & bank account management
- * 
+ *
  * Created: October 2025
  */
 
@@ -30,7 +30,7 @@ import {
   Trash2,
   Download,
   Upload,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -44,7 +44,7 @@ import {
   VendorStatus,
   VendorCategory,
   PerformanceRating,
-  VendorSummary
+  VendorSummary,
 } from '@/types/vendor';
 import {
   getVendors,
@@ -52,27 +52,32 @@ import {
   deleteVendor,
   approveVendor,
   getVendorSummary,
-  searchVendors
+  searchVendors,
 } from '@/api/vendorService';
 import {
   CreateVendorModal,
   VendorDetailsModal,
   EvaluateVendorModal,
-  BlacklistVendorModal
+  BlacklistVendorModal,
 } from '@/components/VendorModals';
 
 // ============================================================================
 // TYPES & CONSTANTS
 // ============================================================================
 
-const STATUS_CONFIG: Record<VendorStatus, { label: string; color: string; icon: React.ReactNode }> = {
-  active: { label: 'Active', color: 'green', icon: <CheckCircle size={16} /> },
-  inactive: { label: 'Inactive', color: 'gray', icon: <XCircle size={16} /> },
-  blacklisted: { label: 'Blacklisted', color: 'red', icon: <Ban size={16} /> },
-  under_review: { label: 'Under Review', color: 'yellow', icon: <AlertTriangle size={16} /> },
-  suspended: { label: 'Suspended', color: 'orange', icon: <XCircle size={16} /> },
-  pending_approval: { label: 'Pending Approval', color: 'blue', icon: <AlertTriangle size={16} /> }
-};
+const STATUS_CONFIG: Record<VendorStatus, { label: string; color: string; icon: React.ReactNode }> =
+  {
+    active: { label: 'Active', color: 'green', icon: <CheckCircle size={16} /> },
+    inactive: { label: 'Inactive', color: 'gray', icon: <XCircle size={16} /> },
+    blacklisted: { label: 'Blacklisted', color: 'red', icon: <Ban size={16} /> },
+    under_review: { label: 'Under Review', color: 'yellow', icon: <AlertTriangle size={16} /> },
+    suspended: { label: 'Suspended', color: 'orange', icon: <XCircle size={16} /> },
+    pending_approval: {
+      label: 'Pending Approval',
+      color: 'blue',
+      icon: <AlertTriangle size={16} />,
+    },
+  };
 
 const CATEGORY_CONFIG: Record<VendorCategory, { label: string; icon: React.ReactNode }> = {
   materials: { label: 'Materials', icon: <Store size={16} /> },
@@ -82,7 +87,7 @@ const CATEGORY_CONFIG: Record<VendorCategory, { label: string; icon: React.React
   labor: { label: 'Labor', icon: <Store size={16} /> },
   rental: { label: 'Rental', icon: <Store size={16} /> },
   consultant: { label: 'Consultant', icon: <Store size={16} /> },
-  other: { label: 'Other', icon: <Store size={16} /> }
+  other: { label: 'Other', icon: <Store size={16} /> },
 };
 
 const RATING_CONFIG: Record<PerformanceRating, { label: string; color: string; stars: number }> = {
@@ -90,7 +95,7 @@ const RATING_CONFIG: Record<PerformanceRating, { label: string; color: string; s
   good: { label: 'Good', color: 'blue', stars: 4 },
   satisfactory: { label: 'Satisfactory', color: 'yellow', stars: 3 },
   poor: { label: 'Poor', color: 'red', stars: 2 },
-  not_rated: { label: 'Not Rated', color: 'gray', stars: 0 }
+  not_rated: { label: 'Not Rated', color: 'gray', stars: 0 },
 };
 
 // ============================================================================
@@ -106,20 +111,20 @@ const VendorManagementView: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
-  
+
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEvaluateModal, setShowEvaluateModal] = useState(false);
   const [showBlacklistModal, setShowBlacklistModal] = useState(false);
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<VendorStatus[]>([]);
   const [categoryFilter, setCategoryFilter] = useState<VendorCategory[]>([]);
   const [ratingFilter, setRatingFilter] = useState<PerformanceRating[]>([]);
-  
+
   // Summary stats
   const [summary, setSummary] = useState<VendorSummary | null>(null);
 
@@ -138,9 +143,9 @@ const VendorManagementView: React.FC = () => {
       const filters = {
         status: statusFilter.length > 0 ? statusFilter : undefined,
         category: categoryFilter.length > 0 ? categoryFilter : undefined,
-        rating: ratingFilter.length > 0 ? ratingFilter : undefined
+        rating: ratingFilter.length > 0 ? ratingFilter : undefined,
       };
-      
+
       const data = await getVendors(filters);
       setVendors(data);
     } catch (error) {
@@ -206,7 +211,7 @@ const VendorManagementView: React.FC = () => {
 
   const handleApproveVendor = async (vendorId: string) => {
     if (!currentUser || !hasPermission(currentUser, 'manage_master_data')) return;
-    
+
     try {
       await approveVendor(vendorId, currentUser.uid);
       addToast('Vendor approved successfully', 'success');
@@ -219,9 +224,9 @@ const VendorManagementView: React.FC = () => {
 
   const handleDeleteVendor = async (vendorId: string) => {
     if (!currentUser || !hasPermission(currentUser, 'manage_master_data')) return;
-    
+
     if (!confirm('Are you sure you want to deactivate this vendor?')) return;
-    
+
     try {
       await deleteVendor(vendorId, currentUser.uid);
       addToast('Vendor deactivated successfully', 'success');
@@ -276,7 +281,7 @@ const VendorManagementView: React.FC = () => {
   const renderPerformanceIndicator = (score: number) => {
     let color = 'red';
     let icon = <TrendingDown size={16} />;
-    
+
     if (score >= 80) {
       color = 'green';
       icon = <TrendingUp size={16} />;
@@ -284,7 +289,7 @@ const VendorManagementView: React.FC = () => {
       color = 'yellow';
       icon = <TrendingUp size={16} />;
     }
-    
+
     return (
       <span className={`performance-indicator text-${color}`}>
         {icon}
@@ -297,7 +302,7 @@ const VendorManagementView: React.FC = () => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -307,15 +312,15 @@ const VendorManagementView: React.FC = () => {
 
   const filteredVendors = useMemo(() => {
     let result = [...vendors];
-    
+
     if (searchTerm && searchTerm.length < 3) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(v =>
-        v.vendorName.toLowerCase().includes(term) ||
-        v.vendorCode.toLowerCase().includes(term)
+      result = result.filter(
+        (v) =>
+          v.vendorName.toLowerCase().includes(term) || v.vendorCode.toLowerCase().includes(term)
       );
     }
-    
+
     return result;
   }, [vendors, searchTerm]);
 
@@ -345,12 +350,10 @@ const VendorManagementView: React.FC = () => {
           <Store size={32} className="header-icon" />
           <div>
             <h1>Vendor Management</h1>
-            <p className="subtitle">
-              Manage vendors, track performance, and evaluate suppliers
-            </p>
+            <p className="subtitle">Manage vendors, track performance, and evaluate suppliers</p>
           </div>
         </div>
-        
+
         {hasPermission(currentUser, 'manage_master_data') && (
           <Button onClick={handleCreateVendor} className="btn-primary">
             <Plus size={20} />
@@ -360,21 +363,20 @@ const VendorManagementView: React.FC = () => {
       </div>
 
       {/* Pending Approvals Alert */}
-      {summary && summary.pendingApprovals > 0 && hasPermission(currentUser, 'manage_master_data') && (
-        <Card className="alert-card alert-warning">
-          <AlertTriangle size={24} />
-          <div>
-            <h3>Pending Vendor Approvals</h3>
-            <p>{summary.pendingApprovals} vendor(s) awaiting approval.</p>
-          </div>
-          <Button 
-            onClick={() => setStatusFilter(['pending_approval'])}
-            className="btn-warning"
-          >
-            View Pending
-          </Button>
-        </Card>
-      )}
+      {summary &&
+        summary.pendingApprovals > 0 &&
+        hasPermission(currentUser, 'manage_master_data') && (
+          <Card className="alert-card alert-warning">
+            <AlertTriangle size={24} />
+            <div>
+              <h3>Pending Vendor Approvals</h3>
+              <p>{summary.pendingApprovals} vendor(s) awaiting approval.</p>
+            </div>
+            <Button onClick={() => setStatusFilter(['pending_approval'])} className="btn-warning">
+              View Pending
+            </Button>
+          </Card>
+        )}
 
       {/* Summary Cards */}
       {summary && (
@@ -467,7 +469,9 @@ const VendorManagementView: React.FC = () => {
             >
               <option value="">Filter by Status...</option>
               {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
 
@@ -482,7 +486,9 @@ const VendorManagementView: React.FC = () => {
             >
               <option value="">Filter by Category...</option>
               {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
 
@@ -497,7 +503,9 @@ const VendorManagementView: React.FC = () => {
             >
               <option value="">Filter by Rating...</option>
               {Object.entries(RATING_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
           </div>
@@ -520,26 +528,26 @@ const VendorManagementView: React.FC = () => {
         {(statusFilter.length > 0 || categoryFilter.length > 0 || ratingFilter.length > 0) && (
           <div className="active-filters">
             <span className="filter-label">Active Filters:</span>
-            {statusFilter.map(status => (
+            {statusFilter.map((status) => (
               <span key={status} className="filter-tag">
                 {STATUS_CONFIG[status].label}
-                <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))}>
+                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))}>
                   ×
                 </button>
               </span>
             ))}
-            {categoryFilter.map(cat => (
+            {categoryFilter.map((cat) => (
               <span key={cat} className="filter-tag">
                 {CATEGORY_CONFIG[cat].label}
-                <button onClick={() => setCategoryFilter(categoryFilter.filter(c => c !== cat))}>
+                <button onClick={() => setCategoryFilter(categoryFilter.filter((c) => c !== cat))}>
                   ×
                 </button>
               </span>
             ))}
-            {ratingFilter.map(rating => (
+            {ratingFilter.map((rating) => (
               <span key={rating} className="filter-tag">
                 {RATING_CONFIG[rating].label}
-                <button onClick={() => setRatingFilter(ratingFilter.filter(r => r !== rating))}>
+                <button onClick={() => setRatingFilter(ratingFilter.filter((r) => r !== rating))}>
                   ×
                 </button>
               </span>
@@ -581,7 +589,7 @@ const VendorManagementView: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredVendors.map(vendor => (
+                {filteredVendors.map((vendor) => (
                   <tr key={vendor.id} className={vendor.isBlacklisted ? 'row-blacklisted' : ''}>
                     <td>
                       <strong>{vendor.vendorCode}</strong>
@@ -596,7 +604,9 @@ const VendorManagementView: React.FC = () => {
                     <td>{renderStatusBadge(vendor.status)}</td>
                     <td>{renderRatingBadge(vendor.overallRating)}</td>
                     <td>{renderPerformanceIndicator(vendor.performance.performanceScore)}</td>
-                    <td className="text-right">{formatCurrency(vendor.performance.totalPOValue)}</td>
+                    <td className="text-right">
+                      {formatCurrency(vendor.performance.totalPOValue)}
+                    </td>
                     <td>
                       <div className="action-buttons">
                         <Button
@@ -606,16 +616,17 @@ const VendorManagementView: React.FC = () => {
                         >
                           <Eye size={16} />
                         </Button>
-                        
-                        {vendor.status === 'pending_approval' && hasPermission(currentUser, 'manage_master_data') && (
-                          <Button
-                            onClick={() => handleApproveVendor(vendor.id)}
-                            className="btn-icon btn-success"
-                            title="Approve Vendor"
-                          >
-                            <CheckCircle size={16} />
-                          </Button>
-                        )}
+
+                        {vendor.status === 'pending_approval' &&
+                          hasPermission(currentUser, 'manage_master_data') && (
+                            <Button
+                              onClick={() => handleApproveVendor(vendor.id)}
+                              className="btn-icon btn-success"
+                              title="Approve Vendor"
+                            >
+                              <CheckCircle size={16} />
+                            </Button>
+                          )}
 
                         {hasPermission(currentUser, 'manage_master_data') && (
                           <Button
@@ -637,15 +648,17 @@ const VendorManagementView: React.FC = () => {
                           </Button>
                         )}
 
-                        {vendor.status === 'active' && !vendor.isBlacklisted && hasPermission(currentUser, 'manage_master_data') && (
-                          <Button
-                            onClick={() => handleBlacklistVendor(vendor)}
-                            className="btn-icon btn-danger"
-                            title="Blacklist Vendor"
-                          >
-                            <Ban size={16} />
-                          </Button>
-                        )}
+                        {vendor.status === 'active' &&
+                          !vendor.isBlacklisted &&
+                          hasPermission(currentUser, 'manage_master_data') && (
+                            <Button
+                              onClick={() => handleBlacklistVendor(vendor)}
+                              className="btn-icon btn-danger"
+                              title="Blacklist Vendor"
+                            >
+                              <Ban size={16} />
+                            </Button>
+                          )}
                       </div>
                     </td>
                   </tr>

@@ -46,7 +46,15 @@ export interface SecurityEvent {
   timestamp: string;
   userId: string;
   userName: string;
-  event: 'login_success' | 'login_failure' | 'password_change' | 'suspicious_activity' | 'config_change' | 'data_access' | 'admin_action' | 'security_alert';
+  event:
+    | 'login_success'
+    | 'login_failure'
+    | 'password_change'
+    | 'suspicious_activity'
+    | 'config_change'
+    | 'data_access'
+    | 'admin_action'
+    | 'security_alert';
   description: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   ipAddress?: string;
@@ -112,7 +120,15 @@ export interface StatCardData {
     type: 'increase' | 'decrease';
   };
   icon?: React.ComponentType<any>;
-  iconType?: 'trending-up' | 'trending-down' | 'users' | 'calendar' | 'dollar-sign' | 'alert-triangle' | 'check-circle' | 'clock';
+  iconType?:
+    | 'trending-up'
+    | 'trending-down'
+    | 'users'
+    | 'calendar'
+    | 'dollar-sign'
+    | 'alert-triangle'
+    | 'check-circle'
+    | 'clock';
   color?: string;
   trend?: Array<{ date: string; value: number }>;
 }

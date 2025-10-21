@@ -1,6 +1,6 @@
 /**
  * MATERIAL REQUEST MANAGEMENT VIEW
- * 
+ *
  * Comprehensive UI for Material Request operations including:
  * - MR list with filtering
  * - Create MR with inventory check
@@ -8,16 +8,16 @@
  * - Budget verification display
  * - MR to PO conversion
  * - Real-time status tracking
- * 
+ *
  * Created: October 2025
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  ClipboardList, 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  ClipboardList,
+  Plus,
+  Search,
+  Filter,
   CheckCircle,
   XCircle,
   Clock,
@@ -25,7 +25,7 @@ import {
   ShoppingCart,
   TrendingUp,
   Calendar,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -34,11 +34,7 @@ import { hasPermission } from '@/constants';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/FormControls';
-import { 
-  MaterialRequest, 
-  MRStatus, 
-  MRPriority
-} from '@/types/logistics';
+import { MaterialRequest, MRStatus, MRPriority } from '@/types/logistics';
 import {
   getMaterialRequests,
   getMaterialRequestById,
@@ -49,13 +45,13 @@ import {
   deleteMaterialRequest,
   getMRSummary,
   getPendingApprovals,
-  validateMaterialRequest
+  validateMaterialRequest,
 } from '@/api/materialRequestService';
 import {
   CreateMRModal,
   MRDetailsModal,
   ApprovalModal,
-  ConvertToPOModal
+  ConvertToPOModal,
 } from '@/components/MaterialRequestModals';
 
 // ============================================================================
@@ -72,14 +68,14 @@ const STATUS_CONFIG: Record<MRStatus, { label: string; color: string; icon: Reac
   rejected: { label: 'Rejected', color: 'red', icon: <XCircle size={16} /> },
   converted_to_po: { label: 'Converted to PO', color: 'purple', icon: <ShoppingCart size={16} /> },
   completed: { label: 'Completed', color: 'green', icon: <CheckCircle size={16} /> },
-  cancelled: { label: 'Cancelled', color: 'gray', icon: <XCircle size={16} /> }
+  cancelled: { label: 'Cancelled', color: 'gray', icon: <XCircle size={16} /> },
 };
 
 const PRIORITY_CONFIG: Record<MRPriority, { label: string; color: string }> = {
   low: { label: 'Low', color: 'gray' },
   medium: { label: 'Medium', color: 'blue' },
   high: { label: 'High', color: 'orange' },
-  urgent: { label: 'Urgent', color: 'red' }
+  urgent: { label: 'Urgent', color: 'red' },
 };
 
 // ============================================================================
@@ -95,24 +91,24 @@ const MaterialRequestView: React.FC = () => {
   const [mrs, setMRs] = useState<MaterialRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMR, setSelectedMR] = useState<MaterialRequest | null>(null);
-  
+
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<MRStatus[]>([]);
   const [priorityFilter, setFilterPriority] = useState<MRPriority[]>([]);
-  
+
   // Summary stats
   const [summary, setSummary] = useState({
     totalMRs: 0,
     pendingApproval: 0,
     approved: 0,
-    totalEstimatedValue: 0
+    totalEstimatedValue: 0,
   });
 
   // Pending approvals for current user
@@ -132,14 +128,14 @@ const MaterialRequestView: React.FC = () => {
 
   const loadMRs = async () => {
     if (!currentProject) return;
-    
+
     try {
       setLoading(true);
       const filters = {
         status: statusFilter.length > 0 ? statusFilter : undefined,
-        priority: priorityFilter.length > 0 ? priorityFilter : undefined
+        priority: priorityFilter.length > 0 ? priorityFilter : undefined,
       };
-      
+
       const data = await getMaterialRequests(currentProject.id, filters);
       setMRs(data);
     } catch (error) {
@@ -152,7 +148,7 @@ const MaterialRequestView: React.FC = () => {
 
   const loadSummary = async () => {
     if (!currentProject) return;
-    
+
     try {
       const data = await getMRSummary(currentProject.id);
       setSummary(data);
@@ -163,15 +159,15 @@ const MaterialRequestView: React.FC = () => {
 
   const loadPendingApprovals = async () => {
     if (!currentUser) return;
-    
+
     try {
       // Determine user's role for approvals
       let role: 'site_manager' | 'pm' | 'budget_controller' | null = null;
-      
+
       if (currentUser.roleId === 'site_manager') role = 'site_manager';
       else if (currentUser.roleId === 'pm') role = 'pm';
       else if (currentUser.roleId === 'finance') role = 'budget_controller';
-      
+
       if (role) {
         const data = await getPendingApprovals(currentUser.uid, role);
         setPendingApprovals(data);
@@ -214,7 +210,7 @@ const MaterialRequestView: React.FC = () => {
 
   const handleSubmitMR = async (mrId: string) => {
     if (!currentUser) return;
-    
+
     try {
       await submitMaterialRequest(mrId, currentUser.uid);
       addToast('Material request submitted for approval', 'success');
@@ -228,9 +224,9 @@ const MaterialRequestView: React.FC = () => {
 
   const handleDeleteMR = async (mrId: string) => {
     if (!currentUser || !hasPermission(currentUser, 'create_po')) return;
-    
+
     if (!confirm('Are you sure you want to delete this material request?')) return;
-    
+
     try {
       await deleteMaterialRequest(mrId);
       addToast('Material request deleted successfully', 'success');
@@ -258,18 +254,14 @@ const MaterialRequestView: React.FC = () => {
 
   const renderPriorityBadge = (priority: MRPriority) => {
     const config = PRIORITY_CONFIG[priority];
-    return (
-      <span className={`status-badge status-${config.color}`}>
-        {config.label}
-      </span>
-    );
+    return <span className={`status-badge status-${config.color}`}>{config.label}</span>;
   };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -277,7 +269,7 @@ const MaterialRequestView: React.FC = () => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -287,29 +279,28 @@ const MaterialRequestView: React.FC = () => {
 
   const filteredMRs = useMemo(() => {
     let result = [...mrs];
-    
+
     // Apply search
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(mr =>
-        mr.mrNumber.toLowerCase().includes(term) ||
-        mr.purpose.toLowerCase().includes(term) ||
-        mr.items.some(item => 
-          item.materialName.toLowerCase().includes(term)
-        )
+      result = result.filter(
+        (mr) =>
+          mr.mrNumber.toLowerCase().includes(term) ||
+          mr.purpose.toLowerCase().includes(term) ||
+          mr.items.some((item) => item.materialName.toLowerCase().includes(term))
       );
     }
-    
+
     // Apply status filter
     if (statusFilter.length > 0) {
-      result = result.filter(mr => statusFilter.includes(mr.status));
+      result = result.filter((mr) => statusFilter.includes(mr.status));
     }
-    
+
     // Apply priority filter
     if (priorityFilter.length > 0) {
-      result = result.filter(mr => priorityFilter.includes(mr.priority));
+      result = result.filter((mr) => priorityFilter.includes(mr.priority));
     }
-    
+
     return result;
   }, [mrs, searchTerm, statusFilter, priorityFilter]);
 
@@ -339,12 +330,10 @@ const MaterialRequestView: React.FC = () => {
           <ClipboardList size={32} className="header-icon" />
           <div>
             <h1>Material Request Management</h1>
-            <p className="subtitle">
-              Request materials with multi-level approval workflow
-            </p>
+            <p className="subtitle">Request materials with multi-level approval workflow</p>
           </div>
         </div>
-        
+
         {hasPermission(currentUser, 'create_po') && (
           <Button onClick={handleCreateMR} className="btn-primary">
             <Plus size={20} />
@@ -361,7 +350,7 @@ const MaterialRequestView: React.FC = () => {
             <h3>Pending Approvals</h3>
             <p>You have {pendingApprovals.length} material request(s) waiting for your approval.</p>
           </div>
-          <Button 
+          <Button
             onClick={() => setStatusFilter(['site_manager_review', 'pm_review', 'budget_check'])}
             className="btn-warning"
           >
@@ -439,7 +428,9 @@ const MaterialRequestView: React.FC = () => {
             >
               <option value="">Filter by Status...</option>
               {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
 
@@ -454,7 +445,9 @@ const MaterialRequestView: React.FC = () => {
             >
               <option value="">Filter by Priority...</option>
               {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
           </div>
@@ -476,18 +469,20 @@ const MaterialRequestView: React.FC = () => {
         {(statusFilter.length > 0 || priorityFilter.length > 0) && (
           <div className="active-filters">
             <span className="filter-label">Active Filters:</span>
-            {statusFilter.map(status => (
+            {statusFilter.map((status) => (
               <span key={status} className="filter-tag">
                 {STATUS_CONFIG[status].label}
-                <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))}>
+                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))}>
                   ×
                 </button>
               </span>
             ))}
-            {priorityFilter.map(priority => (
+            {priorityFilter.map((priority) => (
               <span key={priority} className="filter-tag">
                 {PRIORITY_CONFIG[priority].label}
-                <button onClick={() => setFilterPriority(priorityFilter.filter(p => p !== priority))}>
+                <button
+                  onClick={() => setFilterPriority(priorityFilter.filter((p) => p !== priority))}
+                >
                   ×
                 </button>
               </span>
@@ -529,7 +524,7 @@ const MaterialRequestView: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredMRs.map(mr => (
+                {filteredMRs.map((mr) => (
                   <tr key={mr.id}>
                     <td>
                       <strong>{mr.mrNumber}</strong>
@@ -549,7 +544,7 @@ const MaterialRequestView: React.FC = () => {
                         >
                           <ClipboardList size={16} />
                         </Button>
-                        
+
                         {mr.status === 'draft' && hasPermission(currentUser, 'create_po') && (
                           <Button
                             onClick={() => handleSubmitMR(mr.id)}
@@ -560,7 +555,9 @@ const MaterialRequestView: React.FC = () => {
                           </Button>
                         )}
 
-                        {['site_manager_review', 'pm_review', 'budget_check'].includes(mr.status) && (
+                        {['site_manager_review', 'pm_review', 'budget_check'].includes(
+                          mr.status
+                        ) && (
                           <Button
                             onClick={() => handleApprove(mr)}
                             className="btn-icon btn-primary"
@@ -570,15 +567,17 @@ const MaterialRequestView: React.FC = () => {
                           </Button>
                         )}
 
-                        {mr.status === 'approved' && !mr.convertedToPO && hasPermission(currentUser, 'create_po') && (
-                          <Button
-                            onClick={() => handleConvertToPO(mr)}
-                            className="btn-icon btn-success"
-                            title="Convert to PO"
-                          >
-                            <ShoppingCart size={16} />
-                          </Button>
-                        )}
+                        {mr.status === 'approved' &&
+                          !mr.convertedToPO &&
+                          hasPermission(currentUser, 'create_po') && (
+                            <Button
+                              onClick={() => handleConvertToPO(mr)}
+                              className="btn-icon btn-success"
+                              title="Convert to PO"
+                            >
+                              <ShoppingCart size={16} />
+                            </Button>
+                          )}
                       </div>
                     </td>
                   </tr>

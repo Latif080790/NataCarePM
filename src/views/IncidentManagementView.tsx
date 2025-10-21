@@ -1,7 +1,7 @@
 /**
  * Incident Management View
  * Phase 3.5: Quick Wins - Safety Management System
- * 
+ *
  * Comprehensive incident reporting, investigation, and tracking
  * OSHA-compliant with full evidence management
  */
@@ -37,8 +37,9 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
   }, [projectId]);
 
   const filteredIncidents = useMemo(() => {
-    return incidents.filter(incident => {
-      const matchesSearch = !searchQuery ||
+    return incidents.filter((incident) => {
+      const matchesSearch =
+        !searchQuery ||
         incident.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         incident.incidentNumber.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesSeverity = selectedSeverity === 'all' || incident.severity === selectedSeverity;
@@ -70,7 +71,11 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
   };
 
   if (incidentsLoading && incidents.length === 0) {
-    return <div className="flex items-center justify-center min-h-screen"><Spinner size="lg" /></div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
   }
 
   return (
@@ -79,12 +84,16 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Incident Management</h1>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">OSHA-compliant incident reporting</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Incident Management
+              </h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                OSHA-compliant incident reporting
+              </p>
             </div>
             <Button className="bg-red-600 hover:bg-red-700 text-white">Report Incident</Button>
           </div>
-          
+
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
             <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
               <p className="text-xs text-gray-500">Total</p>
@@ -100,11 +109,15 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
               <p className="text-xs text-blue-700">Investigating</p>
-              <p className="text-2xl font-bold text-blue-900">{incidents.filter(i => i.status === 'investigating').length}</p>
+              <p className="text-2xl font-bold text-blue-900">
+                {incidents.filter((i) => i.status === 'investigating').length}
+              </p>
             </div>
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
               <p className="text-xs text-green-700">Closed</p>
-              <p className="text-2xl font-bold text-green-900">{incidents.filter(i => i.status === 'closed').length}</p>
+              <p className="text-2xl font-bold text-green-900">
+                {incidents.filter((i) => i.status === 'closed').length}
+              </p>
             </div>
           </div>
         </div>
@@ -152,29 +165,40 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
             {filteredIncidents.map((incident) => (
               <li
                 key={incident.id}
-                onClick={() => { setSelectedIncident(incident); setShowDetailModal(true); }}
+                onClick={() => {
+                  setSelectedIncident(incident);
+                  setShowDetailModal(true);
+                }}
                 className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
               >
                 <div className="px-6 py-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${getSeverityColor(incident.severity)}`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${getSeverityColor(incident.severity)}`}
+                        >
                           {incident.severity.replace('_', ' ').toUpperCase()}
                         </span>
                         <span className="text-sm text-gray-500">{incident.incidentNumber}</span>
                       </div>
-                      <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">{incident.title}</h3>
+                      <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
+                        {incident.title}
+                      </h3>
                       <p className="mt-1 text-sm text-gray-500">{incident.description}</p>
                       <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
                         <span>{new Date(incident.occurredAt).toLocaleDateString()}</span>
                         <span>{incident.location}</span>
                         {incident.injuredPersons.length > 0 && (
-                          <span className="text-red-600">{incident.injuredPersons.length} injured</span>
+                          <span className="text-red-600">
+                            {incident.injuredPersons.length} injured
+                          </span>
                         )}
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}
+                    >
                       {incident.status.replace('_', ' ')}
                     </span>
                   </div>

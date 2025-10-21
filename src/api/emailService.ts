@@ -1,5 +1,5 @@
 /**
- * Email Integration API Service  
+ * Email Integration API Service
  * Priority 3E: Email Integration System
  */
 
@@ -32,13 +32,17 @@ const PREFERENCES_COLLECTION = 'emailPreferences';
 const CAMPAIGNS_COLLECTION = 'emailCampaigns';
 
 class EmailService {
-  async sendNotification(notification: Omit<EmailNotification, 'id' | 'createdAt' | 'updatedAt' | 'status'>): Promise<EmailNotification> {
+  async sendNotification(
+    notification: Omit<EmailNotification, 'id' | 'createdAt' | 'updatedAt' | 'status'>
+  ): Promise<EmailNotification> {
     try {
       const now = new Date();
       const notificationData = {
         ...notification,
         status: 'queued' as EmailStatus,
-        scheduledFor: notification.scheduledFor ? Timestamp.fromDate(notification.scheduledFor) : null,
+        scheduledFor: notification.scheduledFor
+          ? Timestamp.fromDate(notification.scheduledFor)
+          : null,
         createdAt: Timestamp.fromDate(now),
         updatedAt: Timestamp.fromDate(now),
       };
@@ -84,8 +88,8 @@ class EmailService {
 
   async getTemplates(type?: EmailNotificationType): Promise<EmailTemplate[]> {
     try {
-      let q = collection(db, TEMPLATES_COLLECTION);
-      let constraints: any[] = [where('isActive', '==', true)];
+      const q = collection(db, TEMPLATES_COLLECTION);
+      const constraints: any[] = [where('isActive', '==', true)];
 
       if (type) {
         constraints.push(where('type', '==', type));
@@ -94,7 +98,7 @@ class EmailService {
       const templateQuery = query(q, ...constraints);
       const querySnapshot = await getDocs(templateQuery);
 
-      return querySnapshot.docs.map(doc => {
+      return querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -138,10 +142,13 @@ class EmailService {
     }
   }
 
-  async updateUserPreferences(userId: string, preferences: Partial<EmailPreferences>): Promise<void> {
+  async updateUserPreferences(
+    userId: string,
+    preferences: Partial<EmailPreferences>
+  ): Promise<void> {
     try {
       const docRef = doc(db, PREFERENCES_COLLECTION, userId);
-      
+
       const updateData = {
         ...preferences,
         updatedAt: Timestamp.fromDate(new Date()),
@@ -163,17 +170,17 @@ class EmailService {
       );
 
       const querySnapshot = await getDocs(q);
-      const notifications = querySnapshot.docs.map(doc => doc.data() as any);
+      const notifications = querySnapshot.docs.map((doc) => doc.data() as any);
 
       const stats: EmailStatistics = {
         period: { start: periodStart, end: periodEnd },
         totals: {
-          sent: notifications.filter(n => n.status === 'sent').length,
-          delivered: notifications.filter(n => n.deliveredAt).length,
-          failed: notifications.filter(n => n.status === 'failed').length,
-          opened: notifications.filter(n => n.openedAt).length,
-          clicked: notifications.filter(n => n.clickedAt).length,
-          bounced: notifications.filter(n => n.status === 'bounced').length,
+          sent: notifications.filter((n) => n.status === 'sent').length,
+          delivered: notifications.filter((n) => n.deliveredAt).length,
+          failed: notifications.filter((n) => n.status === 'failed').length,
+          opened: notifications.filter((n) => n.openedAt).length,
+          clicked: notifications.filter((n) => n.clickedAt).length,
+          bounced: notifications.filter((n) => n.status === 'bounced').length,
         },
         rates: {
           deliveryRate: 0,

@@ -22,7 +22,7 @@ describe('RateLimiter - Security Tests', () => {
 
     it('should allow first login attempt', () => {
       const result = rateLimiter.checkLimit(identifier, type);
-      
+
       expect(result.allowed).toBe(true);
       expect(result.remainingAttempts).toBe(4); // 5 max - 1 = 4
       expect(result.message).toContain('4 attempts remaining');
@@ -53,7 +53,7 @@ describe('RateLimiter - Security Tests', () => {
 
       // 6th attempt should be blocked
       const result = rateLimiter.checkLimit(identifier, type);
-      
+
       expect(result.allowed).toBe(false);
       expect(result.remainingAttempts).toBe(0);
       expect(result.blockedUntil).toBeDefined();
@@ -69,7 +69,7 @@ describe('RateLimiter - Security Tests', () => {
       // Check multiple times - should still be blocked
       const result1 = rateLimiter.checkLimit(identifier, type);
       const result2 = rateLimiter.checkLimit(identifier, type);
-      
+
       expect(result1.allowed).toBe(false);
       expect(result2.allowed).toBe(false);
       expect(result1.message).toEqual(result2.message);
@@ -116,7 +116,7 @@ describe('RateLimiter - Security Tests', () => {
       }
 
       const result = rateLimiter.checkLimit(identifier, type);
-      
+
       expect(result.message).toMatch(/locked for \d+ minute/);
       expect(result.message).toMatch(/try again at \d+:\d+/);
       expect(result.blockedUntil).toBeInstanceOf(Date);
@@ -324,7 +324,7 @@ describe('RateLimiter - Security Tests', () => {
 
     it('should return clean status for new identifier', () => {
       const status = rateLimiter.getStatus('new@example.com', 'login');
-      
+
       expect(status.attempts).toBe(0);
       expect(status.blocked).toBe(false);
       expect(status.remainingAttempts).toBe(5);
@@ -336,14 +336,14 @@ describe('RateLimiter - Security Tests', () => {
       // Create some activity
       rateLimiter.checkLimit('user1@example.com', 'login');
       rateLimiter.checkLimit('user2@example.com', 'api');
-      
+
       // Block one user
       for (let i = 0; i < 6; i++) {
         rateLimiter.checkLimit('user3@example.com', 'login');
       }
 
       const stats = rateLimiter.getStats();
-      
+
       expect(stats.totalEntries).toBe(3);
       expect(stats.blockedEntries).toBe(1);
       expect(stats.configuredTypes).toContain('login');
@@ -355,11 +355,11 @@ describe('RateLimiter - Security Tests', () => {
   describe('Custom Configuration', () => {
     it('should allow setting custom rate limit config', () => {
       const customType = 'custom-action';
-      
+
       rateLimiter.setConfig(customType, {
-        windowMs: 5000,       // 5 seconds
+        windowMs: 5000, // 5 seconds
         maxAttempts: 2,
-        blockDurationMs: 10000 // 10 seconds
+        blockDurationMs: 10000, // 10 seconds
       });
 
       const result1 = rateLimiter.checkLimit('user@example.com', customType);
@@ -375,7 +375,7 @@ describe('RateLimiter - Security Tests', () => {
   describe('Edge Cases', () => {
     it('should handle unknown rate limit type gracefully', () => {
       const result = rateLimiter.checkLimit('user@example.com', 'unknown-type');
-      
+
       expect(result.allowed).toBe(true);
       expect(result.message).toContain('No rate limit configured');
     });
@@ -391,10 +391,10 @@ describe('RateLimiter - Security Tests', () => {
       }
 
       // First 5 should be allowed
-      expect(results.slice(0, 5).every(r => r.allowed)).toBe(true);
-      
+      expect(results.slice(0, 5).every((r) => r.allowed)).toBe(true);
+
       // Remaining should be blocked
-      expect(results.slice(5).every(r => !r.allowed)).toBe(true);
+      expect(results.slice(5).every((r) => !r.allowed)).toBe(true);
     });
 
     it('should handle empty identifier gracefully', () => {
@@ -436,15 +436,15 @@ describe('RateLimiter - Security Tests', () => {
 
       // Simulate attacks from different IPs
       const ips = ['192.168.1.1', '192.168.1.2', '192.168.1.3'];
-      
-      ips.forEach(ip => {
+
+      ips.forEach((ip) => {
         for (let i = 0; i < 6; i++) {
           rateLimiter.checkLimit(`${ip}:${targetEmail}`, type);
         }
       });
 
       // All IPs should be blocked
-      ips.forEach(ip => {
+      ips.forEach((ip) => {
         const result = rateLimiter.checkLimit(`${ip}:${targetEmail}`, type);
         expect(result.allowed).toBe(false);
       });
@@ -458,15 +458,15 @@ describe('RateLimiter - Security Tests', () => {
         'user3@example.com',
         'user4@example.com',
         'user5@example.com',
-        'user6@example.com'
+        'user6@example.com',
       ];
 
       // Each email gets blocked after 5 attempts
-      emails.forEach(email => {
+      emails.forEach((email) => {
         for (let i = 0; i < 6; i++) {
           rateLimiter.checkLimit(email, type);
         }
-        
+
         const result = rateLimiter.checkLimit(email, type);
         expect(result.allowed).toBe(false);
       });
@@ -493,7 +493,7 @@ describe('RateLimiter - Security Tests', () => {
       const type = 'login';
 
       const result = rateLimiter.checkLimit(identifier, type);
-      
+
       expect(result.resetAt).toBeDefined();
       expect(result.resetAt).toBeInstanceOf(Date);
       expect(result.resetAt!.getTime()).toBeGreaterThan(Date.now());
@@ -509,14 +509,14 @@ describe('RateLimiter - Security Tests', () => {
       }
 
       const result = rateLimiter.checkLimit(identifier, type);
-      
+
       expect(result.blockedUntil).toBeDefined();
       expect(result.blockedUntil).toBeInstanceOf(Date);
-      
+
       // Should be blocked for approximately 30 minutes (1800000 ms)
       const blockDuration = result.blockedUntil!.getTime() - Date.now();
       expect(blockDuration).toBeGreaterThan(1700000); // At least 28 minutes
-      expect(blockDuration).toBeLessThan(1900000);    // At most 32 minutes
+      expect(blockDuration).toBeLessThan(1900000); // At most 32 minutes
     });
   });
 });

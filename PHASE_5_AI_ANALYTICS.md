@@ -1,6 +1,7 @@
 # Fase 5: Enterprise Data Analytics & AI Enhancement - Implementation Complete
 
 ## 🎯 Objektif Fase 5 (Bulan 6-7)
+
 Membangun platform advanced analytics dan AI enterprise-grade dengan machine learning models, predictive analytics, dan AI-powered insights untuk optimisasi proyek konstruksi dan decision-making yang cerdas.
 
 ---
@@ -10,6 +11,7 @@ Membangun platform advanced analytics dan AI enterprise-grade dengan machine lea
 ### 1.1 **MLOps Pipeline dengan Kubeflow**
 
 #### Enterprise MLOps Architecture
+
 ```yaml
 # ml-platform/kubeflow/kubeflow-enterprise.yaml
 apiVersion: v1
@@ -55,7 +57,7 @@ data:
       name: "NataCarePM ML Platform"
       version: "2.0.0"
       environment: "enterprise"
-    
+
     # Data Sources
     dataSources:
       projectDatabase:
@@ -82,7 +84,7 @@ data:
         security:
           ssl: true
           authentication: true
-    
+
     # Model Registry
     modelRegistry:
       type: "mlflow"
@@ -93,14 +95,14 @@ data:
       tracking:
         enabled: true
         retention: "2years"
-    
+
     # Feature Store
     featureStore:
       type: "feast"
       onlineStore: "redis://redis-cluster.natacare-production.svc.cluster.local:6379"
       offlineStore: "postgresql://feast:password@postgres-feast:5432/feast"
       registry: "s3://natacare-feature-registry"
-    
+
     # Model Serving
     modelServing:
       type: "seldon"
@@ -122,7 +124,7 @@ data:
         - type: "custom"
           name: "inference_requests_per_second"
           targetValue: 100
-    
+
     # Monitoring & Observability
     monitoring:
       prometheus:
@@ -150,188 +152,189 @@ metadata:
   namespace: natacare-ml-platform
 spec:
   entrypoint: risk-assessment-pipeline
-  
+
   arguments:
     parameters:
-    - name: project-id
-      value: ""
-    - name: model-version
-      value: "latest"
-    - name: data-window-days
-      value: "90"
-    - name: prediction-horizon-days
-      value: "30"
-  
+      - name: project-id
+        value: ''
+      - name: model-version
+        value: 'latest'
+      - name: data-window-days
+        value: '90'
+      - name: prediction-horizon-days
+        value: '30'
+
   templates:
-  - name: risk-assessment-pipeline
-    dag:
-      tasks:
-      # Data Extraction & Preprocessing
-      - name: extract-project-data
-        template: extract-data
-        arguments:
-          parameters:
+    - name: risk-assessment-pipeline
+      dag:
+        tasks:
+          # Data Extraction & Preprocessing
+          - name: extract-project-data
+            template: extract-data
+            arguments:
+              parameters:
+                - name: project-id
+                  value: '{{workflow.parameters.project-id}}'
+                - name: window-days
+                  value: '{{workflow.parameters.data-window-days}}'
+
+          - name: feature-engineering
+            template: feature-engineering
+            dependencies: [extract-project-data]
+            arguments:
+              parameters:
+                - name: project-id
+                  value: '{{workflow.parameters.project-id}}'
+              artifacts:
+                - name: raw-data
+                  from: '{{tasks.extract-project-data.outputs.artifacts.project-data}}'
+
+          - name: data-validation
+            template: data-validation
+            dependencies: [feature-engineering]
+            arguments:
+              artifacts:
+                - name: features
+                  from: '{{tasks.feature-engineering.outputs.artifacts.features}}'
+
+          # Model Training & Validation
+          - name: train-risk-model
+            template: train-model
+            dependencies: [data-validation]
+            arguments:
+              parameters:
+                - name: model-type
+                  value: 'xgboost'
+                - name: hyperparameters
+                  value: |
+                    {
+                      "max_depth": 6,
+                      "learning_rate": 0.1,
+                      "n_estimators": 100,
+                      "subsample": 0.8,
+                      "colsample_bytree": 0.8
+                    }
+              artifacts:
+                - name: validated-features
+                  from: '{{tasks.data-validation.outputs.artifacts.validated-features}}'
+
+          - name: model-validation
+            template: validate-model
+            dependencies: [train-risk-model]
+            arguments:
+              artifacts:
+                - name: trained-model
+                  from: '{{tasks.train-risk-model.outputs.artifacts.model}}'
+                - name: validation-data
+                  from: '{{tasks.data-validation.outputs.artifacts.validation-data}}'
+
+          # Model Deployment
+          - name: deploy-model
+            template: deploy-model
+            dependencies: [model-validation]
+            when: '{{tasks.model-validation.outputs.parameters.validation-passed}} == true'
+            arguments:
+              parameters:
+                - name: model-name
+                  value: 'project-risk-assessment'
+                - name: model-version
+                  value: '{{tasks.train-risk-model.outputs.parameters.model-version}}'
+              artifacts:
+                - name: validated-model
+                  from: '{{tasks.model-validation.outputs.artifacts.validated-model}}'
+
+          # Prediction & Insights
+          - name: generate-predictions
+            template: generate-predictions
+            dependencies: [deploy-model]
+            arguments:
+              parameters:
+                - name: project-id
+                  value: '{{workflow.parameters.project-id}}'
+                - name: prediction-horizon
+                  value: '{{workflow.parameters.prediction-horizon-days}}'
+                - name: model-endpoint
+                  value: '{{tasks.deploy-model.outputs.parameters.model-endpoint}}'
+
+          - name: generate-insights
+            template: generate-insights
+            dependencies: [generate-predictions]
+            arguments:
+              artifacts:
+                - name: predictions
+                  from: '{{tasks.generate-predictions.outputs.artifacts.predictions}}'
+
+    # Data Extraction Template
+    - name: extract-data
+      inputs:
+        parameters:
           - name: project-id
-            value: "{{workflow.parameters.project-id}}"
           - name: window-days
-            value: "{{workflow.parameters.data-window-days}}"
-      
-      - name: feature-engineering
-        template: feature-engineering
-        dependencies: [extract-project-data]
-        arguments:
-          parameters:
+      outputs:
+        artifacts:
+          - name: project-data
+            path: /tmp/project-data.parquet
+      container:
+        image: natacare/ml-data-extractor:v2.0.0
+        command: [python]
+        args:
+          - extract_project_data.py
+          - --project-id={{inputs.parameters.project-id}}
+          - --window-days={{inputs.parameters.window-days}}
+          - --output=/tmp/project-data.parquet
+        env:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: ml-database-credentials
+                key: url
+          - name: ELASTICSEARCH_URL
+            valueFrom:
+              secretKeyRef:
+                name: ml-elasticsearch-credentials
+                key: url
+        resources:
+          requests:
+            memory: '2Gi'
+            cpu: '1'
+          limits:
+            memory: '4Gi'
+            cpu: '2'
+
+    # Feature Engineering Template
+    - name: feature-engineering
+      inputs:
+        parameters:
           - name: project-id
-            value: "{{workflow.parameters.project-id}}"
-          artifacts:
+        artifacts:
           - name: raw-data
-            from: "{{tasks.extract-project-data.outputs.artifacts.project-data}}"
-      
-      - name: data-validation
-        template: data-validation
-        dependencies: [feature-engineering]
-        arguments:
-          artifacts:
+            path: /tmp/raw-data.parquet
+      outputs:
+        artifacts:
           - name: features
-            from: "{{tasks.feature-engineering.outputs.artifacts.features}}"
-      
-      # Model Training & Validation
-      - name: train-risk-model
-        template: train-model
-        dependencies: [data-validation]
-        arguments:
-          parameters:
-          - name: model-type
-            value: "xgboost"
-          - name: hyperparameters
-            value: |
-              {
-                "max_depth": 6,
-                "learning_rate": 0.1,
-                "n_estimators": 100,
-                "subsample": 0.8,
-                "colsample_bytree": 0.8
-              }
-          artifacts:
-          - name: validated-features
-            from: "{{tasks.data-validation.outputs.artifacts.validated-features}}"
-      
-      - name: model-validation
-        template: validate-model
-        dependencies: [train-risk-model]
-        arguments:
-          artifacts:
-          - name: trained-model
-            from: "{{tasks.train-risk-model.outputs.artifacts.model}}"
-          - name: validation-data
-            from: "{{tasks.data-validation.outputs.artifacts.validation-data}}"
-      
-      # Model Deployment
-      - name: deploy-model
-        template: deploy-model
-        dependencies: [model-validation]
-        when: "{{tasks.model-validation.outputs.parameters.validation-passed}} == true"
-        arguments:
-          parameters:
-          - name: model-name
-            value: "project-risk-assessment"
-          - name: model-version
-            value: "{{tasks.train-risk-model.outputs.parameters.model-version}}"
-          artifacts:
-          - name: validated-model
-            from: "{{tasks.model-validation.outputs.artifacts.validated-model}}"
-      
-      # Prediction & Insights
-      - name: generate-predictions
-        template: generate-predictions
-        dependencies: [deploy-model]
-        arguments:
-          parameters:
-          - name: project-id
-            value: "{{workflow.parameters.project-id}}"
-          - name: prediction-horizon
-            value: "{{workflow.parameters.prediction-horizon-days}}"
-          - name: model-endpoint
-            value: "{{tasks.deploy-model.outputs.parameters.model-endpoint}}"
-      
-      - name: generate-insights
-        template: generate-insights
-        dependencies: [generate-predictions]
-        arguments:
-          artifacts:
-          - name: predictions
-            from: "{{tasks.generate-predictions.outputs.artifacts.predictions}}"
-  
-  # Data Extraction Template
-  - name: extract-data
-    inputs:
-      parameters:
-      - name: project-id
-      - name: window-days
-    outputs:
-      artifacts:
-      - name: project-data
-        path: /tmp/project-data.parquet
-    container:
-      image: natacare/ml-data-extractor:v2.0.0
-      command: [python]
-      args: 
-      - extract_project_data.py
-      - --project-id={{inputs.parameters.project-id}}
-      - --window-days={{inputs.parameters.window-days}}
-      - --output=/tmp/project-data.parquet
-      env:
-      - name: DATABASE_URL
-        valueFrom:
-          secretKeyRef:
-            name: ml-database-credentials
-            key: url
-      - name: ELASTICSEARCH_URL
-        valueFrom:
-          secretKeyRef:
-            name: ml-elasticsearch-credentials
-            key: url
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "1"
-        limits:
-          memory: "4Gi"
-          cpu: "2"
-  
-  # Feature Engineering Template
-  - name: feature-engineering
-    inputs:
-      parameters:
-      - name: project-id
-      artifacts:
-      - name: raw-data
-        path: /tmp/raw-data.parquet
-    outputs:
-      artifacts:
-      - name: features
-        path: /tmp/features.parquet
-    container:
-      image: natacare/ml-feature-engineering:v2.0.0
-      command: [python]
-      args:
-      - feature_engineering.py
-      - --input=/tmp/raw-data.parquet
-      - --output=/tmp/features.parquet
-      - --project-id={{inputs.parameters.project-id}}
-      env:
-      - name: FEAST_REGISTRY_PATH
-        value: "s3://natacare-feature-registry"
-      resources:
-        requests:
-          memory: "4Gi"
-          cpu: "2"
-        limits:
-          memory: "8Gi"
-          cpu: "4"
+            path: /tmp/features.parquet
+      container:
+        image: natacare/ml-feature-engineering:v2.0.0
+        command: [python]
+        args:
+          - feature_engineering.py
+          - --input=/tmp/raw-data.parquet
+          - --output=/tmp/features.parquet
+          - --project-id={{inputs.parameters.project-id}}
+        env:
+          - name: FEAST_REGISTRY_PATH
+            value: 's3://natacare-feature-registry'
+        resources:
+          requests:
+            memory: '4Gi'
+            cpu: '2'
+          limits:
+            memory: '8Gi'
+            cpu: '4'
 ```
 
 #### Advanced ML Models Implementation
+
 ```python
 # ml-platform/models/project_risk_assessment.py
 import pandas as pd
@@ -378,7 +381,7 @@ class AdvancedProjectRiskAssessment:
     Enterprise-grade ML model for construction project risk assessment
     with advanced feature engineering, model ensembling, and explainable AI
     """
-    
+
     def __init__(self, config: Dict):
         self.config = config
         self.feature_store = FeatureStore(repo_path=config['feast_repo_path'])
@@ -387,7 +390,7 @@ class AdvancedProjectRiskAssessment:
         self.shap_explainer = None
         self.scaler = None
         self.feature_selector = None
-        
+
         # Risk categories and weights
         self.risk_categories = {
             'LOW': (0.0, 0.3),
@@ -395,13 +398,13 @@ class AdvancedProjectRiskAssessment:
             'HIGH': (0.6, 0.8),
             'CRITICAL': (0.8, 1.0)
         }
-        
+
         # Initialize MLflow
         mlflow.set_tracking_uri(config['mlflow_tracking_uri'])
         mlflow.set_experiment(config['experiment_name'])
-        
+
         self.logger = logging.getLogger(__name__)
-    
+
     def extract_features(self, project_id: str, end_date: str = None) -> pd.DataFrame:
         """
         Extract comprehensive features for risk assessment using Feast feature store
@@ -419,27 +422,27 @@ class AdvancedProjectRiskAssessment:
                 'contractor_performance_features',
                 'location_risk_features'
             ]
-            
+
             # Retrieve features from feature store
             entity_df = pd.DataFrame({
                 'project_id': [project_id],
                 'event_timestamp': [pd.to_datetime(end_date) if end_date else pd.Timestamp.now()]
             })
-            
+
             features_df = self.feature_store.get_historical_features(
                 entity_df=entity_df,
                 features=[f"{fv}:*" for fv in feature_views]
             ).to_df()
-            
+
             # Advanced feature engineering
             features_df = self._engineer_advanced_features(features_df)
-            
+
             return features_df
-            
+
         except Exception as e:
             self.logger.error(f"Feature extraction failed: {str(e)}")
             raise
-    
+
     def _engineer_advanced_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Advanced feature engineering for risk assessment
@@ -448,43 +451,43 @@ class AdvancedProjectRiskAssessment:
         df['project_duration_days'] = (df['planned_end_date'] - df['planned_start_date']).dt.days
         df['time_elapsed_ratio'] = (pd.Timestamp.now() - df['actual_start_date']).dt.days / df['project_duration_days']
         df['remaining_time_ratio'] = (df['planned_end_date'] - pd.Timestamp.now()).dt.days / df['project_duration_days']
-        
+
         # Financial features
         df['cost_per_day'] = df['total_budget'] / df['project_duration_days']
         df['burn_rate'] = df['actual_cost'] / ((pd.Timestamp.now() - df['actual_start_date']).dt.days + 1)
         df['budget_variance_ratio'] = (df['actual_cost'] - df['planned_cost']) / df['planned_cost']
         df['cost_efficiency'] = df['completed_work_value'] / df['actual_cost']
-        
+
         # Progress features
         df['schedule_performance_index'] = df['earned_value'] / df['planned_value']
         df['cost_performance_index'] = df['earned_value'] / df['actual_cost']
         df['progress_velocity'] = df['completion_percentage'] / df['time_elapsed_ratio']
-        
+
         # Resource utilization features
         df['resource_utilization_efficiency'] = df['productive_hours'] / df['total_hours']
         df['workforce_stability'] = 1 - (df['employee_turnover'] / df['total_employees'])
         df['equipment_downtime_ratio'] = df['equipment_downtime_hours'] / df['total_operating_hours']
-        
+
         # Risk indicators
         df['change_order_frequency'] = df['change_orders_count'] / df['project_duration_days']
         df['quality_issue_density'] = df['quality_issues_count'] / df['completed_work_units']
         df['safety_incident_rate'] = df['safety_incidents'] / df['total_working_hours'] * 1000000  # per million hours
-        
+
         # Weather impact features
         df['adverse_weather_days_ratio'] = df['adverse_weather_days'] / df['total_working_days']
         df['weather_delay_impact'] = df['weather_delays_hours'] / df['total_planned_hours']
-        
+
         # Contractor performance features
         df['contractor_reliability_score'] = (
             df['contractor_on_time_delivery_rate'] * 0.4 +
             df['contractor_quality_score'] * 0.3 +
             df['contractor_safety_score'] * 0.3
         )
-        
+
         # Market volatility features
         df['material_price_volatility'] = df['material_price_variance'] / df['average_material_price']
         df['labor_cost_volatility'] = df['labor_cost_variance'] / df['average_labor_cost']
-        
+
         # Complexity features
         df['project_complexity_score'] = (
             df['technical_complexity'] * 0.3 +
@@ -493,14 +496,14 @@ class AdvancedProjectRiskAssessment:
             df['environmental_complexity'] * 0.15 +
             df['stakeholder_complexity'] * 0.15
         )
-        
+
         # Interaction features
         df['cost_schedule_risk'] = df['budget_variance_ratio'] * df['schedule_variance_ratio']
         df['resource_pressure'] = df['resource_demand'] / df['resource_availability']
         df['external_pressure'] = df['regulatory_pressure'] + df['stakeholder_pressure'] + df['market_pressure']
-        
+
         return df
-    
+
     def train_ensemble_model(self, training_data: pd.DataFrame, target_column: str) -> ModelMetrics:
         """
         Train ensemble model with hyperparameter optimization
@@ -508,18 +511,18 @@ class AdvancedProjectRiskAssessment:
         try:
             X = training_data.drop(columns=[target_column, 'project_id'])
             y = training_data[target_column]
-            
+
             # Split for time series validation
             tscv = TimeSeriesSplit(n_splits=5)
-            
+
             with mlflow.start_run():
                 # Log dataset info
                 mlflow.log_param("n_samples", len(X))
                 mlflow.log_param("n_features", len(X.columns))
-                
+
                 # Hyperparameter optimization with Optuna
                 best_params = self._optimize_hyperparameters(X, y, tscv)
-                
+
                 # Train individual models
                 models = {
                     'xgboost': XGBRegressor(**best_params['xgboost']),
@@ -527,51 +530,51 @@ class AdvancedProjectRiskAssessment:
                     'random_forest': RandomForestRegressor(**best_params['random_forest']),
                     'gradient_boosting': GradientBoostingRegressor(**best_params['gradient_boosting'])
                 }
-                
+
                 # Train and validate each model
                 model_scores = {}
                 trained_models = {}
-                
+
                 for model_name, model in models.items():
                     scores = cross_val_score(model, X, y, cv=tscv, scoring='neg_mean_squared_error')
                     model_scores[model_name] = np.mean(scores)
-                    
+
                     # Train on full dataset
                     model.fit(X, y)
                     trained_models[model_name] = model
-                    
+
                     # Log model metrics
                     mlflow.log_metric(f"{model_name}_rmse", np.sqrt(-np.mean(scores)))
-                
+
                 # Create weighted ensemble
                 weights = self._calculate_ensemble_weights(model_scores)
                 self.models = trained_models
                 self.ensemble_weights = weights
-                
+
                 # Calculate ensemble predictions for validation
                 ensemble_predictions = self._predict_ensemble(X)
-                
+
                 # Calculate metrics
                 metrics = self._calculate_metrics(y, ensemble_predictions, X)
-                
+
                 # SHAP explainer for interpretability
                 self.shap_explainer = shap.TreeExplainer(trained_models['xgboost'])
-                
+
                 # Log ensemble metrics
                 for metric_name, metric_value in metrics.__dict__.items():
                     if isinstance(metric_value, (int, float)):
                         mlflow.log_metric(f"ensemble_{metric_name}", metric_value)
-                
+
                 # Log model artifacts
                 mlflow.sklearn.log_model(trained_models, "ensemble_models")
                 mlflow.log_dict(weights, "ensemble_weights.json")
-                
+
                 return metrics
-                
+
         except Exception as e:
             self.logger.error(f"Model training failed: {str(e)}")
             raise
-    
+
     def _optimize_hyperparameters(self, X: pd.DataFrame, y: pd.Series, cv) -> Dict:
         """
         Optimize hyperparameters using Optuna
@@ -586,11 +589,11 @@ class AdvancedProjectRiskAssessment:
                 'reg_alpha': trial.suggest_float('reg_alpha', 0, 10),
                 'reg_lambda': trial.suggest_float('reg_lambda', 0, 10)
             }
-            
+
             model = XGBRegressor(**params)
             scores = cross_val_score(model, X, y, cv=cv, scoring='neg_mean_squared_error')
             return np.mean(scores)
-        
+
         def objective_lightgbm(trial):
             params = {
                 'max_depth': trial.suggest_int('max_depth', 3, 10),
@@ -601,11 +604,11 @@ class AdvancedProjectRiskAssessment:
                 'reg_alpha': trial.suggest_float('reg_alpha', 0, 10),
                 'reg_lambda': trial.suggest_float('reg_lambda', 0, 10)
             }
-            
+
             model = LGBMRegressor(**params)
             scores = cross_val_score(model, X, y, cv=cv, scoring='neg_mean_squared_error')
             return np.mean(scores)
-        
+
         def objective_rf(trial):
             params = {
                 'n_estimators': trial.suggest_int('n_estimators', 50, 200),
@@ -614,11 +617,11 @@ class AdvancedProjectRiskAssessment:
                 'min_samples_leaf': trial.suggest_int('min_samples_leaf', 1, 10),
                 'max_features': trial.suggest_categorical('max_features', ['auto', 'sqrt', 'log2'])
             }
-            
+
             model = RandomForestRegressor(**params)
             scores = cross_val_score(model, X, y, cv=cv, scoring='neg_mean_squared_error')
             return np.mean(scores)
-        
+
         # Optimize each model
         studies = {}
         for model_name, objective in [
@@ -629,7 +632,7 @@ class AdvancedProjectRiskAssessment:
             study = optuna.create_study(direction='maximize')
             study.optimize(objective, n_trials=50)
             studies[model_name] = study.best_params
-        
+
         # Add gradient boosting with reasonable defaults
         studies['gradient_boosting'] = {
             'max_depth': 6,
@@ -637,9 +640,9 @@ class AdvancedProjectRiskAssessment:
             'n_estimators': 100,
             'subsample': 0.8
         }
-        
+
         return studies
-    
+
     def predict_risk(self, project_id: str, explain: bool = True) -> RiskPrediction:
         """
         Predict project risk with comprehensive analysis and explanations
@@ -648,26 +651,26 @@ class AdvancedProjectRiskAssessment:
             # Extract features
             features_df = self.extract_features(project_id)
             X = features_df.drop(columns=['project_id'])
-            
+
             # Generate ensemble prediction
             risk_score = self._predict_ensemble(X)[0]
-            
+
             # Determine risk category
             risk_category = self._categorize_risk(risk_score)
-            
+
             # Calculate prediction confidence
             confidence = self._calculate_confidence(X)
-            
+
             # Generate explanations
             contributing_factors = []
             recommendations = []
-            
+
             if explain:
                 # SHAP explanations
                 shap_values = self.shap_explainer.shap_values(X)
                 feature_contributions = list(zip(X.columns, shap_values[0]))
                 feature_contributions.sort(key=lambda x: abs(x[1]), reverse=True)
-                
+
                 contributing_factors = [
                     {
                         'factor': factor,
@@ -676,14 +679,14 @@ class AdvancedProjectRiskAssessment:
                     }
                     for factor, contribution in feature_contributions[:10]
                 ]
-                
+
                 # Generate recommendations
                 recommendations = self._generate_recommendations(
-                    features_df.iloc[0], 
+                    features_df.iloc[0],
                     contributing_factors,
                     risk_category
                 )
-            
+
             return RiskPrediction(
                 project_id=project_id,
                 risk_score=float(risk_score),
@@ -694,24 +697,24 @@ class AdvancedProjectRiskAssessment:
                 prediction_timestamp=pd.Timestamp.now().isoformat(),
                 model_version=self.config['model_version']
             )
-            
+
         except Exception as e:
             self.logger.error(f"Risk prediction failed: {str(e)}")
             raise
-    
+
     def _predict_ensemble(self, X: pd.DataFrame) -> np.ndarray:
         """
         Generate ensemble predictions using weighted average
         """
         predictions = np.zeros(len(X))
-        
+
         for model_name, model in self.models.items():
             model_predictions = model.predict(X)
             weight = self.ensemble_weights[model_name]
             predictions += weight * model_predictions
-        
+
         return predictions
-    
+
     def _categorize_risk(self, risk_score: float) -> str:
         """
         Categorize risk score into risk levels
@@ -720,7 +723,7 @@ class AdvancedProjectRiskAssessment:
             if min_score <= risk_score < max_score:
                 return category
         return 'CRITICAL'  # fallback for scores >= 1.0
-    
+
     def _calculate_confidence(self, X: pd.DataFrame) -> float:
         """
         Calculate prediction confidence based on model agreement
@@ -728,33 +731,33 @@ class AdvancedProjectRiskAssessment:
         predictions = []
         for model in self.models.values():
             predictions.append(model.predict(X)[0])
-        
+
         # Calculate coefficient of variation as inverse confidence
         mean_pred = np.mean(predictions)
         std_pred = np.std(predictions)
-        
+
         if mean_pred == 0:
             return 0.5  # neutral confidence
-        
+
         cv = std_pred / abs(mean_pred)
         confidence = max(0.0, min(1.0, 1.0 - cv))
-        
+
         return confidence
-    
-    def _generate_recommendations(self, 
-                                features: pd.Series, 
+
+    def _generate_recommendations(self,
+                                features: pd.Series,
                                 contributing_factors: List[Dict],
                                 risk_category: str) -> List[str]:
         """
         Generate actionable recommendations based on risk factors
         """
         recommendations = []
-        
+
         # Risk category specific recommendations
         if risk_category in ['HIGH', 'CRITICAL']:
             recommendations.append("Immediate project review and risk mitigation plan required")
             recommendations.append("Consider engaging additional project management resources")
-        
+
         # Factor-specific recommendations
         factor_recommendations = {
             'budget_variance_ratio': {
@@ -782,7 +785,7 @@ class AdvancedProjectRiskAssessment:
                 'action': "Consider resource retraining or replacement"
             }
         }
-        
+
         # Generate specific recommendations based on contributing factors
         for factor in contributing_factors[:5]:  # Top 5 factors
             factor_name = factor['factor']
@@ -795,47 +798,47 @@ class AdvancedProjectRiskAssessment:
                         recommendations.append(factor_rec['action'])
                 elif factor['impact'] == 'decreases_risk':
                     recommendations.append(f"Continue to leverage {factor_name.replace('_', ' ')} as a positive factor")
-        
+
         return list(set(recommendations))  # Remove duplicates
-    
+
     def _calculate_metrics(self, y_true: pd.Series, y_pred: np.ndarray, X: pd.DataFrame) -> ModelMetrics:
         """
         Calculate comprehensive model metrics
         """
         rmse = np.sqrt(mean_squared_error(y_true, y_pred))
         mae = np.mean(np.abs(y_true - y_pred))
-        
+
         # R-squared
         ss_res = np.sum((y_true - y_pred) ** 2)
         ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
         r2 = 1 - (ss_res / ss_tot)
-        
+
         # For classification metrics, convert to binary
         y_true_binary = (y_true > 0.5).astype(int)
         y_pred_binary = (y_pred > 0.5).astype(int)
-        
+
         auc_score = None
         try:
             auc_score = roc_auc_score(y_true_binary, y_pred)
         except:
             pass
-        
+
         # Calculate precision, recall, f1
         tp = np.sum((y_true_binary == 1) & (y_pred_binary == 1))
         fp = np.sum((y_true_binary == 0) & (y_pred_binary == 1))
         fn = np.sum((y_true_binary == 1) & (y_pred_binary == 0))
-        
+
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0
         f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-        
+
         # Feature importance from best model
         best_model = max(self.models.items(), key=lambda x: self.ensemble_weights[x[0]])
         feature_importance = dict(zip(X.columns, best_model[1].feature_importances_))
-        
+
         # SHAP values
         shap_values = self.shap_explainer.shap_values(X.sample(min(100, len(X))))
-        
+
         return ModelMetrics(
             rmse=rmse,
             mae=mae,
@@ -847,7 +850,7 @@ class AdvancedProjectRiskAssessment:
             feature_importance=feature_importance,
             shap_values=shap_values
         )
-    
+
     def _calculate_ensemble_weights(self, model_scores: Dict[str, float]) -> Dict[str, float]:
         """
         Calculate ensemble weights based on model performance
@@ -855,10 +858,10 @@ class AdvancedProjectRiskAssessment:
         # Convert negative MSE scores to positive weights
         weights = {}
         total_score = sum(abs(score) for score in model_scores.values())
-        
+
         for model_name, score in model_scores.items():
             weights[model_name] = abs(score) / total_score
-        
+
         return weights
 
 # Real-time Risk Monitoring Service
@@ -866,7 +869,7 @@ class RealTimeRiskMonitor:
     """
     Real-time monitoring service for project risk assessment
     """
-    
+
     def __init__(self, risk_model: AdvancedProjectRiskAssessment):
         self.risk_model = risk_model
         self.alert_thresholds = {
@@ -875,7 +878,7 @@ class RealTimeRiskMonitor:
             'MEDIUM': 0.4
         }
         self.logger = logging.getLogger(__name__)
-    
+
     async def monitor_project_risks(self, project_ids: List[str]):
         """
         Monitor multiple projects for risk changes
@@ -884,16 +887,16 @@ class RealTimeRiskMonitor:
             try:
                 # Get current risk prediction
                 risk_prediction = self.risk_model.predict_risk(project_id)
-                
+
                 # Check for alerts
                 await self._check_risk_alerts(risk_prediction)
-                
+
                 # Store prediction for trend analysis
                 await self._store_risk_prediction(risk_prediction)
-                
+
             except Exception as e:
                 self.logger.error(f"Risk monitoring failed for project {project_id}: {str(e)}")
-    
+
     async def _check_risk_alerts(self, risk_prediction: RiskPrediction):
         """
         Check if risk prediction triggers any alerts
@@ -902,21 +905,21 @@ class RealTimeRiskMonitor:
             await self._send_critical_alert(risk_prediction)
         elif risk_prediction.risk_score >= self.alert_thresholds['HIGH']:
             await self._send_high_risk_alert(risk_prediction)
-    
+
     async def _send_critical_alert(self, risk_prediction: RiskPrediction):
         """
         Send critical risk alert to stakeholders
         """
         # Implementation for critical alerts
         pass
-    
+
     async def _send_high_risk_alert(self, risk_prediction: RiskPrediction):
         """
         Send high risk alert to project managers
         """
         # Implementation for high risk alerts
         pass
-    
+
     async def _store_risk_prediction(self, risk_prediction: RiskPrediction):
         """
         Store risk prediction for historical analysis
@@ -928,6 +931,7 @@ class RealTimeRiskMonitor:
 ### 1.2 **Advanced Analytics Dashboard**
 
 #### React AI Analytics Dashboard
+
 ```typescript
 // components/analytics/AIAnalyticsDashboard.tsx
 import React, { useState, useEffect, useMemo } from 'react';
@@ -1044,17 +1048,17 @@ const AIAnalyticsDashboard: React.FC = () => {
 
   useEffect(() => {
     loadAnalyticsData();
-    
+
     // Setup real-time updates
     const interval = setInterval(loadAnalyticsData, 30000); // Update every 30 seconds
-    
+
     return () => clearInterval(interval);
   }, [timeRange]);
 
   const loadAnalyticsData = async () => {
     try {
       setLoading(true);
-      
+
       const [predictionsResponse, insightsResponse, metricsResponse] = await Promise.all([
         fetch('/api/ml/risk-predictions'),
         fetch('/api/ml/project-insights'),
@@ -1181,7 +1185,7 @@ const AIAnalyticsDashboard: React.FC = () => {
           <SmartToy style={{ marginRight: 8, verticalAlign: 'middle' }} />
           AI-Powered Analytics Dashboard
         </Typography>
-        
+
         <Box>
           <IconButton onClick={loadAnalyticsData} color="primary">
             <Refresh />
@@ -1207,7 +1211,7 @@ const AIAnalyticsDashboard: React.FC = () => {
               </Box>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <Box p={2}>
@@ -1223,7 +1227,7 @@ const AIAnalyticsDashboard: React.FC = () => {
               </Box>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <Box p={2}>
@@ -1236,7 +1240,7 @@ const AIAnalyticsDashboard: React.FC = () => {
               </Box>
             </Card>
           </Grid>
-          
+
           <Grid item xs={12} sm={6} md={3}>
             <Card>
               <Box p={2}>
@@ -1299,16 +1303,16 @@ const AIAnalyticsDashboard: React.FC = () => {
                   <YAxis />
                   <RechartsTooltip />
                   <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="avgRiskScore" 
-                    stroke="#8884d8" 
+                  <Line
+                    type="monotone"
+                    dataKey="avgRiskScore"
+                    stroke="#8884d8"
                     name="Avg Risk Score"
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="criticalProjects" 
-                    stroke="#f44336" 
+                  <Line
+                    type="monotone"
+                    dataKey="criticalProjects"
+                    stroke="#f44336"
                     name="Critical Projects"
                   />
                 </LineChart>
@@ -1493,7 +1497,7 @@ const AIAnalyticsDashboard: React.FC = () => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography 
+                          <Typography
                             variant="body2"
                             color={factor.contribution > 0 ? 'error' : 'success'}
                           >

@@ -24,6 +24,7 @@
 ### **Required Software**
 
 #### 1. **Node.js** (v18.0.0 or higher)
+
 ```bash
 # Download from: https://nodejs.org/
 
@@ -33,6 +34,7 @@ npm --version   # Should show 8.0.0 or higher
 ```
 
 **Recommended:** Use Node Version Manager (nvm)
+
 ```bash
 # Install nvm (Linux/Mac)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -46,6 +48,7 @@ nvm use 18
 ```
 
 #### 2. **Git** (for version control)
+
 ```bash
 # Download from: https://git-scm.com/
 
@@ -54,6 +57,7 @@ git --version  # Should show 2.30.0 or higher
 ```
 
 #### 3. **Code Editor - VS Code** (recommended)
+
 ```bash
 # Download from: https://code.visualstudio.com/
 ```
@@ -61,6 +65,7 @@ git --version  # Should show 2.30.0 or higher
 ### **Optional Tools**
 
 - **Firebase CLI** (for deployment)
+
   ```bash
   npm install -g firebase-tools
   firebase --version
@@ -100,6 +105,7 @@ pnpm install
 ```
 
 **Expected output:**
+
 ```
 added 1247 packages, and audited 1248 packages in 45s
 
@@ -169,16 +175,16 @@ VITE_APP_ENV=development
 
 ### **Step 3: Environment Variable Reference**
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_FIREBASE_API_KEY` | ✅ Yes | Firebase API key |
-| `VITE_FIREBASE_AUTH_DOMAIN` | ✅ Yes | Firebase auth domain |
-| `VITE_FIREBASE_PROJECT_ID` | ✅ Yes | Firebase project ID |
-| `VITE_FIREBASE_STORAGE_BUCKET` | ✅ Yes | Firebase storage bucket |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | ✅ Yes | Firebase messaging sender ID |
-| `VITE_FIREBASE_APP_ID` | ✅ Yes | Firebase app ID |
-| `VITE_GEMINI_API_KEY` | ✅ Yes | Google Gemini AI API key |
-| `VITE_FIREBASE_MEASUREMENT_ID` | ⚠️ Optional | Google Analytics ID |
+| Variable                            | Required    | Description                  |
+| ----------------------------------- | ----------- | ---------------------------- |
+| `VITE_FIREBASE_API_KEY`             | ✅ Yes      | Firebase API key             |
+| `VITE_FIREBASE_AUTH_DOMAIN`         | ✅ Yes      | Firebase auth domain         |
+| `VITE_FIREBASE_PROJECT_ID`          | ✅ Yes      | Firebase project ID          |
+| `VITE_FIREBASE_STORAGE_BUCKET`      | ✅ Yes      | Firebase storage bucket      |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | ✅ Yes      | Firebase messaging sender ID |
+| `VITE_FIREBASE_APP_ID`              | ✅ Yes      | Firebase app ID              |
+| `VITE_GEMINI_API_KEY`               | ✅ Yes      | Google Gemini AI API key     |
+| `VITE_FIREBASE_MEASUREMENT_ID`      | ⚠️ Optional | Google Analytics ID          |
 
 **Important:** Never commit `.env.local` to version control!
 
@@ -269,6 +275,7 @@ npm run dev -- --host
 ```
 
 **Output:**
+
 ```
   VITE v5.0.0  ready in 823 ms
 
@@ -290,6 +297,7 @@ ls -la dist/
 ```
 
 **Expected output:**
+
 ```
 dist/index.html                 0.45 kB
 dist/assets/index-a1b2c3d4.css  124.3 kB

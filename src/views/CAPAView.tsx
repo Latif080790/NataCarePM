@@ -1,7 +1,7 @@
 /**
  * CAPA (Corrective and Preventive Actions) View
  * Priority 3D: Quality Management System
- * 
+ *
  * Track and manage corrective and preventive actions
  */
 
@@ -16,11 +16,7 @@ interface CAPAViewProps {
 }
 
 const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
-  const {
-    defects,
-    defectsLoading,
-    fetchDefects,
-  } = useQuality();
+  const { defects, defectsLoading, fetchDefects } = useQuality();
 
   // Local state
   const [capaRecords, setCapaRecords] = useState<CAPARecord[]>([]);
@@ -42,7 +38,7 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
   // Generate mock CAPA records
   const generateMockCapaRecords = () => {
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       const mockRecords: CAPARecord[] = [
@@ -66,8 +62,10 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
           type: 'preventive',
           issue: 'Potential welding defects in steel framework',
           rootCause: 'Lack of standardized welding procedures',
-          analysis: 'Industry analysis shows 30% of structural issues stem from welding inconsistencies',
-          action: 'Develop and implement welding procedure specifications (WPS) for all structural work',
+          analysis:
+            'Industry analysis shows 30% of structural issues stem from welding inconsistencies',
+          action:
+            'Develop and implement welding procedure specifications (WPS) for all structural work',
           responsibility: 'Engineering Lead',
           targetDate: new Date('2024-12-20'),
           status: 'planned',
@@ -136,7 +134,7 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
           createdAt: new Date('2024-11-01'),
         },
       ];
-      
+
       setCapaRecords(mockRecords);
       setLoading(false);
     }, 500);
@@ -144,8 +142,9 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
 
   // Filtered CAPA records
   const filteredRecords = useMemo(() => {
-    return capaRecords.filter(record => {
-      const matchesSearch = !searchQuery ||
+    return capaRecords.filter((record) => {
+      const matchesSearch =
+        !searchQuery ||
         record.issue.toLowerCase().includes(searchQuery.toLowerCase()) ||
         record.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
         record.responsibility.toLowerCase().includes(searchQuery.toLowerCase());
@@ -160,16 +159,15 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
   // Statistics
   const stats = useMemo(() => {
     const total = capaRecords.length;
-    const corrective = capaRecords.filter(r => r.type === 'corrective').length;
-    const preventive = capaRecords.filter(r => r.type === 'preventive').length;
-    const completed = capaRecords.filter(r => r.status === 'completed' || r.status === 'verified').length;
-    const overdue = capaRecords.filter(r => 
-      new Date(r.targetDate) < new Date() && 
-      !['completed', 'verified'].includes(r.status)
+    const corrective = capaRecords.filter((r) => r.type === 'corrective').length;
+    const preventive = capaRecords.filter((r) => r.type === 'preventive').length;
+    const completed = capaRecords.filter(
+      (r) => r.status === 'completed' || r.status === 'verified'
     ).length;
-    const effectiveness = capaRecords.filter(r => 
-      r.verification?.effective === true
+    const overdue = capaRecords.filter(
+      (r) => new Date(r.targetDate) < new Date() && !['completed', 'verified'].includes(r.status)
     ).length;
+    const effectiveness = capaRecords.filter((r) => r.verification?.effective === true).length;
 
     return { total, corrective, preventive, completed, overdue, effectiveness };
   }, [capaRecords]);
@@ -177,11 +175,16 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
   // Get status color
   const getStatusColor = (status: CAPARecord['status']): string => {
     switch (status) {
-      case 'planned': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'verified': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      case 'ineffective': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'planned':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'verified':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'ineffective':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
     }
   };
 
@@ -212,8 +215,9 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
 
   // Check if overdue
   const isOverdue = (record: CAPARecord): boolean => {
-    return new Date(record.targetDate) < new Date() && 
-           !['completed', 'verified'].includes(record.status);
+    return (
+      new Date(record.targetDate) < new Date() && !['completed', 'verified'].includes(record.status)
+    );
   };
 
   // Handle record click
@@ -229,9 +233,7 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                CAPA Management
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">CAPA Management</h1>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Corrective and Preventive Actions
               </p>
@@ -242,7 +244,12 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 New CAPA
               </Button>
@@ -252,33 +259,57 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
           {/* Statistics */}
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             <div className="bg-white dark:bg-gray-700 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600 p-4">
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total</dt>
-              <dd className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</dd>
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                Total
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+                {stats.total}
+              </dd>
             </div>
-            
+
             <div className="bg-orange-50 dark:bg-orange-900/20 overflow-hidden rounded-lg border border-orange-200 dark:border-orange-800 p-4">
-              <dt className="text-sm font-medium text-orange-600 dark:text-orange-400 truncate">Corrective</dt>
-              <dd className="mt-1 text-2xl font-semibold text-orange-900 dark:text-orange-200">{stats.corrective}</dd>
+              <dt className="text-sm font-medium text-orange-600 dark:text-orange-400 truncate">
+                Corrective
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-orange-900 dark:text-orange-200">
+                {stats.corrective}
+              </dd>
             </div>
-            
+
             <div className="bg-blue-50 dark:bg-blue-900/20 overflow-hidden rounded-lg border border-blue-200 dark:border-blue-800 p-4">
-              <dt className="text-sm font-medium text-blue-600 dark:text-blue-400 truncate">Preventive</dt>
-              <dd className="mt-1 text-2xl font-semibold text-blue-900 dark:text-blue-200">{stats.preventive}</dd>
+              <dt className="text-sm font-medium text-blue-600 dark:text-blue-400 truncate">
+                Preventive
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-blue-900 dark:text-blue-200">
+                {stats.preventive}
+              </dd>
             </div>
-            
+
             <div className="bg-green-50 dark:bg-green-900/20 overflow-hidden rounded-lg border border-green-200 dark:border-green-800 p-4">
-              <dt className="text-sm font-medium text-green-600 dark:text-green-400 truncate">Completed</dt>
-              <dd className="mt-1 text-2xl font-semibold text-green-900 dark:text-green-200">{stats.completed}</dd>
+              <dt className="text-sm font-medium text-green-600 dark:text-green-400 truncate">
+                Completed
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-green-900 dark:text-green-200">
+                {stats.completed}
+              </dd>
             </div>
-            
+
             <div className="bg-red-50 dark:bg-red-900/20 overflow-hidden rounded-lg border border-red-200 dark:border-red-800 p-4">
-              <dt className="text-sm font-medium text-red-600 dark:text-red-400 truncate">Overdue</dt>
-              <dd className="mt-1 text-2xl font-semibold text-red-900 dark:text-red-200">{stats.overdue}</dd>
+              <dt className="text-sm font-medium text-red-600 dark:text-red-400 truncate">
+                Overdue
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-red-900 dark:text-red-200">
+                {stats.overdue}
+              </dd>
             </div>
-            
+
             <div className="bg-purple-50 dark:bg-purple-900/20 overflow-hidden rounded-lg border border-purple-200 dark:border-purple-800 p-4">
-              <dt className="text-sm font-medium text-purple-600 dark:text-purple-400 truncate">Effective</dt>
-              <dd className="mt-1 text-2xl font-semibold text-purple-900 dark:text-purple-200">{stats.effectiveness}</dd>
+              <dt className="text-sm font-medium text-purple-600 dark:text-purple-400 truncate">
+                Effective
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold text-purple-900 dark:text-purple-200">
+                {stats.effectiveness}
+              </dd>
             </div>
           </div>
         </div>
@@ -290,7 +321,10 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Search */}
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="search"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Search
               </label>
               <input
@@ -305,7 +339,10 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
 
             {/* Type filter */}
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Type
               </label>
               <select
@@ -322,7 +359,10 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
 
             {/* Status filter */}
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Status
               </label>
               <select
@@ -349,10 +389,22 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
           </div>
         ) : filteredRecords.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No CAPA records</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+              No CAPA records
+            </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Get started by creating a new CAPA record.
             </p>
@@ -369,61 +421,105 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       {getTypeBadge(record.type)}
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}
+                      >
                         {record.status.replace('_', ' ')}
                       </span>
                       {isOverdue(record) && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                           Overdue
                         </span>
                       )}
                     </div>
-                    
+
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                       {record.issue}
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium text-gray-500 dark:text-gray-400">Root Cause:</span>
+                        <span className="font-medium text-gray-500 dark:text-gray-400">
+                          Root Cause:
+                        </span>
                         <p className="text-gray-900 dark:text-white mt-1">{record.rootCause}</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-500 dark:text-gray-400">Action:</span>
+                        <span className="font-medium text-gray-500 dark:text-gray-400">
+                          Action:
+                        </span>
                         <p className="text-gray-900 dark:text-white mt-1">{record.action}</p>
                       </div>
                     </div>
-                    
+
                     <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
                         </svg>
                         {record.responsibility}
                       </div>
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                         Target: {formatDate(record.targetDate)}
                       </div>
                       {record.implementation && (
                         <div className="flex items-center text-green-600 dark:text-green-400">
                           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                           Completed {formatDate(record.implementation.completedDate)}
                         </div>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="ml-4">
-                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg
+                      className="w-6 h-6 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -437,91 +533,136 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
       {showModal && selectedRecord && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={() => setShowModal(false)} />
-            
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+              onClick={() => setShowModal(false)}
+            />
+
             <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    CAPA Details
-                  </h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">CAPA Details</h3>
                   <button
                     onClick={() => setShowModal(false)}
                     className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
-                
+
                 <div className="space-y-6">
                   <div>
                     <div className="flex items-center space-x-2 mb-3">
                       {getTypeBadge(selectedRecord.type)}
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedRecord.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedRecord.status)}`}
+                      >
                         {selectedRecord.status.replace('_', ' ')}
                       </span>
                     </div>
-                    <h4 className="text-xl font-semibold text-gray-900 dark:text-white">{selectedRecord.issue}</h4>
+                    <h4 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {selectedRecord.issue}
+                    </h4>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">Root Cause Analysis</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedRecord.rootCause}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">{selectedRecord.analysis}</p>
+                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                        Root Cause Analysis
+                      </h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedRecord.rootCause}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                        {selectedRecord.analysis}
+                      </p>
                     </div>
-                    
+
                     <div>
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">Action Plan</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedRecord.action}</p>
+                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                        Action Plan
+                      </h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedRecord.action}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">Responsibility</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedRecord.responsibility}</p>
+                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                        Responsibility
+                      </h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedRecord.responsibility}
+                      </p>
                     </div>
-                    
+
                     <div>
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">Target Date</h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(selectedRecord.targetDate)}</p>
+                      <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                        Target Date
+                      </h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {formatDate(selectedRecord.targetDate)}
+                      </p>
                     </div>
                   </div>
-                  
+
                   {selectedRecord.implementation && (
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-3">Implementation</h5>
+                      <h5 className="font-medium text-gray-900 dark:text-white mb-3">
+                        Implementation
+                      </h5>
                       <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                         <p className="text-sm text-gray-700 dark:text-gray-300">
-                          Completed by <strong>{selectedRecord.implementation.completedBy}</strong> on {formatDate(selectedRecord.implementation.completedDate)}
+                          Completed by <strong>{selectedRecord.implementation.completedBy}</strong>{' '}
+                          on {formatDate(selectedRecord.implementation.completedDate)}
                         </p>
-                        {selectedRecord.implementation.evidence && selectedRecord.implementation.evidence.length > 0 && (
-                          <div className="mt-3">
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Evidence:</p>
-                            <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
-                              {selectedRecord.implementation.evidence.map((file, idx) => (
-                                <li key={idx}>{file}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                        {selectedRecord.implementation.evidence &&
+                          selectedRecord.implementation.evidence.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                                Evidence:
+                              </p>
+                              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
+                                {selectedRecord.implementation.evidence.map((file, idx) => (
+                                  <li key={idx}>{file}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedRecord.verification && (
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h5 className="font-medium text-gray-900 dark:text-white mb-3">Verification</h5>
-                      <div className={`${selectedRecord.verification.effective ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'} border rounded-lg p-4`}>
+                      <h5 className="font-medium text-gray-900 dark:text-white mb-3">
+                        Verification
+                      </h5>
+                      <div
+                        className={`${selectedRecord.verification.effective ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'} border rounded-lg p-4`}
+                      >
                         <p className="text-sm text-gray-700 dark:text-gray-300">
-                          Verified by <strong>{selectedRecord.verification.verifiedBy}</strong> on {formatDate(selectedRecord.verification.verifiedDate)}
+                          Verified by <strong>{selectedRecord.verification.verifiedBy}</strong> on{' '}
+                          {formatDate(selectedRecord.verification.verifiedDate)}
                         </p>
                         <p className="text-sm mt-2">
                           <span className="font-medium">Effectiveness: </span>
-                          <span className={selectedRecord.verification.effective ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                          <span
+                            className={
+                              selectedRecord.verification.effective
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                            }
+                          >
                             {selectedRecord.verification.effective ? 'Effective' : 'Ineffective'}
                           </span>
                         </p>
@@ -535,7 +676,7 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
                   )}
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   onClick={() => setShowModal(false)}

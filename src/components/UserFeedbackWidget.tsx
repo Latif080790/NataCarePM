@@ -1,8 +1,8 @@
 /**
  * User Feedback Widget Component
- * 
+ *
  * Priority 2C: Monitoring & Analytics
- * 
+ *
  * Features:
  * - Collects user feedback on app experience
  * - Reports bugs and issues
@@ -45,7 +45,9 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [feedbackType, setFeedbackType] = useState<'bug' | 'suggestion' | 'general' | 'satisfaction' | null>(null);
+  const [feedbackType, setFeedbackType] = useState<
+    'bug' | 'suggestion' | 'general' | 'satisfaction' | null
+  >(null);
   const [rating, setRating] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -86,7 +88,7 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!feedbackType || !message.trim()) {
       return;
     }
@@ -162,9 +164,7 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
           <div className="bg-orange-600 text-white px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
-              <h3 className="font-semibold">
-                {submitted ? 'Thank You!' : 'Send Feedback'}
-              </h3>
+              <h3 className="font-semibold">{submitted ? 'Thank You!' : 'Send Feedback'}</h3>
             </div>
             <button
               onClick={handleClose}
@@ -193,9 +193,7 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
             ) : !feedbackType ? (
               // Feedback Type Selection
               <div className="space-y-3">
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
-                  How can we help you today?
-                </p>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">How can we help you today?</p>
 
                 <button
                   onClick={() => setFeedbackType('bug')}
@@ -203,9 +201,7 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
                 >
                   <Bug className="w-6 h-6 text-red-500" />
                   <div className="text-left">
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      Report a Bug
-                    </div>
+                    <div className="font-semibold text-gray-900 dark:text-white">Report a Bug</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       Something isn't working correctly
                     </div>
@@ -313,8 +309,8 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
                       feedbackType === 'bug'
                         ? 'Describe the issue you encountered...'
                         : feedbackType === 'suggestion'
-                        ? 'Share your ideas for improvement...'
-                        : 'Tell us what you think...'
+                          ? 'Share your ideas for improvement...'
+                          : 'Tell us what you think...'
                     }
                   />
                 </div>

@@ -75,7 +75,7 @@ jobs:
         run: |
           BUNDLE_SIZE=$(du -sb dist | cut -f1)
           MAX_SIZE=$((50 * 1024 * 1024)) # 50MB limit
-          
+
           if [ $BUNDLE_SIZE -gt $MAX_SIZE ]; then
             echo "❌ Bundle size ($BUNDLE_SIZE bytes) exceeds limit ($MAX_SIZE bytes)"
             exit 1
@@ -128,5 +128,5 @@ jobs:
             sleep(1);
           }
           EOF
-          
+
           k6 run load-test.js || echo "Load test needs staging deployment"

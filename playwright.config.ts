@@ -1,8 +1,8 @@
 /**
  * Playwright E2E Test Configuration
- * 
+ *
  * Priority 2B: Test Coverage Expansion
- * 
+ *
  * Configuration for end-to-end testing of critical user paths
  */
 
@@ -13,44 +13,44 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests/e2e',
-  
+
   /* Run tests in files in parallel */
   fullyParallel: true,
-  
+
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
-  
+
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  
+
   /* Opt out of parallel tests on CI */
   workers: process.env.CI ? 1 : undefined,
-  
+
   /* Reporter to use */
   reporter: [
     ['html', { outputFolder: 'test-results/playwright-report' }],
     ['json', { outputFile: 'test-results/test-results.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
-    ['list']
+    ['list'],
   ],
-  
+
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173',
-    
+
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
-    
+
     /* Screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Video on failure */
     video: 'retain-on-failure',
-    
+
     /* Maximum time each action such as `click()` can take */
     actionTimeout: 10000,
-    
+
     /* Maximum time to wait for navigation */
     navigationTimeout: 30000,
   },

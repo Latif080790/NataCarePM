@@ -1,6 +1,6 @@
 /**
  * MobileDashboardView Component
- * 
+ *
  * Mobile-optimized dashboard with:
  * - Pull-to-refresh
  * - Swipeable metric cards
@@ -43,22 +43,23 @@ export const MobileDashboardView: React.FC<MobileDashboardProps> = ({
   const handleRefresh = async () => {
     setIsRefreshing(true);
     // Simulate data refresh
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsRefreshing(false);
   };
 
   // Calculate metrics
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in-progress').length;
+  const completedTasks = tasks.filter((t) => t.status === 'done').length;
+  const inProgressTasks = tasks.filter((t) => t.status === 'in-progress').length;
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  
+
   // Calculate total budget from expenses and POs
   const totalExpenses = project.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
-  const totalPOs = project.purchaseOrders?.reduce((sum, po) => {
-    const poTotal = po.items.reduce((itemSum, item) => itemSum + (item.totalPrice || 0), 0);
-    return sum + poTotal;
-  }, 0) || 0;
+  const totalPOs =
+    project.purchaseOrders?.reduce((sum, po) => {
+      const poTotal = po.items.reduce((itemSum, item) => itemSum + (item.totalPrice || 0), 0);
+      return sum + poTotal;
+    }, 0) || 0;
   const totalBudget = totalExpenses + totalPOs;
 
   // Quick actions for mobile
@@ -187,8 +188,8 @@ export const MobileDashboardView: React.FC<MobileDashboardProps> = ({
                       task.status === 'done'
                         ? 'bg-green-100 text-green-700'
                         : task.status === 'in-progress'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {task.status}

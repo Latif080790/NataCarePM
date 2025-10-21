@@ -3,7 +3,7 @@
 **Tanggal Evaluasi:** 11 Oktober 2025  
 **Evaluator:** Claude Sonnet (AI Code Analyst)  
 **Versi Aplikasi:** 0.0.0  
-**Total Files Analyzed:** 120+ TypeScript/TSX files  
+**Total Files Analyzed:** 120+ TypeScript/TSX files
 
 ---
 
@@ -11,16 +11,17 @@
 
 ### 🎯 Overall Grade: **B+ (83/100)**
 
-| Category | Grade | Score | Status |
-|----------|-------|-------|--------|
-| **Code Quality** | B+ | 85/100 | ✅ Good |
-| **Security** | B | 78/100 | ⚠️ Needs Improvement |
-| **Performance** | B+ | 86/100 | ✅ Good |
-| **Maintainability** | A- | 88/100 | ✅ Excellent |
-| **Testing** | F | 0/100 | ❌ Critical |
-| **Documentation** | C+ | 72/100 | ⚠️ Adequate |
+| Category            | Grade | Score  | Status               |
+| ------------------- | ----- | ------ | -------------------- |
+| **Code Quality**    | B+    | 85/100 | ✅ Good              |
+| **Security**        | B     | 78/100 | ⚠️ Needs Improvement |
+| **Performance**     | B+    | 86/100 | ✅ Good              |
+| **Maintainability** | A-    | 88/100 | ✅ Excellent         |
+| **Testing**         | F     | 0/100  | ❌ Critical          |
+| **Documentation**   | C+    | 72/100 | ⚠️ Adequate          |
 
 **KEY FINDINGS:**
+
 - ✅ **Strong TypeScript implementation** with comprehensive type safety
 - ✅ **Well-organized architecture** with clear separation of concerns
 - ✅ **Good React patterns** using hooks, context, and modern practices
@@ -35,6 +36,7 @@
 ### 1.1 Architecture & Structure ✅ **Excellent (92/100)**
 
 #### **Strengths:**
+
 ```
 ✅ Clean separation: views/ components/ contexts/ api/ hooks/
 ✅ Consistent naming conventions (PascalCase for components, camelCase for functions)
@@ -43,6 +45,7 @@
 ```
 
 #### **File Organization:**
+
 ```typescript
 NataCarePM/
 ├── views/           # 35+ view components (one per route)
@@ -65,37 +68,36 @@ NataCarePM/
 ### 1.2 TypeScript Implementation ✅ **Very Good (88/100)**
 
 #### **Type Safety:**
+
 ```typescript
 // ✅ EXCELLENT: Comprehensive interface definitions
 export interface User {
-    uid: string;              // Firebase UID
-    id: string;               // Application ID
-    name: string;
-    email: string;
-    roleId: string;
-    avatarUrl: string;
-    isOnline?: boolean;
-    lastSeen?: string;
-    permissions?: Permission[];  // 25 granular permissions
+  uid: string; // Firebase UID
+  id: string; // Application ID
+  name: string;
+  email: string;
+  roleId: string;
+  avatarUrl: string;
+  isOnline?: boolean;
+  lastSeen?: string;
+  permissions?: Permission[]; // 25 granular permissions
 }
 
 // ✅ EXCELLENT: Union types for status fields
 export interface Task {
-    status: 'todo' | 'in-progress' | 'review' | 'done' | 'blocked';
-    priority: 'low' | 'medium' | 'high' | 'critical';
+  status: 'todo' | 'in-progress' | 'review' | 'done' | 'blocked';
+  priority: 'low' | 'medium' | 'high' | 'critical';
 }
 
 // ✅ EXCELLENT: Type-safe permission system
-export type Permission = 
-    | 'view_dashboard'
-    | 'view_rab'
-    | 'edit_rab'
-    // ... 22 more permissions
+export type Permission = 'view_dashboard' | 'view_rab' | 'edit_rab';
+// ... 22 more permissions
 ```
 
 #### **Issues Found:**
 
 **1. ⚠️ TSConfig Too Permissive:**
+
 ```json
 // ❌ CURRENT (tsconfig.json)
 {
@@ -115,51 +117,59 @@ export type Permission =
 ```
 
 **2. ⚠️ Any Types Found:**
+
 ```typescript
 // ❌ FOUND IN: api/projectService.ts
-const docToType = <T>(document: any): T => {  // 'any' type
-    const data = document.data();
-    return { ...data, id: document.id } as T;
+const docToType = <T>(document: any): T => {
+  // 'any' type
+  const data = document.data();
+  return { ...data, id: document.id } as T;
 };
 
 // ✅ FIX:
 import { QueryDocumentSnapshot, DocumentSnapshot } from 'firebase/firestore';
 
 const docToType = <T>(document: QueryDocumentSnapshot | DocumentSnapshot): T => {
-    const data = document.data();
-    if (!data) throw new Error('Document data is undefined');
-    return { ...data, id: document.id } as T;
+  const data = document.data();
+  if (!data) throw new Error('Document data is undefined');
+  return { ...data, id: document.id } as T;
 };
 ```
 
 **3. ⚠️ Missing Return Type Annotations:**
+
 ```typescript
 // ❌ FOUND IN: hooks/useSecurityAndPerformance.ts
-const validatePassword = useCallback((password: string) => {  // Missing return type
+const validatePassword = useCallback(
+  (password: string) => {
+    // Missing return type
     const errors: string[] = [];
     // ... validation logic
     return { isValid: errors.length === 0, errors };
-}, [securityConfig.passwordPolicy]);
+  },
+  [securityConfig.passwordPolicy]
+);
 
 // ✅ FIX:
-const validatePassword = useCallback((password: string): { isValid: boolean; errors: string[] } => {
+const validatePassword = useCallback(
+  (password: string): { isValid: boolean; errors: string[] } => {
     // ... validation logic
-}, [securityConfig.passwordPolicy]);
+  },
+  [securityConfig.passwordPolicy]
+);
 ```
 
 **4. ✅ EXCELLENT: Generic Type Usage:**
+
 ```typescript
 // ✅ FOUND IN: api/taskService.ts
 streamTasksByProject: (projectId: string, callback: (tasks: Task[]) => void) => {
-    const q = query(
-        collection(db, `projects/${projectId}/tasks`),
-        orderBy('createdAt', 'desc')
-    );
-    return onSnapshot(q, (querySnapshot) => {
-        const tasks = querySnapshot.docs.map(d => docToType<Task>(d));
-        callback(tasks);
-    });
-}
+  const q = query(collection(db, `projects/${projectId}/tasks`), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (querySnapshot) => {
+    const tasks = querySnapshot.docs.map((d) => docToType<Task>(d));
+    callback(tasks);
+  });
+};
 ```
 
 ---
@@ -168,91 +178,94 @@ streamTasksByProject: (projectId: string, callback: (tasks: Task[]) => void) => 
 
 #### **React Hooks Usage:**
 
-| Hook | Usage Count | Pattern Quality | Issues |
-|------|-------------|----------------|--------|
-| `useState` | 300+ | ✅ Excellent | None |
-| `useEffect` | 150+ | ✅ Good | Some missing dependencies |
-| `useCallback` | 45+ | ✅ Excellent | Proper memoization |
-| `useMemo` | 35+ | ✅ Excellent | Performance optimization |
-| `useRef` | 25+ | ✅ Good | Proper DOM/value refs |
-| `useContext` | 20+ | ✅ Excellent | Clean context consumption |
+| Hook          | Usage Count | Pattern Quality | Issues                    |
+| ------------- | ----------- | --------------- | ------------------------- |
+| `useState`    | 300+        | ✅ Excellent    | None                      |
+| `useEffect`   | 150+        | ✅ Good         | Some missing dependencies |
+| `useCallback` | 45+         | ✅ Excellent    | Proper memoization        |
+| `useMemo`     | 35+         | ✅ Excellent    | Performance optimization  |
+| `useRef`      | 25+         | ✅ Good         | Proper DOM/value refs     |
+| `useContext`  | 20+         | ✅ Excellent    | Clean context consumption |
 
 #### **Excellent Patterns Found:**
 
 **1. ✅ Custom Hook Composition:**
+
 ```typescript
 // hooks/useProjectData.ts
 export const useProjectData = () => {
-    const { currentProject } = useProject();
-    const { metrics, loading, error } = useProjectCalculations(currentProject);
-    
-    return {
-        project: currentProject,
-        metrics,
-        loading,
-        error
-    };
+  const { currentProject } = useProject();
+  const { metrics, loading, error } = useProjectCalculations(currentProject);
+
+  return {
+    project: currentProject,
+    metrics,
+    loading,
+    error,
+  };
 };
 ```
 
 **2. ✅ Proper Cleanup in useEffect:**
+
 ```typescript
 // contexts/ProjectContext.tsx
 useEffect(() => {
-    if (!currentProjectId) return;
-    
-    const unsubscribeProject = projectService.streamProjectById(currentProjectId, setCurrentProject);
-    const unsubscribeNotifications = projectService.streamNotifications(setNotifications);
-    
-    return () => {
-        unsubscribeProject();
-        unsubscribeNotifications();
-    };
+  if (!currentProjectId) return;
+
+  const unsubscribeProject = projectService.streamProjectById(currentProjectId, setCurrentProject);
+  const unsubscribeNotifications = projectService.streamNotifications(setNotifications);
+
+  return () => {
+    unsubscribeProject();
+    unsubscribeNotifications();
+  };
 }, [currentProjectId]);
 ```
 
 **3. ✅ Memoization for Expensive Calculations:**
+
 ```typescript
 // views/DashboardView.tsx
 const metrics = useMemo(() => {
-    if (!project) return null;
-    
-    const totalBudget = project.items.reduce((sum, item) => 
-        sum + (item.volume * item.hargaSatuan), 0
-    );
-    
-    const actualCost = project.expenses.reduce((sum, e) => sum + e.amount, 0);
-    
-    return {
-        totalBudget,
-        actualCost,
-        remainingBudget: totalBudget - actualCost,
-        // ... more calculations
-    };
+  if (!project) return null;
+
+  const totalBudget = project.items.reduce((sum, item) => sum + item.volume * item.hargaSatuan, 0);
+
+  const actualCost = project.expenses.reduce((sum, e) => sum + e.amount, 0);
+
+  return {
+    totalBudget,
+    actualCost,
+    remainingBudget: totalBudget - actualCost,
+    // ... more calculations
+  };
 }, [project]);
 ```
 
 #### **Issues Found:**
 
 **1. ⚠️ Missing Dependency Arrays:**
+
 ```typescript
 // ❌ FOUND IN: components/LiveActivityFeed.tsx
 useEffect(() => {
-    // Fetch activity data
-    setIsRefreshing(true);
-    // ...
-    setIsRefreshing(false);
+  // Fetch activity data
+  setIsRefreshing(true);
+  // ...
+  setIsRefreshing(false);
 }); // ❌ Missing dependency array! Runs on EVERY render
 
 // ✅ FIX:
 useEffect(() => {
-    setIsRefreshing(true);
-    fetchActivityData();
-    setIsRefreshing(false);
+  setIsRefreshing(true);
+  fetchActivityData();
+  setIsRefreshing(false);
 }, [fetchActivityData]); // Specify dependencies
 ```
 
 **2. ⚠️ Prop Drilling:**
+
 ```typescript
 // ❌ FOUND IN: App.tsx → DashboardView → MetricCard
 // Props passed through 3+ levels
@@ -267,6 +280,7 @@ export const MetricsProvider: React.FC<{ children: ReactNode }> = ({ children })
 ```
 
 **3. ⚠️ Large Component Files:**
+
 ```
 ❌ views/EnterpriseAdvancedDashboardView.tsx  →  1,500+ lines
 ❌ views/InteractiveGanttView.tsx             →  800+ lines
@@ -277,6 +291,7 @@ export const MetricsProvider: React.FC<{ children: ReactNode }> = ({ children })
 ```
 
 **4. ✅ EXCELLENT: Error Boundaries:**
+
 ```typescript
 // ✅ FOUND IN: components/EnterpriseErrorBoundary.tsx
 export class EnterpriseErrorBoundary extends React.Component<Props, State> {
@@ -318,19 +333,21 @@ export class EnterpriseErrorBoundary extends React.Component<Props, State> {
 #### **Performance Considerations:**
 
 **1. ✅ Context Value Memoization:**
+
 ```typescript
 // ✅ FOUND IN: contexts/AuthContext.tsx
-const value = useMemo(() => ({ 
-    currentUser, 
-    login, 
-    logout, 
-    loading 
+const value = useMemo(() => ({
+    currentUser,
+    login,
+    logout,
+    loading
 }), [currentUser, login, logout, loading]);
 
 return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 ```
 
 **2. ⚠️ Context Re-render Issues:**
+
 ```typescript
 // ❌ ISSUE: ProjectContext has 50+ properties
 // Every update to any property triggers ALL consumers to re-render
@@ -345,22 +362,23 @@ return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 ```
 
 **3. ✅ EXCELLENT: Real-time Data Streaming:**
+
 ```typescript
 // ✅ FOUND IN: contexts/ProjectContext.tsx
 useEffect(() => {
-    if (!currentProjectId) return;
-    
-    const unsubscribe = projectService.streamProjectById(currentProjectId, (project) => {
-        // Real-time updates from Firestore
-        setCurrentProject({
-            ...project,
-            items: project.items || [],
-            members: project.members || [],
-            // ... safe defaults
-        });
+  if (!currentProjectId) return;
+
+  const unsubscribe = projectService.streamProjectById(currentProjectId, (project) => {
+    // Real-time updates from Firestore
+    setCurrentProject({
+      ...project,
+      items: project.items || [],
+      members: project.members || [],
+      // ... safe defaults
     });
-    
-    return () => unsubscribe();
+  });
+
+  return () => unsubscribe();
 }, [currentProjectId]);
 ```
 
@@ -370,15 +388,16 @@ useEffect(() => {
 
 #### **Reusable Components:**
 
-| Component | Reusability | Usage Count | Quality |
-|-----------|-------------|-------------|---------|
-| `Button` | ✅ Excellent | 200+ | Variants, sizes, loading states |
-| `Card` | ✅ Excellent | 150+ | Header, content, footer slots |
-| `Modal` | ✅ Good | 30+ | Generic wrapper |
-| `Input` | ✅ Good | 80+ | Form controls |
-| `StatCard` | ✅ Excellent | 50+ | Dashboard metrics |
+| Component  | Reusability  | Usage Count | Quality                         |
+| ---------- | ------------ | ----------- | ------------------------------- |
+| `Button`   | ✅ Excellent | 200+        | Variants, sizes, loading states |
+| `Card`     | ✅ Excellent | 150+        | Header, content, footer slots   |
+| `Modal`    | ✅ Good      | 30+         | Generic wrapper                 |
+| `Input`    | ✅ Good      | 80+         | Form controls                   |
+| `StatCard` | ✅ Excellent | 50+         | Dashboard metrics               |
 
 #### **Example: Button Component:**
+
 ```typescript
 // ✅ EXCELLENT: Flexible, type-safe, accessible
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -415,46 +434,56 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 #### **Strengths:**
 
 **1. ✅ Firebase Authentication Integration:**
+
 ```typescript
 // ✅ FOUND IN: contexts/AuthContext.tsx
 const login = useCallback(async (email: string, password?: string) => {
-    setLoading(true);
-    try {
-        await signInWithEmailAndPassword(auth, email, password || mockPassword);
-        return true;  // ✅ Success
-    } catch (error) {
-        console.error("Firebase login failed", error);
-        return false;  // ✅ Graceful error handling
-    }
+  setLoading(true);
+  try {
+    await signInWithEmailAndPassword(auth, email, password || mockPassword);
+    return true; // ✅ Success
+  } catch (error) {
+    console.error('Firebase login failed', error);
+    return false; // ✅ Graceful error handling
+  }
 }, []);
 ```
 
 **2. ✅ Role-Based Access Control (RBAC):**
+
 ```typescript
 // ✅ FOUND IN: constants.ts
 export const ROLES_CONFIG: Role[] = [
-    {
-        id: 'admin',
-        name: 'Admin',
-        permissions: [
-            'view_dashboard', 'view_rab', 'edit_rab', 'view_gantt',
-            'view_daily_reports', 'create_daily_reports', 'view_progress',
-            'update_progress', 'view_attendance', 'manage_attendance',
-            // ... 25 granular permissions
-        ]
-    },
-    // ... 5 more roles (pm, site_manager, finance, viewer)
+  {
+    id: 'admin',
+    name: 'Admin',
+    permissions: [
+      'view_dashboard',
+      'view_rab',
+      'edit_rab',
+      'view_gantt',
+      'view_daily_reports',
+      'create_daily_reports',
+      'view_progress',
+      'update_progress',
+      'view_attendance',
+      'manage_attendance',
+      // ... 25 granular permissions
+    ],
+  },
+  // ... 5 more roles (pm, site_manager, finance, viewer)
 ];
 
 // ✅ Permission checking function
 export const hasPermission = (user: User | null, permission: Permission): boolean => {
-    if (!user) return false;
-    const userRole = ROLES_CONFIG.find(r => r.id === user.roleId);
-    return userRole?.permissions.includes(permission) || false;
+  if (!user) return false;
+  const userRole = ROLES_CONFIG.find((r) => r.id === user.roleId);
+  return userRole?.permissions.includes(permission) || false;
 };
 ```
 
 **3. ✅ Permission Guards in UI:**
+
 ```typescript
 // ✅ FOUND IN: views/UserManagementView.tsx
 {hasPermission(currentUser, 'manage_users') && (
@@ -465,23 +494,25 @@ export const hasPermission = (user: User | null, permission: Permission): boolea
 #### **Critical Issues:**
 
 **1. 🚨 CRITICAL: Hardcoded Default Password:**
+
 ```typescript
 // ❌ FOUND IN: contexts/AuthContext.tsx
 const login = useCallback(async (email: string, password?: string) => {
-    const mockPassword = "NataCare2025!";  // 🚨 CRITICAL SECURITY RISK!
-    // ...
-    await signInWithEmailAndPassword(auth, email, password || mockPassword);
+  const mockPassword = 'NataCare2025!'; // 🚨 CRITICAL SECURITY RISK!
+  // ...
+  await signInWithEmailAndPassword(auth, email, password || mockPassword);
 }, []);
 
 // ❌ FOUND IN: views/LoginView.tsx, EnterpriseLoginView.tsx
-const [password, setPassword] = useState('NataCare2025!');  // 🚨 Pre-filled password!
+const [password, setPassword] = useState('NataCare2025!'); // 🚨 Pre-filled password!
 
 // ✅ FIX: Remove all default passwords
-const [password, setPassword] = useState('');  // Empty by default
+const [password, setPassword] = useState(''); // Empty by default
 // Remove password parameter default in login function
 ```
 
 **2. 🚨 CRITICAL: No Password Strength Validation on Signup:**
+
 ```typescript
 // ❌ FOUND IN: views/LoginView.tsx (signup flow)
 await createUserWithEmailAndPassword(auth, email, password);
@@ -492,48 +523,53 @@ const MIN_PASSWORD_LENGTH = 12;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
 
 if (password.length < MIN_PASSWORD_LENGTH) {
-    throw new Error('Password must be at least 12 characters');
+  throw new Error('Password must be at least 12 characters');
 }
 if (!PASSWORD_REGEX.test(password)) {
-    throw new Error('Password must include uppercase, lowercase, number, and special character');
+  throw new Error('Password must include uppercase, lowercase, number, and special character');
 }
 ```
 
 **3. ⚠️ Session Management:**
+
 ```typescript
 // ❌ ISSUE: No explicit session timeout handling
 // User sessions persist indefinitely until logout
 
 // ✅ FOUND: Basic implementation in hooks/useSecurityAndPerformance.ts
 const defaultSecurityConfig: SecurityConfig = {
-    maxLoginAttempts: 5,
-    sessionTimeout: 120,  // 2 hours (✅ Good!)
-    // ...
+  maxLoginAttempts: 5,
+  sessionTimeout: 120, // 2 hours (✅ Good!)
+  // ...
 };
 
 // ⚠️ BUT: Not actually enforced in AuthContext!
 
 // ✅ FIX: Add session timeout to AuthContext
 useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    if (currentUser) {
-        timeoutId = setTimeout(() => {
-            logout();
-            addToast('Session expired. Please log in again.', 'warning');
-        }, 2 * 60 * 60 * 1000); // 2 hours
-    }
-    
-    return () => clearTimeout(timeoutId);
+  let timeoutId: NodeJS.Timeout;
+
+  if (currentUser) {
+    timeoutId = setTimeout(
+      () => {
+        logout();
+        addToast('Session expired. Please log in again.', 'warning');
+      },
+      2 * 60 * 60 * 1000
+    ); // 2 hours
+  }
+
+  return () => clearTimeout(timeoutId);
 }, [currentUser, logout]);
 ```
 
 **4. ⚠️ No Multi-Factor Authentication (MFA):**
+
 ```typescript
 // ✅ FOUND: Placeholder in hooks/useSecurityAndPerformance.ts
 interface SecurityConfig {
-    // ...
-    twoFactorAuth: boolean;  // ⚠️ Exists but NOT implemented
+  // ...
+  twoFactorAuth: boolean; // ⚠️ Exists but NOT implemented
 }
 
 // ✅ RECOMMENDATION: Implement Firebase MFA
@@ -547,58 +583,61 @@ import { multiFactor, PhoneAuthProvider } from 'firebase/auth';
 #### **Input Validation:**
 
 **1. ✅ FOUND: Basic Sanitization Function:**
+
 ```typescript
 // ✅ FOUND IN: hooks/useSecurityAndPerformance.ts
 const sanitizeInput = useCallback((input: string): string => {
-    return input
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;');
+  return input
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
 }, []);
 ```
 
 **2. ❌ NOT USED CONSISTENTLY:**
+
 ```typescript
 // ❌ EXAMPLE: User input NOT sanitized in forms
 // FOUND IN: components/CreateTaskModal.tsx
 const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    
-    const newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> = {
-        title: formData.title,        // ❌ NO sanitization!
-        description: formData.description,  // ❌ NO sanitization!
-        // ...
-    };
-    
-    await taskService.createTask(currentProject!.id, newTask, currentUser!);
+  e.preventDefault();
+
+  const newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> = {
+    title: formData.title, // ❌ NO sanitization!
+    description: formData.description, // ❌ NO sanitization!
+    // ...
+  };
+
+  await taskService.createTask(currentProject!.id, newTask, currentUser!);
 };
 
 // ✅ FIX:
 const { sanitizeInput } = useSecurityManager();
 
 const newTask: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> = {
-    title: sanitizeInput(formData.title),
-    description: sanitizeInput(formData.description),
-    // ...
+  title: sanitizeInput(formData.title),
+  description: sanitizeInput(formData.description),
+  // ...
 };
 ```
 
 **3. ⚠️ No File Upload Validation:**
+
 ```typescript
 // ❌ FOUND IN: components/UploadDocumentModal.tsx
 const [file, setFile] = useState<File | null>(null);
 
 const handleSubmit = async () => {
-    if (!file) return;
-    
-    // ❌ No validation of:
-    // - File size
-    // - File type/MIME
-    // - File name (could be malicious)
-    
-    await onUpload({ name, category, uploadDate, file });
+  if (!file) return;
+
+  // ❌ No validation of:
+  // - File size
+  // - File type/MIME
+  // - File name (could be malicious)
+
+  await onUpload({ name, category, uploadDate, file });
 };
 
 // ✅ FIX:
@@ -606,22 +645,22 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword'];
 
 const handleSubmit = async () => {
-    if (!file) return;
-    
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-        throw new Error('File size exceeds 10MB limit');
-    }
-    
-    // Validate MIME type
-    if (!ALLOWED_TYPES.includes(file.type)) {
-        throw new Error('File type not allowed');
-    }
-    
-    // Sanitize file name
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    
-    await onUpload({ name: safeName, category, uploadDate, file });
+  if (!file) return;
+
+  // Validate file size
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error('File size exceeds 10MB limit');
+  }
+
+  // Validate MIME type
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    throw new Error('File type not allowed');
+  }
+
+  // Sanitize file name
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+
+  await onUpload({ name: safeName, category, uploadDate, file });
 };
 ```
 
@@ -644,6 +683,7 @@ React automatically escapes all values rendered in JSX, providing strong default
 **⚠️ Potential XSS Vectors:**
 
 **1. ❌ NO `dangerouslySetInnerHTML` Found:**
+
 ```bash
 # ✅ VERIFIED: No usage of dangerouslySetInnerHTML in codebase
 grep -r "dangerouslySetInnerHTML" . --include="*.tsx" --include="*.ts"
@@ -651,6 +691,7 @@ grep -r "dangerouslySetInnerHTML" . --include="*.tsx" --include="*.ts"
 ```
 
 **2. ✅ AI-Generated Content Safety:**
+
 ```typescript
 // ✅ FOUND IN: components/AiAssistantChat.tsx
 // AI responses are rendered as plain text (not HTML)
@@ -660,33 +701,40 @@ grep -r "dangerouslySetInnerHTML" . --include="*.tsx" --include="*.ts"
 ```
 
 **3. ⚠️ CSV Export Injection:**
+
 ```typescript
 // ⚠️ FOUND IN: views/RabAhspView.tsx
 const handleExportCsv = () => {
-    const rows = items.map(item => [
-        item.no,
-        `"${item.uraian.replace(/"/g, '""')}"`,  // ✅ Quotes escaped
-        item.volume,
-        item.satuan,
-        item.hargaSatuan,
-        item.volume * item.hargaSatuan
-    ].join(','));
-    
-    // ⚠️ ISSUE: No prevention of formula injection (=, +, -, @)
-    // Example: If item.uraian = "=1+1", Excel will execute it!
+  const rows = items.map((item) =>
+    [
+      item.no,
+      `"${item.uraian.replace(/"/g, '""')}"`, // ✅ Quotes escaped
+      item.volume,
+      item.satuan,
+      item.hargaSatuan,
+      item.volume * item.hargaSatuan,
+    ].join(',')
+  );
+
+  // ⚠️ ISSUE: No prevention of formula injection (=, +, -, @)
+  // Example: If item.uraian = "=1+1", Excel will execute it!
 };
 
 // ✅ FIX:
 const sanitizeCSVCell = (value: string | number): string => {
-    const stringValue = String(value);
-    
-    // Prevent formula injection
-    if (stringValue.startsWith('=') || stringValue.startsWith('+') || 
-        stringValue.startsWith('-') || stringValue.startsWith('@')) {
-        return `'${stringValue}`;  // Prefix with single quote
-    }
-    
-    return `"${stringValue.replace(/"/g, '""')}"`;
+  const stringValue = String(value);
+
+  // Prevent formula injection
+  if (
+    stringValue.startsWith('=') ||
+    stringValue.startsWith('+') ||
+    stringValue.startsWith('-') ||
+    stringValue.startsWith('@')
+  ) {
+    return `'${stringValue}`; // Prefix with single quote
+  }
+
+  return `"${stringValue.replace(/"/g, '""')}"`;
 };
 ```
 
@@ -697,6 +745,7 @@ const sanitizeCSVCell = (value: string | number): string => {
 #### **Firebase Security Rules:**
 
 **⚠️ Security Rules Not Provided:**
+
 ```typescript
 // ❌ ISSUE: No Firebase security rules found in codebase
 // All Firestore queries rely on client-side authentication only
@@ -705,42 +754,42 @@ const sanitizeCSVCell = (value: string | number): string => {
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper function: Check if user is authenticated
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     // Helper function: Check user role
     function hasRole(role) {
-      return isSignedIn() && 
+      return isSignedIn() &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleId == role;
     }
-    
+
     // Users collection: Users can only read/write their own document
     match /users/{userId} {
       allow read: if isSignedIn();
       allow write: if request.auth.uid == userId || hasRole('admin');
     }
-    
+
     // Projects collection: Role-based access
     match /projects/{projectId} {
       allow read: if isSignedIn();  // All authenticated users can view projects
       allow create: if hasRole('admin') || hasRole('pm');
       allow update: if hasRole('admin') || hasRole('pm') || hasRole('site_manager');
       allow delete: if hasRole('admin');
-      
+
       // Subcollections inherit parent rules but can override
       match /dailyReports/{reportId} {
         allow create: if hasRole('site_manager') || hasRole('pm') || hasRole('admin');
       }
-      
+
       match /purchaseOrders/{poId} {
         allow create: if hasRole('pm') || hasRole('finance') || hasRole('admin');
         allow update: if hasRole('finance') || hasRole('admin');
       }
     }
-    
+
     // Workers, notifications, etc.
     match /workers/{workerId} {
       allow read: if isSignedIn();
@@ -753,6 +802,7 @@ service cloud.firestore {
 #### **API Key Exposure:**
 
 **✅ Environment Variables Used:**
+
 ```typescript
 // ✅ FOUND IN: vite.config.ts
 define: {
@@ -762,13 +812,14 @@ define: {
 ```
 
 **❌ Firebase Config Exposed in Source:**
+
 ```typescript
 // ❌ FOUND IN: firebaseConfig.ts
 const firebaseConfig = {
-    apiKey: "AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8",  // 🚨 PUBLIC KEY!
-    authDomain: "natacara-hns.firebaseapp.com",
-    projectId: "natacara-hns",
-    // ...
+  apiKey: 'AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8', // 🚨 PUBLIC KEY!
+  authDomain: 'natacara-hns.firebaseapp.com',
+  projectId: 'natacara-hns',
+  // ...
 };
 
 // ⚠️ NOTE: Firebase API keys are meant to be public
@@ -777,10 +828,10 @@ const firebaseConfig = {
 
 // ✅ RECOMMENDATION:
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    // ...
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  // ...
 };
 ```
 
@@ -799,14 +850,15 @@ const firebaseConfig = {
 
 **Security Assessment:**
 
-| Item | Data Type | Sensitivity | Risk | Status |
-|------|-----------|-------------|------|--------|
-| Chat History | AI conversations | Medium | Low | ✅ Acceptable |
-| Theme Settings | UI preferences | Low | None | ✅ Safe |
-| Last Project ID | UUID string | Low | Low | ✅ Safe |
-| Rate Limit Data | Timestamps | Low | None | ✅ Safe |
+| Item            | Data Type        | Sensitivity | Risk | Status        |
+| --------------- | ---------------- | ----------- | ---- | ------------- |
+| Chat History    | AI conversations | Medium      | Low  | ✅ Acceptable |
+| Theme Settings  | UI preferences   | Low         | None | ✅ Safe       |
+| Last Project ID | UUID string      | Low         | Low  | ✅ Safe       |
+| Rate Limit Data | Timestamps       | Low         | None | ✅ Safe       |
 
 **⚠️ Missing:**
+
 ```typescript
 // ❌ NO sensitive data stored (good!)
 // ❌ NO passwords in localStorage (✅ good!)
@@ -814,6 +866,7 @@ const firebaseConfig = {
 ```
 
 **✅ Best Practices Followed:**
+
 - No sensitive data in localStorage
 - Firebase handles authentication tokens securely
 - Theme and UI preferences only
@@ -830,12 +883,12 @@ const firebaseConfig = {
 // package.json dependencies
 {
   "dependencies": {
-    "@google/genai": "^1.23.0",         // ~150KB
-    "date-fns": "^4.1.0",               // ~200KB (tree-shakeable)
-    "firebase": "^12.4.0",              // ~400KB (modular)
-    "react": "^18.3.1",                 // ~45KB
-    "react-dom": "^18.3.1",             // ~130KB
-    "react-grid-layout": "^1.5.2"       // ~50KB
+    "@google/genai": "^1.23.0", // ~150KB
+    "date-fns": "^4.1.0", // ~200KB (tree-shakeable)
+    "firebase": "^12.4.0", // ~400KB (modular)
+    "react": "^18.3.1", // ~45KB
+    "react-dom": "^18.3.1", // ~130KB
+    "react-grid-layout": "^1.5.2" // ~50KB
   }
 }
 ```
@@ -845,6 +898,7 @@ const firebaseConfig = {
 **Issues:**
 
 **1. ❌ NO Code Splitting:**
+
 ```typescript
 // ❌ FOUND IN: App.tsx
 // ALL views imported statically
@@ -866,11 +920,12 @@ const GanttChartView = lazy(() => import('./views/GanttChartView'));
 ```
 
 **2. ⚠️ Large Dependencies:**
+
 ```typescript
 // ⚠️ Firebase imports could be more selective
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { getStorage } from "firebase/storage";
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 // ✅ Already modular (good!)
 // But consider lazy loading analytics/performance modules
@@ -883,32 +938,36 @@ import { getStorage } from "firebase/storage";
 #### **Optimization Techniques Found:**
 
 **1. ✅ useMemo for Expensive Calculations:**
+
 ```typescript
 // ✅ FOUND IN: views/DashboardView.tsx
 const metrics = useMemo(() => {
-    if (!project) return null;
-    
-    // Expensive calculations
-    const totalBudget = project.items.reduce((sum, item) => 
-        sum + (item.volume * item.hargaSatuan), 0
-    );
-    // ... more calculations
-    
-    return { totalBudget, actualCost, /* ... */ };
-}, [project]);  // Only recalculates when project changes
+  if (!project) return null;
+
+  // Expensive calculations
+  const totalBudget = project.items.reduce((sum, item) => sum + item.volume * item.hargaSatuan, 0);
+  // ... more calculations
+
+  return { totalBudget, actualCost /* ... */ };
+}, [project]); // Only recalculates when project changes
 ```
 
 **2. ✅ useCallback for Event Handlers:**
+
 ```typescript
 // ✅ FOUND IN: contexts/ProjectContext.tsx
-const handleAddDailyReport = useCallback(async (report: Omit<DailyReport, 'id' | 'comments'>) => {
+const handleAddDailyReport = useCallback(
+  async (report: Omit<DailyReport, 'id' | 'comments'>) => {
     if (!currentProject?.id || !currentUser) return;
     await projectService.addDailyReport(currentProject.id, report, currentUser);
     addToast('Laporan harian baru berhasil ditambahkan.', 'success');
-}, [currentProject, currentUser, addToast]);  // Stable reference
+  },
+  [currentProject, currentUser, addToast]
+); // Stable reference
 ```
 
 **3. ✅ React.memo for Pure Components:**
+
 ```typescript
 // ⚠️ NOT FOUND: Could benefit from React.memo on frequently re-rendered components
 
@@ -932,6 +991,7 @@ export const MetricCard = React.memo<MetricCardProps>(({ title, value, icon, tre
 ```
 
 **4. ✅ Loading States:**
+
 ```typescript
 // ✅ FOUND IN: views/DashboardView.tsx
 const [isLoading, setIsLoading] = useState(true);
@@ -940,7 +1000,7 @@ useEffect(() => {
     const timer = setTimeout(() => {
         setIsLoading(false);
     }, 1500);
-    
+
     return () => clearTimeout(timer);
 }, []);
 
@@ -956,54 +1016,56 @@ if (isLoading) {
 #### **Real-time Data Streaming:**
 
 **✅ Efficient Firestore Listeners:**
+
 ```typescript
 // ✅ FOUND IN: api/projectService.ts
 streamProjectById: (projectId: string, callback: (project: Project) => void) => {
-    const projectRef = doc(db, "projects", projectId);
-    
-    return onSnapshot(projectRef, async (docSnapshot) => {
-        if (docSnapshot.exists()) {
-            const projectData = docToType<Project>(docSnapshot);
-            
-            // ✅ Parallel fetching of subcollections
-            const subCollections = ['dailyReports', 'attendances', 'expenses', /* ... */];
-            for (const sc of subCollections) {
-                const scQuery = query(
-                    collection(db, `projects/${projectId}/${sc}`),
-                    orderBy('timestamp', 'desc')
-                );
-                const scSnapshot = await getDocs(scQuery);
-                projectData[sc] = scSnapshot.docs.map(d => docToType(d));
-            }
-            
-            callback(projectData);
-        }
-    });
-}
+  const projectRef = doc(db, 'projects', projectId);
+
+  return onSnapshot(projectRef, async (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const projectData = docToType<Project>(docSnapshot);
+
+      // ✅ Parallel fetching of subcollections
+      const subCollections = ['dailyReports', 'attendances', 'expenses' /* ... */];
+      for (const sc of subCollections) {
+        const scQuery = query(
+          collection(db, `projects/${projectId}/${sc}`),
+          orderBy('timestamp', 'desc')
+        );
+        const scSnapshot = await getDocs(scQuery);
+        projectData[sc] = scSnapshot.docs.map((d) => docToType(d));
+      }
+
+      callback(projectData);
+    }
+  });
+};
 ```
 
 **⚠️ Could be optimized:**
+
 ```typescript
 // ⚠️ ISSUE: Sequential fetching in loop
 for (const sc of subCollections) {
-    const scSnapshot = await getDocs(scQuery);  // Awaits each one
-    projectData[sc] = scSnapshot.docs.map(d => docToType(d));
+  const scSnapshot = await getDocs(scQuery); // Awaits each one
+  projectData[sc] = scSnapshot.docs.map((d) => docToType(d));
 }
 
 // ✅ FIX: Parallel fetching with Promise.all
 const subCollectionData = await Promise.all(
-    subCollections.map(async (sc) => {
-        const scQuery = query(
-            collection(db, `projects/${projectId}/${sc}`),
-            orderBy('timestamp', 'desc')
-        );
-        const scSnapshot = await getDocs(scQuery);
-        return [sc, scSnapshot.docs.map(d => docToType(d))];
-    })
+  subCollections.map(async (sc) => {
+    const scQuery = query(
+      collection(db, `projects/${projectId}/${sc}`),
+      orderBy('timestamp', 'desc')
+    );
+    const scSnapshot = await getDocs(scQuery);
+    return [sc, scSnapshot.docs.map((d) => docToType(d))];
+  })
 );
 
 subCollectionData.forEach(([key, data]) => {
-    projectData[key] = data;
+  projectData[key] = data;
 });
 ```
 
@@ -1023,27 +1085,29 @@ subCollectionData.forEach(([key, data]) => {
 **Examples:**
 
 **✅ Good Documentation:**
+
 ```typescript
 // ✅ FOUND IN: api/projectService.ts
 /**
  * Real-time streaming of project data including all subcollections.
  * Automatically updates when Firestore data changes.
- * 
+ *
  * @param projectId - The ID of the project to stream
  * @param callback - Function called with updated project data
  * @returns Unsubscribe function to stop listening
  */
 streamProjectById: (projectId: string, callback: (project: Project) => void) => {
-    // ... implementation
-}
+  // ... implementation
+};
 ```
 
 **❌ Missing Documentation:**
+
 ```typescript
 // ❌ FOUND IN: hooks/useProjectCalculations.ts
 export const useProjectCalculations = (project: Project | null) => {
     // ❌ No JSDoc comment explaining what this hook does
-    
+
     const metrics = useMemo(() => {
         // Complex EVM calculations without explanation
         const pv = /* ... */;
@@ -1051,21 +1115,21 @@ export const useProjectCalculations = (project: Project | null) => {
         const ac = /* ... */;
         // ...
     }, [project]);
-    
+
     return { metrics, loading: false, error: null };
 };
 
 // ✅ SHOULD BE:
 /**
  * Calculates Earned Value Management (EVM) metrics for a project.
- * 
+ *
  * Computes:
  * - PV (Planned Value): Budget allocated for work scheduled
  * - EV (Earned Value): Budget allocated for work completed
  * - AC (Actual Cost): Actual costs incurred
  * - CPI (Cost Performance Index): EV / AC
  * - SPI (Schedule Performance Index): EV / PV
- * 
+ *
  * @param project - The project to calculate metrics for
  * @returns Object containing metrics, loading state, and error state
  */
@@ -1085,33 +1149,35 @@ export const useProjectCalculations = (project: Project | null): {
 #### **Patterns Found:**
 
 **1. ✅ Try-Catch Blocks:**
+
 ```typescript
 // ✅ FOUND IN: contexts/AuthContext.tsx
 const login = useCallback(async (email: string, password?: string) => {
-    setLoading(true);
-    try {
-        await signInWithEmailAndPassword(auth, email, password || mockPassword);
-        return true;
-    } catch (error) {
-        console.error("Firebase login failed", error);  // ✅ Logged
-        return false;  // ✅ Graceful failure
-    } finally {
-        // Note: Loading state managed by onAuthStateChanged
-    }
+  setLoading(true);
+  try {
+    await signInWithEmailAndPassword(auth, email, password || mockPassword);
+    return true;
+  } catch (error) {
+    console.error('Firebase login failed', error); // ✅ Logged
+    return false; // ✅ Graceful failure
+  } finally {
+    // Note: Loading state managed by onAuthStateChanged
+  }
 }, []);
 ```
 
 **2. ✅ Error Boundaries:**
+
 ```typescript
 // ✅ FOUND IN: components/EnterpriseErrorBoundary.tsx
 export class EnterpriseErrorBoundary extends React.Component<Props, State> {
     componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error('Error caught by boundary:', error, errorInfo);
-        
+
         // ✅ Error logging
         logErrorToService(error, errorInfo);
     }
-    
+
     render() {
         if (this.state.hasError) {
             // ✅ Fallback UI
@@ -1123,17 +1189,21 @@ export class EnterpriseErrorBoundary extends React.Component<Props, State> {
 ```
 
 **3. ✅ Toast Notifications:**
+
 ```typescript
 // ✅ FOUND IN: contexts/ProjectContext.tsx
-const handleAddDailyReport = useCallback(async (report: Omit<DailyReport, 'id' | 'comments'>) => {
+const handleAddDailyReport = useCallback(
+  async (report: Omit<DailyReport, 'id' | 'comments'>) => {
     try {
-        await projectService.addDailyReport(currentProject.id, report, currentUser);
-        addToast('Laporan harian berhasil ditambahkan.', 'success');  // ✅ User feedback
+      await projectService.addDailyReport(currentProject.id, report, currentUser);
+      addToast('Laporan harian berhasil ditambahkan.', 'success'); // ✅ User feedback
     } catch (error) {
-        console.error('Error adding daily report:', error);
-        addToast('Gagal menambahkan laporan harian.', 'error');  // ✅ Error feedback
+      console.error('Error adding daily report:', error);
+      addToast('Gagal menambahkan laporan harian.', 'error'); // ✅ Error feedback
     }
-}, [currentProject, currentUser, addToast]);
+  },
+  [currentProject, currentUser, addToast]
+);
 ```
 
 **⚠️ Issues:**
@@ -1167,6 +1237,7 @@ catch (error) {
 ### 5.1 Test Coverage ❌ **None (0/100)**
 
 **Current State:**
+
 ```bash
 # ❌ NO TEST FILES FOUND
 grep -r "*.test.{ts,tsx,js,jsx}" .
@@ -1181,12 +1252,12 @@ grep -r "*.test.{ts,tsx,js,jsx}" .
 
 **Critical for Production:**
 
-| Test Type | Current | Target | Priority |
-|-----------|---------|--------|----------|
-| Unit Tests | 0% | 80% | 🔴 Critical |
-| Integration Tests | 0% | 60% | 🔴 Critical |
-| E2E Tests | 0% | 40% | 🟡 High |
-| Component Tests | 0% | 70% | 🔴 Critical |
+| Test Type         | Current | Target | Priority    |
+| ----------------- | ------- | ------ | ----------- |
+| Unit Tests        | 0%      | 80%    | 🔴 Critical |
+| Integration Tests | 0%      | 60%    | 🔴 Critical |
+| E2E Tests         | 0%      | 40%    | 🟡 High     |
+| Component Tests   | 0%      | 70%    | 🔴 Critical |
 
 ---
 
@@ -1206,28 +1277,22 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-    plugins: [react()],
-    test: {
-        globals: true,
-        environment: 'jsdom',
-        setupFiles: './src/test/setup.ts',
-        coverage: {
-            provider: 'v8',
-            reporter: ['text', 'json', 'html'],
-            exclude: [
-                'node_modules/',
-                'src/test/',
-                '**/*.d.ts',
-                '**/*.config.*',
-                '**/mockData.ts',
-            ],
-        },
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*', '**/mockData.ts'],
     },
-    resolve: {
-        alias: {
-            '@': path.resolve(__dirname, './src'),
-        },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
+  },
 });
 ```
 
@@ -1242,33 +1307,31 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 jest.mock('firebase/auth');
 
 describe('AuthContext', () => {
-    it('should login successfully with valid credentials', async () => {
-        const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
-        
-        (signInWithEmailAndPassword as jest.Mock).mockResolvedValue({
-            user: { uid: 'test-uid', email: 'test@example.com' }
-        });
-        
-        const success = await result.current.login('test@example.com', 'password123');
-        
-        expect(success).toBe(true);
-        await waitFor(() => {
-            expect(result.current.currentUser).toBeDefined();
-        });
+  it('should login successfully with valid credentials', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+
+    (signInWithEmailAndPassword as jest.Mock).mockResolvedValue({
+      user: { uid: 'test-uid', email: 'test@example.com' },
     });
-    
-    it('should handle login failure gracefully', async () => {
-        const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
-        
-        (signInWithEmailAndPassword as jest.Mock).mockRejectedValue(
-            new Error('Invalid credentials')
-        );
-        
-        const success = await result.current.login('test@example.com', 'wrong-password');
-        
-        expect(success).toBe(false);
-        expect(result.current.currentUser).toBeNull();
+
+    const success = await result.current.login('test@example.com', 'password123');
+
+    expect(success).toBe(true);
+    await waitFor(() => {
+      expect(result.current.currentUser).toBeDefined();
     });
+  });
+
+  it('should handle login failure gracefully', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+
+    (signInWithEmailAndPassword as jest.Mock).mockRejectedValue(new Error('Invalid credentials'));
+
+    const success = await result.current.login('test@example.com', 'wrong-password');
+
+    expect(success).toBe(false);
+    expect(result.current.currentUser).toBeNull();
+  });
 });
 ```
 
@@ -1284,25 +1347,25 @@ describe('Button Component', () => {
         render(<Button>Click Me</Button>);
         expect(screen.getByText('Click Me')).toBeInTheDocument();
     });
-    
+
     it('should call onClick handler when clicked', () => {
         const handleClick = jest.fn();
         render(<Button onClick={handleClick}>Click Me</Button>);
-        
+
         fireEvent.click(screen.getByText('Click Me'));
         expect(handleClick).toHaveBeenCalledTimes(1);
     });
-    
+
     it('should show loading state', () => {
         render(<Button loading>Click Me</Button>);
         expect(screen.getByRole('button')).toBeDisabled();
         expect(screen.getByTestId('spinner')).toBeInTheDocument();
     });
-    
+
     it('should apply correct variant styles', () => {
         const { rerender } = render(<Button variant="primary">Primary</Button>);
         expect(screen.getByRole('button')).toHaveClass('bg-blue-600');
-        
+
         rerender(<Button variant="destructive">Destructive</Button>);
         expect(screen.getByRole('button')).toHaveClass('bg-red-600');
     });
@@ -1320,28 +1383,26 @@ import { projectService } from '../api/projectService';
 jest.mock('../api/projectService');
 
 describe('ProjectContext Integration', () => {
-    it('should fetch and stream project data', async () => {
-        const mockProject = {
-            id: 'proj1',
-            name: 'Test Project',
-            items: [],
-            members: [],
-        };
-        
-        (projectService.streamProjectById as jest.Mock).mockImplementation(
-            (projectId, callback) => {
-                callback(mockProject);
-                return jest.fn(); // unsubscribe
-            }
-        );
-        
-        const { result } = renderHook(() => useProject(), { wrapper: ProjectProvider });
-        
-        await waitFor(() => {
-            expect(result.current.currentProject).toEqual(mockProject);
-            expect(result.current.loading).toBe(false);
-        });
+  it('should fetch and stream project data', async () => {
+    const mockProject = {
+      id: 'proj1',
+      name: 'Test Project',
+      items: [],
+      members: [],
+    };
+
+    (projectService.streamProjectById as jest.Mock).mockImplementation((projectId, callback) => {
+      callback(mockProject);
+      return jest.fn(); // unsubscribe
     });
+
+    const { result } = renderHook(() => useProject(), { wrapper: ProjectProvider });
+
+    await waitFor(() => {
+      expect(result.current.currentProject).toEqual(mockProject);
+      expect(result.current.loading).toBe(false);
+    });
+  });
 });
 ```
 
@@ -1351,16 +1412,16 @@ describe('ProjectContext Integration', () => {
 
 ### 6.1 Critical Issues (Must Fix Before Production)
 
-| # | Issue | Severity | Effort | Impact |
-|---|-------|----------|--------|--------|
-| 1 | **No Automated Tests** | 🔴 Critical | High | Production risk |
-| 2 | **Hardcoded Default Password** | 🔴 Critical | Low | Security breach |
-| 3 | **No Firebase Security Rules** | 🔴 Critical | Medium | Data exposure |
-| 4 | **No Input Sanitization** | 🔴 Critical | Medium | XSS vulnerability |
-| 5 | **No File Upload Validation** | 🟡 High | Low | Malicious uploads |
-| 6 | **TSConfig Too Permissive** | 🟡 High | Low | Type safety |
-| 7 | **No Code Splitting** | 🟡 High | Medium | Bundle size |
-| 8 | **No Session Timeout** | 🟡 High | Low | Security |
+| #   | Issue                          | Severity    | Effort | Impact            |
+| --- | ------------------------------ | ----------- | ------ | ----------------- |
+| 1   | **No Automated Tests**         | 🔴 Critical | High   | Production risk   |
+| 2   | **Hardcoded Default Password** | 🔴 Critical | Low    | Security breach   |
+| 3   | **No Firebase Security Rules** | 🔴 Critical | Medium | Data exposure     |
+| 4   | **No Input Sanitization**      | 🔴 Critical | Medium | XSS vulnerability |
+| 5   | **No File Upload Validation**  | 🟡 High     | Low    | Malicious uploads |
+| 6   | **TSConfig Too Permissive**    | 🟡 High     | Low    | Type safety       |
+| 7   | **No Code Splitting**          | 🟡 High     | Medium | Bundle size       |
+| 8   | **No Session Timeout**         | 🟡 High     | Low    | Security          |
 
 ---
 
@@ -1416,12 +1477,12 @@ const RabAhspView = lazy(() => import('./views/RabAhspView'));
 
 ```typescript
 // Integrate Sentry or similar
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react';
 
 Sentry.init({
-    dsn: "YOUR_SENTRY_DSN",
-    environment: import.meta.env.MODE,
-    tracesSampleRate: 0.1,
+  dsn: 'YOUR_SENTRY_DSN',
+  environment: import.meta.env.MODE,
+  tracesSampleRate: 0.1,
 });
 ```
 
@@ -1429,16 +1490,16 @@ Sentry.init({
 
 ### 6.3 Medium Priority Improvements
 
-| # | Improvement | Effort | Benefit |
-|---|-------------|--------|---------|
-| 1 | Add JSDoc comments to all exported functions | Medium | Better DX |
-| 2 | Split large components (>300 lines) | Medium | Maintainability |
-| 3 | Implement React.memo for pure components | Low | Performance |
-| 4 | Add Performance Monitoring | Low | Observability |
-| 5 | Setup ESLint + Prettier | Low | Code quality |
-| 6 | Add Storybook for component library | High | Documentation |
-| 7 | Optimize Firestore queries (parallel fetching) | Low | Performance |
-| 8 | Add accessibility testing | Medium | Inclusivity |
+| #   | Improvement                                    | Effort | Benefit         |
+| --- | ---------------------------------------------- | ------ | --------------- |
+| 1   | Add JSDoc comments to all exported functions   | Medium | Better DX       |
+| 2   | Split large components (>300 lines)            | Medium | Maintainability |
+| 3   | Implement React.memo for pure components       | Low    | Performance     |
+| 4   | Add Performance Monitoring                     | Low    | Observability   |
+| 5   | Setup ESLint + Prettier                        | Low    | Code quality    |
+| 6   | Add Storybook for component library            | High   | Documentation   |
+| 7   | Optimize Firestore queries (parallel fetching) | Low    | Performance     |
+| 8   | Add accessibility testing                      | Medium | Inclusivity     |
 
 ---
 
@@ -1461,17 +1522,20 @@ Sentry.init({
 
 ```markdown
 ✅ Day 1-2: Security Audit
+
 - [ ] Remove hardcoded passwords from all files
 - [ ] Create Firebase Security Rules file
 - [ ] Implement input sanitization utility
 - [ ] Add file upload validation
 
 ✅ Day 3-4: TypeScript Strictness
+
 - [ ] Enable strict mode in tsconfig.json
 - [ ] Fix all type errors
 - [ ] Add return type annotations
 
 ✅ Day 5: Session Management
+
 - [ ] Implement session timeout
 - [ ] Add activity tracking
 - [ ] Add session refresh logic
@@ -1481,12 +1545,14 @@ Sentry.init({
 
 ```markdown
 ✅ Week 2: Setup & Unit Tests
+
 - [ ] Install Vitest + Testing Library
 - [ ] Create test setup files
 - [ ] Write tests for utils and hooks (target: 80%)
 - [ ] Write tests for contexts (target: 90%)
 
 ✅ Week 3: Component & Integration Tests
+
 - [ ] Test all reusable components
 - [ ] Integration tests for key flows (login, create project)
 - [ ] Setup coverage reporting
@@ -1497,11 +1563,13 @@ Sentry.init({
 
 ```markdown
 ✅ Code Splitting
+
 - [ ] Implement React.lazy for all views
 - [ ] Add Suspense boundaries with loading states
 - [ ] Measure bundle size improvements
 
 ✅ Rendering Optimization
+
 - [ ] Add React.memo to pure components
 - [ ] Split large components
 - [ ] Optimize Firestore queries (parallel fetching)
@@ -1512,12 +1580,14 @@ Sentry.init({
 
 ```markdown
 ✅ Code Documentation
+
 - [ ] Add JSDoc to all exported functions
 - [ ] Document complex algorithms (EVM calculations)
 - [ ] Create architecture diagrams
 - [ ] Add inline comments for business logic
 
 ✅ Developer Experience
+
 - [ ] Setup ESLint + Prettier
 - [ ] Add pre-commit hooks (Husky)
 - [ ] Create CONTRIBUTING.md
@@ -1528,15 +1598,15 @@ Sentry.init({
 
 ## 📊 FINAL SCORECARD
 
-| Category | Current | Target | Gap | Priority |
-|----------|---------|--------|-----|----------|
-| Code Quality | 85/100 | 95/100 | -10 | Medium |
-| Security | 78/100 | 95/100 | -17 | **Critical** |
-| Performance | 86/100 | 92/100 | -6 | High |
-| Maintainability | 88/100 | 95/100 | -7 | Medium |
-| Testing | **0/100** | 80/100 | -80 | **Critical** |
-| Documentation | 72/100 | 85/100 | -13 | Low |
-| **Overall** | **68/100** | **90/100** | **-22** | **High** |
+| Category        | Current    | Target     | Gap     | Priority     |
+| --------------- | ---------- | ---------- | ------- | ------------ |
+| Code Quality    | 85/100     | 95/100     | -10     | Medium       |
+| Security        | 78/100     | 95/100     | -17     | **Critical** |
+| Performance     | 86/100     | 92/100     | -6      | High         |
+| Maintainability | 88/100     | 95/100     | -7      | Medium       |
+| Testing         | **0/100**  | 80/100     | -80     | **Critical** |
+| Documentation   | 72/100     | 85/100     | -13     | Low          |
+| **Overall**     | **68/100** | **90/100** | **-22** | **High**     |
 
 ---
 
@@ -1545,6 +1615,7 @@ Sentry.init({
 ### Summary:
 
 **NataCarePM** demonstrates **strong foundation** in:
+
 - ✅ TypeScript implementation
 - ✅ React patterns and hooks
 - ✅ Architecture and organization
@@ -1552,6 +1623,7 @@ Sentry.init({
 - ✅ RBAC implementation
 
 **Critical gaps** requiring immediate attention:
+
 - ❌ **No automated tests** (0% coverage)
 - ❌ **Security vulnerabilities** (hardcoded passwords, no input sanitization)
 - ❌ **No Firebase Security Rules**
@@ -1559,6 +1631,7 @@ Sentry.init({
 
 **Recommendation:**  
 **Do NOT deploy to production** until:
+
 1. ✅ All security issues fixed (Phase 1)
 2. ✅ Minimum 60% test coverage achieved (Phase 2)
 3. ✅ Firebase Security Rules implemented

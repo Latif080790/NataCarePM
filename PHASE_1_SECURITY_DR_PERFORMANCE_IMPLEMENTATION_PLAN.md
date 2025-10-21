@@ -1,4 +1,5 @@
 # 🔐 PHASE 1: SECURITY + DISASTER RECOVERY + PERFORMANCE
+
 ## Implementation Plan - Detailed & Comprehensive
 
 **Start Date:** 17 Oktober 2025  
@@ -12,6 +13,7 @@
 ## 🎯 OBJECTIVES & SUCCESS CRITERIA
 
 ### **Primary Goals**
+
 1. ✅ Eliminate critical security vulnerabilities (CVSS 7+)
 2. ✅ Implement disaster recovery capability (RTO: 4h, RPO: 1h)
 3. ✅ Improve performance by 50% (load time: 3.5s → <2s)
@@ -19,6 +21,7 @@
 5. ✅ Zero production incidents during implementation
 
 ### **Success Metrics**
+
 ```
 Security:
 ├── Rate limiting: 100% on auth endpoints
@@ -51,12 +54,14 @@ Performance:
 ---
 
 #### **DAY 1: Rate Limiting & Auth Security**
+
 **Duration:** 8 hours  
 **Priority:** 🔴 CRITICAL
 
 ##### **Tasks:**
 
 **1.1 Install Dependencies** (30 min)
+
 ```bash
 npm install express-rate-limit --save
 npm install lodash.throttle lodash.debounce --save
@@ -70,8 +75,8 @@ npm install @types/lodash.throttle @types/lodash.debounce --save-dev
 import { Timestamp } from 'firebase/firestore';
 
 interface RateLimitConfig {
-  windowMs: number;        // Time window in ms
-  maxAttempts: number;     // Max attempts in window
+  windowMs: number; // Time window in ms
+  maxAttempts: number; // Max attempts in window
   blockDurationMs: number; // How long to block after max attempts
 }
 
@@ -97,32 +102,35 @@ class RateLimiter {
     this.configs.set('login', {
       windowMs: 15 * 60 * 1000,
       maxAttempts: 5,
-      blockDurationMs: 30 * 60 * 1000 // 30 min block
+      blockDurationMs: 30 * 60 * 1000, // 30 min block
     });
 
     // Password reset: 3 attempts per hour
     this.configs.set('password-reset', {
       windowMs: 60 * 60 * 1000,
       maxAttempts: 3,
-      blockDurationMs: 60 * 60 * 1000 // 1 hour block
+      blockDurationMs: 60 * 60 * 1000, // 1 hour block
     });
 
     // API calls: 100 per minute
     this.configs.set('api', {
       windowMs: 60 * 1000,
       maxAttempts: 100,
-      blockDurationMs: 5 * 60 * 1000 // 5 min block
+      blockDurationMs: 5 * 60 * 1000, // 5 min block
     });
 
     // 2FA attempts: 3 per 15 minutes
     this.configs.set('2fa', {
       windowMs: 15 * 60 * 1000,
       maxAttempts: 3,
-      blockDurationMs: 15 * 60 * 1000
+      blockDurationMs: 15 * 60 * 1000,
     });
   }
 
-  checkLimit(identifier: string, type: string): {
+  checkLimit(
+    identifier: string,
+    type: string
+  ): {
     allowed: boolean;
     remainingAttempts: number;
     resetAt?: Date;
@@ -142,21 +150,21 @@ class RateLimiter {
       return {
         allowed: false,
         remainingAttempts: 0,
-        blockedUntil: new Date(entry.blockedUntil)
+        blockedUntil: new Date(entry.blockedUntil),
       };
     }
 
     // No previous attempts or window expired
-    if (!entry || (now - entry.firstAttempt) > config.windowMs) {
+    if (!entry || now - entry.firstAttempt > config.windowMs) {
       this.storage.set(key, {
         attempts: 1,
         firstAttempt: now,
-        lastAttempt: now
+        lastAttempt: now,
       });
       return {
         allowed: true,
         remainingAttempts: config.maxAttempts - 1,
-        resetAt: new Date(now + config.windowMs)
+        resetAt: new Date(now + config.windowMs),
       };
     }
 
@@ -168,11 +176,11 @@ class RateLimiter {
     if (entry.attempts > config.maxAttempts) {
       entry.blockedUntil = now + config.blockDurationMs;
       this.storage.set(key, entry);
-      
+
       return {
         allowed: false,
         remainingAttempts: 0,
-        blockedUntil: new Date(entry.blockedUntil)
+        blockedUntil: new Date(entry.blockedUntil),
       };
     }
 
@@ -180,7 +188,7 @@ class RateLimiter {
     return {
       allowed: true,
       remainingAttempts: config.maxAttempts - entry.attempts,
-      resetAt: new Date(entry.firstAttempt + config.windowMs)
+      resetAt: new Date(entry.firstAttempt + config.windowMs),
     };
   }
 
@@ -197,8 +205,10 @@ class RateLimiter {
       if (!config) continue;
 
       // Remove if window expired and not blocked
-      if ((now - entry.firstAttempt) > config.windowMs && 
-          (!entry.blockedUntil || entry.blockedUntil < now)) {
+      if (
+        now - entry.firstAttempt > config.windowMs &&
+        (!entry.blockedUntil || entry.blockedUntil < now)
+      ) {
         this.storage.delete(key);
       }
     }
@@ -215,31 +225,33 @@ setInterval(() => rateLimiter.cleanup(), 5 * 60 * 1000);
 **File:** `api/authService.ts`
 
 Add at the top:
+
 ```typescript
 import { rateLimiter } from '../utils/rateLimiter';
 ```
 
 Find the login function and wrap it:
+
 ```typescript
 export const login = async (email: string, password: string) => {
   // Rate limit check
   const rateCheck = rateLimiter.checkLimit(email, 'login');
-  
+
   if (!rateCheck.allowed) {
-    const message = rateCheck.blockedUntil 
+    const message = rateCheck.blockedUntil
       ? `Too many login attempts. Account locked until ${rateCheck.blockedUntil.toLocaleTimeString()}`
       : 'Too many login attempts. Please try again later.';
-    
+
     throw new Error(message);
   }
 
   try {
     // Existing login logic
     const result = await signInWithEmailAndPassword(auth, email, password);
-    
+
     // Success - reset rate limit
     rateLimiter.reset(email, 'login');
-    
+
     return result;
   } catch (error) {
     // Failed login - rate limit will persist
@@ -260,8 +272,18 @@ export interface PasswordStrength {
 }
 
 const COMMON_PASSWORDS = [
-  'password', '12345678', 'qwerty', 'abc123', 'monkey', 'letmein',
-  '111111', 'password123', 'admin', 'welcome', 'login', 'passw0rd'
+  'password',
+  '12345678',
+  'qwerty',
+  'abc123',
+  'monkey',
+  'letmein',
+  '111111',
+  'password123',
+  'admin',
+  'welcome',
+  'login',
+  'passw0rd',
 ];
 
 export const validatePassword = (password: string): PasswordStrength => {
@@ -304,7 +326,7 @@ export const validatePassword = (password: string): PasswordStrength => {
   }
 
   // Check for common passwords
-  if (COMMON_PASSWORDS.some(common => password.toLowerCase().includes(common))) {
+  if (COMMON_PASSWORDS.some((common) => password.toLowerCase().includes(common))) {
     feedback.push('Avoid common passwords');
     score = Math.min(score, 30);
   }
@@ -367,13 +389,13 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
     <div style={{ marginTop: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ flex: 1, height: '4px', backgroundColor: '#e5e7eb', borderRadius: '2px', overflow: 'hidden' }}>
-          <div 
-            style={{ 
-              width: `${strength.score}%`, 
-              height: '100%', 
+          <div
+            style={{
+              width: `${strength.score}%`,
+              height: '100%',
               backgroundColor: getColor(),
               transition: 'width 0.3s ease'
-            }} 
+            }}
           />
         </div>
         <span style={{ fontSize: '12px', fontWeight: '600', color: getColor() }}>
@@ -398,6 +420,7 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
 Create `__tests__/security/rateLimiter.test.ts`
 
 **Verification:**
+
 - ✅ Login limited to 5 attempts per 15 min
 - ✅ Account locks for 30 min after max attempts
 - ✅ Password validation works
@@ -406,12 +429,14 @@ Create `__tests__/security/rateLimiter.test.ts`
 ---
 
 #### **DAY 2: Two-Factor Authentication (2FA)**
+
 **Duration:** 8 hours  
 **Priority:** 🔴 CRITICAL
 
 ##### **Tasks:**
 
 **2.1 Install Dependencies** (15 min)
+
 ```bash
 npm install otpauth qrcode --save
 npm install @types/qrcode --save-dev
@@ -450,7 +475,7 @@ export const twoFactorService = {
   async generateSecret(userId: string, email: string): Promise<TwoFactorSecret> {
     // Generate secret
     const secret = new OTPAuth.Secret({ size: 20 });
-    
+
     // Create TOTP
     const totp = new OTPAuth.TOTP({
       issuer: 'NataCarePM',
@@ -458,7 +483,7 @@ export const twoFactorService = {
       algorithm: 'SHA1',
       digits: 6,
       period: 30,
-      secret: secret
+      secret: secret,
     });
 
     // Generate QR code
@@ -472,9 +497,9 @@ export const twoFactorService = {
     const twoFactorData: TwoFactorData = {
       userId,
       secret: secret.base32,
-      backupCodes: backupCodes.map(code => this.hashBackupCode(code)),
+      backupCodes: backupCodes.map((code) => this.hashBackupCode(code)),
       enabled: false,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     await setDoc(doc(db, 'twoFactorAuth', userId), twoFactorData);
@@ -484,7 +509,7 @@ export const twoFactorService = {
       qrCode,
       backupCodes, // Return unhashed for user to save
       enabled: false,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
   },
 
@@ -493,16 +518,16 @@ export const twoFactorService = {
    */
   async enableTwoFactor(userId: string, code: string): Promise<boolean> {
     const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-    
+
     if (!twoFactorDoc.exists()) {
       throw new Error('2FA not initialized. Generate secret first.');
     }
 
     const data = twoFactorDoc.data() as TwoFactorData;
-    
+
     // Verify code
     const isValid = this.verifyTOTP(data.secret, code);
-    
+
     if (!isValid) {
       throw new Error('Invalid verification code');
     }
@@ -510,7 +535,7 @@ export const twoFactorService = {
     // Enable 2FA
     await updateDoc(doc(db, 'twoFactorAuth', userId), {
       enabled: true,
-      lastUsed: new Date()
+      lastUsed: new Date(),
     });
 
     return true;
@@ -521,13 +546,13 @@ export const twoFactorService = {
    */
   async verifyCode(userId: string, code: string): Promise<boolean> {
     const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-    
+
     if (!twoFactorDoc.exists()) {
       return false; // 2FA not setup
     }
 
     const data = twoFactorDoc.data() as TwoFactorData;
-    
+
     if (!data.enabled) {
       return false; // 2FA not enabled
     }
@@ -536,7 +561,7 @@ export const twoFactorService = {
     const totpValid = this.verifyTOTP(data.secret, code);
     if (totpValid) {
       await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        lastUsed: new Date()
+        lastUsed: new Date(),
       });
       return true;
     }
@@ -555,7 +580,7 @@ export const twoFactorService = {
    */
   async isEnabled(userId: string): Promise<boolean> {
     const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-    
+
     if (!twoFactorDoc.exists()) {
       return false;
     }
@@ -569,7 +594,7 @@ export const twoFactorService = {
    */
   async disable(userId: string, code: string): Promise<boolean> {
     const isValid = await this.verifyCode(userId, code);
-    
+
     if (!isValid) {
       throw new Error('Invalid verification code');
     }
@@ -586,7 +611,7 @@ export const twoFactorService = {
       algorithm: 'SHA1',
       digits: 6,
       period: 30,
-      secret: OTPAuth.Secret.fromBase32(secret)
+      secret: OTPAuth.Secret.fromBase32(secret),
     });
 
     // Allow 1 time step before/after for clock drift
@@ -617,14 +642,10 @@ export const twoFactorService = {
   /**
    * Verify and consume backup code
    */
-  async verifyBackupCode(
-    userId: string, 
-    code: string, 
-    hashedCodes: string[]
-  ): Promise<boolean> {
+  async verifyBackupCode(userId: string, code: string, hashedCodes: string[]): Promise<boolean> {
     const hashedInput = this.hashBackupCode(code);
     const index = hashedCodes.indexOf(hashedInput);
-    
+
     if (index === -1) {
       return false;
     }
@@ -633,11 +654,11 @@ export const twoFactorService = {
     hashedCodes.splice(index, 1);
     await updateDoc(doc(db, 'twoFactorAuth', userId), {
       backupCodes: hashedCodes,
-      lastUsed: new Date()
+      lastUsed: new Date(),
     });
 
     return true;
-  }
+  },
 };
 ```
 
@@ -661,16 +682,16 @@ export const TwoFactorSetup: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!currentUser) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const result = await twoFactorService.generateSecret(
         currentUser.uid,
         currentUser.email || ''
       );
-      
+
       setQrCode(result.qrCode);
       setSecret(result.secret);
       setBackupCodes(result.backupCodes);
@@ -684,10 +705,10 @@ export const TwoFactorSetup: React.FC = () => {
 
   const handleVerify = async () => {
     if (!currentUser || !verificationCode) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       await twoFactorService.enableTwoFactor(currentUser.uid, verificationCode);
       setStep('backup');
@@ -724,7 +745,7 @@ export const TwoFactorSetup: React.FC = () => {
         <p style={{ fontSize: '12px', color: '#666' }}>
           Or enter this code manually: <code>{secret}</code>
         </p>
-        
+
         <div style={{ marginTop: '24px' }}>
           <label>Enter verification code from your app:</label>
           <input
@@ -751,9 +772,9 @@ export const TwoFactorSetup: React.FC = () => {
         <p style={{ color: '#ef4444', fontWeight: 'bold' }}>
           ⚠️ Save these backup codes in a safe place. You can use them to access your account if you lose your phone.
         </p>
-        <div style={{ 
-          backgroundColor: '#f3f4f6', 
-          padding: '16px', 
+        <div style={{
+          backgroundColor: '#f3f4f6',
+          padding: '16px',
           borderRadius: '8px',
           margin: '16px 0',
           fontFamily: 'monospace'
@@ -818,7 +839,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
 
     try {
       const isValid = await twoFactorService.verifyCode(userId, code);
-      
+
       if (isValid) {
         onSuccess();
       } else {
@@ -838,9 +859,9 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
   };
 
   return (
-    <div style={{ 
-      padding: '32px', 
-      maxWidth: '400px', 
+    <div style={{
+      padding: '32px',
+      maxWidth: '400px',
       margin: '0 auto',
       backgroundColor: '#fff',
       borderRadius: '8px',
@@ -848,7 +869,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
     }}>
       <h2>Two-Factor Authentication</h2>
       <p>Enter the 6-digit code from your authenticator app</p>
-      
+
       <input
         type="text"
         value={code}
@@ -936,6 +957,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
 **2.5 Testing** (1 hour)
 
 **Verification:**
+
 - ✅ QR code generates correctly
 - ✅ Google Authenticator can scan code
 - ✅ TOTP verification works
@@ -945,16 +967,18 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
 ---
 
 #### **DAY 3: Input Validation & Sanitization**
+
 **Duration:** 8 hours  
 **Priority:** 🔴 CRITICAL
 
-*(Continue in next message due to length)*
+_(Continue in next message due to length)_
 
 ---
 
 ## 📊 PROGRESS TRACKING
 
 **Daily Checklist:**
+
 - [ ] Day 1: Rate Limiting ✅
 - [ ] Day 2: 2FA Implementation
 - [ ] Day 3: Input Validation

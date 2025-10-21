@@ -20,6 +20,7 @@ Comprehensive code splitting and lazy loading implementation for NataCarePM usin
 ## Architecture
 
 ### Before (Eager Loading)
+
 ```
 Main Bundle: ~2.5 MB
 ├── All 50+ Views loaded upfront
@@ -29,6 +30,7 @@ Main Bundle: ~2.5 MB
 ```
 
 ### After (Lazy Loading + Code Splitting)
+
 ```
 Main Bundle: ~800 KB (68% reduction)
 ├── Critical: Login, Dashboard (eager)
@@ -42,9 +44,11 @@ Main Bundle: ~800 KB (68% reduction)
 ## Files Created/Modified
 
 ### 1. Component Preloader Utility ✅
+
 **File**: `src/utils/componentPreloader.ts` (140 lines)
 
 **Features**:
+
 ```typescript
 // Single component preload
 preloadComponent(lazyComponent);
@@ -67,17 +71,20 @@ class RoutePreloader {
 ```
 
 **Strategies**:
+
 - **Immediate**: Critical components (dashboard, profile)
 - **Idle**: Less critical (analytics, reports)
 - **Hover**: User-initiated (navigation hover)
 - **Route-based**: Contextual preloading
 
 ### 2. Enhanced Loading States ✅
+
 **File**: `src/components/LoadingStates.tsx` (320 lines)
 
 **Components Created**:
 
 **A. ViewSkeleton** - Type-specific skeleton loaders:
+
 ```typescript
 <ViewSkeleton type="dashboard" />  // Cards + Charts
 <ViewSkeleton type="table" />      // Table rows
@@ -86,26 +93,29 @@ class RoutePreloader {
 ```
 
 **B. LoadingSpinner** - Customizable spinner:
+
 ```typescript
-<LoadingSpinner 
-  message="Loading Dashboard..." 
-  size="lg" 
+<LoadingSpinner
+  message="Loading Dashboard..."
+  size="lg"
 />
 ```
 
 **C. ProgressiveLoader** - Progress bar with stats:
+
 ```typescript
-<ProgressiveLoader 
-  progress={75} 
-  message="Loading components..." 
+<ProgressiveLoader
+  progress={75}
+  message="Loading components..."
   current={3}
   total={4}
 />
 ```
 
 **D. LazyLoadError** - Error fallback:
+
 ```typescript
-<LazyLoadError 
+<LazyLoadError
   error={error}
   resetErrorBoundary={reset}
   componentName="Dashboard"
@@ -113,8 +123,9 @@ class RoutePreloader {
 ```
 
 **E. SuspenseWithTimeout** - Timeout handling:
+
 ```typescript
-<SuspenseWithTimeout 
+<SuspenseWithTimeout
   timeout={10000}
   onTimeout={() => console.log('Timeout')}
 >
@@ -123,26 +134,29 @@ class RoutePreloader {
 ```
 
 ### 3. Route Preload Configuration ✅
+
 **File**: `src/config/routePreload.ts` (215 lines)
 
 **Lazy View Definitions** (50+ components):
+
 ```typescript
 export const lazyViews = {
   // Core
   dashboard: () => import('../../views/DashboardView'),
   analytics: () => import('../../views/IntegratedAnalyticsView'),
-  
-  // Project Management  
+
+  // Project Management
   rabAhsp: () => import('../../views/EnhancedRabAhspView'),
   gantt: () => import('../../views/GanttChartView'),
   tasks: () => import('../../views/TasksView'),
   kanban: () => import('../../views/KanbanView'),
-  
+
   // 45+ more views...
 };
 ```
 
 **Route Preload Config**:
+
 ```typescript
 export const routePreloadConfig: RoutePreloadConfig[] = [
   {
@@ -160,6 +174,7 @@ export const routePreloadConfig: RoutePreloadConfig[] = [
 ```
 
 **Role-Based Preloading**:
+
 ```typescript
 export function getComponentsForRole(role: string) {
   const roleComponentMap = {
@@ -174,29 +189,32 @@ export function getComponentsForRole(role: string) {
 ```
 
 **Time-Based Preloading**:
+
 ```typescript
 export function getComponentsForTimeOfDay() {
   const hour = new Date().getHours();
-  
+
   // Morning (6-12): Daily reports
   if (hour >= 6 && hour < 12) {
     return [dailyReport, attendance, tasks];
   }
-  
+
   // Afternoon (12-18): Progress, finance
   if (hour >= 12 && hour < 18) {
     return [progress, finance, logistics];
   }
-  
+
   // Evening: Reports, analytics
   return [reports, analytics];
 }
 ```
 
 ### 4. Route Preload Hook ✅
+
 **File**: `src/hooks/useRoutePreload.ts` (70 lines)
 
 **useRoutePreload Hook**:
+
 ```typescript
 export function useRoutePreload(currentRoute: string, userRole?: string) {
   // Initialize preloader
@@ -207,7 +225,7 @@ export function useRoutePreload(currentRoute: string, userRole?: string) {
   // Preload critical components once
   useEffect(() => {
     preloadComponents(criticalComponents);
-    
+
     // Role-specific on idle
     if (userRole) {
       requestIdleCallback(() => {
@@ -224,6 +242,7 @@ export function useRoutePreload(currentRoute: string, userRole?: string) {
 ```
 
 **usePreloadOnHover Hook**:
+
 ```typescript
 export function usePreloadOnHover(componentLoader) {
   return {
@@ -236,6 +255,7 @@ export function usePreloadOnHover(componentLoader) {
 ### 5. App.tsx Modifications ✅
 
 **Before (Eager Loading)**:
+
 ```typescript
 import DashboardView from './views/DashboardView';
 import RabAhspView from './views/RabAhspView';
@@ -244,6 +264,7 @@ import GanttChartView from './views/GanttChartView';
 ```
 
 **After (Lazy Loading)**:
+
 ```typescript
 import React, { lazy, Suspense } from 'react';
 
@@ -263,6 +284,7 @@ const AiAssistantChat = lazy(() => import('./components/AiAssistantChat'));
 ```
 
 **Suspense Boundaries**:
+
 ```typescript
 // Main view suspense
 <Suspense fallback={
@@ -284,6 +306,7 @@ const AiAssistantChat = lazy(() => import('./components/AiAssistantChat'));
 ```
 
 **Preloading Integration**:
+
 ```typescript
 // In AppContent component
 useRoutePreload(currentView, currentUser?.roleId);
@@ -296,11 +319,13 @@ useRoutePreload(currentView, currentUser?.roleId);
 ### Estimated Bundle Sizes
 
 **Before Code Splitting**:
+
 - Main Bundle: ~2,500 KB
 - Vendor Bundle: ~800 KB
 - **Total**: ~3,300 KB
 
 **After Code Splitting**:
+
 - Main Bundle: ~800 KB (68% ↓)
 - Vendor Bundle: ~600 KB (25% ↓)
 - Lazy Chunks: ~50-150 KB each
@@ -308,24 +333,26 @@ useRoutePreload(currentView, currentUser?.roleId);
 
 ### Chunk Distribution
 
-| Chunk | Size | Load Strategy |
-|-------|------|---------------|
-| **main.js** | 800 KB | Immediate |
-| **dashboard.js** | 120 KB | Preloaded (immediate) |
-| **gantt.js** | 150 KB | On-demand |
-| **analytics.js** | 180 KB | Preloaded (idle) |
-| **finance.js** | 90 KB | On-demand |
-| **documents.js** | 200 KB | On-demand |
-| **ai-chat.js** | 250 KB | On-demand |
-| **command-palette.js** | 80 KB | On-demand |
-| **Other views** | 50-100 KB each | On-demand |
+| Chunk                  | Size           | Load Strategy         |
+| ---------------------- | -------------- | --------------------- |
+| **main.js**            | 800 KB         | Immediate             |
+| **dashboard.js**       | 120 KB         | Preloaded (immediate) |
+| **gantt.js**           | 150 KB         | On-demand             |
+| **analytics.js**       | 180 KB         | Preloaded (idle)      |
+| **finance.js**         | 90 KB          | On-demand             |
+| **documents.js**       | 200 KB         | On-demand             |
+| **ai-chat.js**         | 250 KB         | On-demand             |
+| **command-palette.js** | 80 KB          | On-demand             |
+| **Other views**        | 50-100 KB each | On-demand             |
 
 ---
 
 ## Loading Strategies
 
 ### 1. Immediate Loading (Critical Path)
+
 **Components**:
+
 - LoginView
 - EnterpriseLoginView
 - Sidebar
@@ -335,7 +362,9 @@ useRoutePreload(currentView, currentUser?.roleId);
 **Rationale**: Required for first render
 
 ### 2. Preloaded (Immediate After Login)
+
 **Components**:
+
 - DashboardView
 - ProfileView
 - NotificationCenterView
@@ -343,7 +372,9 @@ useRoutePreload(currentView, currentUser?.roleId);
 **Rationale**: High likelihood of immediate use
 
 ### 3. Preloaded (On Idle)
+
 **Components**:
+
 - Role-specific views
 - Time-of-day relevant views
 - Related views (e.g., RAB + Gantt)
@@ -351,7 +382,9 @@ useRoutePreload(currentView, currentUser?.roleId);
 **Rationale**: Improve perceived performance
 
 ### 4. On-Demand (User Action)
+
 **Components**:
+
 - Heavy admin views
 - Reports
 - Document system
@@ -366,22 +399,22 @@ useRoutePreload(currentView, currentUser?.roleId);
 
 ### Expected Improvements
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Initial Bundle** | 2.5 MB | 0.8 MB | 68% ↓ |
-| **FCP** | 4.0s | 1.2s | 70% faster |
-| **LCP** | 5.5s | 2.0s | 64% faster |
-| **TTI** | 6.0s | 2.5s | 58% faster |
-| **TBT** | 800ms | 200ms | 75% ↓ |
+| Metric             | Before | After  | Improvement |
+| ------------------ | ------ | ------ | ----------- |
+| **Initial Bundle** | 2.5 MB | 0.8 MB | 68% ↓       |
+| **FCP**            | 4.0s   | 1.2s   | 70% faster  |
+| **LCP**            | 5.5s   | 2.0s   | 64% faster  |
+| **TTI**            | 6.0s   | 2.5s   | 58% faster  |
+| **TBT**            | 800ms  | 200ms  | 75% ↓       |
 
 ### Lighthouse Score Predictions
 
-| Category | Before | After | Target |
-|----------|--------|-------|--------|
-| **Performance** | 65 | 90+ | ✅ |
-| **Accessibility** | 85 | 90+ | ✅ |
-| **Best Practices** | 80 | 95+ | ✅ |
-| **SEO** | 90 | 95+ | ✅ |
+| Category           | Before | After | Target |
+| ------------------ | ------ | ----- | ------ |
+| **Performance**    | 65     | 90+   | ✅     |
+| **Accessibility**  | 85     | 90+   | ✅     |
+| **Best Practices** | 80     | 95+   | ✅     |
+| **SEO**            | 90     | 95+   | ✅     |
 
 ---
 
@@ -390,6 +423,7 @@ useRoutePreload(currentView, currentUser?.roleId);
 ### Lazy Loading Pattern
 
 **Standard Lazy Component**:
+
 ```typescript
 const MyView = lazy(() => import('./views/MyView'));
 
@@ -400,16 +434,19 @@ const MyView = lazy(() => import('./views/MyView'));
 ```
 
 **Named Export Lazy Loading**:
+
 ```typescript
-const IntegratedAnalyticsView = lazy(() => 
-  import('./views/IntegratedAnalyticsView')
-    .then(module => ({ default: module.IntegratedAnalyticsView }))
+const IntegratedAnalyticsView = lazy(() =>
+  import('./views/IntegratedAnalyticsView').then((module) => ({
+    default: module.IntegratedAnalyticsView,
+  }))
 );
 ```
 
 ### Preloading Pattern
 
 **Manual Preload**:
+
 ```typescript
 // Preload on hover
 <button
@@ -422,6 +459,7 @@ const IntegratedAnalyticsView = lazy(() =>
 ```
 
 **Hook-Based Preload**:
+
 ```typescript
 const { onMouseEnter } = usePreloadOnHover(
   () => import('./views/HeavyView')
@@ -435,6 +473,7 @@ const { onMouseEnter } = usePreloadOnHover(
 ### Error Handling
 
 **With Error Boundary**:
+
 ```typescript
 <ErrorBoundary
   FallbackComponent={LazyLoadError}
@@ -447,8 +486,9 @@ const { onMouseEnter } = usePreloadOnHover(
 ```
 
 **With Timeout**:
+
 ```typescript
-<SuspenseWithTimeout 
+<SuspenseWithTimeout
   timeout={10000}
   onTimeout={() => {
     console.error('Component load timeout');
@@ -466,11 +506,13 @@ const { onMouseEnter } = usePreloadOnHover(
 ### DO ✅
 
 1. **Lazy Load Route Components**
+
    ```typescript
    const RouteView = lazy(() => import('./views/RouteView'));
    ```
 
 2. **Preload on User Intent**
+
    ```typescript
    <Link onMouseEnter={() => import('./views/TargetView')}>
      Navigate
@@ -478,11 +520,13 @@ const { onMouseEnter } = usePreloadOnHover(
    ```
 
 3. **Use Specific Loading States**
+
    ```typescript
    <Suspense fallback={<ViewSkeleton type="dashboard" />}>
    ```
 
 4. **Group Related Chunks**
+
    ```typescript
    // Vite config
    build: {
@@ -505,30 +549,33 @@ const { onMouseEnter } = usePreloadOnHover(
 ### DON'T ❌
 
 1. **Don't Lazy Load Critical Components**
+
    ```typescript
    // ❌ Bad
    const LoginView = lazy(() => import('./LoginView'));
-   
+
    // ✅ Good
    import LoginView from './LoginView';
    ```
 
 2. **Don't Over-Preload**
+
    ```typescript
    // ❌ Bad (loads everything)
    preloadAll();
-   
+
    // ✅ Good (strategic preloading)
    preloadComponents(criticalComponents);
    ```
 
 3. **Don't Forget Fallbacks**
+
    ```typescript
    // ❌ Bad
    <Suspense>
      <LazyComponent />
    </Suspense>
-   
+
    // ✅ Good
    <Suspense fallback={<LoadingSpinner />}>
      <LazyComponent />
@@ -536,10 +583,11 @@ const { onMouseEnter } = usePreloadOnHover(
    ```
 
 4. **Don't Create Tiny Chunks**
+
    ```typescript
    // ❌ Bad (too granular)
    const TinyComponent = lazy(() => import('./Tiny')); // 2 KB
-   
+
    // ✅ Good (reasonable size)
    const MediumView = lazy(() => import('./MediumView')); // 50+ KB
    ```
@@ -562,6 +610,7 @@ const { onMouseEnter } = usePreloadOnHover(
 ### Network Testing
 
 **Simulate Slow 3G**:
+
 ```bash
 # Chrome DevTools > Network > Slow 3G
 # Verify:
@@ -651,6 +700,7 @@ window.addEventListener('error', (event) => {
 ### Common Issues
 
 **1. Blank Screen During Load**
+
 ```typescript
 // Problem: No loading indicator
 <Suspense>
@@ -664,20 +714,21 @@ window.addEventListener('error', (event) => {
 ```
 
 **2. Chunk Load Failed**
+
 ```typescript
 // Problem: Network error or stale cache
 
 // Solution: Retry mechanism
-const LazyWithRetry = lazy(() => 
-  import('./MyComponent')
-    .catch(() => {
-      // Clear cache and retry
-      return import('./MyComponent');
-    })
+const LazyWithRetry = lazy(() =>
+  import('./MyComponent').catch(() => {
+    // Clear cache and retry
+    return import('./MyComponent');
+  })
 );
 ```
 
 **3. Slow Initial Load**
+
 ```typescript
 // Problem: Too much preloading
 
@@ -687,6 +738,7 @@ preloadComponents(criticalComponents); // Not all
 ```
 
 **4. White Flash**
+
 ```typescript
 // Problem: Suspense fallback appears too early
 
@@ -713,7 +765,7 @@ Code splitting and lazy loading implementation is **complete and production-read
 ✅ **Intelligent preloading** (role-based, time-based, route-based)  
 ✅ **Enhanced loading states** (skeletons, spinners, errors)  
 ✅ **Zero TypeScript errors**  
-✅ **Complete error handling**  
+✅ **Complete error handling**
 
 **Impact**: Dramatically improved initial load time and perceived performance, especially on slow networks and mobile devices.
 

@@ -1,11 +1,13 @@
 # Quick Reference: Firebase Storage Setup
 
 ## Problem
+
 Firebase Storage rules cannot be deployed because storage is not initialized.
 
 ## Solution Steps
 
 ### Step 1: Run the Deployment Script
+
 ```powershell
 cd c:\Users\latie\Documents\GitHub\NataCarePM
 .\scripts\deploy-storage-rules.ps1
@@ -14,6 +16,7 @@ cd c:\Users\latie\Documents\GitHub\NataCarePM
 ### Step 2: When Prompted, Initialize Storage
 
 The script will detect storage is not initialized and show:
+
 ```
 [WARNING] Firebase Storage is NOT initialized yet!
 
@@ -32,6 +35,7 @@ Type `y` and press Enter.
 4. **Click "Done"**
 
 ### Step 4: Re-run the Script
+
 ```powershell
 .\scripts\deploy-storage-rules.ps1
 ```
@@ -67,13 +71,13 @@ i  storage: deploying storage.rules
 
 ## Quick Commands Reference
 
-| Action | Command |
-|--------|---------|
-| Deploy storage rules | `.\scripts\deploy-storage-rules.ps1` |
-| Show script help | `.\scripts\deploy-storage-rules.ps1 -Help` |
-| Skip init check | `.\scripts\deploy-storage-rules.ps1 -SkipCheck` |
-| Open console manually | https://console.firebase.google.com/project/natacara-hns/storage |
-| Verify rules | https://console.firebase.google.com/project/natacara-hns/storage/rules |
+| Action                | Command                                                                |
+| --------------------- | ---------------------------------------------------------------------- |
+| Deploy storage rules  | `.\scripts\deploy-storage-rules.ps1`                                   |
+| Show script help      | `.\scripts\deploy-storage-rules.ps1 -Help`                             |
+| Skip init check       | `.\scripts\deploy-storage-rules.ps1 -SkipCheck`                        |
+| Open console manually | https://console.firebase.google.com/project/natacara-hns/storage       |
+| Verify rules          | https://console.firebase.google.com/project/natacara-hns/storage/rules |
 
 ---
 

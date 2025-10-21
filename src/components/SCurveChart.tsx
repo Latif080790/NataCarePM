@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 
-
 interface SCurveDataPoint {
   month: string;
   planned: number;
@@ -12,8 +11,12 @@ interface SCurveChartProps {
 }
 
 export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
-  const [hoveredPoint, setHoveredPoint] = useState<{ month: string; planned: number; actual: number } | null>(null);
-  
+  const [hoveredPoint, setHoveredPoint] = useState<{
+    month: string;
+    planned: number;
+    actual: number;
+  } | null>(null);
+
   if (!data || data.length === 0) {
     return (
       <div className="h-full flex items-center justify-center text-slate-400">
@@ -28,20 +31,20 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
-  const maxValue = Math.max(
-    ...data.map(d => Math.max(d.planned, d.actual))
-  );
+  const maxValue = Math.max(...data.map((d) => Math.max(d.planned, d.actual)));
 
   const xScale = (index: number) => (index / (data.length - 1)) * chartWidth;
   const yScale = (value: number) => chartHeight - (value / maxValue) * chartHeight;
 
   // Generate path for line
   const createPath = (dataKey: 'planned' | 'actual') => {
-    return data.map((point, index) => {
-      const x = xScale(index) + padding.left;
-      const y = yScale(point[dataKey]) + padding.top;
-      return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-    }).join(' ');
+    return data
+      .map((point, index) => {
+        const x = xScale(index) + padding.left;
+        const y = yScale(point[dataKey]) + padding.top;
+        return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+      })
+      .join(' ');
   };
 
   const plannedPath = createPath('planned');
@@ -49,9 +52,9 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
 
   return (
     <div className="relative w-full h-full">
-      <svg 
-        width="100%" 
-        height="100%" 
+      <svg
+        width="100%"
+        height="100%"
         viewBox={`0 0 ${width} ${height}`}
         className="overflow-visible"
         style={{ minHeight: '300px' }}
@@ -67,7 +70,7 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
             <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
           </linearGradient>
           <filter id="shadow">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3" />
           </filter>
         </defs>
 
@@ -81,10 +84,10 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
                 y1={y}
                 x2={width - padding.right}
                 y2={y}
-                stroke={value === 0 || value === 100 ? "#475569" : "#334155"}
-                strokeWidth={value === 0 || value === 100 ? "2" : "1"}
-                strokeDasharray={value === 0 || value === 100 ? "0" : "4 4"}
-                opacity={value === 0 || value === 100 ? "0.6" : "0.3"}
+                stroke={value === 0 || value === 100 ? '#475569' : '#334155'}
+                strokeWidth={value === 0 || value === 100 ? '2' : '1'}
+                strokeDasharray={value === 0 || value === 100 ? '0' : '4 4'}
+                opacity={value === 0 || value === 100 ? '0.6' : '0.3'}
               />
               <text
                 x={padding.left - 15}
@@ -176,11 +179,7 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
                 onMouseLeave={() => setHoveredPoint(null)}
               />
               {index === data.length - 1 && (
-                <text
-                  x={x + 25}
-                  y={y + 5}
-                  className="text-[11px] fill-orange-400 font-bold"
-                >
+                <text x={x + 25} y={y + 5} className="text-[11px] fill-orange-400 font-bold">
                   {point.planned}%
                 </text>
               )}
@@ -207,11 +206,7 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
                 onMouseLeave={() => setHoveredPoint(null)}
               />
               {index === data.length - 1 && (
-                <text
-                  x={x + 25}
-                  y={y + 5}
-                  className="text-[11px] fill-blue-400 font-bold"
-                >
+                <text x={x + 25} y={y + 5} className="text-[11px] fill-blue-400 font-bold">
                   {point.actual}%
                 </text>
               )}
@@ -229,7 +224,7 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
         >
           Progress (%)
         </text>
-        
+
         {/* X-axis label */}
         <text
           x={width / 2}
@@ -266,8 +261,11 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
             <div className="pt-2 border-t border-slate-700/50 mt-2">
               <div className="flex items-center justify-between gap-6">
                 <span className="text-xs text-slate-400 font-medium">Deviasi:</span>
-                <span className={`text-base font-bold ${hoveredPoint.actual >= hoveredPoint.planned ? 'text-green-400' : 'text-red-400'}`}>
-                  {hoveredPoint.actual >= hoveredPoint.planned ? '+' : ''}{hoveredPoint.actual - hoveredPoint.planned}%
+                <span
+                  className={`text-base font-bold ${hoveredPoint.actual >= hoveredPoint.planned ? 'text-green-400' : 'text-red-400'}`}
+                >
+                  {hoveredPoint.actual >= hoveredPoint.planned ? '+' : ''}
+                  {hoveredPoint.actual - hoveredPoint.planned}%
                 </span>
               </div>
               <div className="text-[10px] text-slate-500 mt-1 text-right">

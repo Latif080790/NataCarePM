@@ -1,6 +1,6 @@
 /**
  * INVENTORY TRANSACTION SERVICE
- * 
+ *
  * Comprehensive service layer for Inventory Transaction operations including:
  * - Transaction CRUD operations (IN, OUT, ADJUSTMENT, TRANSFER, RETURN)
  * - Stock movement tracking
@@ -11,33 +11,33 @@
  * - Location tracking (Warehouse, Bin, Zone)
  * - Approval workflow for adjustments
  * - Real-time stock level updates
- * 
+ *
  * Created: October 2025
  */
 
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
   deleteDoc,
-  query, 
-  where, 
+  query,
+  where,
   orderBy,
   limit as firestoreLimit,
   Timestamp,
   writeBatch,
-  runTransaction
+  runTransaction,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-import { 
+import {
   InventoryTransaction,
   InventoryTransactionItem,
   TransactionType,
   TransactionStatus,
-  UnitOfMeasure
+  UnitOfMeasure,
 } from '@/types/inventory';
 
 // ============================================================================
@@ -60,14 +60,21 @@ function generateTransactionCode(type: TransactionType): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  
-  const prefix = type === TransactionType.IN ? 'INV-IN' :
-                 type === TransactionType.OUT ? 'INV-OUT' :
-                 type === TransactionType.ADJUSTMENT ? 'INV-ADJ' :
-                 type === TransactionType.TRANSFER ? 'INV-TRF' :
-                 'INV-RTN';
-  
+  const random = Math.floor(Math.random() * 1000)
+    .toString()
+    .padStart(3, '0');
+
+  const prefix =
+    type === TransactionType.IN
+      ? 'INV-IN'
+      : type === TransactionType.OUT
+        ? 'INV-OUT'
+        : type === TransactionType.ADJUSTMENT
+          ? 'INV-ADJ'
+          : type === TransactionType.TRANSFER
+            ? 'INV-TRF'
+            : 'INV-RTN';
+
   return `${prefix}-${year}${month}${day}-${random}`;
 }
 
@@ -75,29 +82,28 @@ function generateTransactionCode(type: TransactionType): string {
  * Get current stock for material at warehouse
  */
 async function getCurrentStock(
-  materialId: string, 
+  materialId: string,
   warehouseId: string,
   locationId?: string
 ): Promise<number> {
   try {
     // Query stock ledger for most recent balance
-    let stockQuery = query(
+    const stockQuery = query(
       collection(db, STOCK_LEDGER_COLLECTION),
       where('materialId', '==', materialId),
       where('warehouseId', '==', warehouseId),
       orderBy('transactionDate', 'desc'),
       firestoreLimit(1)
     );
-    
+
     const snapshot = await getDocs(stockQuery);
-    
+
     if (snapshot.empty) {
       return 0;
     }
-    
+
     const ledgerEntry = snapshot.docs[0].data();
     return ledgerEntry.stockBalance || 0;
-    
   } catch (error) {
     console.error('Error getting current stock:', error);
     return 0;
@@ -133,47 +139,52 @@ export async function checkStockLevel(
         where('materialId', '==', materialId),
         orderBy('transactionDate', 'desc')
       );
-      
+
       const snapshot = await getDocs(stockQuery);
-      
+
       // Group by warehouse and get latest balance for each
       const warehouseStocks = new Map<string, number>();
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const whId = data.warehouseId;
         if (!warehouseStocks.has(whId)) {
           warehouseStocks.set(whId, data.stockBalance || 0);
         }
       });
-      
-      const totalStock = Array.from(warehouseStocks.values()).reduce((sum, stock) => sum + stock, 0);
+
+      const totalStock = Array.from(warehouseStocks.values()).reduce(
+        (sum, stock) => sum + stock,
+        0
+      );
       const shortfall = Math.max(0, requestedQty - totalStock);
       const available = totalStock >= requestedQty;
-      
+
       const suggestions = [];
       if (!available && totalStock > 0) {
-        suggestions.push(`Available stock: ${totalStock} ${materialCode} across ${warehouseStocks.size} warehouses`);
+        suggestions.push(
+          `Available stock: ${totalStock} ${materialCode} across ${warehouseStocks.size} warehouses`
+        );
         suggestions.push('Consider reducing quantity or splitting the request');
       } else if (!available) {
         suggestions.push('No stock available - initiate Purchase Request');
       }
-      
+
       return {
         available,
         currentStock: totalStock,
         shortfall,
-        message: available 
-          ? `Stock available: ${totalStock} units` 
+        message: available
+          ? `Stock available: ${totalStock} units`
           : `Insufficient stock. Short: ${shortfall} units`,
-        suggestions
+        suggestions,
       };
     }
-    
+
     // Check specific warehouse
     const currentStock = await getCurrentStock(materialId, warehouseId);
     const shortfall = Math.max(0, requestedQty - currentStock);
     const available = currentStock >= requestedQty;
-    
+
     const suggestions = [];
     if (!available && currentStock > 0) {
       suggestions.push(`Only ${currentStock} units available in warehouse`);
@@ -182,17 +193,16 @@ export async function checkStockLevel(
       suggestions.push('No stock in this warehouse');
       suggestions.push('Check other warehouses or initiate Purchase Request');
     }
-    
+
     return {
       available,
       currentStock,
       shortfall,
-      message: available 
-        ? `Stock available: ${currentStock} units in warehouse` 
+      message: available
+        ? `Stock available: ${currentStock} units in warehouse`
         : `Insufficient stock in warehouse. Short: ${shortfall} units`,
-      suggestions
+      suggestions,
     };
-    
   } catch (error) {
     console.error('Error checking stock level:', error);
     return {
@@ -200,7 +210,7 @@ export async function checkStockLevel(
       currentStock: 0,
       shortfall: requestedQty,
       message: 'Error checking stock availability',
-      suggestions: ['Please try again or contact administrator']
+      suggestions: ['Please try again or contact administrator'],
     };
   }
 }
@@ -217,52 +227,52 @@ async function updateStockLedger(
       materialId: item.materialId,
       materialCode: item.materialCode,
       materialName: item.materialName,
-      
+
       // Transaction details
       transactionId: transaction.id,
       transactionCode: transaction.transactionCode,
       transactionType: transaction.transactionType,
       transactionDate: transaction.transactionDate,
-      
+
       // Location
       warehouseId: item.warehouseId,
       locationId: item.locationId || null,
       binLocation: item.binLocation || null,
-      
+
       // Quantity movement
       quantityIn: transaction.transactionType === TransactionType.IN ? item.quantity : 0,
       quantityOut: transaction.transactionType === TransactionType.OUT ? item.quantity : 0,
-      quantityAdjustment: transaction.transactionType === TransactionType.ADJUSTMENT ? item.quantity : 0,
+      quantityAdjustment:
+        transaction.transactionType === TransactionType.ADJUSTMENT ? item.quantity : 0,
       uom: item.uom,
-      
+
       // Stock balance
       stockBefore: item.stockBefore,
       stockAfter: item.stockAfter,
       stockBalance: item.stockAfter,
-      
+
       // Valuation
       unitCost: item.unitCost,
       totalCost: item.totalCost,
-      
+
       // Tracking
       batchNumber: item.batchNumber || null,
       serialNumber: item.serialNumber || null,
-      
+
       // Reference
       referenceType: transaction.referenceType || null,
       referenceId: transaction.referenceId || null,
       referenceNumber: transaction.referenceNumber || null,
-      
+
       // Audit
       createdAt: transaction.createdAt,
       createdBy: transaction.createdBy,
-      
+
       // Additional
-      notes: item.notes || transaction.notes || null
+      notes: item.notes || transaction.notes || null,
     };
-    
+
     await addDoc(collection(db, STOCK_LEDGER_COLLECTION), ledgerEntry);
-    
   } catch (error) {
     console.error('Error updating stock ledger:', error);
     throw error;
@@ -280,28 +290,29 @@ async function updateMaterialStock(
   try {
     const materialRef = doc(db, MATERIAL_COLLECTION, materialId);
     const materialDoc = await getDoc(materialRef);
-    
+
     if (!materialDoc.exists()) {
       console.warn(`Material ${materialId} not found`);
       return;
     }
-    
+
     const materialData = materialDoc.data();
     const warehouseStock = materialData.warehouseStock || {};
-    
+
     // Update warehouse-specific stock
     warehouseStock[warehouseId] = newStockLevel;
-    
+
     // Calculate total stock across all warehouses
-    const totalStock = Object.values(warehouseStock as Record<string, number>)
-      .reduce((sum, stock) => sum + stock, 0);
-    
+    const totalStock = Object.values(warehouseStock as Record<string, number>).reduce(
+      (sum, stock) => sum + stock,
+      0
+    );
+
     await updateDoc(materialRef, {
       warehouseStock,
       totalStock,
-      lastStockUpdate: Timestamp.now()
+      lastStockUpdate: Timestamp.now(),
     });
-    
   } catch (error) {
     console.error('Error updating material stock:', error);
     throw error;
@@ -341,14 +352,14 @@ export async function createInventoryInTransaction(
 ): Promise<string> {
   try {
     const transactionCode = generateTransactionCode(TransactionType.IN);
-    
+
     // Prepare transaction items with stock levels
     const transactionItems: InventoryTransactionItem[] = [];
-    
+
     for (const item of items) {
       const stockBefore = await getCurrentStock(item.materialId, item.warehouseId, item.locationId);
       const stockAfter = stockBefore + item.quantity;
-      
+
       transactionItems.push({
         id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         materialId: item.materialId,
@@ -368,13 +379,13 @@ export async function createInventoryInTransaction(
         binLocation: item.binLocation,
         stockBefore,
         stockAfter,
-        notes: item.notes
+        notes: item.notes,
       });
     }
-    
+
     // Calculate total value
     const totalValue = transactionItems.reduce((sum, item) => sum + item.totalCost, 0);
-    
+
     // Create transaction
     const transaction: Omit<InventoryTransaction, 'id'> = {
       transactionCode,
@@ -392,21 +403,21 @@ export async function createInventoryInTransaction(
       createdAt: Timestamp.now(),
       createdBy: {
         userId,
-        userName
+        userName,
       },
       completedAt: Timestamp.now(),
       completedBy: {
         userId,
-        userName
-      }
+        userName,
+      },
     };
-    
+
     // Use Firestore transaction to ensure atomicity
     const transactionId = await runTransaction(db, async (firestoreTransaction) => {
       // Add inventory transaction
       const transactionRef = doc(collection(db, INVENTORY_TRANSACTIONS_COLLECTION));
       firestoreTransaction.set(transactionRef, transaction);
-      
+
       // Update stock levels for each item
       for (const item of transactionItems) {
         // Update stock ledger
@@ -414,17 +425,16 @@ export async function createInventoryInTransaction(
           { id: transactionRef.id, ...transaction } as InventoryTransaction,
           item
         );
-        
+
         // Update material stock
         await updateMaterialStock(item.materialId, item.warehouseId, item.stockAfter);
       }
-      
+
       return transactionRef.id;
     });
-    
+
     console.log('✅ Inventory IN transaction created:', transactionCode);
     return transactionId;
-    
   } catch (error) {
     console.error('❌ Error creating inventory IN transaction:', error);
     throw error;
@@ -458,22 +468,22 @@ export async function createInventoryOutTransaction(
 ): Promise<string> {
   try {
     const transactionCode = generateTransactionCode(TransactionType.OUT);
-    
+
     // Prepare transaction items with stock levels
     const transactionItems: InventoryTransactionItem[] = [];
-    
+
     for (const item of items) {
       const stockBefore = await getCurrentStock(item.materialId, item.warehouseId, item.locationId);
       const stockAfter = stockBefore - item.quantity;
-      
+
       // Validate sufficient stock
       if (stockAfter < 0) {
         throw new Error(
           `Insufficient stock for ${item.materialName}. ` +
-          `Available: ${stockBefore}, Requested: ${item.quantity}`
+            `Available: ${stockBefore}, Requested: ${item.quantity}`
         );
       }
-      
+
       transactionItems.push({
         id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         materialId: item.materialId,
@@ -491,13 +501,13 @@ export async function createInventoryOutTransaction(
         binLocation: item.binLocation,
         stockBefore,
         stockAfter,
-        notes: item.notes
+        notes: item.notes,
       });
     }
-    
+
     // Calculate total value
     const totalValue = transactionItems.reduce((sum, item) => sum + item.totalCost, 0);
-    
+
     // Create transaction
     const transaction: Omit<InventoryTransaction, 'id'> = {
       transactionCode,
@@ -515,21 +525,21 @@ export async function createInventoryOutTransaction(
       createdAt: Timestamp.now(),
       createdBy: {
         userId,
-        userName
+        userName,
       },
       completedAt: Timestamp.now(),
       completedBy: {
         userId,
-        userName
-      }
+        userName,
+      },
     };
-    
+
     // Use Firestore transaction to ensure atomicity
     const transactionId = await runTransaction(db, async (firestoreTransaction) => {
       // Add inventory transaction
       const transactionRef = doc(collection(db, INVENTORY_TRANSACTIONS_COLLECTION));
       firestoreTransaction.set(transactionRef, transaction);
-      
+
       // Update stock levels for each item
       for (const item of transactionItems) {
         // Update stock ledger
@@ -537,17 +547,16 @@ export async function createInventoryOutTransaction(
           { id: transactionRef.id, ...transaction } as InventoryTransaction,
           item
         );
-        
+
         // Update material stock
         await updateMaterialStock(item.materialId, item.warehouseId, item.stockAfter);
       }
-      
+
       return transactionRef.id;
     });
-    
+
     console.log('✅ Inventory OUT transaction created:', transactionCode);
     return transactionId;
-    
   } catch (error) {
     console.error('❌ Error creating inventory OUT transaction:', error);
     throw error;
@@ -581,23 +590,23 @@ export async function createInventoryAdjustmentTransaction(
 ): Promise<string> {
   try {
     const transactionCode = generateTransactionCode(TransactionType.ADJUSTMENT);
-    
+
     // Prepare transaction items with stock levels
     const transactionItems: InventoryTransactionItem[] = [];
-    
+
     for (const item of items) {
       const stockBefore = await getCurrentStock(item.materialId, item.warehouseId, item.locationId);
       const stockAfter = stockBefore + item.adjustmentQuantity;
-      
+
       // Validate stock after adjustment
       if (stockAfter < 0) {
         throw new Error(
           `Invalid adjustment for ${item.materialName}. ` +
-          `Current stock: ${stockBefore}, Adjustment: ${item.adjustmentQuantity}, ` +
-          `Result would be negative.`
+            `Current stock: ${stockBefore}, Adjustment: ${item.adjustmentQuantity}, ` +
+            `Result would be negative.`
         );
       }
-      
+
       transactionItems.push({
         id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         materialId: item.materialId,
@@ -614,13 +623,13 @@ export async function createInventoryAdjustmentTransaction(
         binLocation: item.binLocation,
         stockBefore,
         stockAfter,
-        notes: item.notes
+        notes: item.notes,
       });
     }
-    
+
     // Calculate total value
     const totalValue = transactionItems.reduce((sum, item) => sum + item.totalCost, 0);
-    
+
     // Create transaction
     const transaction: Omit<InventoryTransaction, 'id'> = {
       transactionCode,
@@ -638,32 +647,30 @@ export async function createInventoryAdjustmentTransaction(
       createdAt: Timestamp.now(),
       createdBy: {
         userId,
-        userName
+        userName,
       },
       completedAt: requiresApproval ? undefined : Timestamp.now(),
-      completedBy: requiresApproval ? undefined : {
-        userId,
-        userName
-      }
+      completedBy: requiresApproval
+        ? undefined
+        : {
+            userId,
+            userName,
+          },
     };
-    
+
     // Add to Firestore
     const docRef = await addDoc(collection(db, INVENTORY_TRANSACTIONS_COLLECTION), transaction);
-    
+
     // If no approval required, update stock immediately
     if (!requiresApproval) {
       for (const item of transactionItems) {
-        await updateStockLedger(
-          { id: docRef.id, ...transaction } as InventoryTransaction,
-          item
-        );
+        await updateStockLedger({ id: docRef.id, ...transaction } as InventoryTransaction, item);
         await updateMaterialStock(item.materialId, item.warehouseId, item.stockAfter);
       }
     }
-    
+
     console.log('✅ Inventory ADJUSTMENT transaction created:', transactionCode);
     return docRef.id;
-    
   } catch (error) {
     console.error('❌ Error creating inventory ADJUSTMENT transaction:', error);
     throw error;
@@ -682,45 +689,44 @@ export async function approveAdjustmentTransaction(
   try {
     const transactionRef = doc(db, INVENTORY_TRANSACTIONS_COLLECTION, transactionId);
     const transactionDoc = await getDoc(transactionRef);
-    
+
     if (!transactionDoc.exists()) {
       throw new Error('Transaction not found');
     }
-    
+
     const transaction = { id: transactionDoc.id, ...transactionDoc.data() } as InventoryTransaction;
-    
+
     if (transaction.status !== TransactionStatus.PENDING_APPROVAL) {
       throw new Error(`Transaction cannot be approved. Current status: ${transaction.status}`);
     }
-    
+
     if (transaction.transactionType !== TransactionType.ADJUSTMENT) {
       throw new Error('Only adjustment transactions require approval');
     }
-    
+
     // Update transaction status
     await updateDoc(transactionRef, {
       status: TransactionStatus.APPROVED,
       approvedAt: Timestamp.now(),
       approvedBy: {
         userId: approverId,
-        userName: approverName
+        userName: approverName,
       },
       approvalNotes,
       completedAt: Timestamp.now(),
       completedBy: {
         userId: approverId,
-        userName: approverName
-      }
+        userName: approverName,
+      },
     });
-    
+
     // Update stock levels
     for (const item of transaction.items) {
       await updateStockLedger(transaction, item);
       await updateMaterialStock(item.materialId, item.warehouseId, item.stockAfter);
     }
-    
+
     console.log('✅ Adjustment transaction approved:', transaction.transactionCode);
-    
   } catch (error) {
     console.error('❌ Error approving adjustment transaction:', error);
     throw error;
@@ -757,22 +763,26 @@ export async function createInventoryTransferTransaction(
 ): Promise<string> {
   try {
     const transactionCode = generateTransactionCode(TransactionType.TRANSFER);
-    
+
     // Prepare transaction items
     const transactionItems: InventoryTransactionItem[] = [];
-    
+
     for (const item of items) {
-      const stockBefore = await getCurrentStock(item.materialId, item.fromWarehouseId, item.fromLocationId);
+      const stockBefore = await getCurrentStock(
+        item.materialId,
+        item.fromWarehouseId,
+        item.fromLocationId
+      );
       const stockAfter = stockBefore - item.quantity;
-      
+
       // Validate sufficient stock at source
       if (stockAfter < 0) {
         throw new Error(
           `Insufficient stock for ${item.materialName} at source warehouse. ` +
-          `Available: ${stockBefore}, Transfer quantity: ${item.quantity}`
+            `Available: ${stockBefore}, Transfer quantity: ${item.quantity}`
         );
       }
-      
+
       transactionItems.push({
         id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         materialId: item.materialId,
@@ -793,13 +803,13 @@ export async function createInventoryTransferTransaction(
         toBinLocation: item.toBinLocation,
         stockBefore,
         stockAfter,
-        notes: item.notes
+        notes: item.notes,
       });
     }
-    
+
     // Calculate total value
     const totalValue = transactionItems.reduce((sum, item) => sum + item.totalCost, 0);
-    
+
     // Create transaction
     const transaction: Omit<InventoryTransaction, 'id'> = {
       transactionCode,
@@ -817,21 +827,21 @@ export async function createInventoryTransferTransaction(
       createdAt: Timestamp.now(),
       createdBy: {
         userId,
-        userName
+        userName,
       },
       completedAt: Timestamp.now(),
       completedBy: {
         userId,
-        userName
-      }
+        userName,
+      },
     };
-    
+
     // Use Firestore transaction to ensure atomicity
     const transactionId = await runTransaction(db, async (firestoreTransaction) => {
       // Add inventory transaction
       const transactionRef = doc(collection(db, INVENTORY_TRANSACTIONS_COLLECTION));
       firestoreTransaction.set(transactionRef, transaction);
-      
+
       // Update stock levels for each item
       for (const item of transactionItems) {
         // Deduct from source warehouse
@@ -840,33 +850,36 @@ export async function createInventoryTransferTransaction(
           item
         );
         await updateMaterialStock(item.materialId, item.warehouseId, item.stockAfter);
-        
+
         // Add to destination warehouse
-        const destStockBefore = await getCurrentStock(item.materialId, item.toWarehouseId!, item.toLocationId);
+        const destStockBefore = await getCurrentStock(
+          item.materialId,
+          item.toWarehouseId!,
+          item.toLocationId
+        );
         const destStockAfter = destStockBefore + item.quantity;
-        
+
         const destItem = {
           ...item,
           warehouseId: item.toWarehouseId!,
           locationId: item.toLocationId,
           binLocation: item.toBinLocation,
           stockBefore: destStockBefore,
-          stockAfter: destStockAfter
+          stockAfter: destStockAfter,
         };
-        
+
         await updateStockLedger(
           { id: transactionRef.id, ...transaction } as InventoryTransaction,
           destItem
         );
         await updateMaterialStock(item.materialId, item.toWarehouseId!, destStockAfter);
       }
-      
+
       return transactionRef.id;
     });
-    
+
     console.log('✅ Inventory TRANSFER transaction created:', transactionCode);
     return transactionId;
-    
   } catch (error) {
     console.error('❌ Error creating inventory TRANSFER transaction:', error);
     throw error;
@@ -886,16 +899,15 @@ export async function getInventoryTransactionById(
   try {
     const docRef = doc(db, INVENTORY_TRANSACTIONS_COLLECTION, transactionId);
     const docSnap = await getDoc(docRef);
-    
+
     if (!docSnap.exists()) {
       return null;
     }
-    
+
     return {
       id: docSnap.id,
-      ...docSnap.data()
+      ...docSnap.data(),
     } as InventoryTransaction;
-    
   } catch (error) {
     console.error('Error getting transaction:', error);
     throw error;
@@ -916,7 +928,7 @@ export async function getInventoryTransactions(filters?: {
 }): Promise<InventoryTransaction[]> {
   try {
     let q = query(collection(db, INVENTORY_TRANSACTIONS_COLLECTION));
-    
+
     // Apply filters
     if (filters?.transactionType) {
       q = query(q, where('transactionType', '==', filters.transactionType));
@@ -933,22 +945,24 @@ export async function getInventoryTransactions(filters?: {
     if (filters?.dateTo) {
       q = query(q, where('transactionDate', '<=', filters.dateTo));
     }
-    
+
     // Order by date descending
     q = query(q, orderBy('transactionDate', 'desc'));
-    
+
     // Apply limit
     if (filters?.limit) {
       q = query(q, firestoreLimit(filters.limit));
     }
-    
+
     const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as InventoryTransaction));
-    
+
+    return snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as InventoryTransaction
+    );
   } catch (error) {
     console.error('Error getting transactions:', error);
     throw error;
@@ -969,14 +983,16 @@ export async function getTransactionsByReference(
       where('referenceId', '==', referenceId),
       orderBy('transactionDate', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as InventoryTransaction));
-    
+
+    return snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as InventoryTransaction
+    );
   } catch (error) {
     console.error('Error getting transactions by reference:', error);
     throw error;
@@ -993,32 +1009,28 @@ export async function getStockLedger(
   dateTo?: Timestamp
 ): Promise<any[]> {
   try {
-    let q = query(
-      collection(db, STOCK_LEDGER_COLLECTION),
-      where('materialId', '==', materialId)
-    );
-    
+    let q = query(collection(db, STOCK_LEDGER_COLLECTION), where('materialId', '==', materialId));
+
     if (warehouseId) {
       q = query(q, where('warehouseId', '==', warehouseId));
     }
-    
+
     if (dateFrom) {
       q = query(q, where('transactionDate', '>=', dateFrom));
     }
-    
+
     if (dateTo) {
       q = query(q, where('transactionDate', '<=', dateTo));
     }
-    
+
     q = query(q, orderBy('transactionDate', 'asc'));
-    
+
     const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => ({
+
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
-    
   } catch (error) {
     console.error('Error getting stock ledger:', error);
     throw error;
@@ -1035,19 +1047,19 @@ export const inventoryTransactionService = {
   createInventoryOutTransaction,
   createInventoryAdjustmentTransaction,
   createInventoryTransferTransaction,
-  
+
   // Approval
   approveAdjustmentTransaction,
-  
+
   // Queries
   getInventoryTransactionById,
   getInventoryTransactions,
   getTransactionsByReference,
   getStockLedger,
-  
+
   // Helpers
   getCurrentStock,
-  generateTransactionCode
+  generateTransactionCode,
 };
 
 export default inventoryTransactionService;

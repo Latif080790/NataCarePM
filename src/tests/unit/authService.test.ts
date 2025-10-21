@@ -1,6 +1,6 @@
 /**
  * Authentication Service Tests - Vitest Edition
- * 
+ *
  * Target Coverage: 95%+
  * Powered by Vitest for blazing-fast execution with full TypeScript support
  */
@@ -21,11 +21,11 @@ import { Timestamp } from 'firebase/firestore';
 
 // Mock modules
 vi.mock('../../src/utils/passwordValidator');
-vi.mock('../../firebaseConfig');
+vi.mock('@/firebaseConfig');
 
 // Import mocked modules to get typed mocks
 import { validatePassword } from '../../src/utils/passwordValidator';
-import { auth } from '../../firebaseConfig';
+import { auth } from '@/firebaseConfig';
 import * as firebaseAuth from 'firebase/auth';
 import * as firebaseFirestore from 'firebase/firestore';
 import * as bcrypt from 'bcryptjs';
@@ -54,7 +54,7 @@ describe('AuthService', () => {
     it('should successfully change password with valid credentials', async () => {
       // Setup mocks
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: true,
         score: 5,
@@ -85,7 +85,7 @@ describe('AuthService', () => {
       expect(result.data?.success).toBe(true);
       expect(result.data?.passwordStrength).toBe(5);
       expect(result.message).toContain('berhasil');
-      
+
       // Verify calls
       expect(firebaseAuth.updatePassword).toHaveBeenCalledWith(
         expect.objectContaining({ uid: 'user123' }),
@@ -116,7 +116,7 @@ describe('AuthService', () => {
 
     it('should fail with weak password', async () => {
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: false,
         score: 1,
@@ -139,7 +139,7 @@ describe('AuthService', () => {
 
     it('should fail when new password equals current password', async () => {
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: true,
         score: 4,
@@ -162,7 +162,7 @@ describe('AuthService', () => {
 
     it('should fail when password was recently used (history check)', async () => {
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: true,
         score: 4,
@@ -180,7 +180,11 @@ describe('AuthService', () => {
         data: () => ({
           passwordHistory: [
             { userId: 'user123', passwordHash: 'hashed_OldPassword1!', createdAt: new Date() },
-            { userId: 'user123', passwordHash: 'hashed_NewSecurePass123!@#', createdAt: new Date() },
+            {
+              userId: 'user123',
+              passwordHash: 'hashed_NewSecurePass123!@#',
+              createdAt: new Date(),
+            },
           ],
         }),
       } as any);
@@ -190,7 +194,7 @@ describe('AuthService', () => {
       vi.mocked(bcrypt.compare).mockImplementation((password: string, hash: string) => {
         return Promise.resolve(password === hash.replace('hashed_', ''));
       });
-      
+
       vi.mocked(bcrypt.hash).mockResolvedValue('hashed_password' as any);
 
       const result = await changePassword(validRequest);
@@ -202,7 +206,7 @@ describe('AuthService', () => {
 
     it('should handle reauthentication failure', async () => {
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: true,
         score: 4,
@@ -232,7 +236,7 @@ describe('AuthService', () => {
 
     it('should handle Firebase weak-password error', async () => {
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: true,
         score: 4,
@@ -263,7 +267,7 @@ describe('AuthService', () => {
 
     it('should handle requires-recent-login error', async () => {
       (auth as any).currentUser = mockUser;
-      
+
       vi.mocked(validatePassword).mockReturnValue({
         valid: true,
         score: 4,
@@ -370,12 +374,12 @@ describe('AuthService', () => {
         {
           userId: 'user123',
           passwordHash: 'actual_hash_1',
-          createdAt: timestamp1,  // Use Timestamp instance
+          createdAt: timestamp1, // Use Timestamp instance
         },
         {
           userId: 'user123',
           passwordHash: 'actual_hash_2',
-          createdAt: timestamp2,  // Use Timestamp instance
+          createdAt: timestamp2, // Use Timestamp instance
         },
       ];
 
@@ -431,7 +435,7 @@ describe('AuthService', () => {
   describe('getLastPasswordChange', () => {
     it('should return last password change date', async () => {
       const lastChange = new Date('2024-01-15');
-      
+
       vi.mocked(firebaseFirestore.getDoc).mockResolvedValue({
         exists: () => true,
         data: () => ({

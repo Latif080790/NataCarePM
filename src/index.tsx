@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
@@ -8,7 +7,7 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 import { AIResourceProvider } from '@/contexts/AIResourceContext';
 import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
 import EnterpriseErrorBoundary from '@/components/EnterpriseErrorBoundary';
-import { registerServiceWorker } from './src/utils/pwa';
+import { registerServiceWorker } from '@/utils/pwa';
 
 const container = document.getElementById('root');
 if (container) {
@@ -49,7 +48,7 @@ if (process.env.NODE_ENV === 'production') {
     },
     onError: (error) => {
       console.error('[PWA] Service Worker registration failed:', error);
-    }
+    },
   });
 } else {
   console.log('[PWA] Service Worker registration skipped in development mode');

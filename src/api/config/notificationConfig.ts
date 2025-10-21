@@ -11,7 +11,7 @@ export interface NotificationConfig {
     phoneNumber: string;
     messagingServiceSid?: string;
   };
-  
+
   // Email Configuration
   email: {
     provider: 'sendgrid' | 'firebase' | 'smtp';
@@ -30,13 +30,13 @@ export interface NotificationConfig {
       };
     };
   };
-  
+
   // Firebase Cloud Messaging (Push Notifications)
   fcm: {
     vapidKey: string;
     serverKey: string;
   };
-  
+
   // General Settings
   settings: {
     maxRetries: number;
@@ -55,43 +55,45 @@ export const getNotificationConfig = (): NotificationConfig => {
       accountSid: import.meta.env.VITE_TWILIO_ACCOUNT_SID || '',
       authToken: import.meta.env.VITE_TWILIO_AUTH_TOKEN || '',
       phoneNumber: import.meta.env.VITE_TWILIO_PHONE_NUMBER || '',
-      messagingServiceSid: import.meta.env.VITE_TWILIO_MESSAGING_SERVICE_SID
+      messagingServiceSid: import.meta.env.VITE_TWILIO_MESSAGING_SERVICE_SID,
     },
-    
+
     email: {
       provider: 'sendgrid', // Default to SendGrid
       sendgrid: {
         apiKey: import.meta.env.VITE_SENDGRID_API_KEY || '',
         fromEmail: import.meta.env.VITE_SENDGRID_FROM_EMAIL || 'noreply@natacare.com',
-        fromName: import.meta.env.VITE_SENDGRID_FROM_NAME || 'NataCarePM'
-      }
+        fromName: import.meta.env.VITE_SENDGRID_FROM_NAME || 'NataCarePM',
+      },
     },
-    
+
     fcm: {
       vapidKey: import.meta.env.VITE_FCM_VAPID_KEY || '',
-      serverKey: import.meta.env.VITE_FCM_SERVER_KEY || ''
+      serverKey: import.meta.env.VITE_FCM_SERVER_KEY || '',
     },
-    
+
     settings: {
       maxRetries: parseInt(import.meta.env.VITE_NOTIFICATION_MAX_RETRIES || '3'),
       retryDelayMs: parseInt(import.meta.env.VITE_NOTIFICATION_RETRY_DELAY_MS || '5000'),
       rateLimitPerMinute: parseInt(import.meta.env.VITE_NOTIFICATION_RATE_LIMIT_PER_MINUTE || '60'),
-      enableLogging: import.meta.env.DEV || false
-    }
+      enableLogging: import.meta.env.DEV || false,
+    },
   };
 };
 
 /**
  * Validate notification configuration
  */
-export const validateConfig = (config: NotificationConfig): {
+export const validateConfig = (
+  config: NotificationConfig
+): {
   isValid: boolean;
   errors: string[];
   warnings: string[];
 } => {
   const errors: string[] = [];
   const warnings: string[] = [];
-  
+
   // Validate Twilio
   if (!config.twilio.accountSid) {
     warnings.push('Twilio Account SID not configured - SMS notifications disabled');
@@ -102,7 +104,7 @@ export const validateConfig = (config: NotificationConfig): {
   if (!config.twilio.phoneNumber) {
     warnings.push('Twilio Phone Number not configured - SMS notifications disabled');
   }
-  
+
   // Validate Email
   if (config.email.provider === 'sendgrid') {
     if (!config.email.sendgrid?.apiKey) {
@@ -112,7 +114,7 @@ export const validateConfig = (config: NotificationConfig): {
       errors.push('SendGrid From Email is required');
     }
   }
-  
+
   // Validate FCM
   if (!config.fcm.vapidKey) {
     warnings.push('FCM VAPID Key not configured - Push notifications disabled');
@@ -120,7 +122,7 @@ export const validateConfig = (config: NotificationConfig): {
   if (!config.fcm.serverKey) {
     warnings.push('FCM Server Key not configured - Push notifications disabled');
   }
-  
+
   // Validate Settings
   if (config.settings.maxRetries < 0 || config.settings.maxRetries > 10) {
     errors.push('Max retries must be between 0 and 10');
@@ -131,11 +133,11 @@ export const validateConfig = (config: NotificationConfig): {
   if (config.settings.rateLimitPerMinute < 1 || config.settings.rateLimitPerMinute > 1000) {
     warnings.push('Rate limit should be between 1-1000 per minute');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 };
 

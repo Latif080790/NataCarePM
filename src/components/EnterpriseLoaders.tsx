@@ -10,8 +10,11 @@ export function EnterpriseAuthLoader() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute top-20 left-20 w-96 h-96 bg-accent-coral/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-80 h-80 bg-accent-blue/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-      
+      <div
+        className="absolute bottom-20 right-20 w-80 h-80 bg-accent-blue/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1s' }}
+      ></div>
+
       <div className="relative z-10 text-center">
         {/* Premium Loading Animation */}
         <div className="mb-8">
@@ -34,11 +37,17 @@ export function EnterpriseAuthLoader() {
             <span className="text-sm">Initializing Enterprise Security...</span>
           </div>
           <div className="flex items-center justify-center gap-3 text-white/80">
-            <Building2 className="w-5 h-5 text-accent-blue animate-pulse" style={{ animationDelay: '0.5s' }} />
+            <Building2
+              className="w-5 h-5 text-accent-blue animate-pulse"
+              style={{ animationDelay: '0.5s' }}
+            />
             <span className="text-sm">Loading Project Infrastructure...</span>
           </div>
           <div className="flex items-center justify-center gap-3 text-white/80">
-            <Zap className="w-5 h-5 text-accent-coral animate-pulse" style={{ animationDelay: '1s' }} />
+            <Zap
+              className="w-5 h-5 text-accent-coral animate-pulse"
+              style={{ animationDelay: '1s' }}
+            />
             <span className="text-sm">Connecting AI Analytics Engine...</span>
           </div>
         </div>
@@ -114,16 +123,18 @@ export function EnterpriseProjectLoader() {
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-coral to-accent-coral-dark flex items-center justify-center text-white text-2xl font-bold shadow-coral floating mx-auto mb-6">
           🏗️
         </div>
-        
+
         {/* Loading Spinner */}
         <div className="mb-6">
           <Spinner size="lg" />
         </div>
-        
+
         {/* Loading Text */}
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Loading Project Data</h2>
-        <p className="text-slate-600 mb-6">Preparing your enterprise dashboard with the latest project insights...</p>
-        
+        <p className="text-slate-600 mb-6">
+          Preparing your enterprise dashboard with the latest project insights...
+        </p>
+
         {/* Progress Steps */}
         <div className="space-y-3 text-left">
           <div className="flex items-center gap-3 text-slate-700">
@@ -131,11 +142,17 @@ export function EnterpriseProjectLoader() {
             <span className="text-sm">Fetching project metrics...</span>
           </div>
           <div className="flex items-center gap-3 text-slate-700">
-            <TrendingUp className="w-4 h-4 text-accent-blue animate-pulse" style={{ animationDelay: '0.5s' }} />
+            <TrendingUp
+              className="w-4 h-4 text-accent-blue animate-pulse"
+              style={{ animationDelay: '0.5s' }}
+            />
             <span className="text-sm">Analyzing performance data...</span>
           </div>
           <div className="flex items-center gap-3 text-slate-700">
-            <Zap className="w-4 h-4 text-accent-coral animate-pulse" style={{ animationDelay: '1s' }} />
+            <Zap
+              className="w-4 h-4 text-accent-coral animate-pulse"
+              style={{ animationDelay: '1s' }}
+            />
             <span className="text-sm">Generating AI insights...</span>
           </div>
         </div>
@@ -145,7 +162,7 @@ export function EnterpriseProjectLoader() {
 }
 
 // Card Skeleton Component
-export function SkeletonCard({ className = "" }: { className?: string }) {
+export function SkeletonCard({ className = '' }: { className?: string }) {
   return (
     <div className={`glass-card p-6 rounded-2xl ${className}`}>
       <div className="animate-pulse">
@@ -161,12 +178,12 @@ export function SkeletonCard({ className = "" }: { className?: string }) {
 }
 
 // Text Skeleton
-export function SkeletonText({ 
-  lines = 3, 
-  className = "" 
-}: { 
-  lines?: number; 
-  className?: string; 
+export function SkeletonText({
+  lines = 3,
+  className = '',
+}: {
+  lines?: number;
+  className?: string;
 }) {
   return (
     <div className={`space-y-3 ${className}`}>

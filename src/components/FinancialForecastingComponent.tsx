@@ -3,17 +3,17 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { LineChart } from './LineChart';
-import { 
-  TrendingUp, 
-  DollarSign, 
-  AlertTriangle, 
+import {
+  TrendingUp,
+  DollarSign,
+  AlertTriangle,
   Target,
   Calendar,
   Calculator,
   PieChart,
   BarChart3,
   Download,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { FinancialForecastingService } from '@/api/financialForecastingService';
 import { FinancialForecast } from '@/types';
@@ -29,12 +29,14 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
   projectId,
   currentBudget,
   historicalData,
-  onForecastUpdate
+  onForecastUpdate,
 }) => {
   const [forecast, setForecast] = useState<FinancialForecast | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState(12);
   const [confidenceLevel, setConfidenceLevel] = useState(0.95);
-  const [activeTab, setActiveTab] = useState<'overview' | 'scenarios' | 'cashflow' | 'risks'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'scenarios' | 'cashflow' | 'risks'>(
+    'overview'
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -44,16 +46,13 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
   const generateForecast = async () => {
     setIsLoading(true);
     try {
-      const forecastResult = FinancialForecastingService.generateFinancialForecast(
-        projectId,
-        {
-          historicalData,
-          currentBudget,
-          timeframe: selectedTimeframe,
-          confidenceLevel
-        }
-      );
-      
+      const forecastResult = FinancialForecastingService.generateFinancialForecast(projectId, {
+        historicalData,
+        currentBudget,
+        timeframe: selectedTimeframe,
+        confidenceLevel,
+      });
+
       setForecast(forecastResult);
       onForecastUpdate?.(forecastResult);
     } catch (error) {
@@ -67,7 +66,7 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -93,18 +92,18 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
   const prepareForecastChartData = () => {
     if (!forecast) return { planned: [], actual: [] };
 
-    const mostLikely = forecast.scenarios.find(s => s.name === 'Most Likely');
+    const mostLikely = forecast.scenarios.find((s) => s.name === 'Most Likely');
     if (!mostLikely) return { planned: [], actual: [] };
 
     return {
       planned: mostLikely.projections.map((p, index) => ({
         day: index + 1,
-        cost: p.cumulativeCost
+        cost: p.cumulativeCost,
       })),
       actual: mostLikely.projections.map((p, index) => ({
         day: index + 1,
-        cost: p.projectedCost
-      }))
+        cost: p.projectedCost,
+      })),
     };
   };
 
@@ -114,12 +113,12 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
     return {
       planned: forecast.cashFlowProjections.map((cf, index) => ({
         day: index + 1,
-        cost: cf.cumulativeCashFlow
+        cost: cf.cumulativeCashFlow,
       })),
       actual: forecast.cashFlowProjections.map((cf, index) => ({
         day: index + 1,
-        cost: cf.netCashFlow
-      }))
+        cost: cf.netCashFlow,
+      })),
     };
   };
 
@@ -155,7 +154,7 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
               <option value={24}>24 Months</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-gray-500" />
             <label className="text-sm font-medium">Confidence Level:</label>
@@ -164,17 +163,13 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
               onChange={(e) => setConfidenceLevel(Number(e.target.value))}
               className="px-3 py-1 border rounded-md text-sm"
             >
-              <option value={0.90}>90%</option>
+              <option value={0.9}>90%</option>
               <option value={0.95}>95%</option>
               <option value={0.99}>99%</option>
             </select>
           </div>
 
-          <Button
-            onClick={generateForecast}
-            disabled={isLoading}
-            className="ml-auto"
-          >
+          <Button onClick={generateForecast} disabled={isLoading} className="ml-auto">
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh Forecast
           </Button>
@@ -193,7 +188,7 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'scenarios', label: 'Scenarios', icon: PieChart },
             { id: 'cashflow', label: 'Cash Flow', icon: DollarSign },
-            { id: 'risks', label: 'Risk Analysis', icon: AlertTriangle }
+            { id: 'risks', label: 'Risk Analysis', icon: AlertTriangle },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -221,7 +216,9 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 <h3 className="font-medium text-gray-900">Forecast Accuracy</h3>
                 <Calculator className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-2xl font-bold ${getPerformanceColor(forecast.accuracy, 'confidence')}`}>
+              <div
+                className={`text-2xl font-bold ${getPerformanceColor(forecast.accuracy, 'confidence')}`}
+              >
                 {(forecast.accuracy * 100).toFixed(1)}%
               </div>
               <p className="text-sm text-gray-600">Model confidence level</p>
@@ -232,14 +229,17 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 <h3 className="font-medium text-gray-900">Budget Variance</h3>
                 <TrendingUp className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-2xl font-bold ${getPerformanceColor(
-                (forecast.riskAssessment.costVariance / currentBudget) * 100, 
-                'variance'
-              )}`}>
+              <div
+                className={`text-2xl font-bold ${getPerformanceColor(
+                  (forecast.riskAssessment.costVariance / currentBudget) * 100,
+                  'variance'
+                )}`}
+              >
                 {formatCurrency(forecast.riskAssessment.costVariance)}
               </div>
               <p className="text-sm text-gray-600">
-                {((forecast.riskAssessment.costVariance / currentBudget) * 100).toFixed(1)}% of budget
+                {((forecast.riskAssessment.costVariance / currentBudget) * 100).toFixed(1)}% of
+                budget
               </p>
             </Card>
 
@@ -248,15 +248,20 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 <h3 className="font-medium text-gray-900">Risk Level</h3>
                 <AlertTriangle className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-lg font-bold ${
-                forecast.riskAssessment.overallRiskLevel === 'High' ? 'text-red-600' :
-                forecast.riskAssessment.overallRiskLevel === 'Medium' ? 'text-yellow-600' :
-                'text-green-600'
-              }`}>
+              <div
+                className={`text-lg font-bold ${
+                  forecast.riskAssessment.overallRiskLevel === 'High'
+                    ? 'text-red-600'
+                    : forecast.riskAssessment.overallRiskLevel === 'Medium'
+                      ? 'text-yellow-600'
+                      : 'text-green-600'
+                }`}
+              >
                 {forecast.riskAssessment.overallRiskLevel}
               </div>
               <p className="text-sm text-gray-600">
-                {(forecast.riskAssessment.probabilityOfOverrun * 100).toFixed(1)}% overrun probability
+                {(forecast.riskAssessment.probabilityOfOverrun * 100).toFixed(1)}% overrun
+                probability
               </p>
             </Card>
           </div>
@@ -309,11 +314,15 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 <div>
                   <h4 className="font-medium mb-3">Final Cost Projection</h4>
                   <div className="text-3xl font-bold text-blue-600">
-                    {formatCurrency(scenario.projections[scenario.projections.length - 1].cumulativeCost)}
+                    {formatCurrency(
+                      scenario.projections[scenario.projections.length - 1].cumulativeCost
+                    )}
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
-                    Variance: {formatCurrency(
-                      scenario.projections[scenario.projections.length - 1].cumulativeCost - currentBudget
+                    Variance:{' '}
+                    {formatCurrency(
+                      scenario.projections[scenario.projections.length - 1].cumulativeCost -
+                        currentBudget
                     )}
                   </div>
                 </div>
@@ -382,14 +391,18 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
                         {formatCurrency(projection.plannedOutflow)}
                       </td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                        projection.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <td
+                        className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                          projection.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
                         {formatCurrency(projection.netCashFlow)}
                       </td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${
-                        projection.cumulativeCashFlow >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <td
+                        className={`px-6 py-4 whitespace-nowrap text-sm ${
+                          projection.cumulativeCashFlow >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
                         {formatCurrency(projection.cumulativeCashFlow)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -416,7 +429,8 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 {formatCurrency(forecast.riskAssessment.budgetAtRisk)}
               </div>
               <p className="text-sm text-gray-600">
-                {((forecast.riskAssessment.budgetAtRisk / currentBudget) * 100).toFixed(1)}% of budget
+                {((forecast.riskAssessment.budgetAtRisk / currentBudget) * 100).toFixed(1)}% of
+                budget
               </p>
             </Card>
 
@@ -425,10 +439,12 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 <h3 className="font-medium text-gray-900">Overrun Probability</h3>
                 <TrendingUp className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-2xl font-bold ${getPerformanceColor(
-                forecast.riskAssessment.probabilityOfOverrun, 
-                'risk'
-              )}`}>
+              <div
+                className={`text-2xl font-bold ${getPerformanceColor(
+                  forecast.riskAssessment.probabilityOfOverrun,
+                  'risk'
+                )}`}
+              >
                 {(forecast.riskAssessment.probabilityOfOverrun * 100).toFixed(1)}%
               </div>
               <p className="text-sm text-gray-600">Likelihood of cost overrun</p>
@@ -453,11 +469,15 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium text-gray-900">{risk.factor}</h4>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      risk.impact === 'High' ? 'bg-red-100 text-red-800' :
-                      risk.impact === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        risk.impact === 'High'
+                          ? 'bg-red-100 text-red-800'
+                          : risk.impact === 'Medium'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'
+                      }`}
+                    >
                       {risk.impact} Impact
                     </span>
                   </div>
@@ -466,12 +486,14 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
                       <p className="text-sm text-gray-600 mb-1">Probability</p>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
                             style={{ width: `${risk.probability * 100}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium">{(risk.probability * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-medium">
+                          {(risk.probability * 100).toFixed(0)}%
+                        </span>
                       </div>
                     </div>
                     <div>

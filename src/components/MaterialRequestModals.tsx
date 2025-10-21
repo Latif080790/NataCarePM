@@ -1,12 +1,12 @@
 /**
  * MATERIAL REQUEST MODALS
- * 
+ *
  * Modal components for Material Request operations:
  * - CreateMRModal: Create new MR with item entry and stock checking
  * - MRDetailsModal: View MR with approval timeline
  * - ApprovalModal: Approve/reject MR with notes
  * - ConvertToPOModal: Convert approved MR to PO
- * 
+ *
  * Created: October 2025
  */
 
@@ -26,7 +26,7 @@ import {
   MessageSquare,
   ShoppingCart,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
@@ -34,20 +34,14 @@ import { Input } from './FormControls';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
-import {
-  MaterialRequest,
-  MRItem,
-  MRStatus,
-  MRPriority,
-  ApprovalStage
-} from '@/types/logistics';
+import { MaterialRequest, MRItem, MRStatus, MRPriority, ApprovalStage } from '@/types/logistics';
 import {
   createMaterialRequest,
   getMaterialRequestById,
   approveMaterialRequest,
   convertMRtoPO,
   validateMaterialRequest,
-  checkBudgetAvailability
+  checkBudgetAvailability,
 } from '@/api/materialRequestService';
 import { checkStockLevel } from '@/api/inventoryTransactionService';
 
@@ -61,11 +55,7 @@ interface CreateMRModalProps {
   onSuccess: () => void;
 }
 
-export const CreateMRModal: React.FC<CreateMRModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess
-}) => {
+export const CreateMRModal: React.FC<CreateMRModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
@@ -75,7 +65,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
     priority: 'medium' as MRPriority,
     requiredDate: '',
     deliveryLocation: '',
-    notes: ''
+    notes: '',
   });
 
   const [items, setItems] = useState<Partial<MRItem>[]>([
@@ -88,11 +78,13 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
       estimatedUnitPrice: 0,
       estimatedTotal: 0,
       wbsCode: '',
-      notes: ''
-    }
+      notes: '',
+    },
   ]);
 
-  const [stockInfo, setStockInfo] = useState<Record<string, { available: number; reserved: number }>>({});
+  const [stockInfo, setStockInfo] = useState<
+    Record<string, { available: number; reserved: number }>
+  >({});
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -100,7 +92,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
   useEffect(() => {
     const checkStock = async () => {
       if (!currentProject) return;
-      
+
       // Real stock checking implementation
       const stockPromises = items.map(async (item) => {
         if (item.materialCode && item.requestedQty) {
@@ -111,27 +103,27 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
               item.materialCode,
               item.requestedQty
             );
-            return { 
-              code: item.materialCode, 
+            return {
+              code: item.materialCode,
               stock: {
                 available: stock.available,
                 currentStock: stock.currentStock,
                 shortfall: stock.shortfall,
                 message: stock.message,
-                suggestions: stock.suggestions
-              }
+                suggestions: stock.suggestions,
+              },
             };
           } catch (error) {
             console.error('Error checking stock:', error);
-            return { 
-              code: item.materialCode, 
-              stock: { 
-                available: false, 
+            return {
+              code: item.materialCode,
+              stock: {
+                available: false,
                 currentStock: 0,
                 shortfall: item.requestedQty,
                 message: 'Error checking stock',
-                suggestions: []
-              } 
+                suggestions: [],
+              },
             };
           }
         }
@@ -140,7 +132,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
 
       const results = await Promise.all(stockPromises);
       const stockMap: Record<string, any> = {};
-      results.forEach(result => {
+      results.forEach((result) => {
         if (result) {
           stockMap[result.code] = result.stock;
         }
@@ -163,8 +155,8 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
         estimatedUnitPrice: 0,
         estimatedTotal: 0,
         wbsCode: '',
-        notes: ''
-      }
+        notes: '',
+      },
     ]);
   };
 
@@ -176,13 +168,14 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
     const newItems = [...items];
     newItems[index] = {
       ...newItems[index],
-      [field]: value
+      [field]: value,
     };
 
     // Auto-calculate total
     if (field === 'requestedQty' || field === 'estimatedUnitPrice') {
       const qty = field === 'requestedQty' ? value : newItems[index].requestedQty || 0;
-      const price = field === 'estimatedUnitPrice' ? value : newItems[index].estimatedUnitPrice || 0;
+      const price =
+        field === 'estimatedUnitPrice' ? value : newItems[index].estimatedUnitPrice || 0;
       newItems[index].estimatedTotal = qty * price;
     }
 
@@ -199,7 +192,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
 
       // Validate items
       const validatedItems = items.filter(
-        item => item.materialCode && item.materialName && (item.requestedQty || 0) > 0
+        (item) => item.materialCode && item.materialName && (item.requestedQty || 0) > 0
       ) as MRItem[];
 
       if (validatedItems.length === 0) {
@@ -211,7 +204,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
         ...formData,
         projectId: currentProject.id,
         requestedBy: currentUser.uid,
-        items: validatedItems
+        items: validatedItems,
       };
 
       const validation = await validateMaterialRequest(mrData as any);
@@ -222,7 +215,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
 
       // Create MR
       await createMaterialRequest(mrData as any, currentUser.uid, currentUser.email);
-      
+
       addToast('Material request created successfully', 'success');
       onSuccess();
       onClose();
@@ -233,18 +226,10 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
     }
   };
 
-  const totalEstimatedValue = items.reduce(
-    (sum, item) => sum + (item.estimatedTotal || 0),
-    0
-  );
+  const totalEstimatedValue = items.reduce((sum, item) => sum + (item.estimatedTotal || 0), 0);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Create Material Request"
-      size="xl"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title="Create Material Request" size="xl">
       <form onSubmit={handleSubmit} className="mr-form">
         {/* Validation Errors */}
         {validationErrors.length > 0 && (
@@ -280,7 +265,9 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
               <label>Priority*</label>
               <select
                 value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value as MRPriority })}
+                onChange={(e) =>
+                  setFormData({ ...formData, priority: e.target.value as MRPriority })
+                }
                 required
               >
                 <option value="low">Low</option>
@@ -403,7 +390,9 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
                       <Input
                         type="number"
                         value={item.requestedQty}
-                        onChange={(e) => handleItemChange(index, 'requestedQty', parseFloat(e.target.value))}
+                        onChange={(e) =>
+                          handleItemChange(index, 'requestedQty', parseFloat(e.target.value))
+                        }
                         min="0.01"
                         step="0.01"
                         required
@@ -415,7 +404,9 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
                       <Input
                         type="number"
                         value={item.estimatedUnitPrice}
-                        onChange={(e) => handleItemChange(index, 'estimatedUnitPrice', parseFloat(e.target.value))}
+                        onChange={(e) =>
+                          handleItemChange(index, 'estimatedUnitPrice', parseFloat(e.target.value))
+                        }
                         min="0"
                         step="0.01"
                         required
@@ -428,7 +419,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
                         type="text"
                         value={new Intl.NumberFormat('id-ID', {
                           style: 'currency',
-                          currency: 'IDR'
+                          currency: 'IDR',
                         }).format(item.estimatedTotal || 0)}
                         readOnly
                         disabled
@@ -490,7 +481,7 @@ export const CreateMRModal: React.FC<CreateMRModalProps> = ({
               <strong className="text-primary">
                 {new Intl.NumberFormat('id-ID', {
                   style: 'currency',
-                  currency: 'IDR'
+                  currency: 'IDR',
                 }).format(totalEstimatedValue)}
               </strong>
             </div>
@@ -526,7 +517,7 @@ export const MRDetailsModal: React.FC<MRDetailsModalProps> = ({
   isOpen,
   onClose,
   mrId,
-  onDelete
+  onDelete,
 }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
@@ -572,7 +563,7 @@ export const MRDetailsModal: React.FC<MRDetailsModalProps> = ({
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -582,7 +573,7 @@ export const MRDetailsModal: React.FC<MRDetailsModalProps> = ({
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -658,22 +649,32 @@ export const MRDetailsModal: React.FC<MRDetailsModalProps> = ({
                 {mr.items.map((item, index) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
-                    <td><code>{item.materialCode}</code></td>
-                    <td><strong>{item.materialName}</strong></td>
+                    <td>
+                      <code>{item.materialCode}</code>
+                    </td>
+                    <td>
+                      <strong>{item.materialName}</strong>
+                    </td>
                     <td>{item.specification || '-'}</td>
                     <td className="text-right">{item.requestedQty}</td>
                     <td>{item.unit}</td>
                     <td className="text-right">{formatCurrency(item.estimatedUnitPrice)}</td>
-                    <td className="text-right"><strong>{formatCurrency(item.estimatedTotal)}</strong></td>
+                    <td className="text-right">
+                      <strong>{formatCurrency(item.estimatedTotal)}</strong>
+                    </td>
                     <td>{item.wbsCode || '-'}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={7} className="text-right"><strong>Total Estimated Value:</strong></td>
+                  <td colSpan={7} className="text-right">
+                    <strong>Total Estimated Value:</strong>
+                  </td>
                   <td className="text-right">
-                    <strong className="text-primary">{formatCurrency(mr.totalEstimatedValue)}</strong>
+                    <strong className="text-primary">
+                      {formatCurrency(mr.totalEstimatedValue)}
+                    </strong>
                   </td>
                   <td></td>
                 </tr>
@@ -761,12 +762,7 @@ interface ApprovalModalProps {
   onSuccess: () => void;
 }
 
-export const ApprovalModal: React.FC<ApprovalModalProps> = ({
-  isOpen,
-  onClose,
-  mr,
-  onSuccess
-}) => {
+export const ApprovalModal: React.FC<ApprovalModalProps> = ({ isOpen, onClose, mr, onSuccess }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
 
@@ -789,7 +785,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
       //   wbsCodes.map(code => checkBudgetAvailability(mr.projectId, code as string, mr.totalEstimatedValue))
       // );
       // setBudgetInfo({ checks: budgetChecks, sufficient: budgetChecks.every(c => c.sufficient) });
-      
+
       // Mock for now
       setBudgetInfo({ checks: [], sufficient: true });
     } catch (error) {
@@ -803,25 +799,29 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
 
     try {
       setLoading(true);
-      
+
       // Determine approver role
-      let approverRole: 'site_manager' | 'pm' | 'budget_controller' | 'final_approver' = 'final_approver';
+      let approverRole: 'site_manager' | 'pm' | 'budget_controller' | 'final_approver' =
+        'final_approver';
       if (mr.status === 'site_manager_review') approverRole = 'site_manager';
       else if (mr.status === 'pm_review') approverRole = 'pm';
       else if (mr.status === 'budget_check') approverRole = 'budget_controller';
-      
+
       await approveMaterialRequest(
         {
           mrId: mr.id,
           approverRole,
           approved: action === 'approve',
-          notes
+          notes,
         },
         currentUser.uid,
         currentUser.email
       );
-      
-      addToast(`Material request ${action === 'approve' ? 'approved' : 'rejected'} successfully`, 'success');
+
+      addToast(
+        `Material request ${action === 'approve' ? 'approved' : 'rejected'} successfully`,
+        'success'
+      );
       onSuccess();
       onClose();
     } catch (error: any) {
@@ -848,7 +848,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
               <strong>
                 {new Intl.NumberFormat('id-ID', {
                   style: 'currency',
-                  currency: 'IDR'
+                  currency: 'IDR',
                 }).format(mr.totalEstimatedValue)}
               </strong>
             </div>
@@ -911,7 +911,9 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder={action === 'approve' ? 'Optional approval notes...' : 'Reason for rejection...'}
+            placeholder={
+              action === 'approve' ? 'Optional approval notes...' : 'Reason for rejection...'
+            }
             rows={4}
             required={action === 'reject'}
           />
@@ -950,7 +952,7 @@ export const ConvertToPOModal: React.FC<ConvertToPOModalProps> = ({
   isOpen,
   onClose,
   mr,
-  onSuccess
+  onSuccess,
 }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
@@ -964,24 +966,24 @@ export const ConvertToPOModal: React.FC<ConvertToPOModalProps> = ({
 
     try {
       setLoading(true);
-      
+
       // Create item mappings from MR items
-      const itemMappings = mr.items.map(item => ({
+      const itemMappings = mr.items.map((item) => ({
         mrItemId: item.id,
         finalQuantity: item.requestedQty,
-        finalUnitPrice: item.estimatedUnitPrice
+        finalUnitPrice: item.estimatedUnitPrice,
       }));
-      
+
       await convertMRtoPO(
         {
           mrId: mr.id,
           vendorId,
           itemMappings,
-          deliveryDate: mr.requiredDate // Use MR required date as delivery date
+          deliveryDate: mr.requiredDate, // Use MR required date as delivery date
         },
         currentUser.uid
       );
-      
+
       addToast('Material request converted to PO successfully', 'success');
       onSuccess();
       onClose();
@@ -996,7 +998,7 @@ export const ConvertToPOModal: React.FC<ConvertToPOModalProps> = ({
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -1012,7 +1014,9 @@ export const ConvertToPOModal: React.FC<ConvertToPOModalProps> = ({
             <div className="info-stats">
               <span>{mr.totalItems} items</span>
               <span className="separator">•</span>
-              <span className="text-primary"><strong>{formatCurrency(mr.totalEstimatedValue)}</strong></span>
+              <span className="text-primary">
+                <strong>{formatCurrency(mr.totalEstimatedValue)}</strong>
+              </span>
             </div>
           </div>
         </div>
@@ -1029,11 +1033,7 @@ export const ConvertToPOModal: React.FC<ConvertToPOModalProps> = ({
         {/* Vendor Selection */}
         <div className="form-group">
           <label>Select Vendor*</label>
-          <select
-            value={vendorId}
-            onChange={(e) => setVendorId(e.target.value)}
-            required
-          >
+          <select value={vendorId} onChange={(e) => setVendorId(e.target.value)} required>
             <option value="">-- Select Vendor --</option>
             {/* Vendor options would be loaded from vendor service */}
             <option value="vendor1">Vendor 1 - PT ABC</option>

@@ -1,6 +1,6 @@
 /**
  * Sentry Error Tracking Initialization
- * 
+ *
  * Initialize Sentry for production error tracking
  * Only loads in production environment
  */
@@ -13,23 +13,23 @@ export const initSentry = async (): Promise<void> => {
     try {
       // @ts-ignore - Sentry is optional dependency
       const Sentry = await import('@sentry/react');
-      
+
       Sentry.init({
         dsn: import.meta.env.VITE_SENTRY_DSN,
-        
+
         // Set environment
         environment: import.meta.env.MODE || 'production',
-        
+
         // Release tracking
         release: `natacare-pm@${import.meta.env.VITE_APP_VERSION || '1.0.0'}`,
-        
+
         // Performance Monitoring
         tracesSampleRate: 0.1, // 10% of transactions
-        
+
         // Session Replay
         replaysSessionSampleRate: 0.1, // 10% of sessions
         replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
-        
+
         // Integrations
         integrations: [
           new Sentry.BrowserTracing({
@@ -42,23 +42,22 @@ export const initSentry = async (): Promise<void> => {
             blockAllMedia: true,
           }),
         ],
-        
+
         // Filter out certain errors
         beforeSend(event, hint) {
           // Filter out network errors
           if (event.exception?.values?.[0]?.type === 'NetworkError') {
             return null;
           }
-          
+
           // Filter out Firebase auth errors (handled by app)
-          if (hint.originalException && 
-              String(hint.originalException).includes('Firebase')) {
+          if (hint.originalException && String(hint.originalException).includes('Firebase')) {
             return null;
           }
-          
+
           return event;
         },
-        
+
         // Ignore certain errors
         ignoreErrors: [
           // Browser extensions
@@ -76,9 +75,9 @@ export const initSentry = async (): Promise<void> => {
           'conduitPage',
           // Generic error messages
           'Script error',
-          'ResizeObserver loop limit exceeded'
+          'ResizeObserver loop limit exceeded',
         ],
-        
+
         // Ignore certain URLs
         denyUrls: [
           // Chrome extensions
@@ -87,9 +86,8 @@ export const initSentry = async (): Promise<void> => {
           /^chrome-extension:\/\//i,
         ],
       });
-      
+
       console.log('[Sentry] Error tracking initialized');
-      
     } catch (error) {
       console.warn('[Sentry] Failed to initialize error tracking:', error);
     }
@@ -111,7 +109,7 @@ export const getSentryErrorBoundary = async () => {
       return ({ children }: { children: React.ReactNode }) => children;
     }
   }
-  
+
   // Return dummy component in development
   return ({ children }: { children: React.ReactNode }) => children;
 };

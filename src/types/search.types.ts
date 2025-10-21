@@ -34,18 +34,18 @@ export interface SearchableEntity {
 export interface SearchQuery {
   query: string; // Search term
   entityTypes?: SearchEntityType[];
-  
+
   filters?: SearchFilters;
-  
+
   sortBy?: SearchSortField;
   sortOrder?: SearchSortOrder;
-  
+
   page?: number;
   pageSize?: number;
-  
+
   includeArchived?: boolean;
   fuzzyMatch?: boolean;
-  
+
   userId?: string; // For personalized search
 }
 
@@ -55,34 +55,34 @@ export interface SearchFilters {
   priority?: string[];
   category?: string[];
   tags?: string[];
-  
+
   // Date filters
   dateRange?: {
     field: 'created' | 'updated' | 'due' | 'completed';
     start?: Date;
     end?: Date;
   };
-  
+
   // Assignment filters
   assignedTo?: string[];
   createdBy?: string[];
   owner?: string[];
-  
+
   // Project/location filters
   projectId?: string[];
   location?: string[];
-  
+
   // Numeric filters
   costRange?: {
     min?: number;
     max?: number;
   };
-  
+
   scoreRange?: {
     min?: number;
     max?: number;
   };
-  
+
   // Custom field filters
   customFilters?: {
     field: string;
@@ -94,18 +94,18 @@ export interface SearchFilters {
 export interface SearchResultItem {
   id: string;
   type: SearchEntityType;
-  
+
   title: string;
   description?: string;
   excerpt?: string; // Highlighted excerpt from content
-  
+
   relevanceScore: number; // 0-100
-  
+
   highlights?: {
     field: string;
     snippets: string[]; // HTML with <mark> tags
   }[];
-  
+
   metadata: {
     status?: string;
     priority?: string;
@@ -115,34 +115,34 @@ export interface SearchResultItem {
     updatedAt?: Date;
     [key: string]: any;
   };
-  
+
   url: string; // Deep link to entity
   icon?: string;
 }
 
 export interface SearchResults {
   query: SearchQuery;
-  
+
   totalResults: number;
   results: SearchResultItem[];
-  
+
   page: number;
   pageSize: number;
   totalPages: number;
-  
+
   groupedResults?: {
     [key in SearchEntityType]?: {
       count: number;
       results: SearchResultItem[];
     };
   };
-  
+
   facets?: SearchFacets;
-  
+
   suggestions?: string[]; // Did you mean...
-  
+
   searchTime: number; // milliseconds
-  
+
   executedAt: Date;
 }
 
@@ -151,27 +151,27 @@ export interface SearchFacets {
     type: SearchEntityType;
     count: number;
   }[];
-  
+
   statuses?: {
     status: string;
     count: number;
   }[];
-  
+
   priorities?: {
     priority: string;
     count: number;
   }[];
-  
+
   categories?: {
     category: string;
     count: number;
   }[];
-  
+
   tags?: {
     tag: string;
     count: number;
   }[];
-  
+
   dateRanges?: {
     range: string; // 'Last 7 days', 'Last month', etc.
     count: number;
@@ -180,35 +180,35 @@ export interface SearchFacets {
 
 export interface SearchHistory {
   userId: string;
-  
+
   searches: {
     query: string;
     timestamp: Date;
     resultCount: number;
     clicked?: string; // ID of clicked result
   }[];
-  
+
   maxHistory: number; // Default 50
 }
 
 export interface SavedSearch {
   id: string;
   userId: string;
-  
+
   name: string;
   description?: string;
-  
+
   query: SearchQuery;
-  
+
   isDefault?: boolean;
   isPinned?: boolean;
-  
+
   notifications?: {
     enabled: boolean;
     frequency: 'immediate' | 'daily' | 'weekly';
     lastNotified?: Date;
   };
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -228,31 +228,31 @@ export interface SearchAnalytics {
     start: Date;
     end: Date;
   };
-  
+
   totalSearches: number;
   uniqueUsers: number;
-  
+
   topQueries: {
     query: string;
     count: number;
     clickThroughRate: number; // percentage
   }[];
-  
+
   zeroResultQueries: {
     query: string;
     count: number;
   }[];
-  
+
   popularEntities: {
     type: SearchEntityType;
     searchCount: number;
   }[];
-  
+
   averageResultsPerSearch: number;
   averageSearchTime: number; // milliseconds
-  
+
   clickThroughRate: number; // percentage
-  
+
   userEngagement: {
     searchesPerUser: number;
     refinementRate: number; // How often users refine searches
@@ -270,7 +270,7 @@ export interface SearchIndex {
   qualityInspections: SearchableEntity[];
   defects: SearchableEntity[];
   users: SearchableEntity[];
-  
+
   lastIndexed: Date;
   indexSize: number; // bytes
   documentCount: number;
@@ -280,14 +280,14 @@ export interface SearchFilterPreset {
   id: string;
   name: string;
   description?: string;
-  
+
   filters: SearchFilters;
-  
+
   isPublic: boolean; // Available to all users
   createdBy: string;
-  
+
   usageCount: number;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -297,7 +297,7 @@ export interface SearchConfig {
   fuzzyMatchThreshold: number; // 0-1, lower = more fuzzy
   maxResults: number;
   defaultPageSize: number;
-  
+
   // Boost factors for relevance scoring
   boostFactors: {
     titleMatch: number; // Default 2.0
@@ -305,13 +305,13 @@ export interface SearchConfig {
     recentDocuments: number; // Default 1.2
     popularDocuments: number; // Default 1.1
   };
-  
+
   // Indexing configuration
   indexUpdateInterval: number; // minutes
   indexedFields: {
     [key in SearchEntityType]?: string[];
   };
-  
+
   // Feature flags
   enableFuzzyMatch: boolean;
   enableSuggestions: boolean;

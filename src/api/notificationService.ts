@@ -11,7 +11,7 @@ import {
   orderBy,
   limit as firestoreLimit,
   Timestamp,
-  writeBatch
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {
@@ -20,7 +20,7 @@ import {
   NotificationFilters,
   NotificationChannel,
   NotificationPriority,
-  NotificationType
+  NotificationType,
 } from '@/types/automation';
 import { emailService } from './channels/emailChannel';
 import { smsService } from './channels/smsChannel';
@@ -30,16 +30,17 @@ import { pushService } from './channels/pushChannel';
 // NOTIFICATION MANAGEMENT
 // ============================================================================
 
-export const createNotification = async (
-  input: CreateNotificationInput
-): Promise<string> => {
+export const createNotification = async (input: CreateNotificationInput): Promise<string> => {
   // Initialize delivery status for each channel
-  const deliveryStatus: Record<NotificationChannel, { sent: boolean; sentAt?: Timestamp; error?: string }> = {
+  const deliveryStatus: Record<
+    NotificationChannel,
+    { sent: boolean; sentAt?: Timestamp; error?: string }
+  > = {
     [NotificationChannel.IN_APP]: { sent: false },
     [NotificationChannel.EMAIL]: { sent: false },
     [NotificationChannel.SMS]: { sent: false },
     [NotificationChannel.PUSH]: { sent: false },
-    [NotificationChannel.WEBHOOK]: { sent: false }
+    [NotificationChannel.WEBHOOK]: { sent: false },
   };
 
   const notificationData: Omit<Notification, 'id'> = {
@@ -59,11 +60,11 @@ export const createNotification = async (
     relatedEntityType: input.relatedEntityType,
     relatedEntityId: input.relatedEntityId,
     category: input.category,
-    createdAt: Timestamp.now()
+    createdAt: Timestamp.now(),
   };
 
   const docRef = await addDoc(collection(db, 'notifications'), notificationData);
-  
+
   // Send notification asynchronously if not scheduled
   if (!input.scheduledFor) {
     setTimeout(() => sendNotificationChannels(docRef.id, input.channels), 0);
@@ -103,23 +104,26 @@ export const getNotifications = async (
   }
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as Notification));
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as Notification
+  );
 };
 
 export const getNotificationById = async (notificationId: string): Promise<Notification | null> => {
   const docRef = doc(db, 'notifications', notificationId);
   const docSnap = await getDoc(docRef);
-  
+
   if (!docSnap.exists()) {
     return null;
   }
-  
+
   return {
     id: docSnap.id,
-    ...docSnap.data()
+    ...docSnap.data(),
   } as Notification;
 };
 
@@ -127,18 +131,18 @@ export const markAsRead = async (notificationId: string): Promise<void> => {
   const docRef = doc(db, 'notifications', notificationId);
   await updateDoc(docRef, {
     isRead: true,
-    readAt: Timestamp.now()
+    readAt: Timestamp.now(),
   });
 };
 
 export const markMultipleAsRead = async (notificationIds: string[]): Promise<void> => {
   const batch = writeBatch(db);
-  
-  notificationIds.forEach(id => {
+
+  notificationIds.forEach((id) => {
     const docRef = doc(db, 'notifications', id);
     batch.update(docRef, {
       isRead: true,
-      readAt: Timestamp.now()
+      readAt: Timestamp.now(),
     });
   });
 
@@ -155,10 +159,10 @@ export const markAllAsRead = async (userId: string): Promise<void> => {
   const snapshot = await getDocs(q);
   const batch = writeBatch(db);
 
-  snapshot.docs.forEach(doc => {
+  snapshot.docs.forEach((doc) => {
     batch.update(doc.ref, {
       isRead: true,
-      readAt: Timestamp.now()
+      readAt: Timestamp.now(),
     });
   });
 
@@ -172,8 +176,8 @@ export const deleteNotification = async (notificationId: string): Promise<void> 
 
 export const deleteMultipleNotifications = async (notificationIds: string[]): Promise<void> => {
   const batch = writeBatch(db);
-  
-  notificationIds.forEach(id => {
+
+  notificationIds.forEach((id) => {
     const docRef = doc(db, 'notifications', id);
     batch.delete(docRef);
   });
@@ -196,38 +200,37 @@ export const getUnreadCount = async (userId: string): Promise<number> => {
   return snapshot.size;
 };
 
-export const getNotificationCounts = async (userId: string): Promise<{
+export const getNotificationCounts = async (
+  userId: string
+): Promise<{
   total: number;
   unread: number;
   byType: Record<NotificationType, number>;
   byPriority: Record<NotificationPriority, number>;
 }> => {
-  const q = query(
-    collection(db, 'notifications'),
-    where('recipientId', '==', userId)
-  );
+  const q = query(collection(db, 'notifications'), where('recipientId', '==', userId));
 
   const snapshot = await getDocs(q);
-  const notifications = snapshot.docs.map(doc => doc.data() as Notification);
+  const notifications = snapshot.docs.map((doc) => doc.data() as Notification);
 
   const byType: Record<NotificationType, number> = {
     info: 0,
     success: 0,
     warning: 0,
     error: 0,
-    alert: 0
+    alert: 0,
   };
 
   const byPriority: Record<NotificationPriority, number> = {
     low: 0,
     normal: 0,
     high: 0,
-    urgent: 0
+    urgent: 0,
   };
 
   let unread = 0;
 
-  notifications.forEach(notification => {
+  notifications.forEach((notification) => {
     if (!notification.isRead) {
       unread++;
     }
@@ -239,7 +242,7 @@ export const getNotificationCounts = async (userId: string): Promise<{
     total: notifications.length,
     unread,
     byType,
-    byPriority
+    byPriority,
   };
 };
 
@@ -263,12 +266,12 @@ const sendNotificationChannels = async (
       await sendToChannel(notification, channel);
       deliveryStatus[channel] = {
         sent: true,
-        sentAt: Timestamp.now()
+        sentAt: Timestamp.now(),
       };
     } catch (error: any) {
       deliveryStatus[channel] = {
         sent: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -277,7 +280,7 @@ const sendNotificationChannels = async (
   await updateDoc(docRef, {
     isSent: true,
     sentAt: Timestamp.now(),
-    deliveryStatus
+    deliveryStatus,
   });
 };
 
@@ -289,23 +292,23 @@ const sendToChannel = async (
     case NotificationChannel.IN_APP:
       // Already stored in Firestore
       return;
-    
+
     case NotificationChannel.EMAIL:
       await sendEmail(notification);
       return;
-    
+
     case NotificationChannel.SMS:
       await sendSMS(notification);
       return;
-    
+
     case NotificationChannel.PUSH:
       await sendPushNotification(notification);
       return;
-    
+
     case NotificationChannel.WEBHOOK:
       await sendWebhook(notification);
       return;
-    
+
     default:
       throw new Error(`Unknown notification channel: ${channel}`);
   }
@@ -322,11 +325,11 @@ const sendEmail = async (notification: Notification): Promise<void> => {
 
   // Use integrated email service
   const result = await emailService.sendNotification(notification);
-  
+
   if (!result.success) {
     throw new Error(result.error || 'Failed to send email');
   }
-  
+
   console.log('Email sent successfully:', result.messageId);
 };
 
@@ -337,36 +340,36 @@ const sendSMS = async (notification: Notification): Promise<void> => {
 
   // Use integrated SMS service
   const result = await smsService.sendNotification(notification);
-  
+
   if (!result.success) {
     throw new Error(result.error || 'Failed to send SMS');
   }
-  
+
   console.log('SMS sent successfully:', result.messageId);
 };
 
 const sendPushNotification = async (notification: Notification): Promise<void> => {
   // Use integrated push notification service
   const result = await pushService.sendNotification(notification);
-  
+
   if (!result.success) {
     throw new Error(result.error || 'Failed to send push notification');
   }
-  
+
   console.log('Push notification sent successfully');
 };
 
 const sendWebhook = async (notification: Notification): Promise<void> => {
   // TODO: Get webhook URL from user preferences
   const webhookUrl = notification.data?.webhookUrl;
-  
+
   if (!webhookUrl) {
     throw new Error('Webhook URL not provided');
   }
 
   console.log('Webhook notification:', {
     url: webhookUrl,
-    notification
+    notification,
   });
 
   // Placeholder for actual webhook call
@@ -409,7 +412,7 @@ export const sendPOApprovedNotification = async (
     channels: [NotificationChannel.IN_APP, NotificationChannel.EMAIL],
     category: 'procurement',
     relatedEntityType: 'purchase_order',
-    relatedEntityId: poData.poNumber
+    relatedEntityId: poData.poNumber,
   });
 };
 
@@ -432,7 +435,7 @@ export const sendGRCompletedNotification = async (
     channels: [NotificationChannel.IN_APP],
     category: 'logistics',
     relatedEntityType: 'goods_receipt',
-    relatedEntityId: grData.grNumber
+    relatedEntityId: grData.grNumber,
   });
 };
 
@@ -454,7 +457,7 @@ export const sendMRApprovedNotification = async (
     channels: [NotificationChannel.IN_APP, NotificationChannel.EMAIL],
     category: 'procurement',
     relatedEntityType: 'material_request',
-    relatedEntityId: mrData.mrNumber
+    relatedEntityId: mrData.mrNumber,
   });
 };
 
@@ -485,15 +488,15 @@ export const sendBudgetExceededAlert = async (
         label: 'View WBS',
         action: 'navigate',
         url: `/wbs/${budgetData.wbsCode}`,
-        style: 'primary'
+        style: 'primary',
       },
       {
         label: 'Review Budget',
         action: 'navigate',
         url: `/finance/budget/${budgetData.wbsCode}`,
-        style: 'secondary'
-      }
-    ]
+        style: 'secondary',
+      },
+    ],
   });
 };
 
@@ -522,15 +525,15 @@ export const sendStockLowAlert = async (
       {
         label: 'Create Reorder',
         action: 'create_mr',
-        style: 'primary'
+        style: 'primary',
       },
       {
         label: 'View Material',
         action: 'navigate',
         url: `/inventory/${stockData.materialCode}`,
-        style: 'secondary'
-      }
-    ]
+        style: 'secondary',
+      },
+    ],
   });
 };
 
@@ -553,7 +556,7 @@ export const sendVendorEvaluatedNotification = async (
     channels: [NotificationChannel.IN_APP],
     category: 'vendor',
     relatedEntityType: 'vendor',
-    relatedEntityId: vendorData.vendorName
+    relatedEntityId: vendorData.vendorName,
   });
 };
 
@@ -567,15 +570,15 @@ export const sendEVMAlert = async (
   }
 ): Promise<string> => {
   let message = `Project ${evmData.projectName} EVM Alert: `;
-  
+
   if (evmData.status === 'overbudget' || evmData.status === 'both') {
     message += `CPI ${evmData.cpi.toFixed(2)} (over budget)`;
   }
-  
+
   if (evmData.status === 'both') {
     message += ' and ';
   }
-  
+
   if (evmData.status === 'behind_schedule' || evmData.status === 'both') {
     message += `SPI ${evmData.spi.toFixed(2)} (behind schedule)`;
   }
@@ -590,7 +593,7 @@ export const sendEVMAlert = async (
     channels: [NotificationChannel.IN_APP, NotificationChannel.EMAIL],
     category: 'project',
     relatedEntityType: 'project',
-    relatedEntityId: evmData.projectName
+    relatedEntityId: evmData.projectName,
   });
 };
 
@@ -621,7 +624,7 @@ export const sendBatchNotifications = async (
 
 export const processScheduledNotifications = async (): Promise<void> => {
   const now = Timestamp.now();
-  
+
   const q = query(
     collection(db, 'notifications'),
     where('isSent', '==', false),
@@ -629,10 +632,10 @@ export const processScheduledNotifications = async (): Promise<void> => {
   );
 
   const snapshot = await getDocs(q);
-  
+
   for (const doc of snapshot.docs) {
     const notification = { id: doc.id, ...doc.data() } as Notification;
-    
+
     try {
       await sendNotificationChannels(notification.id, notification.channels);
     } catch (error) {
@@ -647,16 +650,13 @@ export const processScheduledNotifications = async (): Promise<void> => {
 
 export const deleteExpiredNotifications = async (): Promise<number> => {
   const now = Timestamp.now();
-  
-  const q = query(
-    collection(db, 'notifications'),
-    where('expiresAt', '<=', now)
-  );
+
+  const q = query(collection(db, 'notifications'), where('expiresAt', '<=', now));
 
   const snapshot = await getDocs(q);
   const batch = writeBatch(db);
-  
-  snapshot.docs.forEach(doc => {
+
+  snapshot.docs.forEach((doc) => {
     batch.delete(doc.ref);
   });
 
@@ -665,10 +665,8 @@ export const deleteExpiredNotifications = async (): Promise<number> => {
 };
 
 export const deleteOldNotifications = async (daysOld: number): Promise<number> => {
-  const cutoffDate = Timestamp.fromMillis(
-    Date.now() - (daysOld * 24 * 60 * 60 * 1000)
-  );
-  
+  const cutoffDate = Timestamp.fromMillis(Date.now() - daysOld * 24 * 60 * 60 * 1000);
+
   const q = query(
     collection(db, 'notifications'),
     where('createdAt', '<=', cutoffDate),
@@ -677,8 +675,8 @@ export const deleteOldNotifications = async (daysOld: number): Promise<number> =
 
   const snapshot = await getDocs(q);
   const batch = writeBatch(db);
-  
-  snapshot.docs.forEach(doc => {
+
+  snapshot.docs.forEach((doc) => {
     batch.delete(doc.ref);
   });
 
@@ -694,7 +692,7 @@ const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
-    minimumFractionDigits: 0
+    minimumFractionDigits: 0,
   }).format(amount);
 };
 
@@ -705,15 +703,23 @@ const formatEmailTemplate = (notification: Notification): string => {
       <body>
         <h2>${notification.title}</h2>
         <p>${notification.message}</p>
-        ${notification.actions ? `
+        ${
+          notification.actions
+            ? `
           <div>
-            ${notification.actions.map(action => `
+            ${notification.actions
+              .map(
+                (action) => `
               <a href="${action.url}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
                 ${action.label}
               </a>
-            `).join('')}
+            `
+              )
+              .join('')}
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </body>
     </html>
   `;
@@ -725,8 +731,8 @@ const getNotificationIcon = (type: NotificationType): string => {
     success: '✅',
     warning: '⚠️',
     error: '❌',
-    alert: '🔔'
+    alert: '🔔',
   };
-  
+
   return icons[type] || 'ℹ️';
 };

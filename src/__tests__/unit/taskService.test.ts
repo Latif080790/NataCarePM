@@ -10,7 +10,7 @@ describe('TaskService', () => {
       const task = createMockTask({
         title: 'Install HVAC System',
         description: 'Install and test HVAC system on floor 3',
-        priority: 'high'
+        priority: 'high',
       });
 
       expect(task).toBeDefined();
@@ -21,7 +21,7 @@ describe('TaskService', () => {
 
     it('should create task with dependencies', () => {
       const task = createMockTask({
-        dependencies: ['task-1', 'task-2']
+        dependencies: ['task-1', 'task-2'],
       });
 
       expect(task.dependencies).toHaveLength(2);
@@ -32,8 +32,8 @@ describe('TaskService', () => {
       const task = createMockTask({
         subtasks: [
           { id: 'sub-1', title: 'Subtask 1', completed: false },
-          { id: 'sub-2', title: 'Subtask 2', completed: true }
-        ]
+          { id: 'sub-2', title: 'Subtask 2', completed: true },
+        ],
       });
 
       expect(task.subtasks).toHaveLength(2);
@@ -56,15 +56,15 @@ describe('TaskService', () => {
       const tasks = createMockTasks(5, projectId);
 
       expect(tasks).toHaveLength(5);
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         expect(task.projectId).toBe(projectId);
       });
     });
 
     it('should vary task status', () => {
       const tasks = createMockTasks(9);
-      
-      const statuses = tasks.map(t => t.status);
+
+      const statuses = tasks.map((t) => t.status);
       expect(statuses).toContain('todo');
       expect(statuses).toContain('in-progress');
       expect(statuses).toContain('completed');
@@ -89,8 +89,8 @@ describe('TaskService', () => {
 
     it('should have valid priority', () => {
       const priorities = ['low', 'medium', 'high', 'critical'] as const;
-      
-      priorities.forEach(priority => {
+
+      priorities.forEach((priority) => {
         const task = createMockTask({ priority });
         expect(task.priority).toBe(priority);
       });

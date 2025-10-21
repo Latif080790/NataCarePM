@@ -1,12 +1,12 @@
 /**
  * GOODS RECEIPT MODAL COMPONENTS
- * 
+ *
  * Modal components for Goods Receipt operations:
  * - CreateGRModal: Select PO and create new GR
  * - GRDetailsModal: View/edit GR details
  * - GRInspectionModal: Perform quality inspection
  * - PhotoUploadModal: Upload inspection photos
- * 
+ *
  * Created: October 2025
  */
 
@@ -24,7 +24,7 @@ import {
   XCircle,
   AlertTriangle,
   Save,
-  Eye
+  Eye,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -38,7 +38,7 @@ import {
   GRItem,
   CreateGRInput,
   InspectGRItemInput,
-  QualityStatus
+  QualityStatus,
 } from '@/types/logistics';
 import { PurchaseOrder } from '@/types';
 import {
@@ -46,7 +46,7 @@ import {
   updateGRItemQuantity,
   inspectGRItem,
   addGRPhoto,
-  validateGoodsReceipt
+  validateGoodsReceipt,
 } from '@/api/goodsReceiptService';
 
 // ============================================================================
@@ -66,14 +66,14 @@ export const CreateGRModal: React.FC<CreateGRModalProps> = ({ onClose, onSuccess
   const [loading, setLoading] = useState(false);
   const [availablePOs, setAvailablePOs] = useState<PurchaseOrder[]>([]);
   const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
-  
+
   const [formData, setFormData] = useState({
     poId: '',
     receiptDate: new Date().toISOString().slice(0, 10),
     deliveryNote: '',
     vehicleNumber: '',
     driverName: '',
-    receiverNotes: ''
+    receiverNotes: '',
   });
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const CreateGRModal: React.FC<CreateGRModalProps> = ({ onClose, onSuccess
 
   const loadAvailablePOs = async () => {
     if (!currentProject) return;
-    
+
     try {
       // TODO: Fetch approved/confirmed POs from API
       // For now, use mock data from ProjectContext
@@ -95,30 +95,30 @@ export const CreateGRModal: React.FC<CreateGRModalProps> = ({ onClose, onSuccess
   };
 
   const handlePOSelect = (poId: string) => {
-    const po = availablePOs.find(p => p.id === poId);
+    const po = availablePOs.find((p) => p.id === poId);
     setSelectedPO(po || null);
     setFormData({ ...formData, poId });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentUser || !currentProject) return;
-    
+
     // Validation
     if (!formData.poId) {
       addToast('Please select a purchase order', 'error');
       return;
     }
-    
+
     if (!formData.receiptDate) {
       addToast('Please enter receipt date', 'error');
       return;
     }
-    
+
     try {
       setLoading(true);
-      
+
       const input: CreateGRInput = {
         projectId: currentProject.id,
         poId: formData.poId,
@@ -126,13 +126,12 @@ export const CreateGRModal: React.FC<CreateGRModalProps> = ({ onClose, onSuccess
         deliveryNote: formData.deliveryNote,
         vehicleNumber: formData.vehicleNumber,
         driverName: formData.driverName,
-        receiverNotes: formData.receiverNotes
+        receiverNotes: formData.receiverNotes,
       };
-      
+
       await createGoodsReceipt(input, currentUser.uid, currentUser.name || 'Unknown');
       addToast('Goods receipt created successfully', 'success');
       onSuccess();
-      
     } catch (error: any) {
       console.error('Error creating GR:', error);
       addToast(error.message || 'Failed to create goods receipt', 'error');
@@ -167,7 +166,7 @@ export const CreateGRModal: React.FC<CreateGRModalProps> = ({ onClose, onSuccess
                   required
                 >
                   <option value="">-- Select Purchase Order --</option>
-                  {availablePOs.map(po => (
+                  {availablePOs.map((po) => (
                     <option key={po.id} value={po.id}>
                       {po.poNumber} - {po.vendorName} - {po.totalAmount.toLocaleString()}
                     </option>
@@ -201,7 +200,7 @@ export const CreateGRModal: React.FC<CreateGRModalProps> = ({ onClose, onSuccess
             {/* Receipt Details */}
             <div className="form-section">
               <h3>Receipt Information</h3>
-              
+
               <div className="form-group">
                 <label>Receipt Date *</label>
                 <Input
@@ -289,7 +288,7 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
   onClose,
   onUpdate,
   onDelete,
-  onComplete
+  onComplete,
 }) => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'details' | 'items' | 'photos'>('details');
@@ -298,7 +297,7 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -308,16 +307,20 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
   const getQualityColor = (status: QualityStatus): string => {
     switch (status) {
-      case 'passed': return 'green';
-      case 'partial': return 'yellow';
-      case 'failed': return 'red';
-      default: return 'gray';
+      case 'passed':
+        return 'green';
+      case 'partial':
+        return 'yellow';
+      case 'failed':
+        return 'red';
+      default:
+        return 'gray';
     }
   };
 
@@ -390,7 +393,9 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
                 </div>
                 <div className="info-row">
                   <span className="label">Quality Status:</span>
-                  <span className={`status-badge status-${getQualityColor(gr.overallQualityStatus)}`}>
+                  <span
+                    className={`status-badge status-${getQualityColor(gr.overallQualityStatus)}`}
+                  >
                     {gr.overallQualityStatus}
                   </span>
                 </div>
@@ -459,7 +464,7 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {gr.items.map(item => (
+                  {gr.items.map((item) => (
                     <tr key={item.id}>
                       <td>
                         <div>
@@ -469,14 +474,22 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
                           )}
                         </div>
                       </td>
-                      <td>{item.poQuantity} {item.unit}</td>
-                      <td>{item.receivedQuantity} {item.unit}</td>
-                      <td>{item.acceptedQuantity} {item.unit}</td>
+                      <td>
+                        {item.poQuantity} {item.unit}
+                      </td>
+                      <td>
+                        {item.receivedQuantity} {item.unit}
+                      </td>
+                      <td>
+                        {item.acceptedQuantity} {item.unit}
+                      </td>
                       <td className={item.rejectedQuantity > 0 ? 'text-red' : ''}>
                         {item.rejectedQuantity} {item.unit}
                       </td>
                       <td>
-                        <span className={`status-badge status-${getQualityColor(item.qualityStatus)}`}>
+                        <span
+                          className={`status-badge status-${getQualityColor(item.qualityStatus)}`}
+                        >
                           {item.qualityStatus}
                         </span>
                       </td>
@@ -497,15 +510,13 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
                   <p>No photos uploaded yet</p>
                 </div>
               ) : (
-                gr.photos.map(photo => (
+                gr.photos.map((photo) => (
                   <div key={photo.id} className="photo-card">
                     <img src={photo.url} alt={photo.description || 'GR Photo'} />
                     <div className="photo-info">
                       <div className="photo-category">{photo.category}</div>
                       {photo.description && <p>{photo.description}</p>}
-                      <div className="photo-meta">
-                        Uploaded: {formatDate(photo.uploadedAt)}
-                      </div>
+                      <div className="photo-meta">Uploaded: {formatDate(photo.uploadedAt)}</div>
                     </div>
                   </div>
                 ))
@@ -521,14 +532,14 @@ export const GRDetailsModal: React.FC<GRDetailsModalProps> = ({
               Delete
             </Button>
           )}
-          
+
           {gr.status === 'approved' && hasPermission(currentUser, 'manage_logistics') && (
             <Button onClick={() => onComplete(gr.id)} className="btn-success">
               <CheckCircle size={16} />
               Complete GR
             </Button>
           )}
-          
+
           <Button onClick={onClose} className="btn-secondary">
             Close
           </Button>
@@ -548,14 +559,10 @@ interface GRInspectionModalProps {
   onSuccess: () => void;
 }
 
-export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
-  gr,
-  onClose,
-  onSuccess
-}) => {
+export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({ gr, onClose, onSuccess }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
-  
+
   const [loading, setLoading] = useState(false);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [inspectionData, setInspectionData] = useState<Record<string, InspectGRItemInput>>({});
@@ -575,8 +582,8 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
         inspectionNotes: data.inspectionNotes,
         defectDescription: data.defectDescription,
         warehouseId: data.warehouseId,
-        storageLocation: data.storageLocation
-      }
+        storageLocation: data.storageLocation,
+      },
     });
   };
 
@@ -594,22 +601,17 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
 
   const handleSubmitInspection = async () => {
     if (!currentUser) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Inspect all items
       for (const itemId in inspectionData) {
-        await inspectGRItem(
-          inspectionData[itemId],
-          currentUser.uid,
-          currentUser.name || 'Unknown'
-        );
+        await inspectGRItem(inspectionData[itemId], currentUser.uid, currentUser.name || 'Unknown');
       }
-      
+
       addToast('Inspection completed successfully', 'success');
       onSuccess();
-      
     } catch (error: any) {
       console.error('Error submitting inspection:', error);
       addToast(error.message || 'Failed to submit inspection', 'error');
@@ -655,19 +657,11 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
               <div className="form-row">
                 <div className="form-group">
                   <label>PO Quantity</label>
-                  <Input
-                    type="number"
-                    value={currentItem.poQuantity}
-                    disabled
-                  />
+                  <Input type="number" value={currentItem.poQuantity} disabled />
                 </div>
                 <div className="form-group">
                   <label>Received Quantity</label>
-                  <Input
-                    type="number"
-                    value={currentItem.receivedQuantity}
-                    disabled
-                  />
+                  <Input type="number" value={currentItem.receivedQuantity} disabled />
                 </div>
               </div>
 
@@ -676,10 +670,15 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
                   <label>Accepted Quantity *</label>
                   <Input
                     type="number"
-                    value={inspectionData[currentItem.id]?.acceptedQuantity ?? currentItem.receivedQuantity}
-                    onChange={(e) => handleItemInspection({
-                      acceptedQuantity: parseFloat(e.target.value)
-                    })}
+                    value={
+                      inspectionData[currentItem.id]?.acceptedQuantity ??
+                      currentItem.receivedQuantity
+                    }
+                    onChange={(e) =>
+                      handleItemInspection({
+                        acceptedQuantity: parseFloat(e.target.value),
+                      })
+                    }
                     min="0"
                     max={currentItem.receivedQuantity}
                   />
@@ -689,9 +688,11 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
                   <Input
                     type="number"
                     value={inspectionData[currentItem.id]?.rejectedQuantity ?? 0}
-                    onChange={(e) => handleItemInspection({
-                      rejectedQuantity: parseFloat(e.target.value)
-                    })}
+                    onChange={(e) =>
+                      handleItemInspection({
+                        rejectedQuantity: parseFloat(e.target.value),
+                      })
+                    }
                     min="0"
                     max={currentItem.receivedQuantity}
                   />
@@ -702,9 +703,11 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
                 <label>Quality Status *</label>
                 <select
                   value={inspectionData[currentItem.id]?.qualityStatus ?? 'pending'}
-                  onChange={(e) => handleItemInspection({
-                    qualityStatus: e.target.value as QualityStatus
-                  })}
+                  onChange={(e) =>
+                    handleItemInspection({
+                      qualityStatus: e.target.value as QualityStatus,
+                    })
+                  }
                 >
                   <option value="pending">Pending</option>
                   <option value="passed">Passed</option>
@@ -719,9 +722,11 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
                   className="form-control"
                   placeholder="Inspection findings..."
                   value={inspectionData[currentItem.id]?.inspectionNotes ?? ''}
-                  onChange={(e) => handleItemInspection({
-                    inspectionNotes: e.target.value
-                  })}
+                  onChange={(e) =>
+                    handleItemInspection({
+                      inspectionNotes: e.target.value,
+                    })
+                  }
                   rows={3}
                 />
               </div>
@@ -733,9 +738,11 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
                     className="form-control"
                     placeholder="Describe the defects found..."
                     value={inspectionData[currentItem.id]?.defectDescription ?? ''}
-                    onChange={(e) => handleItemInspection({
-                      defectDescription: e.target.value
-                    })}
+                    onChange={(e) =>
+                      handleItemInspection({
+                        defectDescription: e.target.value,
+                      })
+                    }
                     rows={2}
                     required
                   />
@@ -759,11 +766,7 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
               Next Item
             </Button>
           ) : (
-            <Button
-              onClick={handleSubmitInspection}
-              disabled={loading}
-              className="btn-success"
-            >
+            <Button onClick={handleSubmitInspection} disabled={loading} className="btn-success">
               {loading ? 'Submitting...' : 'Complete Inspection'}
             </Button>
           )}
@@ -776,5 +779,5 @@ export const GRInspectionModal: React.FC<GRInspectionModalProps> = ({
 export default {
   CreateGRModal,
   GRDetailsModal,
-  GRInspectionModal
+  GRInspectionModal,
 };

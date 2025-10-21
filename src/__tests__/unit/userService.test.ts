@@ -10,7 +10,7 @@ describe('UserService', () => {
       const user = createMockUser({
         name: 'John Doe',
         email: 'john@example.com',
-        roleId: 'admin'
+        roleId: 'admin',
       });
 
       expect(user).toBeDefined();
@@ -51,14 +51,14 @@ describe('UserService', () => {
 
     it('should generate unique emails', () => {
       const users = createMockUsers(3);
-      
-      const emails = users.map(u => u.email);
+
+      const emails = users.map((u) => u.email);
       expect(new Set(emails).size).toBe(3);
     });
 
     it('should generate unique names', () => {
       const users = createMockUsers(3);
-      
+
       expect(users[0].name).toBe('User 1');
       expect(users[1].name).toBe('User 2');
       expect(users[2].name).toBe('User 3');
@@ -90,7 +90,7 @@ describe('UserService', () => {
   describe('user permissions', () => {
     it('should support custom permissions', () => {
       const user = createMockUser({
-        permissions: []
+        permissions: [],
       });
 
       expect(Array.isArray(user.permissions)).toBe(true);

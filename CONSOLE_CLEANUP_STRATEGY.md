@@ -1,6 +1,7 @@
 # Console.log Cleanup Strategy
 
 ## Overview
+
 Replace ~400 console.log statements with proper logging utility that respects environment.
 
 ## Implementation Steps
@@ -8,6 +9,7 @@ Replace ~400 console.log statements with proper logging utility that respects en
 ### Phase 1: Import Logger (Manual - High Priority Files)
 
 Replace in critical files:
+
 ```typescript
 // Before:
 console.log('Debug info', data);
@@ -22,6 +24,7 @@ logger.error('Error occurred', error);
 ### Phase 2: Automated Replacement (Bulk)
 
 Can use find/replace with regex:
+
 ```bash
 # Find: console\.log\(
 # Replace: logger.debug(
@@ -39,6 +42,7 @@ Can use find/replace with regex:
 ### Phase 3: Add Import Statement
 
 After replacement, add import to each file:
+
 ```typescript
 import { logger } from './utils/logger';
 // or relative path based on file location
@@ -47,6 +51,7 @@ import { logger } from './utils/logger';
 ## Priority Files for Manual Review
 
 ### High Priority (User-Facing):
+
 1. `App.tsx` - Main app errors
 2. `contexts/AuthContext.tsx` - Authentication
 3. `contexts/ProjectContext.tsx` - Project state
@@ -54,6 +59,7 @@ import { logger } from './utils/logger';
 5. `api/projectService.ts` - Project operations
 
 ### Medium Priority (Components):
+
 6. `components/DocumentViewer.tsx`
 7. `components/TemplateManager.tsx`
 8. `components/SignatureWorkflowManager.tsx`
@@ -61,6 +67,7 @@ import { logger } from './utils/logger';
 10. `components/CreateTaskModal.tsx`
 
 ### Low Priority (Views):
+
 11. Various view files
 12. Utility files
 13. Test files (can keep console.log for tests)
@@ -68,23 +75,27 @@ import { logger } from './utils/logger';
 ## Logging Level Guidelines
 
 ### debug()
+
 - Development debugging
 - Verbose operation logs
 - Data inspection
 - Performance metrics
 
 ### info()
+
 - Operation success messages
 - State transitions
 - Important milestones
 
 ### warn()
+
 - Deprecation notices
 - Non-critical issues
 - Fallback scenarios
 - Missing optional data
 
 ### error()
+
 - Exception handling
 - API failures
 - Critical operation failures
@@ -93,6 +104,7 @@ import { logger } from './utils/logger';
 ## Example Replacements
 
 ### Authentication
+
 ```typescript
 // Before:
 console.log('Login successful:', user);
@@ -104,6 +116,7 @@ logger.error('Login failed', { error: error.message });
 ```
 
 ### API Calls
+
 ```typescript
 // Before:
 console.log('Fetching documents...');
@@ -117,6 +130,7 @@ logger.error('Failed to fetch documents', { error });
 ```
 
 ### Component Lifecycle
+
 ```typescript
 // Before:
 console.log('Component mounted');
@@ -130,6 +144,7 @@ logger.debug('Component data', { data });
 ## Files to Keep console.log
 
 These files can keep console.log as they are:
+
 - `scripts/*.js` - Build scripts
 - `__tests__/*.ts` - Test files
 - `setup*.js` - Setup scripts
@@ -137,17 +152,22 @@ These files can keep console.log as they are:
 ## ESLint Configuration
 
 After cleanup, update `.eslintrc` to allow logger:
+
 ```json
 {
   "rules": {
-    "no-console": ["warn", { 
-      "allow": ["error", "warn"] 
-    }]
+    "no-console": [
+      "warn",
+      {
+        "allow": ["error", "warn"]
+      }
+    ]
   }
 }
 ```
 
 Or completely disable for logger usage:
+
 ```json
 {
   "rules": {
@@ -181,4 +201,5 @@ Or completely disable for logger usage:
 6. ⏳ Update ESLint config
 
 ---
-*Note: This is a systematic approach. Can be done incrementally without breaking existing functionality.*
+
+_Note: This is a systematic approach. Can be done incrementally without breaking existing functionality._

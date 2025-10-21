@@ -37,7 +37,7 @@ class SearchService {
    */
   async search(searchQuery: SearchQuery): Promise<SearchResults> {
     const startTime = Date.now();
-    
+
     try {
       const results: SearchResultItem[] = [];
       const entityTypes = searchQuery.entityTypes || ['all'];
@@ -120,15 +120,15 @@ class SearchService {
     try {
       const projectsQuery = query(collection(db, 'projects'));
       const snapshot = await getDocs(projectsQuery);
-      
+
       const results: SearchResultItem[] = [];
       const searchTerm = searchQuery.query.toLowerCase();
 
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const name = (data.name || '').toLowerCase();
         const description = (data.description || '').toLowerCase();
-        
+
         // Calculate relevance score
         let score = 0;
         if (name.includes(searchTerm)) score += 50;
@@ -167,15 +167,15 @@ class SearchService {
     try {
       const tasksQuery = query(collection(db, 'tasks'));
       const snapshot = await getDocs(tasksQuery);
-      
+
       const results: SearchResultItem[] = [];
       const searchTerm = searchQuery.query.toLowerCase();
 
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const title = (data.title || '').toLowerCase();
         const description = (data.description || '').toLowerCase();
-        
+
         let score = 0;
         if (title.includes(searchTerm)) score += 50;
         if (description.includes(searchTerm)) score += 30;
@@ -212,14 +212,14 @@ class SearchService {
     try {
       const docsQuery = query(collection(db, 'documents'));
       const snapshot = await getDocs(docsQuery);
-      
+
       const results: SearchResultItem[] = [];
       const searchTerm = searchQuery.query.toLowerCase();
 
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const name = (data.name || '').toLowerCase();
-        
+
         let score = 0;
         if (name.includes(searchTerm)) score += 50;
 
@@ -253,15 +253,15 @@ class SearchService {
     try {
       const risksQuery = query(collection(db, 'risks'));
       const snapshot = await getDocs(risksQuery);
-      
+
       const results: SearchResultItem[] = [];
       const searchTerm = searchQuery.query.toLowerCase();
 
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const title = (data.title || '').toLowerCase();
         const description = (data.description || '').toLowerCase();
-        
+
         let score = 0;
         if (title.includes(searchTerm)) score += 50;
         if (description.includes(searchTerm)) score += 30;
@@ -299,14 +299,14 @@ class SearchService {
     try {
       const changeOrdersQuery = query(collection(db, 'changeOrders'));
       const snapshot = await getDocs(changeOrdersQuery);
-      
+
       const results: SearchResultItem[] = [];
       const searchTerm = searchQuery.query.toLowerCase();
 
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const title = (data.title || '').toLowerCase();
-        
+
         let score = 0;
         if (title.includes(searchTerm)) score += 50;
 
@@ -340,14 +340,14 @@ class SearchService {
     try {
       const resourcesQuery = query(collection(db, 'resources'));
       const snapshot = await getDocs(resourcesQuery);
-      
+
       const results: SearchResultItem[] = [];
       const searchTerm = searchQuery.query.toLowerCase();
 
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
         const name = (data.name || '').toLowerCase();
-        
+
         let score = 0;
         if (name.includes(searchTerm)) score += 50;
 
@@ -406,7 +406,7 @@ class SearchService {
 
     // Count entity types
     const typeCounts = new Map<SearchEntityType, number>();
-    results.forEach(r => {
+    results.forEach((r) => {
       typeCounts.set(r.type, (typeCounts.get(r.type) || 0) + 1);
     });
     facets.entityTypes = Array.from(typeCounts.entries()).map(([type, count]) => ({
@@ -428,7 +428,7 @@ class SearchService {
       if (historyDoc.exists()) {
         const data = historyDoc.data() as SearchHistory;
         const searches = [searchEntry, ...data.searches].slice(0, 50); // Keep last 50
-        
+
         await updateDoc(historyRef, { searches });
       } else {
         await addDoc(collection(db, SEARCH_HISTORY_COLLECTION), {
@@ -446,7 +446,9 @@ class SearchService {
   /**
    * Save search
    */
-  async saveSearch(search: Omit<SavedSearch, 'id' | 'createdAt' | 'updatedAt'>): Promise<SavedSearch> {
+  async saveSearch(
+    search: Omit<SavedSearch, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<SavedSearch> {
     try {
       const now = new Date();
       const searchData = {

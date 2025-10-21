@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 
 export function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
   (node: T | null) => void,
-  { width: number; height: number }
+  { width: number; height: number },
 ] {
   const [ref, setRef] = useState<T | null>(null);
   const [size, setSize] = useState({

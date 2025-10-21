@@ -153,7 +153,7 @@ export const compressImage = async (
     };
 
     const compressedFile = await imageCompression(file, options);
-    
+
     // Preserve original filename
     return new File([compressedFile], file.name, {
       type: compressedFile.type,
@@ -168,11 +168,7 @@ export const compressImage = async (
 /**
  * Resize image to specific dimensions
  */
-export const resizeImage = async (
-  file: File,
-  width: number,
-  height: number
-): Promise<Blob> => {
+export const resizeImage = async (file: File, width: number, height: number): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
@@ -234,10 +230,7 @@ export const createThumbnail = async (
 /**
  * Crop image based on crop area
  */
-export const cropImage = async (
-  file: File,
-  cropArea: CropArea
-): Promise<Blob> => {
+export const cropImage = async (file: File, cropArea: CropArea): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
@@ -247,7 +240,7 @@ export const cropImage = async (
 
       try {
         const dimensions = await getImageDimensions(file);
-        
+
         // Convert percentage to pixels if needed
         let x = cropArea.x;
         let y = cropArea.y;
@@ -405,14 +398,10 @@ export const optimizeImageForUpload = async (
 
     // Step 4: Create thumbnail
     const thumbnailBlob = await createThumbnail(processedFile);
-    const thumbnailFile = new File(
-      [thumbnailBlob],
-      `thumbnail_${file.name}`,
-      {
-        type: file.type,
-        lastModified: Date.now(),
-      }
-    );
+    const thumbnailFile = new File([thumbnailBlob], `thumbnail_${file.name}`, {
+      type: file.type,
+      lastModified: Date.now(),
+    });
 
     return {
       primary: primaryFile,
@@ -438,7 +427,7 @@ export const formatFileSize = (bytes: number): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
 /**
@@ -489,11 +478,7 @@ export const calculateAspectRatio = (width: number, height: number): number => {
 /**
  * Check if image is square (within tolerance)
  */
-export const isSquareImage = (
-  width: number,
-  height: number,
-  tolerance: number = 0.1
-): boolean => {
+export const isSquareImage = (width: number, height: number, tolerance: number = 0.1): boolean => {
   const aspectRatio = calculateAspectRatio(width, height);
   return Math.abs(aspectRatio - 1) <= tolerance;
 };
@@ -501,10 +486,7 @@ export const isSquareImage = (
 /**
  * Rotate image by degrees
  */
-export const rotateImage = async (
-  file: File,
-  degrees: number
-): Promise<Blob> => {
+export const rotateImage = async (file: File, degrees: number): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);

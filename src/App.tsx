@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import '@/styles/enterprise-design-system.css';
 import Sidebar from '@/components/Sidebar';
@@ -45,7 +44,11 @@ const KanbanView = lazy(() => import('@/views/KanbanView'));
 const DependencyGraphView = lazy(() => import('@/views/DependencyGraphView'));
 const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView'));
 const MonitoringView = lazy(() => import('@/views/MonitoringView'));
-const IntegratedAnalyticsView = lazy(() => import('@/views/IntegratedAnalyticsView').then(module => ({ default: module.IntegratedAnalyticsView })));
+const IntegratedAnalyticsView = lazy(() =>
+  import('@/views/IntegratedAnalyticsView').then((module) => ({
+    default: module.IntegratedAnalyticsView,
+  }))
+);
 const IntelligentDocumentSystem = lazy(() => import('@/views/IntelligentDocumentSystem'));
 
 // Finance & Accounting Module Views (lazy-loaded)
@@ -76,14 +79,19 @@ import { Spinner } from '@/components/Spinner';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
-import { RealtimeCollaborationProvider, useRealtimeCollaboration } from '@/contexts/RealtimeCollaborationContext';
+import {
+  RealtimeCollaborationProvider,
+  useRealtimeCollaboration,
+} from '@/contexts/RealtimeCollaborationContext';
 import { monitoringService } from '@/api/monitoringService';
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
 import { useRoutePreload } from '@/hooks/useRoutePreload';
 
 // Lazy-loaded heavy components
-const CommandPalette = lazy(() => import('@/components/CommandPalette').then(module => ({ default: module.CommandPalette })));
+const CommandPalette = lazy(() =>
+  import('@/components/CommandPalette').then((module) => ({ default: module.CommandPalette }))
+);
 const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
@@ -107,16 +115,16 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   biaya_proyek: FinanceView, // Remapped
   arus_kas: CashflowView,
   strategic_cost: StrategicCostView,
-  
+
   // Finance & Accounting Module
   chart_of_accounts: ChartOfAccountsView,
   journal_entries: JournalEntriesView,
   accounts_payable: AccountsPayableView,
   accounts_receivable: AccountsReceivableView,
-  
+
   // WBS Module
   wbs_management: WBSManagementView,
-  
+
   // Logistics Module
   goods_receipt: GoodsReceiptView,
   material_request: MaterialRequestView,
@@ -124,7 +132,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   inventory_management: InventoryManagementView,
   integration_dashboard: IntegrationDashboardView,
   cost_control: CostControlDashboardView,
-  
+
   logistik: LogisticsView,
   dokumen: DokumenView,
   documents: IntelligentDocumentSystem, // New Intelligent Document System
@@ -133,7 +141,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   master_data: MasterDataView,
   audit_trail: AuditTrailView,
   profile: ProfileView,
-  
+
   // Phase 4: AI & Analytics
   ai_resource_optimization: AIResourceOptimizationView,
   predictive_analytics: PredictiveAnalyticsView,
@@ -149,7 +157,7 @@ function AppContent() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
-  
+
   const { currentUser, loading: authLoading } = useAuth();
   const { currentProject, loading: projectLoading, error, ...projectActions } = useProject();
   const { updatePresence } = useRealtimeCollaboration();
@@ -167,12 +175,12 @@ function AppContent() {
     if (currentUser) {
       console.log('🔍 Starting system monitoring...');
       monitoringService.startMonitoring(60000); // 1 minute interval
-      
+
       return () => {
         monitoringService.stopMonitoring();
       };
     }
-    
+
     return undefined;
   }, [currentUser]);
 
@@ -221,11 +229,11 @@ function AppContent() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-        setShowDebug(prev => !prev);
+        setShowDebug((prev) => !prev);
         console.log('🐛 Debug panel:', !showDebug ? 'ON' : 'OFF');
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [showDebug]);
@@ -234,54 +242,57 @@ function AppContent() {
     console.log('🔄 Navigation attempt:', viewId);
     console.log('📋 Available views:', Object.keys(viewComponents));
     console.log('✅ View exists:', viewComponents[viewId] ? 'YES' : 'NO');
-    
+
     if (viewComponents[viewId]) {
       setIsNavigating(true);
-      
+
       // Smooth transition
       setTimeout(() => {
         setCurrentView(viewId);
         setIsNavigating(false);
         console.log('✨ Navigated to:', viewId);
       }, 150);
-      
+
       // Update presence when navigating to different views
       updatePresence(viewId);
-      
+
       // 📊 Track navigation activity
       trackActivity('navigate', 'view', viewId, true);
     } else {
       console.error('❌ View not found:', viewId);
-      console.log('💡 Did you mean one of these?', Object.keys(viewComponents).filter(v => v.includes(viewId.split('_')[0])));
+      console.log(
+        '💡 Did you mean one of these?',
+        Object.keys(viewComponents).filter((v) => v.includes(viewId.split('_')[0]))
+      );
     }
   };
 
   const itemsWithProgress = useMemo(() => {
     if (!currentProject?.items || !currentProject?.dailyReports) return [];
-    
+
     const completedVolumeMap = new Map<number, number>();
-    currentProject.dailyReports.forEach(report => {
-        report.workProgress?.forEach(progress => {
-            const currentVolume = completedVolumeMap.get(progress.rabItemId) || 0;
-            completedVolumeMap.set(progress.rabItemId, currentVolume + progress.completedVolume);
-        });
+    currentProject.dailyReports.forEach((report) => {
+      report.workProgress?.forEach((progress) => {
+        const currentVolume = completedVolumeMap.get(progress.rabItemId) || 0;
+        completedVolumeMap.set(progress.rabItemId, currentVolume + progress.completedVolume);
+      });
     });
-    
-    return currentProject.items.map(item => ({
-        ...item,
-        completedVolume: completedVolumeMap.get(item.id) || 0,
+
+    return currentProject.items.map((item) => ({
+      ...item,
+      completedVolume: completedVolumeMap.get(item.id) || 0,
     }));
   }, [currentProject]);
 
   // Initialize Failover Manager
   useEffect(() => {
-    failoverManager.initialize().catch(error => {
+    failoverManager.initialize().catch((error) => {
       console.error('Failover manager initialization failed:', error);
     });
-    
+
     // Start health monitoring (every 60 seconds)
     healthMonitor.start(60000);
-    
+
     return () => {
       failoverManager.stopHealthMonitoring();
       healthMonitor.stop();
@@ -298,7 +309,7 @@ function AppContent() {
   if (!currentUser) {
     return <EnterpriseLoginView />;
   }
-  
+
   if (projectLoading || (!currentProject && !error)) {
     return <EnterpriseProjectLoader />;
   }
@@ -307,38 +318,41 @@ function AppContent() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-red-50 text-red-700 p-4 text-center">
         <p className="font-bold text-lg mb-2">Gagal Memuat Aplikasi</p>
-        <p>{error?.message || 'Tidak dapat memuat data proyek yang diperlukan. Coba muat ulang halaman.'}</p>
+        <p>
+          {error?.message ||
+            'Tidak dapat memuat data proyek yang diperlukan. Coba muat ulang halaman.'}
+        </p>
       </div>
     );
   }
-  
+
   const CurrentViewComponent = viewComponents[currentView];
-  
+
   // Show coming soon view for views in development
   if (!CurrentViewComponent && comingSoonViews[currentView]) {
     const comingSoonInfo = comingSoonViews[currentView];
     return (
       <div id="app-container" className="flex h-screen glass-bg font-sans">
-        <Sidebar 
-            currentView={currentView} 
-            onNavigate={handleNavigate}
-            isCollapsed={isSidebarCollapsed}
-            setIsCollapsed={setIsSidebarCollapsed}
+        <Sidebar
+          currentView={currentView}
+          onNavigate={handleNavigate}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
         />
         <main className="flex-1 flex flex-col overflow-hidden">
-            <Header isSidebarCollapsed={isSidebarCollapsed}>
-                <OnlineUsersDisplay compact showActivity={false} />
-            </Header>
-            <div className="flex-1 overflow-hidden">
-                <FallbackView
-                  type="coming-soon"
-                  viewName={comingSoonInfo.name}
-                  viewId={currentView}
-                  onNavigateBack={() => handleNavigate('dashboard')}
-                  comingSoonFeatures={comingSoonInfo.features}
-                  description={`Modul ${comingSoonInfo.name} sedang dalam tahap pengembangan final. Kami berkomitmen memberikan pengalaman terbaik dengan fitur-fitur canggih untuk mendukung operasional proyek Anda.`}
-                />
-            </div>
+          <Header isSidebarCollapsed={isSidebarCollapsed}>
+            <OnlineUsersDisplay compact showActivity={false} />
+          </Header>
+          <div className="flex-1 overflow-hidden">
+            <FallbackView
+              type="coming-soon"
+              viewName={comingSoonInfo.name}
+              viewId={currentView}
+              onNavigateBack={() => handleNavigate('dashboard')}
+              comingSoonFeatures={comingSoonInfo.features}
+              description={`Modul ${comingSoonInfo.name} sedang dalam tahap pengembangan final. Kami berkomitmen memberikan pengalaman terbaik dengan fitur-fitur canggih untuk mendukung operasional proyek Anda.`}
+            />
+          </div>
         </main>
         <CommandPalette onNavigate={handleNavigate} />
         <AiAssistantChat />
@@ -347,20 +361,32 @@ function AppContent() {
       </div>
     );
   }
-  
+
   // Enhanced error handling for missing views
   if (!CurrentViewComponent) {
     return (
       <div className="flex flex-col items-center justify-center h-screen glass-dark text-brilliance p-8 text-center">
         <div className="glass border border-violet-essence/30 p-8 rounded-3xl shadow-2xl backdrop-blur-xl max-w-md">
           <div className="w-20 h-20 gradient-bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 floating">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z" />
+            <svg
+              className="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z"
+              />
             </svg>
           </div>
           <h2 className="text-2xl font-bold gradient-text mb-3">Modul Tidak Ditemukan</h2>
-          <p className="text-violet-essence-200 mb-6 leading-relaxed">Modul "{currentView}" sedang dalam pengembangan atau belum tersedia.</p>
-          <button 
+          <p className="text-violet-essence-200 mb-6 leading-relaxed">
+            Modul "{currentView}" sedang dalam pengembangan atau belum tersedia.
+          </p>
+          <button
             onClick={() => handleNavigate('dashboard')}
             className="w-full gradient-bg-primary hover:scale-105 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg"
           >
@@ -370,23 +396,23 @@ function AppContent() {
       </div>
     );
   }
-  
+
   // Safe view props with comprehensive null safety and error handling
   const getViewProps = (viewId: string): any => {
-    const safeProject = currentProject as any || {};
-    const safeActions = projectActions as any || {};
-    
+    const safeProject = (currentProject as any) || {};
+    const safeActions = (projectActions as any) || {};
+
     // Common safe props for all views
     const commonProps = {
       project: currentProject,
       projectMetrics: projectMetrics,
       loading: projectLoading,
-      error: error
+      error: error,
     };
 
     // View-specific props with comprehensive safety checks
     const viewPropsMap: { [key: string]: any } = {
-      dashboard: { 
+      dashboard: {
         ...commonProps,
         projects: currentProject ? [currentProject] : [],
         tasks: safeProject.tasks || [],
@@ -396,136 +422,149 @@ function AppContent() {
         recentReports: safeProject.dailyReports?.slice(-5) || [],
         notifications: safeActions.notifications || [],
         updateAiInsight: safeActions.handleUpdateAiInsight || (() => {}),
-        onNavigate: handleNavigate
+        onNavigate: handleNavigate,
       },
-      enhanced_dashboard: { 
+      enhanced_dashboard: {
         ...commonProps,
-        projectMetrics: projectMetrics, 
-        recentReports: safeProject.dailyReports || [], 
-        notifications: safeActions.notifications || [], 
-        updateAiInsight: safeActions.handleUpdateAiInsight || (() => {})
+        projectMetrics: projectMetrics,
+        recentReports: safeProject.dailyReports || [],
+        notifications: safeActions.notifications || [],
+        updateAiInsight: safeActions.handleUpdateAiInsight || (() => {}),
       },
-      rab_ahsp: { 
+      rab_ahsp: {
         ...commonProps,
-        items: safeProject.items || [], 
+        items: safeProject.items || [],
         ahspData: safeActions.ahspData || [],
-        projectLocation: safeProject.location || 'Jakarta'
+        projectLocation: safeProject.location || 'Jakarta',
       },
-      jadwal: { 
+      jadwal: {
         ...commonProps,
         projectId: safeProject.id || '',
         tasks: safeProject.tasks || [],
-        timeline: safeProject.timeline || {}
+        timeline: safeProject.timeline || {},
       },
-      tasks: { 
+      tasks: {
         ...commonProps,
         tasks: safeProject.tasks || [],
-        users: safeProject.members || [], 
-        onCreateTask: safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
-        onUpdateTask: safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
-        onDeleteTask: safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon'))
+        users: safeProject.members || [],
+        onCreateTask:
+          safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
+        onUpdateTask:
+          safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
+        onDeleteTask:
+          safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon')),
       },
-      task_list: { 
-        ...commonProps,
-        projectId: safeProject.id || '',
-        tasks: safeProject.tasks || []
-      },
-      kanban: { 
-        ...commonProps,
-        tasks: safeProject.tasks || [],
-        users: safeProject.members || [], 
-        onCreateTask: safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
-        onUpdateTask: safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
-        onDeleteTask: safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon'))
-      },
-      kanban_board: { 
-        ...commonProps,
-        projectId: safeProject.id || '',
-        tasks: safeProject.tasks || []
-      },
-      dependencies: { 
+      task_list: {
         ...commonProps,
         projectId: safeProject.id || '',
         tasks: safeProject.tasks || [],
-        dependencies: safeProject.dependencies || []
       },
-      notifications: { 
+      kanban: {
+        ...commonProps,
+        tasks: safeProject.tasks || [],
+        users: safeProject.members || [],
+        onCreateTask:
+          safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
+        onUpdateTask:
+          safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
+        onDeleteTask:
+          safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon')),
+      },
+      kanban_board: {
         ...commonProps,
         projectId: safeProject.id || '',
-        notifications: safeActions.notifications || []
+        tasks: safeProject.tasks || [],
       },
-      laporan_harian: { 
+      dependencies: {
         ...commonProps,
-        dailyReports: safeProject.dailyReports || [], 
-        rabItems: safeProject.items || [], 
-        workers: safeActions.workers || [], 
-        onAddReport: safeActions.handleAddDailyReport || (() => console.log('Add report feature coming soon'))
+        projectId: safeProject.id || '',
+        tasks: safeProject.tasks || [],
+        dependencies: safeProject.dependencies || [],
       },
-      progres: { 
+      notifications: {
         ...commonProps,
-        itemsWithProgress: itemsWithProgress || [], 
-        onUpdateProgress: safeActions.handleUpdateProgress || (() => console.log('Update progress feature coming soon'))
+        projectId: safeProject.id || '',
+        notifications: safeActions.notifications || [],
       },
-      absensi: { 
+      laporan_harian: {
         ...commonProps,
-        attendances: safeProject.attendances || [], 
-        workers: safeActions.workers || [], 
-        onUpdateAttendance: safeActions.handleUpdateAttendance || (() => console.log('Update attendance feature coming soon'))
+        dailyReports: safeProject.dailyReports || [],
+        rabItems: safeProject.items || [],
+        workers: safeActions.workers || [],
+        onAddReport:
+          safeActions.handleAddDailyReport || (() => console.log('Add report feature coming soon')),
       },
-      biaya_proyek: { 
+      progres: {
+        ...commonProps,
+        itemsWithProgress: itemsWithProgress || [],
+        onUpdateProgress:
+          safeActions.handleUpdateProgress ||
+          (() => console.log('Update progress feature coming soon')),
+      },
+      absensi: {
+        ...commonProps,
+        attendances: safeProject.attendances || [],
+        workers: safeActions.workers || [],
+        onUpdateAttendance:
+          safeActions.handleUpdateAttendance ||
+          (() => console.log('Update attendance feature coming soon')),
+      },
+      biaya_proyek: {
         ...commonProps,
         expenses: safeProject.expenses || [],
         budget: safeProject.budget || {},
-        costs: safeProject.costs || []
+        costs: safeProject.costs || [],
       },
-      arus_kas: { 
+      arus_kas: {
         ...commonProps,
-        termins: safeProject.termins || [], 
+        termins: safeProject.termins || [],
         expenses: safeProject.expenses || [],
-        cashflow: safeProject.cashflow || []
+        cashflow: safeProject.cashflow || [],
       },
-      strategic_cost: { 
+      strategic_cost: {
         ...commonProps,
-        strategicCosts: safeProject.strategicCosts || []
+        strategicCosts: safeProject.strategicCosts || [],
       },
-      logistik: { 
+      logistik: {
         ...commonProps,
-        purchaseOrders: safeProject.purchaseOrders || [], 
-        inventory: safeProject.inventory || [], 
-        onUpdatePOStatus: safeActions.handleUpdatePOStatus || (() => console.log('Update PO status feature coming soon')), 
-        ahspData: safeActions.ahspData || [], 
-        onAddPO: safeActions.handleAddPO || (() => console.log('Add PO feature coming soon'))
+        purchaseOrders: safeProject.purchaseOrders || [],
+        inventory: safeProject.inventory || [],
+        onUpdatePOStatus:
+          safeActions.handleUpdatePOStatus ||
+          (() => console.log('Update PO status feature coming soon')),
+        ahspData: safeActions.ahspData || [],
+        onAddPO: safeActions.handleAddPO || (() => console.log('Add PO feature coming soon')),
       },
-      dokumen: { 
+      dokumen: {
         ...commonProps,
         documents: safeProject.documents || [],
-        folders: safeProject.folders || []
+        folders: safeProject.folders || [],
       },
-      laporan: { 
+      laporan: {
         ...commonProps,
-        reports: safeProject.reports || []
+        reports: safeProject.reports || [],
       },
-      user_management: { 
+      user_management: {
         ...commonProps,
         users: safeProject.members || [],
-        roles: safeProject.roles || []
+        roles: safeProject.roles || [],
       },
-      master_data: { 
+      master_data: {
         ...commonProps,
         workers: safeActions.workers || [],
         materials: safeProject.materials || [],
-        equipment: safeProject.equipment || []
+        equipment: safeProject.equipment || [],
       },
-      audit_trail: { 
+      audit_trail: {
         ...commonProps,
         auditLog: safeProject.auditLog || [],
-        activities: safeProject.activities || []
+        activities: safeProject.activities || [],
       },
       profile: {
         ...commonProps,
         user: currentUser,
-        preferences: (currentUser as any)?.preferences || {}
-      }
+        preferences: (currentUser as any)?.preferences || {},
+      },
     };
 
     return viewPropsMap[viewId] || commonProps;
@@ -534,83 +573,89 @@ function AppContent() {
   const viewProps = getViewProps(currentView);
 
   return (
-      <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
-        {/* Desktop Sidebar - Hidden on mobile */}
-        <div className="hidden md:block">
-          <Sidebar 
-              currentView={currentView} 
-              onNavigate={handleNavigate}
-              isCollapsed={isSidebarCollapsed}
-              setIsCollapsed={setIsSidebarCollapsed}
-          />
-        </div>
-        
-        {/* Mobile Navigation - Only shown on mobile */}
-        <MobileNavigation
+    <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:block">
+        <Sidebar
           currentView={currentView}
           onNavigate={handleNavigate}
-          showBottomNav={true}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
         />
-        
-        <main className="flex-1 flex flex-col overflow-hidden">
-            <Header isSidebarCollapsed={isSidebarCollapsed}>
-                <OnlineUsersDisplay compact showActivity={false} />
-            </Header>
-            <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 mobile-p-4 glass-bg relative pb-20 md:pb-6">
-                {/* Navigation Loading Overlay */}
-                {isNavigating && (
-                  <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-40 flex items-center justify-center">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
-                    </div>
-                  </div>
-                )}
-                
-                <EnterpriseErrorBoundary>
-                  <Suspense fallback={
-                    <div className="flex items-center justify-center h-full">
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
-                      </div>
-                    </div>
-                  }>
-                    {CurrentViewComponent ? <CurrentViewComponent {...viewProps} /> : <div>View not found</div>}
-                  </Suspense>
-                </EnterpriseErrorBoundary>
-            </div>
-        </main>
-        <Suspense fallback={null}>
-          <CommandPalette onNavigate={handleNavigate} />
-        </Suspense>
-        <Suspense fallback={null}>
-          <AiAssistantChat />
-        </Suspense>
-        <Suspense fallback={null}>
-          <PWAInstallPrompt />
-        </Suspense>
-        <Suspense fallback={null}>
-          <UserFeedbackWidget position="bottom-right" />
-        </Suspense>
-        <OfflineIndicator />
-        <LiveCursors containerId="app-container" showLabels />
-        <FailoverStatusIndicator />
-        
-        {/* Debug Panel (Ctrl+Shift+D to toggle) */}
-        {showDebug && (
-          <NavigationDebug 
-            currentView={currentView}
-            availableViews={Object.keys(viewComponents)}
-            userPermissions={currentUser?.roleId ? ['view_dashboard', 'view_rab', 'view_gantt'] : []}
-          />
-        )}
-        
-        {/* Debug Toggle Hint */}
-        <div className="fixed bottom-4 left-4 z-40 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs opacity-50 hover:opacity-100 transition-opacity">
-          Press <kbd className="bg-slate-700 px-1.5 py-0.5 rounded">Ctrl+Shift+D</kbd> for debug panel
-        </div>
       </div>
+
+      {/* Mobile Navigation - Only shown on mobile */}
+      <MobileNavigation
+        currentView={currentView}
+        onNavigate={handleNavigate}
+        showBottomNav={true}
+      />
+
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <Header isSidebarCollapsed={isSidebarCollapsed}>
+          <OnlineUsersDisplay compact showActivity={false} />
+        </Header>
+        <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 mobile-p-4 glass-bg relative pb-20 md:pb-6">
+          {/* Navigation Loading Overlay */}
+          {isNavigating && (
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-40 flex items-center justify-center">
+              <div className="flex flex-col items-center space-y-3">
+                <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
+              </div>
+            </div>
+          )}
+
+          <EnterpriseErrorBoundary>
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center h-full">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
+                  </div>
+                </div>
+              }
+            >
+              {CurrentViewComponent ? (
+                <CurrentViewComponent {...viewProps} />
+              ) : (
+                <div>View not found</div>
+              )}
+            </Suspense>
+          </EnterpriseErrorBoundary>
+        </div>
+      </main>
+      <Suspense fallback={null}>
+        <CommandPalette onNavigate={handleNavigate} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AiAssistantChat />
+      </Suspense>
+      <Suspense fallback={null}>
+        <PWAInstallPrompt />
+      </Suspense>
+      <Suspense fallback={null}>
+        <UserFeedbackWidget position="bottom-right" />
+      </Suspense>
+      <OfflineIndicator />
+      <LiveCursors containerId="app-container" showLabels />
+      <FailoverStatusIndicator />
+
+      {/* Debug Panel (Ctrl+Shift+D to toggle) */}
+      {showDebug && (
+        <NavigationDebug
+          currentView={currentView}
+          availableViews={Object.keys(viewComponents)}
+          userPermissions={currentUser?.roleId ? ['view_dashboard', 'view_rab', 'view_gantt'] : []}
+        />
+      )}
+
+      {/* Debug Toggle Hint */}
+      <div className="fixed bottom-4 left-4 z-40 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs opacity-50 hover:opacity-100 transition-opacity">
+        Press <kbd className="bg-slate-700 px-1.5 py-0.5 rounded">Ctrl+Shift+D</kbd> for debug panel
+      </div>
+    </div>
   );
 }
 

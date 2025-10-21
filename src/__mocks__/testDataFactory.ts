@@ -3,14 +3,14 @@
  * Simplified factory functions to create mock data for testing
  */
 
-import type { 
-  Project, 
-  Task, 
-  IntelligentDocument, 
+import type {
+  Project,
+  Task,
+  IntelligentDocument,
   User,
   PurchaseOrder,
   DocumentCategory,
-  DocumentStatus 
+  DocumentStatus,
 } from '@/types';
 
 export const createMockUser = (overrides?: Partial<User>): User => ({
@@ -23,7 +23,7 @@ export const createMockUser = (overrides?: Partial<User>): User => ({
   isOnline: true,
   lastSeen: '2025-01-01T00:00:00.000Z',
   permissions: [],
-  ...overrides
+  ...overrides,
 });
 
 export const createMockProject = (overrides?: Partial<Project>): Project => ({
@@ -42,7 +42,7 @@ export const createMockProject = (overrides?: Partial<Project>): Project => ({
   termins: [],
   auditLog: [],
   aiInsight: undefined,
-  ...overrides
+  ...overrides,
 });
 
 export const createMockTask = (overrides?: Partial<Task>): Task => ({
@@ -63,10 +63,12 @@ export const createMockTask = (overrides?: Partial<Task>): Task => ({
   rabItemId: undefined,
   createdAt: '2025-01-01T00:00:00.000Z',
   updatedAt: '2025-01-01T00:00:00.000Z',
-  ...overrides
+  ...overrides,
 });
 
-export const createMockDocument = (overrides?: Partial<IntelligentDocument>): IntelligentDocument => ({
+export const createMockDocument = (
+  overrides?: Partial<IntelligentDocument>
+): IntelligentDocument => ({
   id: 'test-document-id',
   title: 'Test Document',
   description: 'Test document description',
@@ -75,12 +77,12 @@ export const createMockDocument = (overrides?: Partial<IntelligentDocument>): In
   createdBy: 'test-user-id',
   createdAt: new Date('2025-01-01'),
   updatedAt: new Date('2025-01-01'),
-  
+
   // File Information
   currentVersionId: 'version-1',
   allVersions: [],
   branches: [],
-  
+
   // AI & OCR
   ocrResults: [],
   extractedData: {
@@ -94,33 +96,33 @@ export const createMockDocument = (overrides?: Partial<IntelligentDocument>): In
     specifications: [],
     signatures: [],
     tables: [],
-    customFields: {}
+    customFields: {},
   },
   aiInsights: [],
-  
+
   // Templates & Generation
   templateId: undefined,
   generatedFromTemplate: false,
   autoGenerationSettings: undefined,
-  
+
   // Digital Signatures
   signatures: [],
   signatureWorkflow: undefined,
   requiresSignature: false,
-  
+
   // Security & Compliance
   accessControl: {
     visibility: 'internal',
     permissions: [],
     inheritFromProject: true,
     watermark: undefined,
-    downloadRestrictions: []
+    downloadRestrictions: [],
   },
   encryptionStatus: {
     algorithm: '',
     keyId: '',
     isEncrypted: false,
-    encryptionLevel: 'none'
+    encryptionLevel: 'none',
   },
   complianceInfo: {
     standards: [],
@@ -129,19 +131,19 @@ export const createMockDocument = (overrides?: Partial<IntelligentDocument>): In
       retentionPeriod: 7,
       archivalLocation: 'main-archive',
       destructionDate: undefined,
-      legalHold: false
+      legalHold: false,
     },
     dataClassification: 'internal',
-    regulatoryRequirements: []
+    regulatoryRequirements: [],
   },
   auditTrail: [],
-  
+
   // Metadata & Classification
   tags: ['test', 'document'],
   customFields: {},
   relatedDocuments: [],
   dependencies: [],
-  
+
   // Status & Workflow
   status: 'pending' as DocumentStatus,
   workflow: {
@@ -151,23 +153,23 @@ export const createMockDocument = (overrides?: Partial<IntelligentDocument>): In
     steps: [],
     isCompleted: false,
     canSkipSteps: false,
-    escalationRules: []
+    escalationRules: [],
   },
   notifications: [],
-  
+
   // Additional properties
   collaborators: [],
   fileSize: 1024000,
   mimeType: 'application/pdf',
   checksum: 'mock-checksum-12345',
-  
+
   // Search & Discovery
   searchableContent: 'Sample extracted text from document',
   keywords: ['test', 'document', 'contract'],
   language: 'en',
   region: 'ID',
-  
-  ...overrides
+
+  ...overrides,
 });
 
 export const createMockPurchaseOrder = (overrides?: Partial<PurchaseOrder>): PurchaseOrder => ({
@@ -193,11 +195,11 @@ export const createMockPurchaseOrder = (overrides?: Partial<PurchaseOrder>): Pur
       pricePerUnit: 5000,
       totalPrice: 50000,
       receivedQuantity: 0,
-      status: 'pending'
-    }
+      status: 'pending',
+    },
   ],
   notes: undefined,
-  ...overrides
+  ...overrides,
 });
 
 export const createMockFile = (
@@ -211,47 +213,56 @@ export const createMockFile = (
 
 // Batch creation helpers
 export const createMockUsers = (count: number = 5): User[] => {
-  return Array.from({ length: count }, (_, i) => 
+  return Array.from({ length: count }, (_, i) =>
     createMockUser({
       id: `user-${i + 1}`,
       uid: `user-uid-${i + 1}`,
       email: `user${i + 1}@example.com`,
-      name: `User ${i + 1}`
+      name: `User ${i + 1}`,
     })
   );
 };
 
 export const createMockProjects = (count: number = 5): Project[] => {
-  return Array.from({ length: count }, (_, i) => 
+  return Array.from({ length: count }, (_, i) =>
     createMockProject({
       id: `project-${i + 1}`,
       name: `Project ${i + 1}`,
-      location: `Location ${i + 1}`
+      location: `Location ${i + 1}`,
     })
   );
 };
 
 export const createMockTasks = (count: number = 10, projectId?: string): Task[] => {
   const statuses = ['todo', 'in-progress', 'completed'] as const;
-  return Array.from({ length: count }, (_, i) => 
+  return Array.from({ length: count }, (_, i) =>
     createMockTask({
       id: `task-${i + 1}`,
       title: `Task ${i + 1}`,
       projectId: projectId || `project-${Math.floor(i / 2) + 1}`,
-      status: statuses[i % 3]
+      status: statuses[i % 3],
     })
   );
 };
 
-export const createMockDocuments = (count: number = 10, projectId?: string): IntelligentDocument[] => {
-  const categories: DocumentCategory[] = ['contract', 'permit', 'drawing', 'report', 'specification'];
-  
-  return Array.from({ length: count }, (_, i) => 
+export const createMockDocuments = (
+  count: number = 10,
+  projectId?: string
+): IntelligentDocument[] => {
+  const categories: DocumentCategory[] = [
+    'contract',
+    'permit',
+    'drawing',
+    'report',
+    'specification',
+  ];
+
+  return Array.from({ length: count }, (_, i) =>
     createMockDocument({
       id: `document-${i + 1}`,
       title: `Document ${i + 1}`,
       projectId: projectId || `project-${Math.floor(i / 2) + 1}`,
-      category: categories[i % categories.length]
+      category: categories[i % categories.length],
     })
   );
 };

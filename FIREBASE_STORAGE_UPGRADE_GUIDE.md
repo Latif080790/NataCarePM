@@ -14,12 +14,12 @@ This means your project is on the **Spark Plan (Free)** which doesn't include Fi
 
 The **Blaze Plan** is Firebase's **pay-as-you-go** plan, but it includes a **generous free tier**:
 
-| Resource | Free Tier (Blaze Plan) | Typical Usage (Small App) |
-|----------|------------------------|---------------------------|
-| Storage | 5 GB | ~100 MB |
-| Downloads | 1 GB/day | ~10 MB/day |
-| Uploads | 20,000/day | ~100/day |
-| Downloads ops | 50,000/day | ~500/day |
+| Resource      | Free Tier (Blaze Plan) | Typical Usage (Small App) |
+| ------------- | ---------------------- | ------------------------- |
+| Storage       | 5 GB                   | ~100 MB                   |
+| Downloads     | 1 GB/day               | ~10 MB/day                |
+| Uploads       | 20,000/day             | ~100/day                  |
+| Downloads ops | 50,000/day             | ~500/day                  |
 
 **You won't be charged** unless you exceed these limits!
 
@@ -34,6 +34,7 @@ In your Firebase Console (https://console.firebase.google.com/project/natacara-h
 ### Step 2: Select Blaze Plan
 
 You'll see two options:
+
 - ❌ **Spark Plan** (Free) - No Storage
 - ✅ **Blaze Plan** (Pay as you go) - Select this
 
@@ -42,6 +43,7 @@ Click **"Select plan"** under Blaze.
 ### Step 3: Add Billing Information
 
 You'll be asked to:
+
 1. **Link a Google Cloud billing account** (or create a new one)
 2. **Add payment method** (Credit/Debit card)
 3. **Set budget alerts** (recommended: $5/month alert)
@@ -111,12 +113,12 @@ To prevent any charges, you can set a hard spending limit in Google Cloud Consol
 
 Based on typical construction project management usage:
 
-| Activity | Estimated Monthly Usage | Cost |
-|----------|-------------------------|------|
-| Document uploads (PDF, images) | ~500 files (2 GB) | **$0.00** (within free tier) |
-| Daily report photos | ~300 photos (500 MB) | **$0.00** (within free tier) |
-| File downloads | ~5,000 downloads (500 MB) | **$0.00** (within free tier) |
-| **Total** | | **$0.00/month** |
+| Activity                       | Estimated Monthly Usage   | Cost                         |
+| ------------------------------ | ------------------------- | ---------------------------- |
+| Document uploads (PDF, images) | ~500 files (2 GB)         | **$0.00** (within free tier) |
+| Daily report photos            | ~300 photos (500 MB)      | **$0.00** (within free tier) |
+| File downloads                 | ~5,000 downloads (500 MB) | **$0.00** (within free tier) |
+| **Total**                      |                           | **$0.00/month**              |
 
 You're well within the free tier limits! 🎉
 
@@ -135,6 +137,7 @@ You're well within the free tier limits! 🎉
 ### Q: What happens if I exceed free tier?
 
 **A:** You'll be charged for the excess:
+
 - Storage: $0.026/GB/month
 - Download: $0.12/GB
 - Operations: $0.05 per 10,000 operations

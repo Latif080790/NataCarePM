@@ -1,6 +1,6 @@
 /**
  * SwipeableCards Component
- * 
+ *
  * Horizontal swipeable card carousel for mobile
  * Features:
  * - Touch swipe navigation
@@ -72,11 +72,7 @@ export const SwipeableCards: React.FC<SwipeableCardsProps> = ({
   return (
     <div className={`relative ${className}`}>
       {/* Swipeable container */}
-      <div
-        ref={scrollRef}
-        className="card-swipeable-container"
-        onScroll={handleScroll}
-      >
+      <div ref={scrollRef} className="card-swipeable-container" onScroll={handleScroll}>
         {children.map((child, index) => (
           <div key={index} className="card-swipeable-item">
             {child}
@@ -100,9 +96,7 @@ export const SwipeableCards: React.FC<SwipeableCardsProps> = ({
                 }
               }}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? 'bg-orange-500 w-6'
-                  : 'bg-gray-300'
+                index === currentIndex ? 'bg-orange-500 w-6' : 'bg-gray-300'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

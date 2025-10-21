@@ -20,11 +20,17 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/setup.ts"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/setup.ts"
+    ],
     "testTimeout": 30000,
     "collectCoverage": true,
     "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
     "collectCoverageFrom": [
       "api/**/*.ts",
       "components/**/*.tsx",

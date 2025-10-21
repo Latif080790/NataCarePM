@@ -1,7 +1,7 @@
 /**
  * Change Order Workflow View
  * Priority 3C: Change Order Management System
- * 
+ *
  * Visualize and manage approval workflows
  */
 
@@ -61,10 +61,14 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
   // Get step status color
   const getStepStatusColor = (status: ApprovalStep['status']): string => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200';
-      case 'approved': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200';
-      case 'rejected': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200';
-      case 'skipped': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200';
+      case 'approved':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200';
+      case 'rejected':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200';
+      case 'skipped':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -73,26 +77,66 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
     switch (status) {
       case 'pending':
         return (
-          <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-6 h-6 text-yellow-600 dark:text-yellow-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         );
       case 'approved':
         return (
-          <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-6 h-6 text-green-600 dark:text-green-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         );
       case 'rejected':
         return (
-          <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            className="w-6 h-6 text-red-600 dark:text-red-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         );
       case 'skipped':
         return (
-          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          <svg
+            className="w-6 h-6 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+            />
           </svg>
         );
     }
@@ -170,12 +214,17 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
                     )}
                     <div className="relative flex space-x-3">
                       <div>
-                        <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-gray-800 ${
-                          step.status === 'pending' ? 'bg-yellow-500' :
-                          step.status === 'approved' ? 'bg-green-500' :
-                          step.status === 'rejected' ? 'bg-red-500' :
-                          'bg-gray-400'
-                        }`}>
+                        <span
+                          className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-gray-800 ${
+                            step.status === 'pending'
+                              ? 'bg-yellow-500'
+                              : step.status === 'approved'
+                                ? 'bg-green-500'
+                                : step.status === 'rejected'
+                                  ? 'bg-red-500'
+                                  : 'bg-gray-400'
+                          }`}
+                        >
                           {getStepIcon(step.status)}
                         </span>
                       </div>
@@ -199,27 +248,33 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
                           )}
                         </div>
                         <div className="text-right text-sm whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStepStatusColor(step.status)}`}>
-                            {step.status === 'pending' && selectedChangeOrder.currentApproverLevel === step.stepNumber ? 'Current' : step.status}
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStepStatusColor(step.status)}`}
+                          >
+                            {step.status === 'pending' &&
+                            selectedChangeOrder.currentApproverLevel === step.stepNumber
+                              ? 'Current'
+                              : step.status}
                           </span>
                           {step.decidedAt && (
                             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               {formatDate(step.decidedAt)}
                             </p>
                           )}
-                          {step.status === 'pending' && selectedChangeOrder.currentApproverLevel === step.stepNumber && (
-                            <div className="mt-2">
-                              <Button
-                                onClick={() => {
-                                  setSelectedStep(step);
-                                  setShowApprovalModal(true);
-                                }}
-                                className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                              >
-                                Take Action
-                              </Button>
-                            </div>
-                          )}
+                          {step.status === 'pending' &&
+                            selectedChangeOrder.currentApproverLevel === step.stepNumber && (
+                              <div className="mt-2">
+                                <Button
+                                  onClick={() => {
+                                    setSelectedStep(step);
+                                    setShowApprovalModal(true);
+                                  }}
+                                  className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                >
+                                  Take Action
+                                </Button>
+                              </div>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -244,16 +299,46 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
                 >
                   <div className="flex-shrink-0">
                     {record.decision === 'approve' ? (
-                      <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-6 h-6 text-green-600 dark:text-green-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     ) : record.decision === 'reject' ? (
-                      <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-6 h-6 text-red-600 dark:text-red-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     ) : (
-                      <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-6 h-6 text-yellow-600 dark:text-yellow-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     )}
                   </div>
@@ -262,7 +347,10 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
                       {record.approverName}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Decision: <span className="font-medium capitalize">{record.decision.replace('_', ' ')}</span>
+                      Decision:{' '}
+                      <span className="font-medium capitalize">
+                        {record.decision.replace('_', ' ')}
+                      </span>
                     </p>
                     {record.comments && (
                       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 italic">
@@ -287,36 +375,60 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Type</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white capitalize">{selectedChangeOrder.changeType}</dd>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-white capitalize">
+                {selectedChangeOrder.changeType}
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Requested By</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white">{selectedChangeOrder.requestedBy}</dd>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                {selectedChangeOrder.requestedBy}
+              </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Requested Date</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-white">{formatDate(selectedChangeOrder.requestedDate)}</dd>
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Requested Date
+              </dt>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                {formatDate(selectedChangeOrder.requestedDate)}
+              </dd>
             </div>
             {selectedChangeOrder.requiredBy && (
               <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Required By</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-white">{formatDate(selectedChangeOrder.requiredBy)}</dd>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Required By
+                </dt>
+                <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                  {formatDate(selectedChangeOrder.requiredBy)}
+                </dd>
               </div>
             )}
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Cost Impact</dt>
-              <dd className={`mt-1 text-sm font-medium ${
-                selectedChangeOrder.costImpact >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
-              }`}>
-                {selectedChangeOrder.costImpact >= 0 ? '+' : ''}${selectedChangeOrder.costImpact.toLocaleString()}
+              <dd
+                className={`mt-1 text-sm font-medium ${
+                  selectedChangeOrder.costImpact >= 0
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-green-600 dark:text-green-400'
+                }`}
+              >
+                {selectedChangeOrder.costImpact >= 0 ? '+' : ''}$
+                {selectedChangeOrder.costImpact.toLocaleString()}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Schedule Impact</dt>
-              <dd className={`mt-1 text-sm font-medium ${
-                selectedChangeOrder.scheduleImpact >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
-              }`}>
-                {selectedChangeOrder.scheduleImpact >= 0 ? '+' : ''}{selectedChangeOrder.scheduleImpact} days
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Schedule Impact
+              </dt>
+              <dd
+                className={`mt-1 text-sm font-medium ${
+                  selectedChangeOrder.scheduleImpact >= 0
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-green-600 dark:text-green-400'
+                }`}
+              >
+                {selectedChangeOrder.scheduleImpact >= 0 ? '+' : ''}
+                {selectedChangeOrder.scheduleImpact} days
               </dd>
             </div>
           </dl>
@@ -330,7 +442,9 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
 
           {selectedChangeOrder.alternativesConsidered && (
             <div className="mt-6">
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Alternatives Considered</dt>
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Alternatives Considered
+              </dt>
               <dd className="mt-2 text-sm text-gray-900 dark:text-white whitespace-pre-line">
                 {selectedChangeOrder.alternativesConsidered}
               </dd>
@@ -381,13 +495,18 @@ const ChangeOrderWorkflowView: React.FC<ChangeOrderWorkflowViewProps> = ({ chang
                       onChange={(e) => setDecision(e.target.value as ApprovalDecision)}
                       className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Request Revision</span>
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                      Request Revision
+                    </span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="comments" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="comments"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Comments
                 </label>
                 <textarea

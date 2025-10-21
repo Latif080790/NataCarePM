@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
-import { 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
   TrendingDown,
   TrendingUp,
   AlertTriangle,
   Info,
   Activity,
-  Zap
+  Zap,
 } from 'lucide-react';
 
 interface Alert {
@@ -26,15 +26,13 @@ interface MonitoringAlertsPanelProps {
   onActionClick?: (alert: Alert) => void;
 }
 
-export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
-  onActionClick
-}) => {
+export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({ onActionClick }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [filter, setFilter] = useState<'all' | 'critical' | 'warning' | 'info'>('all');
 
   useEffect(() => {
     generateAlerts();
-    
+
     // Simulate real-time updates
     const interval = setInterval(() => {
       if (Math.random() > 0.7) {
@@ -54,7 +52,7 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
         message: 'Material costs exceeded planned budget by 15%. Immediate action required.',
         timestamp: new Date(Date.now() - 1000 * 60 * 15),
         action: 'review-budget',
-        actionLabel: 'Review Budget'
+        actionLabel: 'Review Budget',
       },
       {
         id: '2',
@@ -63,7 +61,7 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
         message: '5 tasks due within 48 hours. Consider resource reallocation.',
         timestamp: new Date(Date.now() - 1000 * 60 * 45),
         action: 'view-tasks',
-        actionLabel: 'View Tasks'
+        actionLabel: 'View Tasks',
       },
       {
         id: '3',
@@ -72,7 +70,7 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
         message: 'Project performance report for Week 32 is now available.',
         timestamp: new Date(Date.now() - 1000 * 60 * 120),
         action: 'view-report',
-        actionLabel: 'View Report'
+        actionLabel: 'View Report',
       },
       {
         id: '4',
@@ -88,8 +86,8 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
         message: 'Heavy rain forecast for next 3 days. May impact outdoor work.',
         timestamp: new Date(Date.now() - 1000 * 60 * 240),
         action: 'adjust-schedule',
-        actionLabel: 'Adjust Schedule'
-      }
+        actionLabel: 'Adjust Schedule',
+      },
     ];
 
     setAlerts(mockAlerts);
@@ -101,10 +99,10 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
       type: Math.random() > 0.5 ? 'info' : 'warning',
       title: 'System Update',
       message: 'New data synchronized from field operations.',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    
-    setAlerts(prev => [newAlert, ...prev].slice(0, 10));
+
+    setAlerts((prev) => [newAlert, ...prev].slice(0, 10));
   };
 
   const getAlertIcon = (type: string) => {
@@ -147,12 +145,11 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
     return `${Math.floor(hours / 24)}d ago`;
   };
 
-  const filteredAlerts = filter === 'all' 
-    ? alerts 
-    : alerts.filter(alert => alert.type === filter);
+  const filteredAlerts =
+    filter === 'all' ? alerts : alerts.filter((alert) => alert.type === filter);
 
-  const criticalCount = alerts.filter(a => a.type === 'critical').length;
-  const warningCount = alerts.filter(a => a.type === 'warning').length;
+  const criticalCount = alerts.filter((a) => a.type === 'critical').length;
+  const warningCount = alerts.filter((a) => a.type === 'warning').length;
 
   return (
     <Card className="card-enhanced bg-white">
@@ -166,7 +163,7 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
             <p className="text-xs text-slate-600 font-medium">Real-time alerts & notifications</p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {criticalCount > 0 && (
             <span className="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-300">
@@ -195,9 +192,7 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
             {f !== 'all' && (
-              <span className="ml-1">
-                ({alerts.filter(a => a.type === f).length})
-              </span>
+              <span className="ml-1">({alerts.filter((a) => a.type === f).length})</span>
             )}
           </button>
         ))}
@@ -217,10 +212,8 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
               className={`glass border-2 rounded-xl p-4 bg-gradient-to-br ${getAlertColor(alert.type)} transition-all hover:scale-[1.01] hover:shadow-md`}
             >
               <div className="flex items-start space-x-3">
-                <div className="mt-0.5">
-                  {getAlertIcon(alert.type)}
-                </div>
-                
+                <div className="mt-0.5">{getAlertIcon(alert.type)}</div>
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-1">
                     <h4 className="text-sm font-bold text-slate-800">{alert.title}</h4>
@@ -229,11 +222,9 @@ export const MonitoringAlertsPanel: React.FC<MonitoringAlertsPanelProps> = ({
                       <span>{getTimeAgo(alert.timestamp)}</span>
                     </span>
                   </div>
-                  
-                  <p className="text-xs text-slate-700 mb-2 leading-relaxed">
-                    {alert.message}
-                  </p>
-                  
+
+                  <p className="text-xs text-slate-700 mb-2 leading-relaxed">{alert.message}</p>
+
                   {alert.action && (
                     <button
                       onClick={() => onActionClick && onActionClick(alert)}

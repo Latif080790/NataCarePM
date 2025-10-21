@@ -78,13 +78,13 @@ export class RoutePreloader {
       return; // Already preloaded
     }
 
-    const routeConfig = this.config.find(c => c.route === route);
+    const routeConfig = this.config.find((c) => c.route === route);
     if (!routeConfig) {
       return;
     }
 
     this.preloadedRoutes.add(route);
-    
+
     switch (routeConfig.preloadOn) {
       case 'immediate':
         preloadComponents(routeConfig.components);
@@ -105,17 +105,15 @@ export class RoutePreloader {
    */
   preloadImmediate(): void {
     this.config
-      .filter(c => c.preloadOn === 'immediate')
-      .forEach(c => this.preloadRoute(c.route));
+      .filter((c) => c.preloadOn === 'immediate')
+      .forEach((c) => this.preloadRoute(c.route));
   }
 
   /**
    * Preload all routes on idle
    */
   preloadAll(): void {
-    preloadOnIdle(
-      this.config.flatMap(c => c.components)
-    );
+    preloadOnIdle(this.config.flatMap((c) => c.components));
   }
 }
 

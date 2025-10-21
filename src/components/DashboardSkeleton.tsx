@@ -24,8 +24,8 @@ export const DashboardSkeleton = () => {
           <div className="h-8 bg-slate-600 rounded w-96 animate-pulse"></div>
         </div>
         <div className="flex space-x-4">
-            <div className="h-10 bg-slate-700 rounded w-24 animate-pulse"></div>
-            <div className="h-10 bg-slate-700 rounded w-24 animate-pulse"></div>
+          <div className="h-10 bg-slate-700 rounded w-24 animate-pulse"></div>
+          <div className="h-10 bg-slate-700 rounded w-24 animate-pulse"></div>
         </div>
       </div>
 
@@ -43,10 +43,10 @@ export const DashboardSkeleton = () => {
       {/* Lower Section Skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-            <SkeletonChart />
+          <SkeletonChart />
         </div>
         <div className="lg:col-span-2">
-            <SkeletonChart />
+          <SkeletonChart />
         </div>
       </div>
     </div>

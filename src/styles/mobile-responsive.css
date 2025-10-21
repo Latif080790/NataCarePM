@@ -48,11 +48,16 @@
 
 /* Increase touch target size on mobile only */
 @media (max-width: 768px) {
-  button, a, input[type="checkbox"], input[type="radio"], select {
+  button,
+  a,
+  input[type='checkbox'],
+  input[type='radio'],
+  select {
     min-height: 44px;
   }
-  
-  .btn, .button {
+
+  .btn,
+  .button {
     min-height: 48px;
     padding: 12px 24px;
   }
@@ -157,7 +162,9 @@
   z-index: 999;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .mobile-nav-overlay.open {
@@ -298,13 +305,13 @@
   }
 
   /* Increase input height for touch */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="tel"],
-  input[type="number"],
-  input[type="date"],
-  input[type="time"],
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='tel'],
+  input[type='number'],
+  input[type='date'],
+  input[type='time'],
   select,
   textarea {
     min-height: 48px !important;

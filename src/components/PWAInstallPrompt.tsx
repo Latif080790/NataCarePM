@@ -1,6 +1,6 @@
 /**
  * PWA Install Prompt Component
- * 
+ *
  * Features:
  * - Detects installability
  * - Shows install prompt UI
@@ -8,7 +8,7 @@
  * - Tracks install analytics
  * - iOS-specific instructions
  * - Android-specific flow
- * 
+ *
  * Usage:
  * ```tsx
  * <PWAInstallPrompt />
@@ -31,7 +31,7 @@ interface PWAInstallPromptProps {
 export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
   onInstall,
   onDismiss,
-  delay = 5000
+  delay = 5000,
 }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -53,7 +53,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     const dismissed = localStorage.getItem('pwa-install-dismissed');
     const dismissedAt = dismissed ? parseInt(dismissed) : 0;
     const daysSinceDismissal = (Date.now() - dismissedAt) / (1000 * 60 * 60 * 24);
-    
+
     // Don't show if dismissed within last 7 days
     if (daysSinceDismissal < 7) {
       return;
@@ -63,10 +63,10 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       console.log('[PWA] beforeinstallprompt event fired');
-      
+
       const promptEvent = e as BeforeInstallPromptEvent;
       setDeferredPrompt(promptEvent);
-      
+
       // Show prompt after delay
       setTimeout(() => {
         setShowPrompt(true);
@@ -81,12 +81,12 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
       setIsInstalled(true);
       setShowPrompt(false);
       onInstall?.();
-      
+
       // Track analytics
       if ((window as any).gtag) {
         (window as any).gtag('event', 'pwa_installed', {
           event_category: 'PWA',
-          event_label: 'App Installed'
+          event_label: 'App Installed',
         });
       }
     });
@@ -105,30 +105,29 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     try {
       // Show install prompt
       await deferredPrompt.prompt();
-      
+
       // Wait for user choice
       const { outcome } = await deferredPrompt.userChoice;
       console.log('[PWA] User choice:', outcome);
-      
+
       if (outcome === 'accepted') {
         console.log('[PWA] User accepted the install prompt');
-        
+
         // Track analytics
         if ((window as any).gtag) {
           (window as any).gtag('event', 'pwa_install_accepted', {
             event_category: 'PWA',
-            event_label: 'Install Accepted'
+            event_label: 'Install Accepted',
           });
         }
       } else {
         console.log('[PWA] User dismissed the install prompt');
         handleDismiss();
       }
-      
+
       // Clear deferred prompt
       setDeferredPrompt(null);
       setShowPrompt(false);
-      
     } catch (error) {
       console.error('[PWA] Install prompt error:', error);
     }
@@ -138,12 +137,12 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     setShowPrompt(false);
     localStorage.setItem('pwa-install-dismissed', Date.now().toString());
     onDismiss?.();
-    
+
     // Track analytics
     if ((window as any).gtag) {
       (window as any).gtag('event', 'pwa_install_dismissed', {
         event_category: 'PWA',
-        event_label: 'Install Dismissed'
+        event_label: 'Install Dismissed',
       });
     }
   };
@@ -168,7 +167,12 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                   <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <div>
@@ -180,7 +184,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                   </p>
                 </div>
               </div>
-              
+
               <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mb-4">
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
                   To install on iOS:
@@ -192,7 +196,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                     </span>
                     Tap the <strong>Share</strong> button
                     <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z"/>
+                      <path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z" />
                     </svg>
                   </li>
                   <li className="flex items-center gap-2">
@@ -209,22 +213,32 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                   </li>
                 </ol>
               </div>
-              
+
               <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 Works offline • Push notifications • Fast & reliable
               </div>
             </div>
-            
+
             <button
               onClick={handleDismiss}
               className="flex-shrink-0 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               aria-label="Dismiss"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -241,50 +255,96 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              <svg
+                className="w-7 h-7 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="text-white font-bold text-lg">
-                Install NataCarePM
-              </h3>
-              <p className="text-white/90 text-sm">
-                Get the full app experience
-              </p>
+              <h3 className="text-white font-bold text-lg">Install NataCarePM</h3>
+              <p className="text-white/90 text-sm">Get the full app experience</p>
             </div>
           </div>
         </div>
-        
+
         {/* Body */}
         <div className="p-4">
           <ul className="space-y-2 mb-4">
             <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5 text-green-500 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               Works offline
             </li>
             <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5 text-green-500 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               Instant loading
             </li>
             <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5 text-green-500 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               Push notifications
             </li>
             <li className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5 text-green-500 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
               Native app feel
             </li>
           </ul>
-          
+
           <div className="flex gap-2">
             <button
               onClick={handleInstallClick}

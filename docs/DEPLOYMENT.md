@@ -22,6 +22,7 @@
 ## ✅ Pre-Deployment Checklist
 
 ### **1. Code Quality** ✅
+
 ```bash
 # Run TypeScript compiler
 npm run type-check
@@ -41,6 +42,7 @@ npm run build
 ```
 
 **Checklist:**
+
 - [ ] TypeScript: 0 compilation errors
 - [ ] ESLint: No critical issues
 - [ ] Tests: All passing (85%+ coverage)
@@ -50,6 +52,7 @@ npm run build
 ---
 
 ### **2. Security** 🔒
+
 ```bash
 # Check for vulnerabilities
 npm audit
@@ -63,6 +66,7 @@ npm run test:rules  # If you have rules tests
 ```
 
 **Checklist:**
+
 - [ ] No hardcoded secrets in code
 - [ ] All API keys in environment variables
 - [ ] Firebase security rules deployed
@@ -73,6 +77,7 @@ npm run test:rules  # If you have rules tests
 ---
 
 ### **3. Performance** ⚡
+
 ```bash
 # Analyze bundle size
 npm run build
@@ -84,6 +89,7 @@ npm run preview
 ```
 
 **Checklist:**
+
 - [ ] Bundle size optimized (< 3 MB)
 - [ ] Code splitting functional
 - [ ] Images optimized
@@ -95,6 +101,7 @@ npm run preview
 ### **4. Documentation** 📚
 
 **Checklist:**
+
 - [ ] CHANGELOG.md updated with latest changes
 - [ ] README.md reflects current state
 - [ ] API documentation up to date
@@ -105,6 +112,7 @@ npm run preview
 ## ⚙️ Environment Configuration
 
 ### **Development (.env.local)**
+
 ```env
 # Firebase Development
 VITE_FIREBASE_API_KEY=AIza...dev
@@ -121,6 +129,7 @@ VITE_APP_NAME=NataCarePM Dev
 ```
 
 ### **Production (.env.production)**
+
 ```env
 # Firebase Production
 VITE_FIREBASE_API_KEY=AIza...prod
@@ -138,23 +147,24 @@ VITE_APP_NAME=NataCarePM
 
 ### **Environment Variables Reference**
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_FIREBASE_API_KEY` | ✅ | Firebase API key |
-| `VITE_FIREBASE_AUTH_DOMAIN` | ✅ | Firebase auth domain |
-| `VITE_FIREBASE_PROJECT_ID` | ✅ | Firebase project ID |
-| `VITE_FIREBASE_STORAGE_BUCKET` | ✅ | Firebase storage bucket |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | ✅ | Firebase messaging sender ID |
-| `VITE_FIREBASE_APP_ID` | ✅ | Firebase app ID |
-| `VITE_GEMINI_API_KEY` | ✅ | Google Gemini AI API key |
-| `VITE_APP_ENV` | ⚠️ | Environment name (dev/prod) |
-| `VITE_APP_NAME` | ⚠️ | Application display name |
+| Variable                            | Required | Description                  |
+| ----------------------------------- | -------- | ---------------------------- |
+| `VITE_FIREBASE_API_KEY`             | ✅       | Firebase API key             |
+| `VITE_FIREBASE_AUTH_DOMAIN`         | ✅       | Firebase auth domain         |
+| `VITE_FIREBASE_PROJECT_ID`          | ✅       | Firebase project ID          |
+| `VITE_FIREBASE_STORAGE_BUCKET`      | ✅       | Firebase storage bucket      |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | ✅       | Firebase messaging sender ID |
+| `VITE_FIREBASE_APP_ID`              | ✅       | Firebase app ID              |
+| `VITE_GEMINI_API_KEY`               | ✅       | Google Gemini AI API key     |
+| `VITE_APP_ENV`                      | ⚠️       | Environment name (dev/prod)  |
+| `VITE_APP_NAME`                     | ⚠️       | Application display name     |
 
 ---
 
 ## 🏗️ Build Process
 
 ### **Step 1: Clean Install**
+
 ```bash
 # Remove existing node_modules and lock file
 rm -rf node_modules package-lock.json
@@ -167,6 +177,7 @@ npm ci
 ```
 
 ### **Step 2: Type Check**
+
 ```bash
 # Run TypeScript compiler without emitting files
 npm run type-check
@@ -176,11 +187,13 @@ npx tsc --noEmit
 ```
 
 **Expected output:**
+
 ```
 Found 0 errors. Watching for file changes.
 ```
 
 ### **Step 3: Lint Code**
+
 ```bash
 # Run ESLint
 npm run lint
@@ -190,6 +203,7 @@ npm run lint -- --fix
 ```
 
 ### **Step 4: Run Tests**
+
 ```bash
 # Run test suite
 npm test
@@ -199,6 +213,7 @@ npm run test:coverage
 ```
 
 **Expected output:**
+
 ```
 Test Suites: 15 passed, 15 total
 Tests:       127 passed, 127 total
@@ -206,12 +221,14 @@ Coverage:    85.4%
 ```
 
 ### **Step 5: Build for Production**
+
 ```bash
 # Build production bundle
 npm run build
 ```
 
 **Expected output:**
+
 ```
 vite v5.0.0 building for production...
 ✓ 1247 modules transformed.
@@ -222,6 +239,7 @@ dist/assets/index-e5f6g7h8.js   842.1 kB │ gzip: 289.4 kB
 ```
 
 ### **Step 6: Preview Build**
+
 ```bash
 # Preview production build locally
 npm run preview
@@ -230,6 +248,7 @@ npm run preview
 ```
 
 **Manual checks:**
+
 - [ ] Login works
 - [ ] Dashboard loads
 - [ ] Navigation functional
@@ -279,6 +298,7 @@ firebase deploy --only firestore:rules
 ```
 
 **Script content (deploy-firebase-rules.ps1 / .sh):**
+
 ```bash
 #!/bin/bash
 echo "Deploying Firebase Security Rules..."
@@ -286,7 +306,7 @@ echo "Deploying Firebase Security Rules..."
 # Deploy Firestore rules
 firebase deploy --only firestore:rules
 
-# Deploy Storage rules  
+# Deploy Storage rules
 firebase deploy --only storage
 
 echo "✅ Security rules deployed successfully!"
@@ -325,11 +345,7 @@ bash deploy-monitoring-production.sh  # Linux/Mac
   },
   "hosting": {
     "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
@@ -442,12 +458,14 @@ curl -I https://your-app.web.app
 ### **Manual Verification Checklist**
 
 #### **1. Application Access** ✅
+
 - [ ] App loads at production URL
 - [ ] No 404 errors
 - [ ] HTTPS enabled
 - [ ] Custom domain working (if configured)
 
 #### **2. Authentication** ✅
+
 - [ ] Login page accessible
 - [ ] Email/password login works
 - [ ] Social login works (if enabled)
@@ -455,6 +473,7 @@ curl -I https://your-app.web.app
 - [ ] Session persists on refresh
 
 #### **3. Core Functionality** ✅
+
 - [ ] Dashboard displays correctly
 - [ ] Navigation works
 - [ ] Projects can be created
@@ -464,29 +483,34 @@ curl -I https://your-app.web.app
 - [ ] Real-time updates work
 
 #### **4. Finance Modules** ✅
+
 - [ ] Chart of Accounts loads
 - [ ] Journal entries work
 - [ ] AP/AR modules functional
 - [ ] Reports generate
 
 #### **5. Logistics Modules** ✅
+
 - [ ] Material requests work
 - [ ] PO creation functional
 - [ ] Goods receipt processes
 - [ ] Inventory updates
 
 #### **6. AI Features** ✅
+
 - [ ] AI Assistant responds
 - [ ] Document intelligence works
 - [ ] OCR processing functional
 
 #### **7. Performance** ⚡
+
 - [ ] Page load < 3 seconds
 - [ ] No console errors
 - [ ] Images load properly
 - [ ] API responses < 1 second
 
 #### **8. Security** 🔒
+
 - [ ] Firebase rules enforced
 - [ ] Unauthorized access blocked
 - [ ] API keys not exposed
@@ -506,6 +530,7 @@ firebase hosting:channel:list
 ```
 
 **Watch for:**
+
 - Error rate spikes
 - Performance degradation
 - User reports
@@ -566,42 +591,42 @@ name: Deploy to Firebase
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run tests
-      run: npm test
-      
-    - name: Build
-      run: npm run build
-      env:
-        VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-        VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-        # ... other env vars
-        
-    - name: Deploy to Firebase
-      uses: FirebaseExtended/action-hosting-deploy@v0
-      with:
-        repoToken: '${{ secrets.GITHUB_TOKEN }}'
-        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-        channelId: live
-        projectId: your-project-id
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          # ... other env vars
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: your-project-id
 ```
 
 ### **Automated Deployment Workflow**
@@ -620,6 +645,7 @@ jobs:
 ### **Common Issues**
 
 #### **Build Fails**
+
 ```bash
 # Clear cache and rebuild
 rm -rf node_modules dist .vite
@@ -628,6 +654,7 @@ npm run build
 ```
 
 #### **Firebase Deployment Fails**
+
 ```bash
 # Re-authenticate
 firebase logout
@@ -639,6 +666,7 @@ firebase use your-project-id
 ```
 
 #### **Environment Variables Not Working**
+
 - Ensure variables start with `VITE_`
 - Restart dev server after changing .env
 - Check Firebase console for correct values

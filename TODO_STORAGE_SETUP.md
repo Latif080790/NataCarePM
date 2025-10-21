@@ -1,6 +1,7 @@
 # ✅ Firebase Storage Setup Checklist
 
 ## 🎯 Goal
+
 Deploy Firebase Storage security rules (244 lines) to secure file uploads
 
 ---
@@ -10,12 +11,14 @@ Deploy Firebase Storage security rules (244 lines) to secure file uploads
 ### ✅ Step 1: Run the Deployment Script
 
 Open PowerShell and run:
+
 ```powershell
 cd c:\Users\latie\Documents\GitHub\NataCarePM
 .\scripts\deploy-storage-rules.ps1
 ```
 
 **Expected Output:**
+
 ```
 =============================================================
   Firebase Storage Rules Deployment
@@ -47,7 +50,6 @@ Your browser will open to: https://console.firebase.google.com/project/natacara-
 **In the Firebase Console:**
 
 1. **Click the blue "Get Started" button**
-   
 2. **Select "Production mode"**
    - ✅ Choose this for security (our rules will control access)
    - ❌ Do NOT choose "Test mode"
@@ -64,11 +66,13 @@ Your browser will open to: https://console.firebase.google.com/project/natacara-
 ### ✅ Step 3: Re-run the Script to Deploy Rules
 
 Return to PowerShell and run the script again:
+
 ```powershell
 .\scripts\deploy-storage-rules.ps1
 ```
 
 **Expected Output:**
+
 ```
 =============================================================
   Firebase Storage Rules Deployment
@@ -138,32 +142,42 @@ You'll know it worked when:
 ## ❌ Troubleshooting
 
 ### Problem: "Firebase CLI not found"
+
 **Solution:**
+
 ```bash
 npm install -g firebase-tools
 ```
 
 ### Problem: "storage.rules not found"
+
 **Solution:** Make sure you're in the project root directory
+
 ```powershell
 cd c:\Users\latie\Documents\GitHub\NataCarePM
 ```
 
 ### Problem: "Permission denied" or "Not logged in"
+
 **Solution:**
+
 ```bash
 firebase login
 ```
 
 ### Problem: Script still says "Storage has not been set up"
+
 **Solutions:**
+
 1. Make sure you completed Step 2 in the Firebase Console
 2. Wait 1 minute and try again (initialization might take time)
 3. Refresh the Firebase Console page to check status
 4. Verify initialization at: https://console.firebase.google.com/project/natacara-hns/storage
 
 ### Problem: Deployment fails with other errors
+
 **Solution:** Try re-authenticating
+
 ```bash
 firebase login --reauth
 ```
@@ -186,23 +200,27 @@ If you need more information:
 Once deployed, your Firebase Storage will have:
 
 ### File Type Validation
+
 - ✅ Only allowed file types can be uploaded
 - ✅ Images: JPEG, PNG, GIF, WebP, SVG
 - ✅ Documents: PDF, Word, Excel, PowerPoint, CSV, TXT
 
 ### Size Limits
+
 - ✅ Profile photos: Max 5MB
 - ✅ Regular photos: Max 10MB
 - ✅ Documents: Max 20-50MB
 - ✅ Training materials: Max 100MB
 
 ### Access Control
+
 - ✅ Authentication required
 - ✅ Project member verification
 - ✅ Role-based permissions
 - ✅ Owner/admin controls for deletion
 
 ### Security Features
+
 - ✅ No public access (default deny)
 - ✅ User-specific folders protected
 - ✅ Project-based isolation

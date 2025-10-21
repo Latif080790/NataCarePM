@@ -11,6 +11,7 @@
 Implementasi 4 prioritas berikutnya dengan total score 345/400 (86% average). Features ini akan mengubah NataCarePM menjadi **enterprise-grade mobile-first construction management platform** yang kompetitif dengan Procore dan PlanGrid.
 
 ### **Combined Business Impact:**
+
 - 📱 **Field Team Enablement:** 45% users dapat bekerja dari lapangan
 - ⚡ **Approval Speed:** Dari 4-8 jam → 2 menit (96% faster)
 - 📊 **Reporting Time:** Dari 2.5 jam → 6 menit (96% reduction)
@@ -18,6 +19,7 @@ Implementasi 4 prioritas berikutnya dengan total score 345/400 (86% average). Fe
 - 💰 **Total ROI:** ⭐⭐⭐⭐⭐ (19 stars combined)
 
 ### **Total Implementation:**
+
 - **Effort:** 6 bulan (2+2+1+1)
 - **Developer:** 1 senior + 1 mid-level
 - **Cost:** $60,000-$80,000
@@ -32,21 +34,25 @@ Implementasi 4 prioritas berikutnya dengan total score 345/400 (86% average). Fe
 ### **Why This is Critical:**
 
 #### **1. Field Team Reality (45%)**
+
 - **PM di lapangan:** Site managers, inspectors, supervisors
 - **Current Problem:** Desktop-only = Field team TIDAK BISA PAKAI
 - **Impact:** Delays in approvals, communications, documentation
 
 #### **2. Approval Speed (25%)**
+
 - **Without Mobile:** 4-8 jam delay (wait until back to office)
 - **With Mobile:** 2 menit delay (approve instantly on-site)
 - **Business Impact:** Prevents project delays + cost overruns
 
 #### **3. Competitive Advantage (20%)**
+
 - **Competitors:** Procore, PlanGrid = mobile-first platforms
 - **Client Expectation:** EXPECT mobile capability
 - **Risk:** No mobile = losing to competitors
 
 #### **4. Document Capture (10%)**
+
 - **Mobile Camera:** Photo damage/defects instantly
 - **Scan Documents:** On-site documentation
 - **GPS-Tagged Photos:** Location verification
@@ -56,31 +62,34 @@ Implementasi 4 prioritas berikutnya dengan total score 345/400 (86% average). Fe
 #### **Phase 2.1: Responsive Design System (Week 1-2)**
 
 **TODO #1: Analyze Current Codebase**
+
 - Audit all components for mobile issues
 - Identify non-responsive layouts
 - Check viewport meta tags
 - Test on mobile devices
 
 **TODO #2: Create Design System**
+
 ```typescript
 // Mobile breakpoints
 export const breakpoints = {
-  xs: '320px',   // Small phones
-  sm: '375px',   // iPhone SE
-  md: '768px',   // Tablets
-  lg: '1024px',  // Small laptops
-  xl: '1440px'   // Desktops
+  xs: '320px', // Small phones
+  sm: '375px', // iPhone SE
+  md: '768px', // Tablets
+  lg: '1024px', // Small laptops
+  xl: '1440px', // Desktops
 };
 
 // Touch-friendly sizing
 export const touchTargets = {
-  minimum: '44px',      // iOS minimum
-  comfortable: '48px',  // Android recommended
-  large: '56px'         // Primary actions
+  minimum: '44px', // iOS minimum
+  comfortable: '48px', // Android recommended
+  large: '56px', // Primary actions
 };
 ```
 
 **Deliverables:**
+
 - `styles/responsive.css` - Media queries
 - `styles/mobile-utilities.css` - Mobile utility classes
 - `constants/breakpoints.ts` - Breakpoint definitions
@@ -90,6 +99,7 @@ export const touchTargets = {
 **TODO #3: Mobile Navigation Component**
 
 **Features:**
+
 - Hamburger menu (slide-in sidebar)
 - Bottom navigation bar (mobile-first)
 - Collapsible menu items
@@ -97,6 +107,7 @@ export const touchTargets = {
 - Swipe gestures
 
 **Components to Create:**
+
 ```typescript
 // components/mobile/MobileNavbar.tsx
 - Hamburger button
@@ -117,6 +128,7 @@ export const touchTargets = {
 ```
 
 **Deliverables:**
+
 - 3 new mobile components
 - Navigation context provider
 - Gesture handlers
@@ -127,6 +139,7 @@ export const touchTargets = {
 **TODO #4: Mobile Dashboard**
 
 **Optimizations:**
+
 - Widgets stack vertically on mobile
 - Swipeable card carousel
 - Pull-to-refresh
@@ -134,6 +147,7 @@ export const touchTargets = {
 - Mobile-friendly charts (simplified)
 
 **Mobile Chart Optimizations:**
+
 ```typescript
 // Mobile-optimized charts
 - Line charts: Reduce data points, larger touch targets
@@ -143,6 +157,7 @@ export const touchTargets = {
 ```
 
 **Deliverables:**
+
 - Mobile-optimized dashboard layout
 - Swipeable widget carousel
 - Pull-to-refresh implementation
@@ -155,7 +170,9 @@ export const touchTargets = {
 **Service File:** `api/mobileDocumentService.ts`
 
 **Features:**
+
 1. **Camera Integration:**
+
    ```typescript
    interface CameraCapture {
      capturePhoto(): Promise<CapturedPhoto>;
@@ -165,6 +182,7 @@ export const touchTargets = {
    ```
 
 2. **Document Scanning:**
+
    ```typescript
    interface DocumentScanner {
      scanDocument(): Promise<ScannedDocument>;
@@ -175,6 +193,7 @@ export const touchTargets = {
    ```
 
 3. **GPS Tagging:**
+
    ```typescript
    interface GeoTagging {
      getLocation(): Promise<GeoLocation>;
@@ -193,12 +212,14 @@ export const touchTargets = {
    ```
 
 **Libraries to Use:**
+
 - `react-webcam` - Camera access
 - `tesseract.js` - OCR scanning
 - `browser-image-compression` - Image optimization
 - `exif-js` - EXIF metadata (GPS)
 
 **Deliverables:**
+
 - `api/mobileDocumentService.ts` (600+ lines)
 - `components/mobile/CameraCapture.tsx`
 - `components/mobile/DocumentScanner.tsx`
@@ -209,6 +230,7 @@ export const touchTargets = {
 **TODO #6: Mobile Approvals**
 
 **Features:**
+
 - Swipe-to-approve/reject gestures
 - Quick approval buttons (large, touch-friendly)
 - Push notifications (Firebase Cloud Messaging)
@@ -216,6 +238,7 @@ export const touchTargets = {
 - Signature capture
 
 **Components:**
+
 ```typescript
 // components/mobile/ApprovalCard.tsx
 - Swipe gestures (left = reject, right = approve)
@@ -232,6 +255,7 @@ export const touchTargets = {
 ```
 
 **Deliverables:**
+
 - Mobile approval UI
 - Swipe gesture handlers
 - Push notification setup
@@ -246,24 +270,28 @@ export const touchTargets = {
 ### **Why This is Important:**
 
 #### **1. Management Decision Making (40%)**
+
 - Budget allocation decisions
 - Vendor performance evaluation
 - Project health assessment
 - Strategic planning
 
 #### **2. Time Savings (25%)**
+
 - **Manual Reporting:** 2.5 hours/report
 - **Automated:** 6 minutes/report
 - **Reduction:** 96% time savings!
 - **Annual Savings:** 520 hours/year per user
 
 #### **3. Scheduled Reports (20%)**
+
 - Daily cash flow (automatic)
 - Weekly budget variance (automatic)
 - Monthly project summaries (automatic)
 - No one forgets to generate reports
 
 #### **4. Professional Presentation (15%)**
+
 - Client presentations
 - Board meetings
 - Audit submissions
@@ -281,16 +309,16 @@ export const touchTargets = {
 interface ReportEngine {
   // Core generation
   generateReport(template: ReportTemplate, filters: ReportFilters): Promise<Report>;
-  
+
   // Export formats
   exportToPDF(report: Report): Promise<PDFFile>;
   exportToExcel(report: Report): Promise<ExcelFile>;
   exportToCSV(report: Report): Promise<CSVFile>;
-  
+
   // Scheduling
   scheduleReport(schedule: ReportSchedule): Promise<ScheduledReport>;
   cancelScheduledReport(scheduleId: string): Promise<void>;
-  
+
   // History
   getReportHistory(filters: HistoryFilters): Promise<ReportHistory[]>;
   getReportById(reportId: string): Promise<Report>;
@@ -298,6 +326,7 @@ interface ReportEngine {
 ```
 
 **Key Features:**
+
 1. **Data Aggregation Engine:**
    - Query Firestore with complex filters
    - Join data from multiple collections
@@ -326,6 +355,7 @@ interface ReportEngine {
    - Pivot tables
 
 **Libraries:**
+
 - `jspdf` - PDF generation
 - `html2canvas` - Chart to image
 - `exceljs` - Excel files
@@ -333,6 +363,7 @@ interface ReportEngine {
 - `date-fns` - Date utilities
 
 **Deliverables:**
+
 - `api/reportService.ts` (800+ lines)
 - `utils/reportGenerator.ts` (500+ lines)
 - `utils/pdfExporter.ts` (400+ lines)
@@ -405,6 +436,7 @@ interface ReportEngine {
     - Key risks and issues
 
 **Template Structure:**
+
 ```typescript
 interface ReportTemplate {
   id: string;
@@ -419,6 +451,7 @@ interface ReportTemplate {
 ```
 
 **Deliverables:**
+
 - `templates/reportTemplates.ts` (1200+ lines)
 - 10+ template definitions
 - Sample data generators
@@ -431,7 +464,9 @@ interface ReportTemplate {
 **Service File:** `api/reportScheduleService.ts`
 
 **Features:**
+
 1. **Cron-Based Scheduling:**
+
    ```typescript
    interface ReportSchedule {
      frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly';
@@ -464,6 +499,7 @@ interface ReportTemplate {
    - Report versioning
 
 **Cloud Function:**
+
 ```typescript
 // functions/src/scheduledReports.ts
 export const generateScheduledReports = functions.pubsub
@@ -478,6 +514,7 @@ export const generateScheduledReports = functions.pubsub
 ```
 
 **Deliverables:**
+
 - `api/reportScheduleService.ts` (500+ lines)
 - `functions/src/scheduledReports.ts` (400+ lines)
 - Email templates (HTML)
@@ -490,6 +527,7 @@ export const generateScheduledReports = functions.pubsub
 **Component:** `views/ReportBuilderView.tsx`
 
 **Features:**
+
 1. **Drag-and-Drop Builder:**
    - Add/remove sections
    - Reorder sections
@@ -521,11 +559,13 @@ export const generateScheduledReports = functions.pubsub
    - Set as default
 
 **Libraries:**
+
 - `react-beautiful-dnd` - Drag-and-drop
 - `react-grid-layout` - Grid system
 - `react-datepicker` - Date filters
 
 **Deliverables:**
+
 - `views/ReportBuilderView.tsx` (600+ lines)
 - `components/reports/ReportBuilder.tsx` (500+ lines)
 - `components/reports/ChartEditor.tsx` (300+ lines)
@@ -540,18 +580,22 @@ export const generateScheduledReports = functions.pubsub
 ### **Why This is Important:**
 
 #### **1. Role-Based Needs (35%)**
+
 Different roles need different views:
+
 - **CEO:** Company performance, portfolio overview
 - **PM:** My projects status, tasks, approvals
 - **Finance:** AP/AR aging, cash flow, budget variance
 
 #### **2. Efficiency Gains (30%)**
+
 - **Without Customization:** 30 seconds to find relevant widgets
 - **With Customization:** 5 seconds
 - **Time Savings:** 8.3 hours/year per user
 - **Company-wide:** 83 hours/year (10 users)
 
 #### **3. User Adoption (35%)**
+
 - Users feel system is "theirs"
 - Higher usage rate
 - Better data quality
@@ -594,12 +638,12 @@ interface DashboardConfigService {
   saveDashboardConfig(config: DashboardConfig): Promise<void>;
   getDashboardConfig(userId: string): Promise<DashboardConfig>;
   resetToDefault(userId: string): Promise<void>;
-  
+
   // Templates
   saveAsTemplate(name: string, config: DashboardConfig): Promise<DashboardTemplate>;
   getTemplates(): Promise<DashboardTemplate[]>;
   applyTemplate(templateId: string, userId: string): Promise<void>;
-  
+
   // Sharing
   shareDashboard(config: DashboardConfig, userIds: string[]): Promise<void>;
   getDashboardShare(shareId: string): Promise<DashboardConfig>;
@@ -607,6 +651,7 @@ interface DashboardConfigService {
 ```
 
 **Firestore Structure:**
+
 ```
 dashboard_configs/
   {userId}/
@@ -628,6 +673,7 @@ dashboard_templates/
 ```
 
 **Deliverables:**
+
 - `api/dashboardConfigService.ts` (500+ lines)
 - Firestore collections setup
 - Security rules
@@ -676,22 +722,23 @@ dashboard_templates/
    - `IssueWidget.tsx` - Open issues
 
 **Widget Base Class:**
+
 ```typescript
 interface BaseWidget {
   id: string;
   title: string;
   type: WidgetType;
   refreshRate?: number; // Auto-refresh in seconds
-  
+
   // Lifecycle methods
   onMount(): void;
   onUnmount(): void;
   onRefresh(): Promise<void>;
-  
+
   // Configuration
   getSettings(): WidgetSettings;
   updateSettings(settings: Partial<WidgetSettings>): void;
-  
+
   // Data
   fetchData(): Promise<WidgetData>;
   transformData(data: any): WidgetData;
@@ -699,6 +746,7 @@ interface BaseWidget {
 ```
 
 **Deliverables:**
+
 - 20+ widget components (300-500 lines each)
 - `components/widgets/BaseWidget.tsx` (200 lines)
 - `components/widgets/WidgetContainer.tsx` (300 lines)
@@ -745,6 +793,7 @@ interface BaseWidget {
    - Share template
 
 **UI Components:**
+
 ```typescript
 // components/dashboard/DashboardEditor.tsx
 - Grid layout container
@@ -771,11 +820,13 @@ interface BaseWidget {
 ```
 
 **Libraries:**
+
 - `react-grid-layout` - Drag-and-drop grid
 - `react-beautiful-dnd` - Smooth DnD
 - `react-icons` - Widget icons
 
 **Deliverables:**
+
 - `views/DashboardEditorView.tsx` (600+ lines)
 - `components/dashboard/DashboardEditor.tsx` (700+ lines)
 - `components/dashboard/WidgetGallery.tsx` (400+ lines)
@@ -790,19 +841,24 @@ interface BaseWidget {
 ### **Why This is Important:**
 
 #### **1. Information Retrieval Speed (40%)**
+
 - **Without Search:** 50 seconds average
 - **With Search:** 6 seconds average
 - **Improvement:** 88% faster!
 - **Annual Time Savings:** 146 hours/user
 
 #### **2. Cross-Module Discovery (25%)**
+
 Global search across everything:
+
 - Search "Vendor ABC" → Find vendor, POs, payments, documents
 - Search "WBS-001" → Find budget, costs, tasks, approvals
 - Search "John Doe" → Find user, tasks assigned, approvals given
 
 #### **3. User Frustration Reduction (35%)**
+
 Users hate:
+
 - "Where is that document?"
 - "Which project was that PO for?"
 - Clicking through multiple menus
@@ -820,21 +876,21 @@ Users hate:
 interface SearchService {
   // Core search
   search(query: string, options: SearchOptions): Promise<SearchResults>;
-  
+
   // Advanced search
   advancedSearch(criteria: SearchCriteria): Promise<SearchResults>;
-  
+
   // Suggestions
   getSuggestions(partial: string): Promise<Suggestion[]>;
-  
+
   // Recent searches
   saveRecentSearch(userId: string, query: string): Promise<void>;
   getRecentSearches(userId: string, limit?: number): Promise<string[]>;
   clearRecentSearches(userId: string): Promise<void>;
-  
+
   // Popular searches
   getPopularSearches(limit?: number): Promise<PopularSearch[]>;
-  
+
   // Search analytics
   trackSearch(userId: string, query: string, results: number): Promise<void>;
   trackClick(userId: string, query: string, resultId: string): Promise<void>;
@@ -848,14 +904,14 @@ interface SearchOptions {
   filters?: SearchFilters;
 }
 
-type SearchModule = 
-  | 'projects' 
-  | 'tasks' 
-  | 'documents' 
-  | 'vendors' 
-  | 'purchase_orders' 
-  | 'budgets' 
-  | 'users' 
+type SearchModule =
+  | 'projects'
+  | 'tasks'
+  | 'documents'
+  | 'vendors'
+  | 'purchase_orders'
+  | 'budgets'
+  | 'users'
   | 'approvals'
   | 'payments';
 
@@ -882,44 +938,41 @@ interface SearchResult {
 **Search Implementation Strategy:**
 
 **Option 1: Firestore Full-Text Search (Recommended for MVP)**
+
 ```typescript
 // Limited but sufficient for initial release
 async function searchFirestore(query: string, module: string) {
   const terms = query.toLowerCase().split(' ');
-  
+
   // Search in indexed fields
   const results = await db
     .collection(module)
     .where('searchKeywords', 'array-contains-any', terms)
     .limit(10)
     .get();
-  
-  return results.docs.map(doc => ({
+
+  return results.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   }));
 }
 
 // Maintain search keywords array on document write
 function generateSearchKeywords(document: any): string[] {
-  const fields = [
-    document.name,
-    document.description,
-    document.code,
-    document.id
-  ].filter(Boolean);
-  
+  const fields = [document.name, document.description, document.code, document.id].filter(Boolean);
+
   const keywords = fields
     .join(' ')
     .toLowerCase()
     .split(/\s+/)
-    .filter(word => word.length > 2);
-  
+    .filter((word) => word.length > 2);
+
   return [...new Set(keywords)];
 }
 ```
 
 **Option 2: Algolia Integration (Recommended for Production)**
+
 ```typescript
 // For advanced features: typo tolerance, faceting, instant search
 import algoliasearch from 'algoliasearch';
@@ -932,18 +985,19 @@ async function searchAlgolia(query: string, options: SearchOptions) {
     filters: options.filters,
     hitsPerPage: options.limit || 20,
     facets: ['module', 'status', 'projectId'],
-    attributesToHighlight: ['name', 'description']
+    attributesToHighlight: ['name', 'description'],
   });
-  
+
   return {
     results: results.hits,
     totalResults: results.nbHits,
-    took: results.processingTimeMS
+    took: results.processingTimeMS,
   };
 }
 ```
 
 **Deliverables:**
+
 - `api/searchService.ts` (600+ lines)
 - Search keyword generator utilities
 - Firestore search implementation (MVP)
@@ -962,7 +1016,7 @@ export const onProjectCreate = functions.firestore
   .onCreate(async (snap, context) => {
     const project = snap.data();
     const keywords = generateSearchKeywords(project);
-    
+
     await snap.ref.update({ searchKeywords: keywords });
   });
 
@@ -971,7 +1025,7 @@ export const onProjectUpdate = functions.firestore
   .onUpdate(async (change, context) => {
     const newProject = change.after.data();
     const keywords = generateSearchKeywords(newProject);
-    
+
     await change.after.ref.update({ searchKeywords: keywords });
   });
 
@@ -979,6 +1033,7 @@ export const onProjectUpdate = functions.firestore
 ```
 
 **Search Index Structure:**
+
 ```typescript
 interface SearchIndex {
   // Document fields
@@ -986,18 +1041,18 @@ interface SearchIndex {
   module: SearchModule;
   title: string;
   description: string;
-  
+
   // Search fields
   searchKeywords: string[]; // For array-contains-any
   searchText: string; // Concatenated text for full-text
-  
+
   // Metadata for filtering
   projectId?: string;
   status?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
-  
+
   // Permissions
   visibility: 'public' | 'private' | 'team';
   accessList?: string[]; // User IDs with access
@@ -1005,6 +1060,7 @@ interface SearchIndex {
 ```
 
 **Batch Indexing Script:**
+
 ```typescript
 // scripts/reindexSearch.ts
 async function reindexAllDocuments() {
@@ -1015,20 +1071,20 @@ async function reindexAllDocuments() {
     'vendors',
     'purchase_orders',
     'budgets',
-    'users'
+    'users',
   ];
-  
+
   for (const module of modules) {
     console.log(`Reindexing ${module}...`);
-    
+
     const snapshot = await db.collection(module).get();
     const batch = db.batch();
-    
-    snapshot.docs.forEach(doc => {
+
+    snapshot.docs.forEach((doc) => {
       const keywords = generateSearchKeywords(doc.data());
       batch.update(doc.ref, { searchKeywords: keywords });
     });
-    
+
     await batch.commit();
     console.log(`Indexed ${snapshot.size} ${module}`);
   }
@@ -1036,6 +1092,7 @@ async function reindexAllDocuments() {
 ```
 
 **Deliverables:**
+
 - Cloud Functions for auto-indexing (7+ functions)
 - Batch reindexing script
 - Firestore composite indexes configuration
@@ -1087,6 +1144,7 @@ async function reindexAllDocuments() {
    - One-click search
 
 **UI Implementation:**
+
 ```typescript
 // components/search/GlobalSearch.tsx
 const GlobalSearch: React.FC = () => {
@@ -1095,7 +1153,7 @@ const GlobalSearch: React.FC = () => {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  
+
   // Keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1104,40 +1162,43 @@ const GlobalSearch: React.FC = () => {
         setIsOpen(true);
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-  
+
   // Debounced search
   const debouncedSearch = useMemo(
-    () => debounce(async (searchQuery: string) => {
-      if (!searchQuery.trim()) {
-        setResults(null);
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        const searchResults = await searchService.search(searchQuery);
-        setResults(searchResults);
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
+    () =>
+      debounce(async (searchQuery: string) => {
+        if (!searchQuery.trim()) {
+          setResults(null);
+          return;
+        }
+
+        setLoading(true);
+        try {
+          const searchResults = await searchService.search(searchQuery);
+          setResults(searchResults);
+        } finally {
+          setLoading(false);
+        }
+      }, 300),
     []
   );
-  
+
   // ... more logic
 };
 ```
 
 **Libraries:**
+
 - `cmdk` - Command palette component
 - `fuse.js` - Fuzzy search (client-side)
 - `react-hotkeys-hook` - Keyboard shortcuts
 
 **Deliverables:**
+
 - `components/search/GlobalSearch.tsx` (500+ lines)
 - `components/search/SearchResults.tsx` (300+ lines)
 - `components/search/SearchFilters.tsx` (200+ lines)
@@ -1150,6 +1211,7 @@ const GlobalSearch: React.FC = () => {
 **Service File:** `api/searchAnalyticsService.ts`
 
 **Tracked Metrics:**
+
 1. **Search Queries:**
    - Query text
    - User ID
@@ -1173,6 +1235,7 @@ const GlobalSearch: React.FC = () => {
    - Module-specific popular searches
 
 **Analytics Dashboard:**
+
 ```typescript
 interface SearchAnalytics {
   totalSearches: number;
@@ -1187,12 +1250,14 @@ interface SearchAnalytics {
 ```
 
 **Optimization Recommendations:**
+
 - Queries with 0 results → Improve indexing
 - Low CTR → Improve result ranking
 - Popular queries → Create quick links
 - Failed queries → Add synonyms
 
 **Deliverables:**
+
 - `api/searchAnalyticsService.ts` (400+ lines)
 - Analytics dashboard component
 - Search insights reports
@@ -1207,6 +1272,7 @@ interface SearchAnalytics {
 ### **Testing Checklist:**
 
 #### **Device Testing:**
+
 - [ ] iPhone SE (320px)
 - [ ] iPhone 12/13/14 (375px, 390px)
 - [ ] iPhone 14 Pro Max (430px)
@@ -1216,6 +1282,7 @@ interface SearchAnalytics {
 - [ ] Android tablets
 
 #### **Browser Testing:**
+
 - [ ] iOS Safari
 - [ ] iOS Chrome
 - [ ] Android Chrome
@@ -1223,12 +1290,14 @@ interface SearchAnalytics {
 - [ ] Samsung Internet
 
 #### **Responsive Testing:**
+
 - [ ] Portrait orientation
 - [ ] Landscape orientation
 - [ ] Split screen (iPad)
 - [ ] Font size accessibility
 
 #### **Touch Gesture Testing:**
+
 - [ ] Tap targets (min 44px)
 - [ ] Swipe gestures
 - [ ] Pinch to zoom (disabled on inputs)
@@ -1236,18 +1305,21 @@ interface SearchAnalytics {
 - [ ] Pull to refresh
 
 #### **Performance Testing:**
+
 - [ ] Page load time (<3s on 3G)
 - [ ] Time to interactive (<5s)
 - [ ] First contentful paint (<2s)
 - [ ] Lighthouse mobile score (>90)
 
 #### **Offline Testing:**
+
 - [ ] Service worker caching
 - [ ] Offline queue functionality
 - [ ] Sync when back online
 - [ ] Error messages
 
 **Tools:**
+
 - Chrome DevTools Device Mode
 - BrowserStack (cross-device testing)
 - Lighthouse CI
@@ -1372,6 +1444,7 @@ interface SearchAnalytics {
 ### **Deployment Checklist:**
 
 **Pre-Production:**
+
 - [ ] All tests passing (unit, integration, e2e)
 - [ ] Security audit completed
 - [ ] Performance benchmarks met
@@ -1379,6 +1452,7 @@ interface SearchAnalytics {
 - [ ] Stakeholder approval
 
 **Production Deployment:**
+
 - [ ] Database migrations
 - [ ] Firestore indexes deployed
 - [ ] Cloud Functions deployed
@@ -1387,6 +1461,7 @@ interface SearchAnalytics {
 - [ ] DNS updates
 
 **Post-Deployment:**
+
 - [ ] Smoke tests on production
 - [ ] Monitoring dashboards active
 - [ ] Error tracking configured (Sentry)
@@ -1395,6 +1470,7 @@ interface SearchAnalytics {
 - [ ] Support documentation published
 
 **Monitoring Setup:**
+
 - [ ] Firebase Performance Monitoring
 - [ ] Google Analytics 4
 - [ ] Error tracking (Sentry)
@@ -1406,6 +1482,7 @@ interface SearchAnalytics {
 ## 📊 SUCCESS METRICS
 
 ### **Mobile Responsiveness:**
+
 - [ ] **Mobile Traffic:** Target 40% of total traffic
 - [ ] **Mobile Conversion:** 90% of desktop conversion rate
 - [ ] **Lighthouse Mobile Score:** >90
@@ -1414,6 +1491,7 @@ interface SearchAnalytics {
 - [ ] **User Satisfaction:** >4.5/5 stars
 
 ### **Advanced Reporting:**
+
 - [ ] **Time Savings:** 96% reduction (2.5h → 6min)
 - [ ] **Report Usage:** 80% users generate weekly reports
 - [ ] **Scheduled Reports:** 50+ active schedules
@@ -1421,6 +1499,7 @@ interface SearchAnalytics {
 - [ ] **Template Usage:** 15+ custom templates created
 
 ### **Dashboard Customization:**
+
 - [ ] **Customization Rate:** 70% users customize dashboards
 - [ ] **Time Savings:** 8.3 hours/user/year
 - [ ] **Widget Usage:** Average 8 widgets per dashboard
@@ -1428,6 +1507,7 @@ interface SearchAnalytics {
 - [ ] **User Satisfaction:** >4.5/5 for dashboard UX
 
 ### **Advanced Search:**
+
 - [ ] **Search Usage:** 80% users use search daily
 - [ ] **Search Speed:** <200ms average
 - [ ] **CTR:** >60% click-through rate
@@ -1440,33 +1520,35 @@ interface SearchAnalytics {
 
 ### **Development Costs:**
 
-| Phase | Duration | Developer | Cost |
-|-------|----------|-----------|------|
-| Mobile Responsive | 2 months | 1 Senior | $16,000 |
-| Advanced Reporting | 2 months | 1 Senior | $16,000 |
-| Dashboard Customization | 1 month | 1 Mid-Level | $6,000 |
-| Advanced Search | 1 month | 1 Mid-Level | $6,000 |
-| Testing & QA | 2 weeks | 1 QA | $4,000 |
-| Documentation | 1 week | 1 Tech Writer | $2,000 |
-| **Total** | **6 months** | | **$50,000** |
+| Phase                   | Duration     | Developer     | Cost        |
+| ----------------------- | ------------ | ------------- | ----------- |
+| Mobile Responsive       | 2 months     | 1 Senior      | $16,000     |
+| Advanced Reporting      | 2 months     | 1 Senior      | $16,000     |
+| Dashboard Customization | 1 month      | 1 Mid-Level   | $6,000      |
+| Advanced Search         | 1 month      | 1 Mid-Level   | $6,000      |
+| Testing & QA            | 2 weeks      | 1 QA          | $4,000      |
+| Documentation           | 1 week       | 1 Tech Writer | $2,000      |
+| **Total**               | **6 months** |               | **$50,000** |
 
 ### **Infrastructure Costs:**
 
-| Service | Monthly | Annual |
-|---------|---------|--------|
-| Firebase (Blaze Plan) | $200 | $2,400 |
-| Algolia Search | $100 | $1,200 |
-| SendGrid Email | $50 | $600 |
-| Cloud Functions | $100 | $1,200 |
-| Cloud Storage | $50 | $600 |
-| **Total** | **$500** | **$6,000** |
+| Service               | Monthly  | Annual     |
+| --------------------- | -------- | ---------- |
+| Firebase (Blaze Plan) | $200     | $2,400     |
+| Algolia Search        | $100     | $1,200     |
+| SendGrid Email        | $50      | $600       |
+| Cloud Functions       | $100     | $1,200     |
+| Cloud Storage         | $50      | $600       |
+| **Total**             | **$500** | **$6,000** |
 
 ### **Total Investment:**
+
 - **Development:** $50,000 (one-time)
 - **Infrastructure:** $6,000/year (recurring)
 - **Grand Total Year 1:** $56,000
 
 ### **Expected ROI:**
+
 - **Time Savings:** 520 hours/user/year × 10 users × $50/hour = **$260,000/year**
 - **New Business:** Mobile capability attracts 5 new clients = **$500,000/year**
 - **Total Revenue Impact:** **$760,000/year**
@@ -1477,26 +1559,31 @@ interface SearchAnalytics {
 ## 🎯 IMPLEMENTATION TIMELINE
 
 ### **Month 1-2: Mobile Responsive Optimization**
+
 - Week 1-2: Design system & navigation
 - Week 3-4: Dashboard optimization
 - Week 5-6: Document capture
 - Week 7-8: Approvals & testing
 
 ### **Month 3-4: Advanced Reporting Module**
+
 - Week 1-3: Reporting engine & templates
 - Week 4-5: Scheduling system
 - Week 6-7: Report builder UI
 - Week 8: Testing & refinement
 
 ### **Month 5: Dashboard Customization**
+
 - Week 1-2: Backend & widget library
 - Week 3-4: Dashboard editor & testing
 
 ### **Month 6: Advanced Search**
+
 - Week 1-2: Search backend & indexing
 - Week 3-4: Search UI & analytics
 
 ### **Post-Development:**
+
 - Week 1: Integration testing
 - Week 2: Documentation & training
 - Week 3: Production deployment
@@ -1530,6 +1617,7 @@ interface SearchAnalytics {
    - Bi-weekly demos
 
 **Questions to Address:**
+
 - Do we have in-house developers or need to hire?
 - What is the priority order if timeline needs to be compressed?
 - Should we implement Algolia or start with Firestore search?
@@ -1540,4 +1628,3 @@ interface SearchAnalytics {
 **Ready to begin implementation?** 🚀
 
 This plan provides a comprehensive roadmap for the next 6 months of development, transforming NataCarePM into a competitive, enterprise-grade construction management platform!
-

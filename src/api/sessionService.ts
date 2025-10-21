@@ -3,29 +3,29 @@
  * Handles user sessions, device tracking, and multi-device logout
  */
 
-import { 
-  collection, 
-  doc, 
-  addDoc, 
+import {
+  collection,
+  doc,
+  addDoc,
   updateDoc,
   deleteDoc,
-  query, 
-  where, 
+  query,
+  where,
   getDocs,
   getDoc,
   serverTimestamp,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger';
 import { logUserActivity } from './activityLogService';
-import type { 
+import type {
   UserSession,
   DeviceInfo,
   GeoLocation,
   SessionSummary,
-  BulkSessionInvalidationRequest
+  BulkSessionInvalidationRequest,
 } from '@/types';
 
 // Collection names
@@ -37,7 +37,7 @@ const USERS_COLLECTION = 'users';
  */
 const getDeviceInfo = (): DeviceInfo => {
   const ua = navigator.userAgent;
-  
+
   let deviceType: 'desktop' | 'mobile' | 'tablet' = 'desktop';
   if (/Mobile|Android|iPhone|iPod/i.test(ua)) {
     deviceType = /iPad|Tablet/i.test(ua) ? 'tablet' : 'mobile';
@@ -45,7 +45,7 @@ const getDeviceInfo = (): DeviceInfo => {
 
   let os = 'Unknown';
   let osVersion = '';
-  
+
   if (/Windows NT 10/i.test(ua)) {
     os = 'Windows';
     osVersion = '10';
@@ -67,7 +67,7 @@ const getDeviceInfo = (): DeviceInfo => {
 
   let browser = 'Unknown';
   let browserVersion = '';
-  
+
   if (/Edg\//i.test(ua)) {
     browser = 'Edge';
     const match = ua.match(/Edg\/([\d.]+)/);
@@ -98,7 +98,7 @@ const getDeviceInfo = (): DeviceInfo => {
     browserVersion,
     userAgent: ua,
     screenResolution,
-    isTrusted: true
+    isTrusted: true,
   };
 };
 
@@ -146,10 +146,10 @@ export const createSession = async (
 
     // Get device info
     const deviceInfo = getDeviceInfo();
-    
+
     // Get IP address
     const ipAddress = await getClientIP();
-    
+
     // Get geo location
     const location = await getGeoLocation(ipAddress);
 
@@ -170,7 +170,7 @@ export const createSession = async (
       location,
       isCurrentSession: true,
       expiresAt,
-      status: 'active'
+      status: 'active',
     };
 
     // Save to Firestore
@@ -179,7 +179,7 @@ export const createSession = async (
       ...sessionData,
       loginAt: serverTimestamp(),
       lastActivityAt: serverTimestamp(),
-      expiresAt: Timestamp.fromDate(expiresAt)
+      expiresAt: Timestamp.fromDate(expiresAt),
     });
 
     logger.info('Session created', { userId, sessionId });
@@ -194,7 +194,7 @@ export const createSession = async (
       lastLoginAt: serverTimestamp(),
       lastLoginIP: ipAddress,
       lastLoginDevice: `${deviceInfo.os} ${deviceInfo.browser}`,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     // Log activity
@@ -205,20 +205,19 @@ export const createSession = async (
       description: 'User logged in',
       status: 'success',
       securityRelevant: true,
-      riskLevel: 'low'
+      riskLevel: 'low',
     });
 
     return {
       success: true,
-      sessionId
+      sessionId,
     };
-
   } catch (error: any) {
     logger.error('Error creating session', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to create session'
+      error: error.message || 'Failed to create session',
     };
   }
 };
@@ -226,18 +225,13 @@ export const createSession = async (
 /**
  * Update session activity
  */
-export const updateSessionActivity = async (
-  sessionId: string
-): Promise<void> => {
+export const updateSessionActivity = async (sessionId: string): Promise<void> => {
   try {
     // Find session document
-    const q = query(
-      collection(db, SESSIONS_COLLECTION),
-      where('sessionId', '==', sessionId)
-    );
-    
+    const q = query(collection(db, SESSIONS_COLLECTION), where('sessionId', '==', sessionId));
+
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       logger.warn('Session not found for activity update', { sessionId });
       return;
@@ -246,9 +240,8 @@ export const updateSessionActivity = async (
     // Update last activity timestamp
     const sessionDoc = snapshot.docs[0];
     await updateDoc(sessionDoc.ref, {
-      lastActivityAt: serverTimestamp()
+      lastActivityAt: serverTimestamp(),
     });
-
   } catch (error: any) {
     logger.error('Error updating session activity', error, { sessionId });
   }
@@ -257,9 +250,7 @@ export const updateSessionActivity = async (
 /**
  * Get active sessions for user
  */
-export const getActiveSessions = async (
-  userId: string
-): Promise<UserSession[]> => {
+export const getActiveSessions = async (userId: string): Promise<UserSession[]> => {
   try {
     logger.info('Fetching active sessions', { userId });
 
@@ -286,7 +277,7 @@ export const getActiveSessions = async (
         location: data.location,
         isCurrentSession: data.sessionId === currentSessionId,
         expiresAt: data.expiresAt?.toDate(),
-        status: data.status
+        status: data.status,
       });
     });
 
@@ -296,7 +287,6 @@ export const getActiveSessions = async (
     logger.info('Active sessions fetched', { userId, count: sessions.length });
 
     return sessions;
-
   } catch (error: any) {
     logger.error('Error fetching active sessions', error, { userId });
     return [];
@@ -314,17 +304,14 @@ export const invalidateSession = async (
     logger.info('Invalidating session', { sessionId, reason });
 
     // Find session document
-    const q = query(
-      collection(db, SESSIONS_COLLECTION),
-      where('sessionId', '==', sessionId)
-    );
-    
+    const q = query(collection(db, SESSIONS_COLLECTION), where('sessionId', '==', sessionId));
+
     const snapshot = await getDocs(q);
-    
+
     if (snapshot.empty) {
       return {
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       };
     }
 
@@ -335,7 +322,7 @@ export const invalidateSession = async (
     await updateDoc(sessionDoc.ref, {
       status: 'invalidated',
       invalidatedAt: serverTimestamp(),
-      invalidatedReason: reason
+      invalidatedReason: reason,
     });
 
     logger.info('Session invalidated', { sessionId });
@@ -349,19 +336,18 @@ export const invalidateSession = async (
       status: 'success',
       securityRelevant: true,
       riskLevel: 'low',
-      metadata: { sessionId, reason }
+      metadata: { sessionId, reason },
     });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error invalidating session', error, { sessionId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to invalidate session'
+      error: error.message || 'Failed to invalidate session',
     };
   }
 };
@@ -410,7 +396,7 @@ export const invalidateOtherSessions = async (
       await updateDoc(doc.ref, {
         status: 'invalidated',
         invalidatedAt: serverTimestamp(),
-        invalidatedReason: reason
+        invalidatedReason: reason,
       });
 
       invalidatedCount++;
@@ -427,21 +413,20 @@ export const invalidateOtherSessions = async (
       status: 'success',
       securityRelevant: true,
       riskLevel: 'low',
-      metadata: { invalidatedCount, reason }
+      metadata: { invalidatedCount, reason },
     });
 
     return {
       success: true,
-      invalidatedCount
+      invalidatedCount,
     };
-
   } catch (error: any) {
     logger.error('Error invalidating other sessions', error, { userId: request.userId });
-    
+
     return {
       success: false,
       invalidatedCount: 0,
-      error: error.message || 'Failed to invalidate sessions'
+      error: error.message || 'Failed to invalidate sessions',
     };
   }
 };
@@ -478,19 +463,18 @@ export const logoutCurrentSession = async (
       description: 'User logged out',
       status: 'success',
       securityRelevant: true,
-      riskLevel: 'low'
+      riskLevel: 'low',
     });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error during logout', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to logout'
+      error: error.message || 'Failed to logout',
     };
   }
 };
@@ -498,27 +482,25 @@ export const logoutCurrentSession = async (
 /**
  * Get session summary for dashboard
  */
-export const getSessionSummary = async (
-  userId: string
-): Promise<SessionSummary | null> => {
+export const getSessionSummary = async (userId: string): Promise<SessionSummary | null> => {
   try {
     logger.info('Fetching session summary', { userId });
 
     const sessions = await getActiveSessions(userId);
-    
+
     if (sessions.length === 0) {
       return null;
     }
 
-    const currentSession = sessions.find(s => s.isCurrentSession);
+    const currentSession = sessions.find((s) => s.isCurrentSession);
     if (!currentSession) {
       return null;
     }
 
-    const otherSessions = sessions.filter(s => !s.isCurrentSession);
+    const otherSessions = sessions.filter((s) => !s.isCurrentSession);
 
     // Identify suspicious sessions (simple heuristic)
-    const suspiciousSessions = sessions.filter(s => {
+    const suspiciousSessions = sessions.filter((s) => {
       // Example: Different country or unusual device
       // In production, implement proper suspicious activity detection
       return false;
@@ -529,7 +511,7 @@ export const getSessionSummary = async (
       timestamp: currentSession.loginAt,
       location: currentSession.location?.city || currentSession.ipAddress,
       device: `${currentSession.deviceInfo.os} - ${currentSession.deviceInfo.browser}`,
-      ipAddress: currentSession.ipAddress
+      ipAddress: currentSession.ipAddress,
     };
 
     return {
@@ -537,9 +519,8 @@ export const getSessionSummary = async (
       currentSession,
       otherSessions,
       suspiciousSessions,
-      lastLoginInfo
+      lastLoginInfo,
     };
-
   } catch (error: any) {
     logger.error('Error fetching session summary', error, { userId });
     return null;
@@ -573,7 +554,7 @@ export const cleanupExpiredSessions = async (): Promise<{
       await updateDoc(doc.ref, {
         status: 'expired',
         invalidatedAt: serverTimestamp(),
-        invalidatedReason: 'Session expired'
+        invalidatedReason: 'Session expired',
       });
       cleanedCount++;
     }
@@ -582,16 +563,15 @@ export const cleanupExpiredSessions = async (): Promise<{
 
     return {
       success: true,
-      cleanedCount
+      cleanedCount,
     };
-
   } catch (error: any) {
     logger.error('Error cleaning up expired sessions', error);
-    
+
     return {
       success: false,
       cleanedCount: 0,
-      error: error.message || 'Failed to cleanup expired sessions'
+      error: error.message || 'Failed to cleanup expired sessions',
     };
   }
 };
@@ -599,9 +579,7 @@ export const cleanupExpiredSessions = async (): Promise<{
 /**
  * Check if session is valid
  */
-export const isSessionValid = async (
-  sessionId: string
-): Promise<boolean> => {
+export const isSessionValid = async (sessionId: string): Promise<boolean> => {
   try {
     const q = query(
       collection(db, SESSIONS_COLLECTION),
@@ -616,7 +594,7 @@ export const isSessionValid = async (
     }
 
     const sessionData = snapshot.docs[0].data();
-    
+
     // Check if expired
     if (sessionData.expiresAt) {
       const expiresAt = sessionData.expiresAt.toDate();
@@ -624,14 +602,13 @@ export const isSessionValid = async (
         // Session expired, invalidate it
         await updateDoc(snapshot.docs[0].ref, {
           status: 'expired',
-          invalidatedAt: serverTimestamp()
+          invalidatedAt: serverTimestamp(),
         });
         return false;
       }
     }
 
     return true;
-
   } catch (error: any) {
     logger.error('Error checking session validity', error, { sessionId });
     return false;
@@ -647,5 +624,5 @@ export default {
   logoutCurrentSession,
   getSessionSummary,
   cleanupExpiredSessions,
-  isSessionValid
+  isSessionValid,
 };

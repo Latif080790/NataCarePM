@@ -1,6 +1,6 @@
 /**
  * GOODS RECEIPT MANAGEMENT VIEW
- * 
+ *
  * Comprehensive UI for Goods Receipt operations including:
  * - GR list with filtering and search
  * - Create GR from PO
@@ -8,26 +8,24 @@
  * - Photo upload for defects
  * - Real-time status tracking
  * - Integration with Inventory and WBS
- * 
+ *
  * Created: October 2025
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Package, 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  Package,
+  Plus,
+  Search,
+  Filter,
   FileText,
   CheckCircle,
   XCircle,
   AlertTriangle,
   Upload,
-  Camera,
   Eye,
-  Download,
   TrendingUp,
-  Clock
+  Clock,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -36,48 +34,22 @@ import { hasPermission } from '@/constants';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/FormControls';
-import { 
-  GoodsReceipt, 
-  GRStatus, 
-  QualityStatus,
-  GRFilterOptions,
-  CreateGRInput,
-  UpdateGRInput,
-  InspectGRItemInput
-} from '@/types/logistics';
-import { PurchaseOrder } from '@/types';
+import { GoodsReceipt, GRStatus, QualityStatus, GRFilterOptions } from '@/types/logistics';
+// import { PurchaseOrder } from '@/types';
 import {
   getGoodsReceipts,
-  getGoodsReceiptById,
-  createGoodsReceipt,
-  updateGoodsReceipt,
   submitGoodsReceipt,
-  inspectGRItem,
   completeGoodsReceipt,
-  updateGRItemQuantity,
-  addGRPhoto,
   deleteGoodsReceipt,
   getGRSummary,
-  validateGoodsReceipt
 } from '@/api/goodsReceiptService';
-import {
-  CreateGRModal,
-  GRDetailsModal,
-  GRInspectionModal
-} from '@/components/GoodsReceiptModals';
-
+import { CreateGRModal, GRDetailsModal, GRInspectionModal } from '@/components/GoodsReceiptModals';
+// interface GRFormData { ... } // Removed if unused
 // ============================================================================
 // TYPES & CONSTANTS
 // ============================================================================
 
-interface GRFormData {
-  poId: string;
-  receiptDate: string;
-  deliveryNote: string;
-  vehicleNumber: string;
-  driverName: string;
-  receiverNotes: string;
-}
+// interface GRFormData { ... } // Removed if unused
 
 const STATUS_CONFIG: Record<GRStatus, { label: string; color: string; icon: React.ReactNode }> = {
   draft: { label: 'Draft', color: 'gray', icon: <FileText size={16} /> },
@@ -86,14 +58,17 @@ const STATUS_CONFIG: Record<GRStatus, { label: string; color: string; icon: Reac
   approved: { label: 'Approved', color: 'green', icon: <CheckCircle size={16} /> },
   rejected: { label: 'Rejected', color: 'red', icon: <XCircle size={16} /> },
   completed: { label: 'Completed', color: 'green', icon: <CheckCircle size={16} /> },
-  cancelled: { label: 'Cancelled', color: 'gray', icon: <XCircle size={16} /> }
+  cancelled: { label: 'Cancelled', color: 'gray', icon: <XCircle size={16} /> },
 };
 
-const QUALITY_CONFIG: Record<QualityStatus, { label: string; color: string; icon: React.ReactNode }> = {
+const QUALITY_CONFIG: Record<
+  QualityStatus,
+  { label: string; color: string; icon: React.ReactNode }
+> = {
   pending: { label: 'Pending', color: 'gray', icon: <Clock size={16} /> },
   passed: { label: 'Passed', color: 'green', icon: <CheckCircle size={16} /> },
   partial: { label: 'Partial', color: 'yellow', icon: <AlertTriangle size={16} /> },
-  failed: { label: 'Failed', color: 'red', icon: <XCircle size={16} /> }
+  failed: { label: 'Failed', color: 'red', icon: <XCircle size={16} /> },
 };
 
 // ============================================================================
@@ -109,23 +84,23 @@ const GoodsReceiptView: React.FC = () => {
   const [grs, setGRs] = useState<GoodsReceipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedGR, setSelectedGR] = useState<GoodsReceipt | null>(null);
-  
+
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showInspectionModal, setShowInspectionModal] = useState(false);
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<GRStatus[]>([]);
   const [qualityFilter, setQualityFilter] = useState<QualityStatus[]>([]);
-  
+
   // Summary stats
   const [summary, setSummary] = useState({
     totalGRs: 0,
     pendingInspection: 0,
     completedGRs: 0,
-    totalValue: 0
+    totalValue: 0,
   });
 
   // ============================================================================
@@ -141,16 +116,16 @@ const GoodsReceiptView: React.FC = () => {
 
   const loadGRs = async () => {
     if (!currentProject) return;
-    
+
     try {
       setLoading(true);
       const filters: GRFilterOptions = {
         projectId: currentProject.id,
         status: statusFilter.length > 0 ? statusFilter : undefined,
         qualityStatus: qualityFilter.length > 0 ? qualityFilter : undefined,
-        searchTerm: searchTerm || undefined
+        searchTerm: searchTerm || undefined,
       };
-      
+
       const data = await getGoodsReceipts(currentProject.id, filters);
       setGRs(data);
     } catch (error) {
@@ -163,7 +138,7 @@ const GoodsReceiptView: React.FC = () => {
 
   const loadSummary = async () => {
     if (!currentProject) return;
-    
+
     try {
       const data = await getGRSummary(currentProject.id);
       setSummary(data);
@@ -200,7 +175,7 @@ const GoodsReceiptView: React.FC = () => {
 
   const handleSubmitGR = async (grId: string) => {
     if (!currentUser) return;
-    
+
     try {
       await submitGoodsReceipt(grId, currentUser.uid);
       addToast('Goods receipt submitted for inspection', 'success');
@@ -213,7 +188,7 @@ const GoodsReceiptView: React.FC = () => {
 
   const handleCompleteGR = async (grId: string) => {
     if (!currentUser) return;
-    
+
     try {
       await completeGoodsReceipt(grId, currentUser.uid);
       addToast('Goods receipt completed successfully', 'success');
@@ -227,9 +202,9 @@ const GoodsReceiptView: React.FC = () => {
 
   const handleDeleteGR = async (grId: string) => {
     if (!currentUser || !hasPermission(currentUser, 'manage_logistics')) return;
-    
+
     if (!confirm('Are you sure you want to delete this goods receipt?')) return;
-    
+
     try {
       await deleteGoodsReceipt(grId);
       addToast('Goods receipt deleted successfully', 'success');
@@ -269,7 +244,7 @@ const GoodsReceiptView: React.FC = () => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(value);
   };
 
@@ -277,7 +252,7 @@ const GoodsReceiptView: React.FC = () => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -287,27 +262,28 @@ const GoodsReceiptView: React.FC = () => {
 
   const filteredGRs = useMemo(() => {
     let result = [...grs];
-    
+
     // Apply search
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(gr =>
-        gr.grNumber.toLowerCase().includes(term) ||
-        gr.poNumber.toLowerCase().includes(term) ||
-        gr.vendorName.toLowerCase().includes(term)
+      result = result.filter(
+        (gr) =>
+          gr.grNumber.toLowerCase().includes(term) ||
+          gr.poNumber.toLowerCase().includes(term) ||
+          gr.vendorName.toLowerCase().includes(term)
       );
     }
-    
+
     // Apply status filter
     if (statusFilter.length > 0) {
-      result = result.filter(gr => statusFilter.includes(gr.status));
+      result = result.filter((gr) => statusFilter.includes(gr.status));
     }
-    
+
     // Apply quality filter
     if (qualityFilter.length > 0) {
-      result = result.filter(gr => qualityFilter.includes(gr.overallQualityStatus));
+      result = result.filter((gr) => qualityFilter.includes(gr.overallQualityStatus));
     }
-    
+
     return result;
   }, [grs, searchTerm, statusFilter, qualityFilter]);
 
@@ -337,12 +313,10 @@ const GoodsReceiptView: React.FC = () => {
           <Package size={32} className="header-icon" />
           <div>
             <h1>Goods Receipt Management</h1>
-            <p className="subtitle">
-              Track and inspect material deliveries with quality control
-            </p>
+            <p className="subtitle">Track and inspect material deliveries with quality control</p>
           </div>
         </div>
-        
+
         {hasPermission(currentUser, 'manage_logistics') && (
           <Button onClick={handleCreateGR} className="btn-primary">
             <Plus size={20} />
@@ -420,7 +394,9 @@ const GoodsReceiptView: React.FC = () => {
             >
               <option value="">Filter by Status...</option>
               {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
 
@@ -435,7 +411,9 @@ const GoodsReceiptView: React.FC = () => {
             >
               <option value="">Filter by Quality...</option>
               {Object.entries(QUALITY_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+                <option key={key} value={key}>
+                  {config.label}
+                </option>
               ))}
             </select>
           </div>
@@ -457,18 +435,20 @@ const GoodsReceiptView: React.FC = () => {
         {(statusFilter.length > 0 || qualityFilter.length > 0) && (
           <div className="active-filters">
             <span className="filter-label">Active Filters:</span>
-            {statusFilter.map(status => (
+            {statusFilter.map((status) => (
               <span key={status} className="filter-tag">
                 {STATUS_CONFIG[status].label}
-                <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))}>
+                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))}>
                   ×
                 </button>
               </span>
             ))}
-            {qualityFilter.map(quality => (
+            {qualityFilter.map((quality) => (
               <span key={quality} className="filter-tag">
                 {QUALITY_CONFIG[quality].label}
-                <button onClick={() => setQualityFilter(qualityFilter.filter(q => q !== quality))}>
+                <button
+                  onClick={() => setQualityFilter(qualityFilter.filter((q) => q !== quality))}
+                >
                   ×
                 </button>
               </span>
@@ -511,7 +491,7 @@ const GoodsReceiptView: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredGRs.map(gr => (
+                {filteredGRs.map((gr) => (
                   <tr key={gr.id}>
                     <td>
                       <strong>{gr.grNumber}</strong>
@@ -532,37 +512,39 @@ const GoodsReceiptView: React.FC = () => {
                         >
                           <Eye size={16} />
                         </Button>
-                        
-                        {(gr.status === 'submitted' || gr.status === 'inspecting') && 
-                         hasPermission(currentUser, 'manage_logistics') && (
-                          <Button
-                            onClick={() => handleInspect(gr)}
-                            className="btn-icon btn-primary"
-                            title="Inspect"
-                          >
-                            <CheckCircle size={16} />
-                          </Button>
-                        )}
 
-                        {gr.status === 'draft' && hasPermission(currentUser, 'manage_logistics') && (
-                          <Button
-                            onClick={() => handleSubmitGR(gr.id)}
-                            className="btn-icon btn-success"
-                            title="Submit"
-                          >
-                            <Upload size={16} />
-                          </Button>
-                        )}
+                        {(gr.status === 'submitted' || gr.status === 'inspecting') &&
+                          hasPermission(currentUser, 'manage_logistics') && (
+                            <Button
+                              onClick={() => handleInspect(gr)}
+                              className="btn-icon btn-primary"
+                              title="Inspect"
+                            >
+                              <CheckCircle size={16} />
+                            </Button>
+                          )}
 
-                        {gr.status === 'approved' && hasPermission(currentUser, 'manage_logistics') && (
-                          <Button
-                            onClick={() => handleCompleteGR(gr.id)}
-                            className="btn-icon btn-success"
-                            title="Complete"
-                          >
-                            <CheckCircle size={16} />
-                          </Button>
-                        )}
+                        {gr.status === 'draft' &&
+                          hasPermission(currentUser, 'manage_logistics') && (
+                            <Button
+                              onClick={() => handleSubmitGR(gr.id)}
+                              className="btn-icon btn-success"
+                              title="Submit"
+                            >
+                              <Upload size={16} />
+                            </Button>
+                          )}
+
+                        {gr.status === 'approved' &&
+                          hasPermission(currentUser, 'manage_logistics') && (
+                            <Button
+                              onClick={() => handleCompleteGR(gr.id)}
+                              className="btn-icon btn-success"
+                              title="Complete"
+                            >
+                              <CheckCircle size={16} />
+                            </Button>
+                          )}
                       </div>
                     </td>
                   </tr>

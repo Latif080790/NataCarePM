@@ -1,4 +1,5 @@
 # Mobile Offline Inspections - Developer Guide
+
 **Phase 3.5: Quick Wins - Offline-First Architecture**
 
 ## 📋 Table of Contents
@@ -17,9 +18,11 @@
 ## Overview
 
 ### Purpose
+
 The Mobile Offline Inspections system enables field workers to conduct quality inspections without internet connectivity. Data is stored locally in IndexedDB and automatically synchronized with Firebase when connectivity is restored.
 
 ### Key Features
+
 - ✅ **Offline-First**: Works seamlessly without internet
 - ✅ **Auto-Sync**: Automatic background synchronization
 - ✅ **Conflict Resolution**: Smart conflict detection and resolution
@@ -30,6 +33,7 @@ The Mobile Offline Inspections system enables field workers to conduct quality i
 - ✅ **Storage Management**: Quota tracking and cleanup
 
 ### Business Value
+
 - **Field Productivity**: Workers can inspect without connectivity constraints
 - **Data Integrity**: No data loss during network outages
 - **Cost Reduction**: Reduced cellular data usage
@@ -91,6 +95,7 @@ The Mobile Offline Inspections system enables field workers to conduct quality i
 ### Data Flow
 
 #### 1. Create Inspection (Offline)
+
 ```
 User Input → Form Validation → IndexedDB.saveInspection()
     ↓
@@ -100,6 +105,7 @@ Trigger Immediate Sync (if online)
 ```
 
 #### 2. Sync Process
+
 ```
 syncNow() → Load Pending Queue → Process in Batches (10 items)
     ↓
@@ -113,6 +119,7 @@ For Each Item:
 ```
 
 #### 3. Conflict Resolution
+
 ```
 Detect Conflict (remoteUpdated > localUpdated)
     ↓
@@ -134,20 +141,23 @@ Retry sync
 ## Technology Stack
 
 ### Core Technologies
+
 - **IndexedDB**: Browser-native NoSQL database (100MB+ capacity)
 - **Service Workers**: Background sync, caching, offline support
 - **Workbox**: Google's PWA toolkit for service worker management
 - **vite-plugin-pwa**: Vite integration for PWA features
 
 ### Libraries & Tools
-| Library | Version | Purpose |
-|---------|---------|---------|
+
+| Library           | Version | Purpose                           |
+| ----------------- | ------- | --------------------------------- |
 | `vite-plugin-pwa` | ^0.17.4 | PWA generation and service worker |
-| `workbox-window` | ^7.0.0 | Service worker registration |
-| `date-fns` | ^4.1.0 | Date formatting and manipulation |
-| Firebase SDK | ^12.4.0 | Backend synchronization |
+| `workbox-window`  | ^7.0.0  | Service worker registration       |
+| `date-fns`        | ^4.1.0  | Date formatting and manipulation  |
+| Firebase SDK      | ^12.4.0 | Backend synchronization           |
 
 ### Browser APIs Used
+
 - **IndexedDB API**: Offline data storage
 - **Service Worker API**: Background operations
 - **Network Information API**: Connection type detection
@@ -167,6 +177,7 @@ Retry sync
 #### Object Stores
 
 **inspections** (keyPath: `localId`)
+
 ```typescript
 {
   localId: string,           // Primary key
@@ -189,12 +200,14 @@ Retry sync
 ```
 
 Indexes:
+
 - `remoteId` (non-unique)
 - `projectId` (non-unique)
 - `syncStatus` (non-unique)
 - `createdAt` (non-unique)
 
 **attachments** (keyPath: `id`)
+
 ```typescript
 {
   id: string,                 // Primary key
@@ -209,10 +222,12 @@ Indexes:
 ```
 
 Indexes:
+
 - `inspectionId` (non-unique)
 - `uploaded` (non-unique)
 
 **syncQueue** (keyPath: `id`)
+
 ```typescript
 {
   id: string,
@@ -232,11 +247,13 @@ Indexes:
 ```
 
 Indexes:
+
 - `status` (non-unique)
 - `priority` (non-unique)
 - `type` (non-unique)
 
 **conflicts** (keyPath: `id`)
+
 ```typescript
 {
   id: string,
@@ -261,10 +278,12 @@ Indexes:
 ```
 
 Indexes:
+
 - `status` (non-unique)
 - `entityType` (non-unique)
 
 **metadata** (keyPath: `key`)
+
 ```typescript
 {
   key: string,               // e.g., 'deviceId', 'lastSync'
@@ -297,9 +316,9 @@ VitePWA({
           cacheName: 'firebase-storage-cache',
           expiration: {
             maxEntries: 100,
-            maxAgeSeconds: 2592000 // 30 days
-          }
-        }
+            maxAgeSeconds: 2592000, // 30 days
+          },
+        },
       },
       {
         // Firestore API - Network First (short timeout)
@@ -310,20 +329,21 @@ VitePWA({
           networkTimeoutSeconds: 10,
           expiration: {
             maxEntries: 50,
-            maxAgeSeconds: 300 // 5 minutes
-          }
-        }
+            maxAgeSeconds: 300, // 5 minutes
+          },
+        },
       },
       // ... Google Fonts caching
     ],
     cleanupOutdatedCaches: true,
     skipWaiting: true,
-    clientsClaim: true
-  }
-})
+    clientsClaim: true,
+  },
+});
 ```
 
 **Caching Strategies**:
+
 - **App Shell**: Precached (all static assets)
 - **Firebase Storage**: CacheFirst (images, documents)
 - **Firestore API**: NetworkFirst with 10s timeout
@@ -336,6 +356,7 @@ VitePWA({
 **Key Methods**:
 
 #### createOfflineInspection()
+
 ```typescript
 async createOfflineInspection(
   projectId: string,
@@ -345,6 +366,7 @@ async createOfflineInspection(
 ```
 
 **Process**:
+
 1. Generate unique `localId`
 2. Get/create `deviceId`
 3. Build inspection object
@@ -353,11 +375,13 @@ async createOfflineInspection(
 6. Trigger immediate sync if online
 
 #### syncNow()
+
 ```typescript
 async syncNow(): Promise<void>
 ```
 
 **Process**:
+
 1. Check if sync already in progress
 2. Validate network connectivity
 3. Load pending sync queue items
@@ -368,22 +392,26 @@ async syncNow(): Promise<void>
 8. Update last sync timestamp
 
 **Retry Logic**:
+
 - Max retries: 3
 - Delay: 2 seconds × retry count
 - Status: `pending` → `syncing` → `synced` or `failed`
 
 #### syncInspection()
+
 ```typescript
 private async syncInspection(item: SyncQueueItem): Promise<void>
 ```
 
 **For CREATE operation**:
+
 1. Convert dates to Firestore Timestamps
 2. Add document to `offlineInspections` collection
 3. Update local record with `remoteId`
 4. Set status to `synced`
 
 **For UPDATE operation**:
+
 1. Fetch remote document
 2. Compare timestamps
 3. If conflict detected → `handleConflict()`
@@ -391,10 +419,12 @@ private async syncInspection(item: SyncQueueItem): Promise<void>
 5. Update local status
 
 **For DELETE operation**:
+
 1. Delete from Firestore
 2. Delete from IndexedDB
 
 #### handleConflict()
+
 ```typescript
 private async handleConflict(
   localInspection: OfflineInspection,
@@ -403,6 +433,7 @@ private async handleConflict(
 ```
 
 **Process**:
+
 1. Create `SyncConflict` record
 2. Store both versions (local & remote)
 3. Apply resolution strategy:
@@ -417,18 +448,19 @@ private async handleConflict(
 **File**: `contexts/OfflineContext.tsx`
 
 **State Management**:
+
 ```typescript
 interface OfflineContextState {
   // Network
   isOnline: boolean
   networkStatus: NetworkStatus | null
-  
+
   // Data
   offlineInspections: OfflineInspection[]
   pendingInspections: OfflineInspection[]
   syncedInspections: OfflineInspection[]
   conflictedInspections: OfflineInspection[]
-  
+
   // Sync
   syncStatus: {
     pending: number
@@ -437,11 +469,11 @@ interface OfflineContextState {
     inProgress: boolean
     lastSync: Date | null
   }
-  
+
   // Storage
   storageMetadata: OfflineStorageMetadata | null
   serviceWorkerStatus: ServiceWorkerStatus | null
-  
+
   // Actions
   createInspection: (...)
   updateInspection: (...)
@@ -455,11 +487,13 @@ interface OfflineContextState {
 ```
 
 **Event Listeners**:
+
 - `window.online`: Trigger auto-sync
 - `window.offline`: Update network status
 - `connection.change`: Update connection type (Network Information API)
 
 **Auto-Sync Triggers**:
+
 1. Coming online from offline
 2. After creating/updating inspection
 3. Periodic check (every 30 seconds)
@@ -468,36 +502,36 @@ interface OfflineContextState {
 ### 5. Network Detection
 
 **Implementation**:
+
 ```typescript
 export const getNetworkStatus = (): NetworkStatus => {
   const online = navigator.onLine;
-  const connection = navigator.connection || 
-                     navigator.mozConnection || 
-                     navigator.webkitConnection;
-  
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
   return {
     online,
-    type: connection?.type,              // 'wifi', 'cellular', '4g'
-    effectiveType: connection?.effectiveType,  // 'slow-2g', '2g', '3g', '4g'
-    downlink: connection?.downlink,      // Mbps
-    rtt: connection?.rtt,                // Round trip time (ms)
-    saveData: connection?.saveData       // Data saver mode
+    type: connection?.type, // 'wifi', 'cellular', '4g'
+    effectiveType: connection?.effectiveType, // 'slow-2g', '2g', '3g', '4g'
+    downlink: connection?.downlink, // Mbps
+    rtt: connection?.rtt, // Round trip time (ms)
+    saveData: connection?.saveData, // Data saver mode
   };
 };
 ```
 
 **Sync Conditions**:
+
 ```typescript
 export const canSync = (): boolean => {
   const network = getNetworkStatus();
-  
+
   if (!network.online) return false;
-  
+
   // Don't sync on slow connections with data saver
   if (network.saveData && network.effectiveType === 'slow-2g') {
     return false;
   }
-  
+
   return true;
 };
 ```
@@ -511,9 +545,11 @@ export const canSync = (): boolean => {
 #### Inspection Operations
 
 ##### `saveInspection(inspection: OfflineInspection): Promise<void>`
+
 Saves or updates an inspection in IndexedDB.
 
 **Example**:
+
 ```typescript
 await IndexedDB.saveInspection({
   id: 'insp-123',
@@ -537,35 +573,44 @@ await IndexedDB.saveInspection({
 ```
 
 ##### `getInspection(localId: string): Promise<OfflineInspection | undefined>`
+
 Retrieves inspection by local ID.
 
 ##### `getAllInspections(): Promise<OfflineInspection[]>`
+
 Retrieves all inspections.
 
 ##### `getInspectionsByProject(projectId: string): Promise<OfflineInspection[]>`
+
 Retrieves inspections filtered by project.
 
 ##### `getInspectionsByStatus(status: SyncStatus): Promise<OfflineInspection[]>`
+
 Retrieves inspections filtered by sync status.
 
 **Example**:
+
 ```typescript
 const pending = await IndexedDB.getInspectionsByStatus('pending');
 const synced = await IndexedDB.getInspectionsByStatus('synced');
 ```
 
 ##### `updateInspection(localId: string, updates: Partial<OfflineInspection>): Promise<void>`
+
 Updates specific fields of an inspection.
 
 ##### `deleteInspection(localId: string): Promise<void>`
+
 Deletes an inspection.
 
 #### Attachment Operations
 
 ##### `saveAttachment(attachment: OfflineAttachment): Promise<void>`
+
 Saves file blob to IndexedDB.
 
 **Example**:
+
 ```typescript
 await IndexedDB.saveAttachment({
   id: 'attach-456',
@@ -574,62 +619,78 @@ await IndexedDB.saveAttachment({
   fileName: 'foundation-crack.jpg',
   mimeType: 'image/jpeg',
   uploaded: false,
-  createdAt: new Date()
+  createdAt: new Date(),
 });
 ```
 
 ##### `getAttachment(id: string): Promise<OfflineAttachment | undefined>`
+
 Retrieves attachment blob.
 
 ##### `getAttachmentsByInspection(inspectionId: string): Promise<OfflineAttachment[]>`
+
 Retrieves all attachments for an inspection.
 
 ##### `getPendingAttachments(): Promise<OfflineAttachment[]>`
+
 Retrieves attachments not yet uploaded.
 
 ##### `updateAttachmentUploadStatus(id: string, uploaded: boolean, progress?: number): Promise<void>`
+
 Updates upload status and progress.
 
 #### Sync Queue Operations
 
 ##### `addToSyncQueue(item: SyncQueueItem): Promise<void>`
+
 Adds item to sync queue.
 
 ##### `getPendingSyncQueue(): Promise<SyncQueueItem[]>`
+
 Retrieves pending items sorted by priority (high to low).
 
 ##### `updateSyncQueueItem(id: string, updates: Partial<SyncQueueItem>): Promise<void>`
+
 Updates sync queue item.
 
 ##### `removeFromSyncQueue(id: string): Promise<void>`
+
 Removes item from queue.
 
 ##### `clearCompletedSyncQueue(): Promise<void>`
+
 Removes all synced items from queue.
 
 #### Conflict Operations
 
 ##### `saveConflict(conflict: SyncConflict): Promise<void>`
+
 Creates conflict record.
 
 ##### `getPendingConflicts(): Promise<SyncConflict[]>`
+
 Retrieves unresolved conflicts.
 
 ##### `resolveConflict(id: string, resolvedData: any, resolvedBy: string): Promise<void>`
+
 Marks conflict as resolved.
 
 #### Metadata & Storage
 
 ##### `saveMetadata(key: string, value: any): Promise<void>`
+
 Stores metadata (deviceId, lastSync, etc.).
 
 ##### `getMetadata(key: string): Promise<any>`
+
 Retrieves metadata value.
 
 ##### `getStorageStats(): Promise<OfflineStorageMetadata>`
+
 Gets comprehensive storage statistics.
 
 **Returns**:
+
 ```typescript
 {
   version: "1",
@@ -652,28 +713,35 @@ Gets comprehensive storage statistics.
 ```
 
 ##### `clearAllData(): Promise<void>`
+
 Clears all data from all stores (use with caution).
 
 ### Sync Service (`api/syncService.ts`)
 
 ##### `createOfflineInspection(projectId, inspectionType, data): Promise<OfflineInspection>`
+
 Creates new inspection and queues for sync.
 
 ##### `updateOfflineInspection(localId, updates): Promise<void>`
+
 Updates inspection and queues for sync.
 
 ##### `addAttachment(inspectionId, file): Promise<string>`
+
 Adds file attachment and queues for upload.
 
 **Returns**: Attachment ID
 
 ##### `syncNow(): Promise<void>`
+
 Triggers immediate synchronization.
 
 ##### `getSyncStatus(): Promise<SyncStatus>`
+
 Gets current sync status.
 
 **Returns**:
+
 ```typescript
 {
   pending: 5,
@@ -687,36 +755,35 @@ Gets current sync status.
 ```
 
 ##### `resolveConflictManually(conflictId, resolution, mergedData?): Promise<void>`
+
 Manually resolves conflict.
 
 **Parameters**:
+
 - `conflictId`: Conflict ID
 - `resolution`: 'local' | 'remote' | 'merge'
 - `mergedData`: Required if resolution is 'merge'
 
 ##### `clearSyncedData(): Promise<void>`
+
 Removes synced inspections from local storage (keeps pending).
 
 ### Offline Context Hook (`useOffline()`)
 
 **Usage**:
+
 ```typescript
 import { useOffline } from '@/contexts/OfflineContext';
 
 function MyComponent() {
-  const {
-    isOnline,
-    pendingInspections,
-    syncStatus,
-    createInspection,
-    syncNow
-  } = useOffline();
-  
+  const { isOnline, pendingInspections, syncStatus, createInspection, syncNow } = useOffline();
+
   // ... use offline functionality
 }
 ```
 
 **Available Properties & Methods**:
+
 - `isOnline: boolean` - Current network status
 - `networkStatus: NetworkStatus | null` - Detailed network info
 - `offlineInspections: OfflineInspection[]` - All inspections
@@ -742,6 +809,7 @@ function MyComponent() {
 ### Manual Testing
 
 #### 1. Offline Mode Testing
+
 ```bash
 # Chrome DevTools
 1. Open DevTools (F12)
@@ -754,6 +822,7 @@ function MyComponent() {
 ```
 
 #### 2. Service Worker Testing
+
 ```bash
 # Chrome DevTools
 1. Application tab → Service Workers
@@ -767,6 +836,7 @@ function MyComponent() {
 ```
 
 #### 3. Conflict Testing
+
 ```bash
 # Scenario: Two devices editing same inspection
 Device A (Offline):
@@ -789,6 +859,7 @@ Device A (Back Online):
 ```
 
 ### Storage Quota Testing
+
 ```typescript
 // Test storage limits
 async function testStorageQuota() {
@@ -796,7 +867,7 @@ async function testStorageQuota() {
   console.log('Usage:', stats.storageQuota.usage);
   console.log('Quota:', stats.storageQuota.quota);
   console.log('Percentage:', stats.storageQuota.percentage);
-  
+
   if (stats.storageQuota.percentage > 80) {
     alert('Storage almost full, consider cleanup');
   }
@@ -804,6 +875,7 @@ async function testStorageQuota() {
 ```
 
 ### Performance Testing
+
 ```typescript
 // Measure sync performance
 const startTime = performance.now();
@@ -833,6 +905,7 @@ console.log(`Sync completed in ${duration}ms`);
 ### Build Configuration
 
 **package.json**:
+
 ```json
 {
   "scripts": {
@@ -843,6 +916,7 @@ console.log(`Sync completed in ${duration}ms`);
 ```
 
 **Build Process**:
+
 ```bash
 npm run build
 
@@ -858,6 +932,7 @@ npm run build
 ### Firebase Deployment
 
 **firebase.json**:
+
 ```json
 {
   "hosting": {
@@ -888,6 +963,7 @@ npm run build
 ```
 
 **Deploy**:
+
 ```bash
 npm run build
 firebase deploy --only hosting
@@ -896,6 +972,7 @@ firebase deploy --only hosting
 ### Post-Deployment Verification
 
 **Lighthouse PWA Audit**:
+
 ```bash
 # Chrome DevTools → Lighthouse
 - Fast and reliable (offline works)
@@ -904,6 +981,7 @@ firebase deploy --only hosting
 ```
 
 **PWA Checklist**:
+
 - [ ] HTTPS enabled
 - [ ] Service Worker active
 - [ ] Manifest valid
@@ -923,11 +1001,13 @@ firebase deploy --only hosting
 **Symptoms**: No offline functionality, no caching
 
 **Causes**:
+
 - HTTPS not enabled (required except localhost)
 - Service Worker file not found
 - Browser doesn't support Service Workers
 
 **Solutions**:
+
 ```typescript
 // Check browser support
 if ('serviceWorker' in navigator) {
@@ -937,7 +1017,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // Check registration
-navigator.serviceWorker.getRegistration().then(reg => {
+navigator.serviceWorker.getRegistration().then((reg) => {
   if (reg) {
     console.log('SW registered:', reg);
   } else {
@@ -946,8 +1026,8 @@ navigator.serviceWorker.getRegistration().then(reg => {
 });
 
 // Force update
-navigator.serviceWorker.getRegistrations().then(regs => {
-  regs.forEach(reg => reg.update());
+navigator.serviceWorker.getRegistrations().then((regs) => {
+  regs.forEach((reg) => reg.update());
 });
 ```
 
@@ -956,13 +1036,14 @@ navigator.serviceWorker.getRegistrations().then(regs => {
 **Symptoms**: "QuotaExceededError" when saving
 
 **Solutions**:
+
 ```typescript
 // Check quota
 const stats = await IndexedDB.getStorageStats();
 if (stats.storageQuota.percentage > 90) {
   // Clean up synced data
   await syncService.clearSyncedData();
-  
+
   // Or request persistent storage
   if (navigator.storage && navigator.storage.persist) {
     const granted = await navigator.storage.persist();
@@ -976,6 +1057,7 @@ if (stats.storageQuota.percentage > 90) {
 **Symptoms**: Data stuck in pending state
 
 **Debug**:
+
 ```typescript
 // Check network
 const network = getNetworkStatus();
@@ -999,6 +1081,7 @@ await syncService.syncNow();
 **Symptoms**: Inspections stuck in conflict state
 
 **Debug**:
+
 ```typescript
 // List conflicts
 const conflicts = await IndexedDB.getPendingConflicts();
@@ -1006,10 +1089,7 @@ console.log('Conflicts:', conflicts);
 
 // Manual resolution
 for (const conflict of conflicts) {
-  await syncService.resolveConflictManually(
-    conflict.id,
-    'latest_wins'
-  );
+  await syncService.resolveConflictManually(conflict.id, 'latest_wins');
 }
 ```
 
@@ -1018,16 +1098,17 @@ for (const conflict of conflicts) {
 **Symptoms**: Photos pending upload indefinitely
 
 **Debug**:
+
 ```typescript
 // Check pending attachments
 const pending = await IndexedDB.getPendingAttachments();
 console.log('Pending uploads:', pending.length);
 
 // Check file sizes
-pending.forEach(att => {
+pending.forEach((att) => {
   const sizeMB = att.blob.size / 1024 / 1024;
   console.log(`${att.fileName}: ${sizeMB.toFixed(2)} MB`);
-  
+
   if (sizeMB > 25) {
     console.warn('File too large, Firebase limit is 25MB');
   }
@@ -1037,6 +1118,7 @@ pending.forEach(att => {
 ### Debugging Tools
 
 **IndexedDB Inspector**:
+
 ```
 Chrome DevTools → Application → IndexedDB → NataCarePM_Offline
 - View all stores
@@ -1046,6 +1128,7 @@ Chrome DevTools → Application → IndexedDB → NataCarePM_Offline
 ```
 
 **Service Worker Inspector**:
+
 ```
 Chrome DevTools → Application → Service Workers
 - View registration status
@@ -1055,6 +1138,7 @@ Chrome DevTools → Application → Service Workers
 ```
 
 **Network Throttling**:
+
 ```
 Chrome DevTools → Network → Throttling
 - Offline
@@ -1068,18 +1152,21 @@ Chrome DevTools → Network → Throttling
 ## Best Practices
 
 ### 1. Storage Management
+
 - Clear synced data periodically
 - Compress images before storing
 - Set reasonable retention policies
 - Monitor quota usage
 
 ### 2. Sync Strategy
+
 - Prioritize critical operations
 - Batch operations to reduce requests
 - Implement exponential backoff for retries
 - Handle conflicts gracefully
 
 ### 3. User Experience
+
 - Show sync status clearly
 - Indicate offline mode prominently
 - Provide conflict resolution UI
@@ -1087,12 +1174,14 @@ Chrome DevTools → Network → Throttling
 - Cache frequently used data
 
 ### 4. Performance
+
 - Limit attachment sizes (< 10MB recommended)
 - Process sync queue in batches
 - Use web workers for heavy operations
 - Optimize IndexedDB queries with indexes
 
 ### 5. Security
+
 - Encrypt sensitive data in IndexedDB
 - Validate data before sync
 - Implement user authentication for sync
@@ -1105,18 +1194,21 @@ Chrome DevTools → Network → Throttling
 ### Key Performance Indicators
 
 **Sync Metrics**:
+
 - Average sync time
 - Sync success rate
 - Conflict frequency
 - Retry rate
 
 **Storage Metrics**:
+
 - Storage usage percentage
 - Record count per store
 - Attachment sizes
 - Quota warnings
 
 **User Metrics**:
+
 - Offline usage frequency
 - Inspection completion rate
 - Photo capture rate
@@ -1130,7 +1222,7 @@ const syncMetrics = {
   startTime: Date.now(),
   itemsProcessed: 0,
   itemsFailed: 0,
-  totalTime: 0
+  totalTime: 0,
 };
 
 await syncService.syncNow();
@@ -1146,18 +1238,21 @@ analytics.logEvent('offline_sync_completed', syncMetrics);
 ## Support & Resources
 
 ### Documentation
+
 - [IndexedDB API (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 - [Service Worker API (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
 - [Workbox Documentation](https://developers.google.com/web/tools/workbox)
 - [PWA Best Practices](https://web.dev/progressive-web-apps/)
 
 ### Tools
+
 - Chrome DevTools
 - Lighthouse
 - Workbox CLI
 - Firebase Console
 
 ### Contact
+
 For technical support, contact the development team.
 
 ---

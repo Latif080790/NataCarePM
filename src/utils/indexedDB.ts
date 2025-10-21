@@ -1,7 +1,7 @@
 /**
  * IndexedDB Offline Storage Utility
  * Phase 3.5: Mobile Offline Inspections
- * 
+ *
  * Provides offline-first data persistence with IndexedDB
  * Supports inspections, attachments, and sync queue management
  */
@@ -114,40 +114,28 @@ const dbOperation = async <T>(
 /**
  * Save offline inspection
  */
-export const saveInspection = async (
-  inspection: OfflineInspection
-): Promise<void> => {
-  await dbOperation(STORES.INSPECTIONS, 'readwrite', (store) =>
-    store.put(inspection)
-  );
+export const saveInspection = async (inspection: OfflineInspection): Promise<void> => {
+  await dbOperation(STORES.INSPECTIONS, 'readwrite', (store) => store.put(inspection));
 };
 
 /**
  * Get inspection by local ID
  */
-export const getInspection = async (
-  localId: string
-): Promise<OfflineInspection | undefined> => {
-  return dbOperation(STORES.INSPECTIONS, 'readonly', (store) =>
-    store.get(localId)
-  );
+export const getInspection = async (localId: string): Promise<OfflineInspection | undefined> => {
+  return dbOperation(STORES.INSPECTIONS, 'readonly', (store) => store.get(localId));
 };
 
 /**
  * Get all inspections
  */
 export const getAllInspections = async (): Promise<OfflineInspection[]> => {
-  return dbOperation(STORES.INSPECTIONS, 'readonly', (store) =>
-    store.getAll()
-  );
+  return dbOperation(STORES.INSPECTIONS, 'readonly', (store) => store.getAll());
 };
 
 /**
  * Get inspections by project
  */
-export const getInspectionsByProject = async (
-  projectId: string
-): Promise<OfflineInspection[]> => {
+export const getInspectionsByProject = async (projectId: string): Promise<OfflineInspection[]> => {
   const db = await initDB();
   const transaction = db.transaction(STORES.INSPECTIONS, 'readonly');
   const store = transaction.objectStore(STORES.INSPECTIONS);
@@ -203,9 +191,7 @@ export const updateInspection = async (
  * Delete inspection
  */
 export const deleteInspection = async (localId: string): Promise<void> => {
-  await dbOperation(STORES.INSPECTIONS, 'readwrite', (store) =>
-    store.delete(localId)
-  );
+  await dbOperation(STORES.INSPECTIONS, 'readwrite', (store) => store.delete(localId));
 };
 
 // ==================== ATTACHMENT OPERATIONS ====================
@@ -224,20 +210,14 @@ interface OfflineAttachment {
 /**
  * Save attachment blob
  */
-export const saveAttachment = async (
-  attachment: OfflineAttachment
-): Promise<void> => {
-  await dbOperation(STORES.ATTACHMENTS, 'readwrite', (store) =>
-    store.put(attachment)
-  );
+export const saveAttachment = async (attachment: OfflineAttachment): Promise<void> => {
+  await dbOperation(STORES.ATTACHMENTS, 'readwrite', (store) => store.put(attachment));
 };
 
 /**
  * Get attachment
  */
-export const getAttachment = async (
-  id: string
-): Promise<OfflineAttachment | undefined> => {
+export const getAttachment = async (id: string): Promise<OfflineAttachment | undefined> => {
   return dbOperation(STORES.ATTACHMENTS, 'readonly', (store) => store.get(id));
 };
 
@@ -293,9 +273,7 @@ export const updateAttachmentUploadStatus = async (
  * Delete attachment
  */
 export const deleteAttachment = async (id: string): Promise<void> => {
-  await dbOperation(STORES.ATTACHMENTS, 'readwrite', (store) =>
-    store.delete(id)
-  );
+  await dbOperation(STORES.ATTACHMENTS, 'readwrite', (store) => store.delete(id));
 };
 
 // ==================== SYNC QUEUE OPERATIONS ====================
@@ -367,9 +345,7 @@ export const updateSyncQueueItem = async (
  * Remove from sync queue
  */
 export const removeFromSyncQueue = async (id: string): Promise<void> => {
-  await dbOperation(STORES.SYNC_QUEUE, 'readwrite', (store) =>
-    store.delete(id)
-  );
+  await dbOperation(STORES.SYNC_QUEUE, 'readwrite', (store) => store.delete(id));
 };
 
 /**
@@ -397,9 +373,7 @@ export const clearCompletedSyncQueue = async (): Promise<void> => {
  * Save sync conflict
  */
 export const saveConflict = async (conflict: SyncConflict): Promise<void> => {
-  await dbOperation(STORES.CONFLICTS, 'readwrite', (store) =>
-    store.put(conflict)
-  );
+  await dbOperation(STORES.CONFLICTS, 'readwrite', (store) => store.put(conflict));
 };
 
 /**
@@ -466,9 +440,7 @@ export const resolveConflict = async (
  * Delete conflict
  */
 export const deleteConflict = async (id: string): Promise<void> => {
-  await dbOperation(STORES.CONFLICTS, 'readwrite', (store) =>
-    store.delete(id)
-  );
+  await dbOperation(STORES.CONFLICTS, 'readwrite', (store) => store.delete(id));
 };
 
 // ==================== METADATA OPERATIONS ====================
@@ -476,10 +448,7 @@ export const deleteConflict = async (id: string): Promise<void> => {
 /**
  * Save metadata
  */
-export const saveMetadata = async (
-  key: string,
-  value: any
-): Promise<void> => {
+export const saveMetadata = async (key: string, value: any): Promise<void> => {
   await dbOperation(STORES.METADATA, 'readwrite', (store) =>
     store.put({ key, value, updatedAt: new Date() })
   );
@@ -489,9 +458,7 @@ export const saveMetadata = async (
  * Get metadata
  */
 export const getMetadata = async (key: string): Promise<any> => {
-  const result = await dbOperation(STORES.METADATA, 'readonly', (store) =>
-    store.get(key)
-  );
+  const result = await dbOperation(STORES.METADATA, 'readonly', (store) => store.get(key));
   return result?.value;
 };
 
@@ -500,31 +467,19 @@ export const getMetadata = async (key: string): Promise<any> => {
  */
 export const getStorageStats = async (): Promise<OfflineStorageMetadata> => {
   const db = await initDB();
-  
+
   // Count records in each store
-  const inspectionsCount = await dbOperation(
-    STORES.INSPECTIONS,
-    'readonly',
-    (store) => store.count()
+  const inspectionsCount = await dbOperation(STORES.INSPECTIONS, 'readonly', (store) =>
+    store.count()
   );
-  
-  const attachmentsCount = await dbOperation(
-    STORES.ATTACHMENTS,
-    'readonly',
-    (store) => store.count()
+
+  const attachmentsCount = await dbOperation(STORES.ATTACHMENTS, 'readonly', (store) =>
+    store.count()
   );
-  
-  const syncQueueCount = await dbOperation(
-    STORES.SYNC_QUEUE,
-    'readonly',
-    (store) => store.count()
-  );
-  
-  const conflictsCount = await dbOperation(
-    STORES.CONFLICTS,
-    'readonly',
-    (store) => store.count()
-  );
+
+  const syncQueueCount = await dbOperation(STORES.SYNC_QUEUE, 'readonly', (store) => store.count());
+
+  const conflictsCount = await dbOperation(STORES.CONFLICTS, 'readonly', (store) => store.count());
 
   // Get pending/failed sync counts
   const pendingSync = (await getSyncQueueByStatus('pending')).length;
@@ -593,12 +548,7 @@ export const getStorageStats = async (): Promise<OfflineStorageMetadata> => {
  */
 export const clearAllData = async (): Promise<void> => {
   const db = await initDB();
-  const storeNames = [
-    STORES.INSPECTIONS,
-    STORES.ATTACHMENTS,
-    STORES.SYNC_QUEUE,
-    STORES.CONFLICTS,
-  ];
+  const storeNames = [STORES.INSPECTIONS, STORES.ATTACHMENTS, STORES.SYNC_QUEUE, STORES.CONFLICTS];
 
   const transaction = db.transaction(storeNames, 'readwrite');
 

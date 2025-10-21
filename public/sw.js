@@ -1,13 +1,13 @@
 /**
  * Service Worker for NataCarePM PWA
- * 
+ *
  * Features:
  * - Offline caching with Workbox strategies
  * - Background sync for offline operations
  * - Push notifications
  * - Install/Update lifecycle management
  * - Performance optimization with cache-first strategies
- * 
+ *
  * Version: 1.0.0
  */
 
@@ -36,9 +36,10 @@ const NETWORK_TIMEOUT = 5000;
 
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker version:', CACHE_VERSION);
-  
+
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches
+      .open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
@@ -59,9 +60,10 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating service worker version:', CACHE_VERSION);
-  
+
   event.waitUntil(
-    caches.keys()
+    caches
+      .keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
@@ -89,26 +91,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip cross-origin requests
   if (url.origin !== location.origin) {
     return;
   }
-  
+
   // Handle different request types with appropriate strategies
-  
+
   // 1. API requests - Network first, cache fallback
   if (request.url.includes('/api/') || request.url.includes('firebaseio.com')) {
     event.respondWith(networkFirstStrategy(request));
     return;
   }
-  
+
   // 2. Navigation requests - Network first with timeout, then cache
   if (request.mode === 'navigate') {
     event.respondWith(navigationStrategy(request));
     return;
   }
-  
+
   // 3. Static assets (JS, CSS, images) - Cache first, network fallback
   if (
     request.destination === 'script' ||
@@ -119,7 +121,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(cacheFirstStrategy(request));
     return;
   }
-  
+
   // 4. Everything else - Network first with timeout
   event.respondWith(networkFirstStrategy(request));
 });
@@ -136,37 +138,38 @@ async function cacheFirstStrategy(request) {
   try {
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       console.log('[SW] Cache hit:', request.url);
-      
+
       // Update cache in background (stale-while-revalidate)
-      fetch(request).then((response) => {
-        if (response && response.status === 200) {
-          cache.put(request, response.clone());
-        }
-      }).catch(() => {
-        // Network error, ignore
-      });
-      
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            cache.put(request, response.clone());
+          }
+        })
+        .catch(() => {
+          // Network error, ignore
+        });
+
       return cachedResponse;
     }
-    
+
     // Not in cache, fetch from network
     console.log('[SW] Cache miss, fetching:', request.url);
     const networkResponse = await fetch(request);
-    
+
     if (networkResponse && networkResponse.status === 200) {
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
-    
   } catch (error) {
     console.error('[SW] Cache-first strategy failed:', error);
     return new Response('Offline', {
       status: 503,
-      statusText: 'Service Unavailable'
+      statusText: 'Service Unavailable',
     });
   }
 }
@@ -179,36 +182,38 @@ async function networkFirstStrategy(request) {
   try {
     // Try network with timeout
     const networkResponse = await fetchWithTimeout(request, NETWORK_TIMEOUT);
-    
+
     // Cache successful responses
     if (networkResponse && networkResponse.status === 200) {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
-    
   } catch (error) {
     console.log('[SW] Network failed, trying cache:', request.url);
-    
+
     // Network failed, try cache
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(request);
-    
+
     if (cachedResponse) {
       console.log('[SW] Serving from cache (offline):', request.url);
       return cachedResponse;
     }
-    
+
     // No cache available
     console.error('[SW] No cache available for:', request.url);
-    return new Response(JSON.stringify({
-      error: 'Offline',
-      message: 'You are offline and this resource is not cached'
-    }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Offline',
+        message: 'You are offline and this resource is not cached',
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 }
 
@@ -221,20 +226,20 @@ async function navigationStrategy(request) {
     // Try network with timeout
     const networkResponse = await fetchWithTimeout(request, NETWORK_TIMEOUT);
     return networkResponse;
-    
   } catch (error) {
     console.log('[SW] Navigation offline, serving offline page');
-    
+
     // Serve offline page
     const cache = await caches.open(CACHE_NAME);
     const offlinePage = await cache.match(OFFLINE_PAGE);
-    
+
     if (offlinePage) {
       return offlinePage;
     }
-    
+
     // Fallback offline page
-    return new Response(`
+    return new Response(
+      `
       <!DOCTYPE html>
       <html>
         <head>
@@ -289,10 +294,12 @@ async function navigationStrategy(request) {
           </div>
         </body>
       </html>
-    `, {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' }
-    });
+    `,
+      {
+        status: 200,
+        headers: { 'Content-Type': 'text/html' },
+      }
+    );
   }
 }
 
@@ -302,9 +309,7 @@ async function navigationStrategy(request) {
 function fetchWithTimeout(request, timeout) {
   return Promise.race([
     fetch(request),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Network timeout')), timeout)
-    )
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Network timeout')), timeout)),
   ]);
 }
 
@@ -314,16 +319,16 @@ function fetchWithTimeout(request, timeout) {
 
 self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received');
-  
+
   let data = {};
-  
+
   try {
     data = event.data ? event.data.json() : {};
   } catch (error) {
     console.error('[SW] Error parsing push data:', error);
     data = { title: 'NataCarePM', body: 'You have a new notification' };
   }
-  
+
   const title = data.title || 'NataCarePM';
   const options = {
     body: data.body || 'New notification',
@@ -335,15 +340,13 @@ self.addEventListener('push', (event) => {
     requireInteraction: data.requireInteraction || false,
     actions: data.actions || [
       { action: 'view', title: 'View', icon: '/icons/action-view.png' },
-      { action: 'dismiss', title: 'Dismiss', icon: '/icons/action-dismiss.png' }
+      { action: 'dismiss', title: 'Dismiss', icon: '/icons/action-dismiss.png' },
     ],
     vibrate: data.vibrate || [200, 100, 200],
-    silent: data.silent || false
+    silent: data.silent || false,
   };
-  
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 // ============================================================================
@@ -352,30 +355,29 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.action);
-  
+
   event.notification.close();
-  
+
   if (event.action === 'dismiss') {
     return;
   }
-  
+
   const urlToOpen = event.notification.data?.url || '/';
-  
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then((windowClients) => {
-        // Check if there's already a window open
-        for (let client of windowClients) {
-          if (client.url === urlToOpen && 'focus' in client) {
-            return client.focus();
-          }
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Check if there's already a window open
+      for (const client of windowClients) {
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
         }
-        
-        // No window open, open a new one
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
-      })
+      }
+
+      // No window open, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
   );
 });
 
@@ -385,7 +387,7 @@ self.addEventListener('notificationclick', (event) => {
 
 self.addEventListener('sync', (event) => {
   console.log('[SW] Background sync triggered:', event.tag);
-  
+
   if (event.tag === 'sync-data') {
     event.waitUntil(syncData());
   }
@@ -396,28 +398,26 @@ async function syncData() {
     // Get pending sync operations from IndexedDB
     // This is a placeholder - implement based on your app's needs
     console.log('[SW] Syncing pending operations...');
-    
+
     // Example: Sync offline form submissions, updates, etc.
     const pendingOperations = await getPendingOperations();
-    
+
     for (const operation of pendingOperations) {
       try {
         await fetch(operation.url, {
           method: operation.method,
           headers: operation.headers,
-          body: operation.body
+          body: operation.body,
         });
-        
+
         // Mark as synced
         await markOperationAsSynced(operation.id);
-        
       } catch (error) {
         console.error('[SW] Failed to sync operation:', error);
       }
     }
-    
+
     console.log('[SW] Sync complete');
-    
   } catch (error) {
     console.error('[SW] Sync failed:', error);
     throw error; // Retry
@@ -441,20 +441,17 @@ async function markOperationAsSynced(id) {
 
 self.addEventListener('message', (event) => {
   console.log('[SW] Message received:', event.data);
-  
+
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'CLIENTS_CLAIM') {
     self.clients.claim();
   }
-  
+
   if (event.data && event.data.type === 'CACHE_URLS') {
-    event.waitUntil(
-      caches.open(CACHE_NAME)
-        .then((cache) => cache.addAll(event.data.urls))
-    );
+    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(event.data.urls)));
   }
 });
 
@@ -464,7 +461,7 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('periodicsync', (event) => {
   console.log('[SW] Periodic sync triggered:', event.tag);
-  
+
   if (event.tag === 'update-data') {
     event.waitUntil(updateData());
   }
@@ -474,17 +471,16 @@ async function updateData() {
   try {
     // Fetch latest data in background
     console.log('[SW] Updating data in background...');
-    
+
     // Example: Update dashboard data, notifications, etc.
     const response = await fetch('/api/updates');
     const data = await response.json();
-    
+
     // Store in cache or IndexedDB
     const cache = await caches.open(CACHE_NAME);
     await cache.put('/api/updates', new Response(JSON.stringify(data)));
-    
+
     console.log('[SW] Data updated successfully');
-    
   } catch (error) {
     console.error('[SW] Failed to update data:', error);
   }

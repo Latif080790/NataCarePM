@@ -1,6 +1,7 @@
 # Safety Management System - User Guide
 
 ## Table of Contents
+
 1. [Introduction](#introduction)
 2. [Getting Started](#getting-started)
 3. [Safety Dashboard](#safety-dashboard)
@@ -75,18 +76,18 @@ The Safety Dashboard provides a real-time snapshot of your project's safety perf
 
 Four key metrics displayed at the top:
 
-- **Days Since Last Incident**: 
+- **Days Since Last Incident**:
   - Green (30+ days): Excellent safety performance
   - Yellow (7-29 days): Maintain vigilance
   - Red (<7 days): Requires immediate attention
 
-- **Active Incidents**: 
+- **Active Incidents**:
   - Count of incidents currently being investigated or in corrective action
 
-- **Critical Incidents**: 
+- **Critical Incidents**:
   - Fatal or critical severity incidents requiring immediate executive attention
 
-- **Open Findings**: 
+- **Open Findings**:
   - Unresolved findings from safety audits
 
 #### 2. OSHA Safety Rates
@@ -94,6 +95,7 @@ Four key metrics displayed at the top:
 Three primary OSHA metrics:
 
 **TRIR (Total Recordable Incident Rate)**
+
 - Formula: (Recordable Incidents × 200,000) / Total Work Hours
 - Target: < 2.0 (Industry average: 3.2)
 - Color Coding:
@@ -102,6 +104,7 @@ Three primary OSHA metrics:
   - Red: > 4.0 (Critical)
 
 **LTIFR (Lost Time Injury Frequency Rate)**
+
 - Formula: (Lost Time Injuries × 200,000) / Total Work Hours
 - Target: < 1.0 (Industry average: 1.8)
 - Color Coding:
@@ -110,12 +113,14 @@ Three primary OSHA metrics:
   - Red: > 2.0 (Critical)
 
 **Near Miss Frequency Rate**
+
 - Formula: (Near Misses × 200,000) / Total Work Hours
 - Note: Higher reporting is positive (indicates proactive safety culture)
 
 #### 3. Incidents by Severity
 
 Visual breakdown of incidents:
+
 - Fatal (Red)
 - Critical (Dark Orange)
 - Major (Orange)
@@ -164,11 +169,13 @@ Visual breakdown of incidents:
 ### Reporting an Incident
 
 #### Step 1: Access Incident Management
+
 1. Click "Safety" in main navigation
 2. Select "Incidents" from submenu
 3. Click "Report Incident" button (red button, top right)
 
 #### Step 2: Basic Information
+
 - **Incident Type**: Select from dropdown
   - Fall
   - Struck By
@@ -180,7 +187,6 @@ Visual breakdown of incidents:
   - Environmental
   - Ergonomic
   - Other
-  
 - **Severity**: Select appropriate level
   - **Fatal**: Death occurred
   - **Critical**: Life-threatening injury or major property damage
@@ -192,6 +198,7 @@ Visual breakdown of incidents:
 - **Description**: Detailed description of what happened
 
 #### Step 3: Location & Time
+
 - **Location**: Specific location on site (e.g., "Building A, 3rd Floor")
 - **Date & Time**: When the incident occurred
 - **Reported By**: Your name (auto-filled)
@@ -199,6 +206,7 @@ Visual breakdown of incidents:
 #### Step 4: People Involved
 
 **Injured Persons** (if applicable):
+
 - Name and role
 - Type of injury
 - Severity of injury (Fatal, Major, Minor, None)
@@ -207,16 +215,19 @@ Visual breakdown of incidents:
 - Expected days lost
 
 **Witnesses**:
+
 - Name and role
 - Contact information
 - Statement (optional at this stage)
 
 #### Step 5: Evidence
+
 - **Photos**: Upload photos of incident scene, injuries (if appropriate), equipment
 - **Documents**: Attach medical reports, witness statements, etc.
 - **Videos**: Upload video evidence if available
 
 #### Step 6: OSHA Classification
+
 - **OSHA Recordable**: Check if incident meets OSHA recording criteria
   - Death
   - Days away from work
@@ -224,10 +235,10 @@ Visual breakdown of incidents:
   - Medical treatment beyond first aid
   - Loss of consciousness
   - Diagnosis of significant injury or illness
-  
 - **Authorities Notified**: Indicate if OSHA or other authorities were contacted
 
 #### Step 7: Submit
+
 - Review all information for accuracy
 - Click "Submit Incident Report"
 - System generates unique incident number (e.g., INC-2024-001)
@@ -237,12 +248,14 @@ Visual breakdown of incidents:
 #### Incident List View
 
 **Filters**:
+
 - Search by incident number, title, location
 - Filter by severity
 - Filter by status
 - Date range selection
 
 **Status Indicators**:
+
 - **Reported** (Blue): Newly reported, awaiting investigation
 - **Investigating** (Yellow): Investigation in progress
 - **Corrective Action** (Purple): Corrective actions being implemented
@@ -250,6 +263,7 @@ Visual breakdown of incidents:
 - **Reopened** (Orange): Reopened for additional investigation
 
 **View Modes**:
+
 - **List View**: Detailed list with key information
 - **Grid View**: Card-based layout for visual scanning
 
@@ -258,18 +272,21 @@ Visual breakdown of incidents:
 Click on any incident to view full details:
 
 **Overview Tab**:
+
 - Complete incident information
 - Injured persons details
 - Witness statements
 - Evidence (photos, documents)
 
 **Investigation Tab**:
+
 - Investigation lead and team
 - Investigation timeline
 - Root cause analysis
 - Contributing factors
 
 **Corrective Actions Tab**:
+
 - List of corrective actions
 - Responsible person
 - Target completion date
@@ -277,6 +294,7 @@ Click on any incident to view full details:
 - Completion evidence
 
 **Cost Impact Tab**:
+
 - Medical costs
 - Property damage costs
 - Productivity loss costs
@@ -285,28 +303,33 @@ Click on any incident to view full details:
 ### Investigation Process
 
 #### Step 1: Assign Investigation Lead
+
 - Designated safety professional or manager
 - Must have investigation training
 
 #### Step 2: Gather Evidence
+
 - Interview witnesses
 - Photograph scene
 - Collect physical evidence
 - Review procedures and training records
 
 #### Step 3: Root Cause Analysis
+
 - Use 5 Whys technique
 - Identify immediate causes
 - Identify root causes
 - Identify contributing factors
 
 #### Step 4: Develop Corrective Actions
+
 - Actions to prevent recurrence
 - Assign responsibility
 - Set target dates
 - Document preventive measures
 
 #### Step 5: Close Investigation
+
 - Review findings
 - Approve corrective action plan
 - Submit to management
@@ -317,14 +340,17 @@ Click on any incident to view full details:
 #### When to Report to OSHA
 
 **Within 8 Hours**:
+
 - Any work-related fatality
 
 **Within 24 Hours**:
+
 - Any work-related inpatient hospitalization
 - Any work-related amputation
 - Any work-related loss of an eye
 
 #### How to Report
+
 1. Mark incident as "OSHA Recordable" in system
 2. System flags for regulatory reporting
 3. Follow company procedures for OSHA notification
@@ -337,6 +363,7 @@ Click on any incident to view full details:
 ### Training Dashboard
 
 View all training sessions and certification status:
+
 - Upcoming training sessions
 - Past training history
 - Certification expirations
@@ -345,6 +372,7 @@ View all training sessions and certification status:
 ### Scheduling Training
 
 #### Step 1: Create Training Session
+
 1. Navigate to Safety > Training
 2. Click "Schedule Training"
 3. Fill in details:
@@ -357,21 +385,25 @@ View all training sessions and certification status:
    - Maximum attendees
 
 #### Step 2: Add Attendees
+
 - Search and select workers
 - Or upload attendance list
 - System checks for certification expiry
 
 #### Step 3: Training Materials
+
 - Upload training materials
 - Add reference documents
 - Link to online resources
 
 #### Step 4: Assessment (if required)
+
 - Create assessment questions
 - Set passing score
 - Configure certificate issuance
 
 #### Step 5: Confirm
+
 - Review all details
 - Click "Schedule Training"
 - System sends notifications to attendees
@@ -379,15 +411,18 @@ View all training sessions and certification status:
 ### During Training
 
 #### Attendance
+
 - Mark attendees as present/absent
 - System tracks no-shows
 
 #### Assessment
+
 - Administer assessment (paper or digital)
 - Enter scores
 - System auto-generates pass/fail
 
 #### Certificates
+
 - System auto-generates certificates for passed attendees
 - Includes unique certificate number
 - Sets expiry date based on training type
@@ -395,11 +430,13 @@ View all training sessions and certification status:
 ### After Training
 
 #### Update Records
+
 - All attendee records updated automatically
 - Certifications issued
 - Compliance status updated
 
 #### Follow-Up
+
 - System sends certificates to attendees
 - Notifications for failed assessments
 - Recommendations for retraining
@@ -407,17 +444,20 @@ View all training sessions and certification status:
 ### Managing Certifications
 
 #### Certification Tracking
+
 - View all certifications by worker
 - Filter by certification type
 - Sort by expiry date
 
 #### Expiration Alerts
+
 - 90 days: First warning
 - 60 days: Second warning
 - 30 days: Final warning
 - 0 days: Expired (red flag)
 
 #### Bulk Operations
+
 - Export certification reports
 - Schedule bulk retraining
 - Generate compliance reports
@@ -429,6 +469,7 @@ View all training sessions and certification status:
 ### PPE Inventory
 
 #### Adding PPE Items
+
 1. Navigate to Safety > PPE > Inventory
 2. Click "Add PPE Item"
 3. Enter details:
@@ -442,6 +483,7 @@ View all training sessions and certification status:
    - Reorder level
 
 #### Managing Inventory
+
 - View total quantity, available, assigned, damaged
 - Track inspection dates
 - Monitor expiry dates
@@ -450,6 +492,7 @@ View all training sessions and certification status:
 ### PPE Assignment
 
 #### Assigning PPE to Workers
+
 1. Click "Assign PPE"
 2. Select worker
 3. Select PPE item
@@ -460,6 +503,7 @@ View all training sessions and certification status:
    - Expected return date
 
 #### Return Process
+
 1. Worker returns PPE
 2. Inspect condition
 3. Update status:
@@ -470,11 +514,13 @@ View all training sessions and certification status:
 ### PPE Compliance
 
 #### Compliance Checking
+
 - System tracks which workers have required PPE
 - Flags workers without proper equipment
 - Generates compliance reports
 
 #### Site Access Control
+
 - Integration with site access system (if available)
 - Prevents site entry without required PPE
 - Logs compliance violations
@@ -486,6 +532,7 @@ View all training sessions and certification status:
 ### Conducting an Audit
 
 #### Step 1: Create Audit
+
 1. Navigate to Safety > Audits
 2. Click "New Audit"
 3. Select audit type:
@@ -495,12 +542,14 @@ View all training sessions and certification status:
    - Regulatory compliance
 
 #### Step 2: Audit Details
+
 - Auditor name and certification
 - Date and time
 - Location and scope
 - Compliance standards (OSHA, ISO, etc.)
 
 #### Step 3: Checklist
+
 - Load pre-defined checklist or create custom
 - Categories: Housekeeping, PPE, Equipment, Procedures, etc.
 - For each item:
@@ -509,7 +558,9 @@ View all training sessions and certification status:
   - Enter comments
 
 #### Step 4: Findings
+
 For each non-compliance:
+
 - Describe finding
 - Assign severity (Critical, Major, Minor)
 - Recommend corrective action
@@ -517,6 +568,7 @@ For each non-compliance:
 - Assign responsibility
 
 #### Step 5: Complete Audit
+
 - Review all items
 - Calculate compliance rate
 - Generate report
@@ -525,6 +577,7 @@ For each non-compliance:
 ### Audit Results
 
 #### Compliance Rate
+
 - System calculates: (Compliant Items / Total Items) × 100
 - Color coding:
   - Green: ≥ 90%
@@ -532,6 +585,7 @@ For each non-compliance:
   - Red: < 75%
 
 #### Follow-Up Actions
+
 - System creates corrective action items
 - Assigns to responsible persons
 - Tracks completion
@@ -547,7 +601,6 @@ For each non-compliance:
    - All incidents by period
    - Severity breakdown
    - Cost impact analysis
-   
 2. **OSHA Report**
    - OSHA 300 Log format
    - All recordable incidents
@@ -629,21 +682,25 @@ For each non-compliance:
 ### Common Issues
 
 #### "I can't report an incident"
+
 - **Check permissions**: Ensure you have incident reporting rights
 - **Try different browser**: Some features require modern browsers
 - **Contact support**: Your safety manager or IT support
 
 #### "My certification shows as expired but it's current"
+
 - **Upload new certificate**: Attach updated certification document
 - **Contact training coordinator**: They can manually update
 - **Check expiry date**: Verify the date in the system
 
 #### "OSHA rates seem incorrect"
+
 - **Verify work hours**: Ensure total work hours are accurate
 - **Check incident classification**: Verify OSHA recordable status
 - **Review calculation**: OSHA rates use 200,000 hour denominator
 
 #### "I can't find an incident"
+
 - **Check filters**: Remove all filters and search again
 - **Verify spelling**: Check incident number or title spelling
 - **Check date range**: Expand date range in search
@@ -663,6 +720,7 @@ For each non-compliance:
 ### OSHA Incident Recordkeeping
 
 **What incidents must be recorded?**
+
 - Work-related deaths
 - Work-related injuries and illnesses that result in:
   - Days away from work
@@ -672,6 +730,7 @@ For each non-compliance:
   - Significant injury/illness diagnosed by physician
 
 **What is NOT recordable?**
+
 - First aid treatment only
 - Non-work-related incidents
 - Minor injuries (cuts, bruises requiring only first aid)

@@ -19,7 +19,7 @@ export const DocumentType = z.enum([
   'spreadsheet',
   'image',
   'video',
-  'other'
+  'other',
 ]);
 
 /**
@@ -30,18 +30,13 @@ export const DocumentStatus = z.enum([
   'pending-review',
   'approved',
   'rejected',
-  'archived'
+  'archived',
 ]);
 
 /**
  * Access Level Enum
  */
-export const AccessLevel = z.enum([
-  'public',
-  'internal',
-  'confidential',
-  'restricted'
-]);
+export const AccessLevel = z.enum(['public', 'internal', 'confidential', 'restricted']);
 
 /**
  * File size limits (in bytes)
@@ -62,7 +57,7 @@ const ALLOWED_DOCUMENT_TYPES = [
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'text/plain',
-  'text/csv'
+  'text/csv',
 ];
 
 const ALLOWED_IMAGE_TYPES = [
@@ -71,20 +66,17 @@ const ALLOWED_IMAGE_TYPES = [
   'image/png',
   'image/gif',
   'image/webp',
-  'image/svg+xml'
+  'image/svg+xml',
 ];
 
-const ALLOWED_VIDEO_TYPES = [
-  'video/mp4',
-  'video/webm',
-  'video/ogg'
-];
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg'];
 
 /**
  * Document Upload Schema
  */
 export const documentUploadSchema = z.object({
-  file: z.custom<File>((val) => val instanceof File, 'File is required')
+  file: z
+    .custom<File>((val) => val instanceof File, 'File is required')
     .refine((file) => {
       // Check file size
       if (ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -99,35 +91,32 @@ export const documentUploadSchema = z.object({
       const allowedTypes = [
         ...ALLOWED_DOCUMENT_TYPES,
         ...ALLOWED_IMAGE_TYPES,
-        ...ALLOWED_VIDEO_TYPES
+        ...ALLOWED_VIDEO_TYPES,
       ];
       return allowedTypes.includes(file.type);
     }, 'File type not allowed. Please upload PDF, Word, Excel, PowerPoint, images, or videos.'),
-  
-  title: z.string()
+
+  title: z
+    .string()
     .min(3, 'Document title must be at least 3 characters')
     .max(200, 'Document title is too long')
     .trim(),
-  
-  description: z.string()
-    .max(2000, 'Description is too long (max 2000 characters)')
-    .optional(),
-  
+
+  description: z.string().max(2000, 'Description is too long (max 2000 characters)').optional(),
+
   type: DocumentType.default('other'),
-  
+
   projectId: z.string().min(1, 'Project ID is required'),
-  
-  category: z.string()
-    .max(100, 'Category is too long')
-    .optional(),
-  
+
+  category: z.string().max(100, 'Category is too long').optional(),
+
   tags: z.array(z.string().trim()).max(20, 'Maximum 20 tags allowed').optional(),
-  
+
   accessLevel: AccessLevel.default('internal'),
-  
+
   expiryDate: z.coerce.date().optional(),
-  
-  requiresApproval: z.boolean().default(false)
+
+  requiresApproval: z.boolean().default(false),
 });
 
 export type DocumentUploadData = z.infer<typeof documentUploadSchema>;
@@ -136,27 +125,26 @@ export type DocumentUploadData = z.infer<typeof documentUploadSchema>;
  * Document Metadata Update Schema
  */
 export const documentUpdateSchema = z.object({
-  title: z.string()
+  title: z
+    .string()
     .min(3, 'Document title must be at least 3 characters')
     .max(200, 'Document title is too long')
     .trim()
     .optional(),
-  
-  description: z.string()
-    .max(2000, 'Description is too long')
-    .optional(),
-  
+
+  description: z.string().max(2000, 'Description is too long').optional(),
+
   type: DocumentType.optional(),
-  
+
   category: z.string().max(100).optional(),
-  
+
   tags: z.array(z.string().trim()).max(20).optional(),
-  
+
   accessLevel: AccessLevel.optional(),
-  
+
   status: DocumentStatus.optional(),
-  
-  expiryDate: z.coerce.date().optional()
+
+  expiryDate: z.coerce.date().optional(),
 });
 
 export type DocumentUpdateData = z.infer<typeof documentUpdateSchema>;
@@ -166,17 +154,18 @@ export type DocumentUpdateData = z.infer<typeof documentUpdateSchema>;
  */
 export const documentApprovalSchema = z.object({
   documentId: z.string().min(1, 'Document ID is required'),
-  
+
   approved: z.boolean(),
-  
-  comments: z.string()
+
+  comments: z
+    .string()
     .min(10, 'Please provide detailed feedback (at least 10 characters)')
     .max(2000, 'Comments are too long')
     .trim(),
-  
+
   signature: z.string().optional(),
-  
-  approvalDate: z.coerce.date().default(new Date())
+
+  approvalDate: z.coerce.date().default(new Date()),
 });
 
 export type DocumentApprovalData = z.infer<typeof documentApprovalSchema>;
@@ -186,20 +175,19 @@ export type DocumentApprovalData = z.infer<typeof documentApprovalSchema>;
  */
 export const documentShareSchema = z.object({
   documentId: z.string().min(1, 'Document ID is required'),
-  
-  recipientEmails: z.array(
-    z.string().email('Please enter valid email addresses')
-  ).min(1, 'At least one recipient is required').max(50, 'Maximum 50 recipients allowed'),
-  
-  message: z.string()
-    .max(1000, 'Message is too long')
-    .optional(),
-  
+
+  recipientEmails: z
+    .array(z.string().email('Please enter valid email addresses'))
+    .min(1, 'At least one recipient is required')
+    .max(50, 'Maximum 50 recipients allowed'),
+
+  message: z.string().max(1000, 'Message is too long').optional(),
+
   expiryDate: z.coerce.date().optional(),
-  
+
   allowDownload: z.boolean().default(true),
-  
-  notifyByEmail: z.boolean().default(true)
+
+  notifyByEmail: z.boolean().default(true),
 });
 
 export type DocumentShareData = z.infer<typeof documentShareSchema>;
@@ -209,24 +197,24 @@ export type DocumentShareData = z.infer<typeof documentShareSchema>;
  */
 export const documentFilterSchema = z.object({
   type: z.array(DocumentType).optional(),
-  
+
   status: z.array(DocumentStatus).optional(),
-  
+
   projectId: z.string().optional(),
-  
+
   uploadedBy: z.string().optional(),
-  
+
   search: z.string().max(200).optional(),
-  
+
   uploadedFrom: z.coerce.date().optional(),
-  
+
   uploadedTo: z.coerce.date().optional(),
-  
+
   tags: z.array(z.string()).optional(),
-  
+
   accessLevel: z.array(AccessLevel).optional(),
-  
-  onlyExpiringSoon: z.boolean().optional()
+
+  onlyExpiringSoon: z.boolean().optional(),
 });
 
 export type DocumentFilterData = z.infer<typeof documentFilterSchema>;
@@ -236,10 +224,10 @@ export type DocumentFilterData = z.infer<typeof documentFilterSchema>;
  */
 export const bulkDocumentActionSchema = z.object({
   documentIds: z.array(z.string()).min(1, 'At least one document must be selected'),
-  
+
   action: z.enum(['move', 'delete', 'archive', 'change-access', 'add-tags']),
-  
-  params: z.record(z.string(), z.unknown()).optional()
+
+  params: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type BulkDocumentActionData = z.infer<typeof bulkDocumentActionSchema>;
@@ -249,13 +237,14 @@ export type BulkDocumentActionData = z.infer<typeof bulkDocumentActionSchema>;
  */
 export const documentVersionCommentSchema = z.object({
   documentId: z.string().min(1, 'Document ID is required'),
-  
+
   versionNumber: z.number().int().positive(),
-  
-  comment: z.string()
+
+  comment: z
+    .string()
     .min(5, 'Comment must be at least 5 characters')
     .max(1000, 'Comment is too long')
-    .trim()
+    .trim(),
 });
 
 export type DocumentVersionCommentData = z.infer<typeof documentVersionCommentSchema>;
@@ -265,12 +254,12 @@ export type DocumentVersionCommentData = z.infer<typeof documentVersionCommentSc
  */
 export const ocrRequestSchema = z.object({
   documentId: z.string().min(1, 'Document ID is required'),
-  
+
   language: z.enum(['eng', 'ind', 'auto']).default('auto'),
-  
+
   extractTables: z.boolean().default(false),
-  
-  extractImages: z.boolean().default(false)
+
+  extractImages: z.boolean().default(false),
 });
 
 export type OCRRequestData = z.infer<typeof ocrRequestSchema>;
@@ -280,18 +269,14 @@ export type OCRRequestData = z.infer<typeof ocrRequestSchema>;
  */
 export const digitalSignatureSchema = z.object({
   documentId: z.string().min(1, 'Document ID is required'),
-  
+
   signatureData: z.string().min(100, 'Invalid signature data'),
-  
+
   certificateId: z.string().optional(),
-  
-  reason: z.string()
-    .max(200, 'Reason is too long')
-    .optional(),
-  
-  location: z.string()
-    .max(100, 'Location is too long')
-    .optional()
+
+  reason: z.string().max(200, 'Reason is too long').optional(),
+
+  location: z.string().max(100, 'Location is too long').optional(),
 });
 
 export type DigitalSignatureData = z.infer<typeof digitalSignatureSchema>;
@@ -336,9 +321,9 @@ export function validateUploadedFile(file: File): {
   const allowedMimeTypes = [
     ...ALLOWED_DOCUMENT_TYPES,
     ...ALLOWED_IMAGE_TYPES,
-    ...ALLOWED_VIDEO_TYPES
+    ...ALLOWED_VIDEO_TYPES,
   ];
-  
+
   if (!allowedMimeTypes.includes(file.type)) {
     errors.push(`File type "${file.type}" is not allowed`);
   }
@@ -352,7 +337,9 @@ export function validateUploadedFile(file: File): {
   }
 
   if (file.size > maxSize) {
-    errors.push(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed (${(maxSize / 1024 / 1024).toFixed(0)}MB)`);
+    errors.push(
+      `File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed (${(maxSize / 1024 / 1024).toFixed(0)}MB)`
+    );
   }
 
   // Warnings for large files
@@ -363,7 +350,7 @@ export function validateUploadedFile(file: File): {
   return {
     valid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
@@ -382,10 +369,10 @@ export function getFileCategory(mimeType: string): 'document' | 'image' | 'video
  */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }

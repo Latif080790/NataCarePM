@@ -31,10 +31,10 @@ let allPassed = true;
 for (const check of checks) {
   try {
     console.log(`⏳ ${check.description}`);
-    execSync(check.command, { 
-      stdio: 'inherit', 
+    execSync(check.command, {
+      stdio: 'inherit',
       cwd: path.resolve(__dirname),
-      timeout: 120000 // 2 minutes timeout
+      timeout: 120000, // 2 minutes timeout
     });
     console.log(`✅ ${check.name} passed\n`);
   } catch (error) {

@@ -1,7 +1,7 @@
 /**
  * Mobile Offline Inspection Type Definitions
  * Phase 3.5: Quick Wins - Mobile Offline Capabilities
- * 
+ *
  * Support for offline data collection, sync, and conflict resolution
  */
 
@@ -16,10 +16,10 @@ export interface OfflineInspection {
   id: string;
   localId: string; // UUID generated locally
   remoteId?: string; // Firestore ID after sync
-  
+
   projectId: string;
   inspectionType: string;
-  
+
   // Offline metadata
   offlineMetadata: {
     createdOffline: boolean;
@@ -33,14 +33,14 @@ export interface OfflineInspection {
     };
     networkStatus: 'online' | 'offline';
   };
-  
+
   // Sync status
   syncStatus: SyncStatus;
   lastSyncAttempt?: Date;
   lastSyncSuccess?: Date;
   syncError?: string;
   syncRetryCount: number;
-  
+
   // Inspection data
   data: {
     title: string;
@@ -49,7 +49,7 @@ export interface OfflineInspection {
     inspector: string;
     scheduledDate: Date;
     actualDate?: Date;
-    
+
     checklist: {
       id: string;
       item: string;
@@ -57,11 +57,11 @@ export interface OfflineInspection {
       notes?: string;
       photoIds?: string[]; // References to offline photos
     }[];
-    
+
     overallResult?: 'pass' | 'fail' | 'conditional';
     notes?: string;
   };
-  
+
   // Attachments (stored locally)
   attachments: {
     id: string;
@@ -74,7 +74,7 @@ export interface OfflineInspection {
     uploaded: boolean;
     uploadProgress?: number;
   }[];
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -86,20 +86,20 @@ export interface SyncQueueItem {
   id: string;
   type: 'inspection' | 'defect' | 'incident' | 'training' | 'attachment';
   entityId: string;
-  
+
   operation: 'create' | 'update' | 'delete';
   direction: SyncDirection;
-  
+
   priority: number; // Higher = more urgent
-  
+
   data: any;
-  
+
   status: SyncStatus;
   retryCount: number;
   maxRetries: number;
-  
+
   error?: string;
-  
+
   createdAt: Date;
   scheduledAt?: Date;
   processedAt?: Date;
@@ -112,26 +112,26 @@ export interface SyncConflict {
   id: string;
   entityType: string;
   entityId: string;
-  
+
   localVersion: {
     data: any;
     timestamp: Date;
     deviceId: string;
   };
-  
+
   remoteVersion: {
     data: any;
     timestamp: Date;
     userId: string;
   };
-  
+
   resolution: ConflictResolution;
   resolvedBy?: string;
   resolvedAt?: Date;
   resolvedData?: any;
-  
+
   status: 'pending' | 'resolved' | 'ignored';
-  
+
   createdAt: Date;
 }
 
@@ -142,18 +142,18 @@ export interface OfflineStorageMetadata {
   version: string;
   lastSync: Date;
   deviceId: string;
-  
+
   databases: {
     name: string;
     version: number;
     size: number;
     recordCount: number;
   }[];
-  
+
   pendingSync: number;
   failedSync: number;
   conflicts: number;
-  
+
   storageQuota: {
     usage: number;
     quota: number;
@@ -168,7 +168,7 @@ export interface ServiceWorkerStatus {
   registered: boolean;
   active: boolean;
   version: string;
-  
+
   cacheStatus: {
     appCache: {
       name: string;
@@ -181,7 +181,7 @@ export interface ServiceWorkerStatus {
       entries: number;
     };
   };
-  
+
   updateAvailable: boolean;
   lastUpdate?: Date;
 }
@@ -204,20 +204,20 @@ export interface NetworkStatus {
 export interface BackgroundSyncTask {
   id: string;
   tag: string;
-  
+
   type: 'sync' | 'upload' | 'download';
-  
+
   itemsTotal: number;
   itemsProcessed: number;
   itemsFailed: number;
-  
+
   progress: number; // percentage
-  
+
   startedAt?: Date;
   completedAt?: Date;
-  
+
   status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
-  
+
   error?: string;
 }
 

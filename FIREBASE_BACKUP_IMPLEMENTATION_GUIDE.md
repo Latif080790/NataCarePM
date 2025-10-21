@@ -134,10 +134,10 @@ const client = new firestore.v1.FirestoreAdminClient();
 
 /**
  * Automated Firestore Backup Function
- * 
+ *
  * Exports all Firestore collections to Google Cloud Storage
  * Triggered daily by Cloud Scheduler
- * 
+ *
  * Features:
  * - Full database export
  * - Timestamped backups
@@ -147,73 +147,66 @@ const client = new firestore.v1.FirestoreAdminClient();
 export const backupFirestore = functions
   .runWith({
     timeoutSeconds: 540, // 9 minutes
-    memory: '1GB'
+    memory: '1GB',
   })
-  .pubsub
-  .schedule('0 2 * * *') // Run at 2 AM every day
+  .pubsub.schedule('0 2 * * *') // Run at 2 AM every day
   .timeZone('Asia/Jakarta') // Adjust to your timezone
   .onRun(async (context) => {
     const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
     const bucket = `gs://${projectId}-firestore-backups`;
-    
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const outputUriPrefix = `${bucket}/firestore-backups/${timestamp}`;
-    
+
     const databaseName = client.databasePath(projectId!, '(default)');
-    
+
     try {
       console.log(`Starting Firestore backup to ${outputUriPrefix}`);
-      
+
       const [response] = await client.exportDocuments({
         name: databaseName,
         outputUriPrefix: outputUriPrefix,
         // Optional: specify collections to backup
         // collectionIds: ['users', 'projects', 'tasks', 'documents', 'pos']
       });
-      
+
       console.log(`Backup operation started: ${response.name}`);
       console.log(`Backup will be saved to: ${outputUriPrefix}`);
-      
+
       // Optional: Send notification (email, Slack, etc.)
       // await sendBackupNotification(timestamp, 'success');
-      
+
       return {
         success: true,
         timestamp,
         outputUri: outputUriPrefix,
-        operationName: response.name
+        operationName: response.name,
       };
-      
     } catch (error) {
       console.error('Backup failed:', error);
-      
+
       // Optional: Send error notification
       // await sendBackupNotification(timestamp, 'failed', error);
-      
-      throw new functions.https.HttpsError(
-        'internal',
-        'Backup operation failed',
-        error
-      );
+
+      throw new functions.https.HttpsError('internal', 'Backup operation failed', error);
     }
   });
 
 /**
  * Manual Backup Trigger (HTTP endpoint)
- * 
+ *
  * Allows manual triggering of backups via HTTP request
  * Useful for testing or on-demand backups
- * 
+ *
  * Usage: POST https://[region]-[project-id].cloudfunctions.net/manualBackup
  * Authorization: Bearer [Firebase ID token]
  */
 export const manualBackup = functions
   .runWith({
     timeoutSeconds: 540,
-    memory: '1GB'
+    memory: '1GB',
   })
-  .https
-  .onCall(async (data, context) => {
+  .https.onCall(async (data, context) => {
     // Require authentication
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -221,94 +214,87 @@ export const manualBackup = functions
         'Must be authenticated to trigger backup'
       );
     }
-    
+
     // Require admin role
     const token = context.auth.token;
     if (token.role !== 'admin' && token.role !== 'super-admin') {
-      throw new functions.https.HttpsError(
-        'permission-denied',
-        'Must be admin to trigger backup'
-      );
+      throw new functions.https.HttpsError('permission-denied', 'Must be admin to trigger backup');
     }
-    
+
     const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
     const bucket = `gs://${projectId}-firestore-backups`;
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const outputUriPrefix = `${bucket}/firestore-backups/manual-${timestamp}`;
     const databaseName = client.databasePath(projectId!, '(default)');
-    
+
     try {
       const [response] = await client.exportDocuments({
         name: databaseName,
-        outputUriPrefix: outputUriPrefix
+        outputUriPrefix: outputUriPrefix,
       });
-      
+
       console.log(`Manual backup started by ${context.auth.uid}`);
-      
+
       return {
         success: true,
         timestamp,
         outputUri: outputUriPrefix,
         operationName: response.name,
-        triggeredBy: context.auth.uid
+        triggeredBy: context.auth.uid,
       };
-      
     } catch (error) {
       console.error('Manual backup failed:', error);
-      throw new functions.https.HttpsError(
-        'internal',
-        'Manual backup operation failed',
-        error
-      );
+      throw new functions.https.HttpsError('internal', 'Manual backup operation failed', error);
     }
   });
 
 /**
  * Backup Verification Function
- * 
+ *
  * Verifies backup integrity by checking GCS bucket
  * Runs 1 hour after scheduled backup
  */
 export const verifyBackup = functions
   .runWith({
     timeoutSeconds: 60,
-    memory: '256MB'
+    memory: '256MB',
   })
-  .pubsub
-  .schedule('0 3 * * *') // Run at 3 AM (1 hour after backup)
+  .pubsub.schedule('0 3 * * *') // Run at 3 AM (1 hour after backup)
   .timeZone('Asia/Jakarta')
   .onRun(async (context) => {
     const { Storage } = require('@google-cloud/storage');
     const storage = new Storage();
-    
+
     const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
     const bucketName = `${projectId}-firestore-backups`;
-    
+
     try {
       // Get today's backup folder
       const today = new Date().toISOString().split('T')[0];
       const prefix = `firestore-backups/${today}`;
-      
+
       const [files] = await storage.bucket(bucketName).getFiles({ prefix });
-      
+
       if (files.length === 0) {
         console.error(`No backup found for ${today}`);
         // Send alert
         return { success: false, message: 'No backup found' };
       }
-      
-      const totalSize = files.reduce((sum: number, file: any) => sum + parseInt(file.metadata.size), 0);
+
+      const totalSize = files.reduce(
+        (sum: number, file: any) => sum + parseInt(file.metadata.size),
+        0
+      );
       const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
-      
+
       console.log(`Backup verified: ${files.length} files, ${sizeInMB} MB`);
-      
+
       return {
         success: true,
         fileCount: files.length,
         totalSize: sizeInMB + ' MB',
-        date: today
+        date: today,
       };
-      
     } catch (error) {
       console.error('Backup verification failed:', error);
       return { success: false, error };
@@ -452,16 +438,19 @@ gcloud firestore import ${BACKUP_PATH} \
 ### Regular Tasks
 
 #### Weekly
+
 - Review backup logs for errors
 - Check storage usage trends
 - Verify backup file sizes
 
 #### Monthly
+
 - Test restoration procedure (to staging environment)
 - Review retention policy effectiveness
 - Audit access logs
 
 #### Quarterly
+
 - Perform full disaster recovery drill
 - Update documentation
 - Review and optimize costs

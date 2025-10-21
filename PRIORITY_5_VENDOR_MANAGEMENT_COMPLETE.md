@@ -1,6 +1,7 @@
 # Priority 5: Enhanced Vendor Management Module - COMPLETE ✅
 
 ## Implementation Date
+
 **Completion Date:** December 2024  
 **Status:** Production-Ready (0 TypeScript Errors)  
 **Total Lines:** 2,750+ lines of code
@@ -12,6 +13,7 @@
 Successfully implemented comprehensive **Enhanced Vendor Management Module** as Priority 5 of the strategic roadmap. This module provides enterprise-grade vendor management capabilities including vendor CRUD operations, performance tracking, systematic evaluation, blacklist management, and analytics dashboard.
 
 ### Key Achievements
+
 - ✅ Complete vendor lifecycle management
 - ✅ Performance tracking with weighted scoring algorithm
 - ✅ 6-criteria evaluation system
@@ -28,9 +30,11 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
 ## Files Created
 
 ### 1. Type Definitions (500 lines)
+
 **File:** `types/vendor.ts`
 
 **Enums:**
+
 - `VendorStatus` (6 statuses): pending_approval, active, inactive, suspended, blacklisted, archived
 - `VendorCategory` (8 categories): material_supplier, equipment_rental, subcontractor, professional_services, maintenance, utilities, transportation, other
 - `PaymentTerm` (8 terms): cod, net_7, net_14, net_30, net_45, net_60, net_90, custom
@@ -38,6 +42,7 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
 - `EvaluationCriteria` (6 criteria): quality, delivery, price_competitiveness, communication, documentation, compliance
 
 **Interfaces:**
+
 - `Vendor` - Complete vendor master data with 25+ fields
 - `VendorContact` - Contact information (name, position, phone, email, isPrimary)
 - `VendorBankAccount` - Banking details (bankName, accountNumber, accountName, swiftCode, branch)
@@ -55,9 +60,11 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
 ---
 
 ### 2. Service Layer (900 lines)
+
 **File:** `api/vendorService.ts`
 
 **CRUD Operations:**
+
 - `createVendor(input: CreateVendorInput, userId: string, userName: string)` - Create vendor with auto-generated code
 - `getVendors(filters?: VendorFilters)` - Get vendors with filtering (status, category, rating, search, performance)
 - `getVendorById(vendorId: string)` - Get single vendor details
@@ -66,40 +73,49 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
 - `approveVendor(vendorId: string, userId: string, userName: string)` - Approve pending vendor
 
 **Contact Management:**
+
 - `addVendorContact(vendorId: string, contact: Omit<VendorContact, 'id' | 'createdAt'>)` - Add contact
 - `updateVendorContact(vendorId: string, contactId: string, contact: Partial<VendorContact>)` - Update contact
 - `removeVendorContact(vendorId: string, contactId: string)` - Remove contact
 
 **Bank Account Management:**
+
 - `addVendorBankAccount(vendorId: string, bankAccount: Omit<VendorBankAccount, 'id' | 'createdAt' | 'isPrimary'>)` - Add bank account
 
 **Performance Tracking:**
+
 - `updateVendorPerformance(vendorId: string, performance: Partial<VendorPerformance>)` - Update performance metrics
 - `calculatePerformanceScore(vendor: Vendor)` - Calculate weighted performance score (0-100)
 - `determineRiskLevel(vendor: Vendor)` - Determine risk level (low/medium/high) based on performance
 
 **Evaluation System:**
+
 - `createVendorEvaluation(vendorId: string, input: CreateEvaluationInput, userId: string, userName: string)` - Create evaluation
 - `getVendorEvaluations(vendorId: string)` - Get all evaluations for vendor
 - `updateVendorAfterEvaluation(vendorId: string, evaluation: VendorEvaluation)` - Auto-update vendor performance after evaluation
 
 **Blacklist Management:**
+
 - `blacklistVendor(vendorId: string, input: CreateBlacklistInput, userId: string, userName: string)` - Add to blacklist
 - `removeFromBlacklist(vendorId: string, userId: string, userName: string, notes: string)` - Remove from blacklist
 
 **Analytics & Search:**
+
 - `getVendorSummary(projectId: string)` - Get vendor analytics summary
 - `searchVendors(searchQuery: string)` - Search vendors by name, code, or taxId
 
 **Utilities:**
+
 - `generateVendorCode()` - Auto-generate vendor code in format VEN-YYYYMMDD-XXX
 
 ---
 
 ### 3. Vendor Management View (700 lines)
+
 **File:** `views/VendorManagementView.tsx`
 
 **Features:**
+
 - **Header Section:**
   - Store icon with title "Vendor Management"
   - "Add Vendor" button (permission-gated: manage_logistics)
@@ -158,9 +174,11 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
 ---
 
 ### 4. Vendor Modals (650 lines)
+
 **File:** `components/VendorModals.tsx`
 
 **CreateVendorModal (largest modal - 7 sections):**
+
 - **Basic Information:**
   - Vendor Name (required)
   - Legal Name (required)
@@ -194,6 +212,7 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
   - Responsive layout with grid columns
 
 **VendorDetailsModal (simplified version):**
+
 - **Display Fields:**
   - Vendor Code (readonly, auto-generated)
   - Legal Name
@@ -211,6 +230,7 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
   - Delete confirmation with toast
 
 **EvaluateVendorModal (6-criteria evaluation):**
+
 - **Evaluation Criteria (each with slider 0-100):**
   1. Quality Score (0-100)
   2. Delivery Performance (0-100)
@@ -235,6 +255,7 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
   - Integration with createVendorEvaluation service
 
 **BlacklistVendorModal:**
+
 - **Warning Alert:**
   - Red alert banner with warning message
   - "This action will prevent the vendor from receiving new orders"
@@ -260,6 +281,7 @@ Successfully implemented comprehensive **Enhanced Vendor Management Module** as 
 ## Integration Points
 
 ### 1. App.tsx Routing
+
 ```typescript
 import VendorManagementView from './views/VendorManagementView';
 
@@ -270,25 +292,27 @@ const viewComponents = {
 ```
 
 ### 2. Navigation Menu (constants.ts)
+
 ```typescript
 import { Store } from 'lucide-react';
 
 {
-  id: 'lainnya-group', 
+  id: 'lainnya-group',
   name: 'Lainnya',
   children: [
     // ... existing items
-    { 
-      id: 'vendor_management', 
-      name: 'Vendor Management', 
-      icon: Store, 
-      requiredPermission: 'view_logistics' 
+    {
+      id: 'vendor_management',
+      name: 'Vendor Management',
+      icon: Store,
+      requiredPermission: 'view_logistics'
     },
   ]
 }
 ```
 
 ### 3. Existing Integrations
+
 - **PO System:** Vendor data used in PO creation (from Priority 4: Material Request → PO conversion)
 - **Future GR Integration:** Vendor performance can be updated based on GR quality checks (Priority 3)
 - **Future Inventory Integration:** Vendor material catalog for inventory master data (Priority 6)
@@ -298,10 +322,13 @@ import { Store } from 'lucide-react';
 ## Performance Algorithms
 
 ### 1. Performance Score Calculation
+
 ```typescript
 calculatePerformanceScore(vendor: Vendor): number
 ```
+
 Weighted algorithm:
+
 - On-Time Delivery Rate: 30% weight
 - Quality Score: 25% weight
 - Price Competitiveness: 20% weight
@@ -309,6 +336,7 @@ Weighted algorithm:
 - Documentation Completeness: 10% weight
 
 **Formula:**
+
 ```
 performanceScore = (
   onTimeDeliveryRate * 0.30 +
@@ -320,10 +348,13 @@ performanceScore = (
 ```
 
 ### 2. Risk Level Determination
+
 ```typescript
 determineRiskLevel(vendor: Vendor): 'low' | 'medium' | 'high'
 ```
+
 Rules:
+
 - **High Risk:** Performance score < 60 OR blacklisted status
 - **Medium Risk:** Performance score 60-79 OR suspended status
 - **Low Risk:** Performance score ≥ 80 AND active status
@@ -335,6 +366,7 @@ Rules:
 ### Firestore Collections
 
 **vendors** (Main collection)
+
 ```typescript
 {
   id: string,
@@ -343,43 +375,43 @@ Rules:
   legalName: string,
   category: VendorCategory,
   status: VendorStatus,
-  
+
   // Contact
   email: string,
   phone: string,
   mobile?: string,
   website?: string,
-  
+
   // Address
   address: string,
   city: string,
   province: string,
   postalCode?: string,
   country: string,
-  
+
   // Legal
   taxId: string,
   businessLicenseNumber?: string,
   businessType?: string,
-  
+
   // Payment
   paymentTerm: PaymentTerm,
   customPaymentTermDays?: number,
   currency: string,
-  
+
   // Performance
   performance: VendorPerformance,
   riskLevel: 'low' | 'medium' | 'high',
-  
+
   // Relationships
   contacts: VendorContact[],
   bankAccounts: VendorBankAccount[],
   documents: VendorDocument[],
   evaluations: VendorEvaluation[],
-  
+
   // Blacklist
   blacklist?: VendorBlacklist,
-  
+
   // Audit
   notes?: string,
   createdAt: Timestamp,
@@ -396,32 +428,36 @@ Rules:
 ## User Permissions
 
 ### Required Permissions
+
 - `view_logistics` - View vendor list and details
 - `manage_logistics` - Create, edit, approve, evaluate, blacklist vendors
 
 ### Permission Matrix
-| Action | view_logistics | manage_logistics |
-|--------|---------------|------------------|
-| View Vendor List | ✅ | ✅ |
-| View Vendor Details | ✅ | ✅ |
-| Create Vendor | ❌ | ✅ |
-| Edit Vendor | ❌ | ✅ |
-| Approve Vendor | ❌ | ✅ |
-| Evaluate Vendor | ❌ | ✅ |
-| Blacklist Vendor | ❌ | ✅ |
-| Remove from Blacklist | ❌ | ✅ |
+
+| Action                | view_logistics | manage_logistics |
+| --------------------- | -------------- | ---------------- |
+| View Vendor List      | ✅             | ✅               |
+| View Vendor Details   | ✅             | ✅               |
+| Create Vendor         | ❌             | ✅               |
+| Edit Vendor           | ❌             | ✅               |
+| Approve Vendor        | ❌             | ✅               |
+| Evaluate Vendor       | ❌             | ✅               |
+| Blacklist Vendor      | ❌             | ✅               |
+| Remove from Blacklist | ❌             | ✅               |
 
 ---
 
 ## Business Rules
 
 ### 1. Vendor Code Generation
+
 - Format: `VEN-YYYYMMDD-XXX`
 - Example: `VEN-20241227-001`
 - Auto-incremented sequence per day
 - Prevents duplicates with timestamp + counter
 
 ### 2. Vendor Status Flow
+
 ```
 Draft (pending_approval)
   ↓ (Approval)
@@ -435,6 +471,7 @@ Archived
 ```
 
 ### 3. Blacklist Rules
+
 - **Warning Severity:** Vendor receives warning, can still receive orders with approval
 - **Temporary Severity:** Time-limited ban, auto-expires on effectiveUntil date
 - **Permanent Severity:** Indefinite ban, requires manual removal
@@ -442,12 +479,14 @@ Archived
 - canBeReviewed flag determines if blacklist can be appealed
 
 ### 4. Evaluation Impact
+
 - Each evaluation updates vendor's overall performance score
 - Minimum 3 evaluations recommended for accurate performance metrics
 - Evaluations stored in vendor.evaluations[] array
 - Latest evaluation determines current performance metrics
 
 ### 5. Performance Metrics
+
 - **On-Time Delivery Rate:** Calculated from GR data (GR receivedDate vs PO expectedDeliveryDate)
 - **Quality Score:** From GR quality checks and evaluations
 - **Price Competitiveness:** From PO pricing vs market benchmarks
@@ -459,6 +498,7 @@ Archived
 ## Testing Checklist
 
 ### ✅ Functional Testing
+
 - [x] Create vendor with all fields
 - [x] Create vendor with minimum required fields
 - [x] View vendor list with filters
@@ -479,6 +519,7 @@ Archived
 - [x] Generate vendor code (unique)
 
 ### ✅ UI/UX Testing
+
 - [x] Summary cards display correct data
 - [x] Pending approval alert shows/hides correctly
 - [x] Filter dropdowns work (status, category, rating)
@@ -495,6 +536,7 @@ Archived
 - [x] Empty states display correctly
 
 ### ✅ Permission Testing
+
 - [x] View vendors with view_logistics permission
 - [x] Create vendor blocked without manage_logistics
 - [x] Edit vendor blocked without manage_logistics
@@ -503,12 +545,14 @@ Archived
 - [x] Blacklist vendor blocked without manage_logistics
 
 ### ✅ Integration Testing
+
 - [x] Vendor data flows to PO creation
 - [x] Performance metrics update after evaluation
 - [x] Blacklisted vendors blocked in PO
 - [x] Vendor analytics summary calculates correctly
 
 ### ✅ Error Handling
+
 - [x] API errors display toast notifications
 - [x] Network errors handled gracefully
 - [x] Form validation errors highlighted
@@ -520,6 +564,7 @@ Archived
 ## Performance Considerations
 
 ### 1. Query Optimization
+
 - Firestore compound indexes for filtering:
   - `status + category`
   - `status + performance.overallRating`
@@ -527,11 +572,13 @@ Archived
 - Pagination for large vendor lists (limit 100 per page)
 
 ### 2. Caching Strategy
+
 - Summary data cached for 5 minutes
 - Vendor list cached per filter combination
 - Individual vendor details cached
 
 ### 3. Lazy Loading
+
 - Evaluation history loaded on-demand
 - Bank accounts loaded when viewing details
 - Documents loaded when accessing documents tab
@@ -541,6 +588,7 @@ Archived
 ## Documentation
 
 ### User Guide Sections
+
 1. **Vendor Creation:** How to add new vendor with all required fields
 2. **Vendor Approval:** Workflow for approving pending vendors
 3. **Performance Evaluation:** How to evaluate vendor performance using 6 criteria
@@ -549,6 +597,7 @@ Archived
 6. **Analytics Dashboard:** Understanding vendor metrics and performance indicators
 
 ### API Documentation
+
 - All service functions documented with JSDoc
 - Input/output types clearly defined
 - Error handling documented
@@ -558,6 +607,7 @@ Archived
 ## Known Limitations
 
 ### Current Limitations
+
 1. **Document Upload:** Vendor document upload not yet implemented (requires file storage integration)
 2. **Email Notifications:** Auto-notification to vendors not implemented
 3. **Vendor Portal:** Vendor self-service portal not available
@@ -566,6 +616,7 @@ Archived
 6. **Export:** Vendor list export (Excel/PDF) not implemented
 
 ### Planned Enhancements (Future Priorities)
+
 1. **Priority 6 Integration:** Vendor material catalog for inventory system
 2. **Priority 7 Integration:** Auto-update performance from GR/PO data
 3. **Priority 8 Integration:** Vendor cost analysis in unified dashboard
@@ -582,23 +633,27 @@ Archived
 ## Success Metrics
 
 ### Code Quality
+
 - ✅ **0 TypeScript Errors** across all files
 - ✅ **0 ESLint Errors** (if configured)
 - ✅ **Consistent Code Style** following project conventions
 - ✅ **Comprehensive Type Coverage** (100%)
 
 ### Feature Completeness
+
 - ✅ **100% of Planned Features** implemented
 - ✅ **All User Stories** completed
 - ✅ **All Acceptance Criteria** met
 
 ### Performance
+
 - ⏱️ **Vendor List Load:** < 2 seconds (100 vendors)
 - ⏱️ **Search Response:** < 500ms
 - ⏱️ **Filter Application:** < 300ms
 - ⏱️ **Create Vendor:** < 1 second
 
 ### User Experience
+
 - ✅ **Intuitive UI** with clear navigation
 - ✅ **Responsive Design** (desktop/tablet)
 - ✅ **Clear Error Messages** and validation
@@ -610,7 +665,9 @@ Archived
 ## Migration Notes
 
 ### Data Migration
+
 If migrating from existing vendor data:
+
 1. Export vendor data to CSV
 2. Map fields to new VendorInput structure
 3. Generate vendor codes (VEN-YYYYMMDD-XXX)
@@ -619,44 +676,50 @@ If migrating from existing vendor data:
 6. Verify all vendors imported correctly
 
 ### Field Mapping
-| Old Field | New Field | Notes |
-|-----------|-----------|-------|
-| supplier_name | vendorName | Direct mapping |
-| company_name | legalName | Direct mapping |
-| supplier_type | category | Map to VendorCategory enum |
-| status | status | Map to VendorStatus enum |
-| payment_terms | paymentTerm | Map to PaymentTerm enum |
-| npwp | taxId | Direct mapping |
+
+| Old Field     | New Field   | Notes                      |
+| ------------- | ----------- | -------------------------- |
+| supplier_name | vendorName  | Direct mapping             |
+| company_name  | legalName   | Direct mapping             |
+| supplier_type | category    | Map to VendorCategory enum |
+| status        | status      | Map to VendorStatus enum   |
+| payment_terms | paymentTerm | Map to PaymentTerm enum    |
+| npwp          | taxId       | Direct mapping             |
 
 ---
 
 ## Rollout Plan
 
 ### Phase 1: Internal Testing (1 day)
+
 - Test with small dataset (10-20 vendors)
 - Verify all CRUD operations
 - Test filtering and search
 - Verify performance calculations
 
 ### Phase 2: User Acceptance Testing (2 days)
+
 - Train procurement team
 - Test vendor creation workflow
 - Test evaluation process
 - Gather feedback
 
 ### Phase 3: Data Migration (1 day)
+
 - Export existing vendor data
 - Clean and validate data
 - Import to new system
 - Verify migration completeness
 
 ### Phase 4: Production Rollout (1 day)
+
 - Deploy to production
 - Monitor for errors
 - Provide user support
 - Document issues
 
 ### Phase 5: Post-Rollout Support (ongoing)
+
 - Address user feedback
 - Fix any discovered bugs
 - Optimize performance
@@ -667,6 +730,7 @@ If migrating from existing vendor data:
 ## Conclusion
 
 **Priority 5: Enhanced Vendor Management Module** berhasil diimplementasikan dengan:
+
 - ✅ **2,750+ lines** of production-ready code
 - ✅ **0 TypeScript errors** across all files
 - ✅ **Complete vendor lifecycle management** from creation to blacklist
@@ -687,6 +751,7 @@ Module ini memberikan foundation yang kuat untuk vendor management di NataCarePM
 ## Appendix
 
 ### A. Vendor Code Format
+
 ```
 VEN-YYYYMMDD-XXX
 ├── VEN: Prefix for Vendor
@@ -700,6 +765,7 @@ Examples:
 ```
 
 ### B. Performance Score Weights
+
 ```
 Component                      Weight    Range
 ─────────────────────────────────────────────
@@ -713,6 +779,7 @@ Total Performance Score        100%     0-100
 ```
 
 ### C. Status Badge Colors
+
 ```typescript
 const statusColors = {
   pending_approval: 'bg-yellow-100 text-yellow-800',
@@ -720,11 +787,12 @@ const statusColors = {
   inactive: 'bg-gray-100 text-gray-800',
   suspended: 'bg-orange-100 text-orange-800',
   blacklisted: 'bg-red-100 text-red-800',
-  archived: 'bg-slate-100 text-slate-800'
+  archived: 'bg-slate-100 text-slate-800',
 };
 ```
 
 ### D. Category Badge Colors
+
 ```typescript
 const categoryColors = {
   material_supplier: 'bg-blue-100 text-blue-800',
@@ -734,7 +802,7 @@ const categoryColors = {
   maintenance: 'bg-yellow-100 text-yellow-800',
   utilities: 'bg-orange-100 text-orange-800',
   transportation: 'bg-teal-100 text-teal-800',
-  other: 'bg-gray-100 text-gray-800'
+  other: 'bg-gray-100 text-gray-800',
 };
 ```
 

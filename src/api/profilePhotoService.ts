@@ -3,21 +3,18 @@
  * Handles user profile photo upload, update, and deletion with Firebase Storage
  */
 
-import { 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
   deleteObject,
   getMetadata,
-  updateMetadata
+  updateMetadata,
 } from 'firebase/storage';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { storage, db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger';
-import type { 
-  ProfilePhotoUpload, 
-  ProfilePhotoResponse 
-} from '@/types';
+import type { ProfilePhotoUpload, ProfilePhotoResponse } from '@/types';
 
 // Constants
 const PROFILE_PHOTOS_PATH = 'profile_photos';
@@ -34,7 +31,7 @@ const validateProfilePhoto = (file: File): { valid: boolean; error?: string } =>
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: `File size exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`
+      error: `File size exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`,
     };
   }
 
@@ -42,7 +39,7 @@ const validateProfilePhoto = (file: File): { valid: boolean; error?: string } =>
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     return {
       valid: false,
-      error: `Invalid file type. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`
+      error: `Invalid file type. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`,
     };
   }
 
@@ -55,10 +52,10 @@ const validateProfilePhoto = (file: File): { valid: boolean; error?: string } =>
 const resizeImage = (file: File): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       const img = new Image();
-      
+
       img.onload = () => {
         // Create canvas
         const canvas = document.createElement('canvas');
@@ -156,15 +153,15 @@ export const uploadProfilePhoto = async (
         uploadedAt: new Date().toISOString(),
         originalFilename: file.name,
         originalSize: file.size.toString(),
-        compressedSize: compressedBlob.size.toString()
-      }
+        compressedSize: compressedBlob.size.toString(),
+      },
     });
 
-    logger.info('Profile photo uploaded to storage', { 
-      userId, 
+    logger.info('Profile photo uploaded to storage', {
+      userId,
       path: storagePath,
       originalSize: file.size,
-      compressedSize: compressedBlob.size
+      compressedSize: compressedBlob.size,
     });
 
     // Get download URL
@@ -176,7 +173,7 @@ export const uploadProfilePhoto = async (
       photoURL,
       photoStoragePath: storagePath,
       photoUploadedAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('User profile updated with photo URL', { userId });
@@ -185,18 +182,17 @@ export const uploadProfilePhoto = async (
       success: true,
       photoURL,
       storagePath,
-      uploadedAt: new Date()
+      uploadedAt: new Date(),
     };
-
   } catch (error: any) {
     logger.error('Error uploading profile photo', error, { userId: request.userId });
-    
+
     return {
       success: false,
       photoURL: '',
       storagePath: '',
       uploadedAt: new Date(),
-      error: error.message || 'Failed to upload profile photo'
+      error: error.message || 'Failed to upload profile photo',
     };
   }
 };
@@ -217,16 +213,15 @@ export const updateProfilePhoto = async (
 
     // Upload new photo
     return await uploadProfilePhoto(request);
-
   } catch (error: any) {
     logger.error('Error updating profile photo', error, { userId: request.userId });
-    
+
     return {
       success: false,
       photoURL: '',
       storagePath: '',
       uploadedAt: new Date(),
-      error: error.message || 'Failed to update profile photo'
+      error: error.message || 'Failed to update profile photo',
     };
   }
 };
@@ -241,7 +236,7 @@ export const deleteProfilePhoto = async (userId: string): Promise<boolean> => {
     // Get user document to find storage path
     const userRef = doc(db, 'users', userId);
     const userDoc = await import('firebase/firestore').then(({ getDoc }) => getDoc(userRef));
-    
+
     if (!userDoc.exists()) {
       throw new Error('User not found');
     }
@@ -265,27 +260,26 @@ export const deleteProfilePhoto = async (userId: string): Promise<boolean> => {
       photoURL: null,
       photoStoragePath: null,
       photoUploadedAt: null,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('User profile updated after photo deletion', { userId });
 
     return true;
-
   } catch (error: any) {
     // If file doesn't exist, that's okay
     if (error.code === 'storage/object-not-found') {
       logger.warn('Profile photo not found in storage', { userId });
-      
+
       // Still update Firestore to clear the fields
       const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, {
         photoURL: null,
         photoStoragePath: null,
         photoUploadedAt: null,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
-      
+
       return true;
     }
 
@@ -301,7 +295,7 @@ export const getProfilePhotoMetadata = async (userId: string) => {
   try {
     const userRef = doc(db, 'users', userId);
     const userDoc = await import('firebase/firestore').then(({ getDoc }) => getDoc(userRef));
-    
+
     if (!userDoc.exists()) {
       throw new Error('User not found');
     }
@@ -323,9 +317,8 @@ export const getProfilePhotoMetadata = async (userId: string) => {
       uploadedAt: userData.photoUploadedAt?.toDate(),
       size: metadata.size,
       contentType: metadata.contentType,
-      customMetadata: metadata.customMetadata
+      customMetadata: metadata.customMetadata,
     };
-
   } catch (error: any) {
     logger.error('Error getting profile photo metadata', error, { userId });
     return null;
@@ -339,14 +332,13 @@ export const hasProfilePhoto = async (userId: string): Promise<boolean> => {
   try {
     const userRef = doc(db, 'users', userId);
     const userDoc = await import('firebase/firestore').then(({ getDoc }) => getDoc(userRef));
-    
+
     if (!userDoc.exists()) {
       return false;
     }
 
     const userData = userDoc.data();
     return !!userData.photoURL && !!userData.photoStoragePath;
-
   } catch (error: any) {
     logger.error('Error checking profile photo', error, { userId });
     return false;
@@ -360,14 +352,13 @@ export const getProfilePhotoURL = async (userId: string): Promise<string | null>
   try {
     const userRef = doc(db, 'users', userId);
     const userDoc = await import('firebase/firestore').then(({ getDoc }) => getDoc(userRef));
-    
+
     if (!userDoc.exists()) {
       return null;
     }
 
     const userData = userDoc.data();
     return userData.photoURL || null;
-
   } catch (error: any) {
     logger.error('Error getting profile photo URL', error, { userId });
     return null;
@@ -380,5 +371,5 @@ export default {
   deleteProfilePhoto,
   getProfilePhotoMetadata,
   hasProfilePhoto,
-  getProfilePhotoURL
+  getProfilePhotoURL,
 };

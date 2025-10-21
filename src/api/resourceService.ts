@@ -1,7 +1,7 @@
 /**
  * Resource Management API Service
  * Priority 3A: Resource Management System
- * 
+ *
  * Provides CRUD operations and business logic for managing
  * human resources, equipment, and materials in construction projects.
  */
@@ -54,7 +54,9 @@ class ResourceService {
   /**
    * Create a new resource
    */
-  async createResource(resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>): Promise<Resource> {
+  async createResource(
+    resource: Omit<Resource, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<Resource> {
     try {
       const now = new Date();
       const resourceData = {
@@ -64,7 +66,7 @@ class ResourceService {
       };
 
       const docRef = await addDoc(collection(db, RESOURCES_COLLECTION), resourceData);
-      
+
       return {
         ...resource,
         id: docRef.id,
@@ -112,8 +114,8 @@ class ResourceService {
    */
   async getResources(filters?: ResourceFilterOptions): Promise<Resource[]> {
     try {
-      let q = collection(db, RESOURCES_COLLECTION);
-      let constraints: any[] = [];
+      const q = collection(db, RESOURCES_COLLECTION);
+      const constraints: any[] = [];
 
       // Apply filters
       if (filters?.type && filters.type.length > 0) {
@@ -138,7 +140,7 @@ class ResourceService {
       const resourceQuery = query(q, ...constraints);
       const querySnapshot = await getDocs(resourceQuery);
 
-      const resources = querySnapshot.docs.map(doc => {
+      const resources = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -158,16 +160,15 @@ class ResourceService {
 
       if (filters?.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
-        filtered = filtered.filter(r =>
-          r.name.toLowerCase().includes(term) ||
-          r.description?.toLowerCase().includes(term)
+        filtered = filtered.filter(
+          (r) => r.name.toLowerCase().includes(term) || r.description?.toLowerCase().includes(term)
         );
       }
 
       if (filters?.skills && filters.skills.length > 0) {
-        filtered = filtered.filter(r =>
-          r.skills?.some(skill =>
-            filters.skills!.some(filterSkill =>
+        filtered = filtered.filter((r) =>
+          r.skills?.some((skill) =>
+            filters.skills!.some((filterSkill) =>
               skill.skillName.toLowerCase().includes(filterSkill.toLowerCase())
             )
           )
@@ -175,10 +176,11 @@ class ResourceService {
       }
 
       if (filters?.costRange) {
-        filtered = filtered.filter(r => {
+        filtered = filtered.filter((r) => {
           const cost = r.costPerHour || r.costPerDay || r.costPerUnit || 0;
-          return cost >= (filters.costRange!.min || 0) &&
-                 cost <= (filters.costRange!.max || Infinity);
+          return (
+            cost >= (filters.costRange!.min || 0) && cost <= (filters.costRange!.max || Infinity)
+          );
         });
       }
 
@@ -195,7 +197,7 @@ class ResourceService {
   async updateResource(resourceId: string, updates: Partial<Resource>): Promise<void> {
     try {
       const docRef = doc(db, RESOURCES_COLLECTION, resourceId);
-      
+
       const updateData = {
         ...updates,
         updatedAt: Timestamp.fromDate(new Date()),
@@ -237,7 +239,9 @@ class ResourceService {
   /**
    * Create resource allocation
    */
-  async createAllocation(allocation: Omit<ResourceAllocation, 'id' | 'createdAt' | 'updatedAt'>): Promise<ResourceAllocation> {
+  async createAllocation(
+    allocation: Omit<ResourceAllocation, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ResourceAllocation> {
     try {
       // Check for conflicts
       const conflicts = await this.checkAllocationConflicts({
@@ -247,7 +251,9 @@ class ResourceService {
       });
 
       if (conflicts.length > 0) {
-        throw new Error(`Resource has conflicting allocations: ${conflicts.map(c => c.allocations[0].projectName).join(', ')}`);
+        throw new Error(
+          `Resource has conflicting allocations: ${conflicts.map((c) => c.allocations[0].projectName).join(', ')}`
+        );
       }
 
       const now = new Date();
@@ -286,7 +292,7 @@ class ResourceService {
     filters?: { status?: string[]; projectId?: string }
   ): Promise<ResourceAllocation[]> {
     try {
-      let constraints: any[] = [where('resourceId', '==', resourceId)];
+      const constraints: any[] = [where('resourceId', '==', resourceId)];
 
       if (filters?.status && filters.status.length > 0) {
         constraints.push(where('status', 'in', filters.status));
@@ -301,7 +307,7 @@ class ResourceService {
       const q = query(collection(db, ALLOCATIONS_COLLECTION), ...constraints);
       const querySnapshot = await getDocs(q);
 
-      return querySnapshot.docs.map(doc => {
+      return querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -321,10 +327,13 @@ class ResourceService {
   /**
    * Update allocation
    */
-  async updateAllocation(allocationId: string, updates: Partial<ResourceAllocation>): Promise<void> {
+  async updateAllocation(
+    allocationId: string,
+    updates: Partial<ResourceAllocation>
+  ): Promise<void> {
     try {
       const docRef = doc(db, ALLOCATIONS_COLLECTION, allocationId);
-      
+
       const updateData: any = {
         ...updates,
         updatedAt: Timestamp.fromDate(new Date()),
@@ -363,7 +372,7 @@ class ResourceService {
       });
 
       const conflicts: ResourceConflict[] = [];
-      
+
       for (const allocation of allocations) {
         if (params.excludeAllocationId && allocation.id === params.excludeAllocationId) {
           continue;
@@ -376,18 +385,20 @@ class ResourceService {
           (params.startDate <= allocation.startDate && params.endDate >= allocation.endDate)
         ) {
           const resource = await this.getResourceById(params.resourceId);
-          
+
           conflicts.push({
             resourceId: params.resourceId,
             resourceName: resource?.name || 'Unknown',
             conflictType: 'overallocation',
-            allocations: [{
-              allocationId: allocation.id,
-              projectId: allocation.projectId,
-              projectName: allocation.projectName,
-              startDate: allocation.startDate,
-              endDate: allocation.endDate,
-            }],
+            allocations: [
+              {
+                allocationId: allocation.id,
+                projectId: allocation.projectId,
+                projectName: allocation.projectName,
+                startDate: allocation.startDate,
+                endDate: allocation.endDate,
+              },
+            ],
             conflictPeriod: {
               start: new Date(Math.max(params.startDate.getTime(), allocation.startDate.getTime())),
               end: new Date(Math.min(params.endDate.getTime(), allocation.endDate.getTime())),
@@ -420,14 +431,16 @@ class ResourceService {
       }
 
       const allocations = await this.getResourceAllocations(resourceId);
-      
+
       // Filter allocations within period
-      const periodAllocations = allocations.filter(a =>
-        a.startDate <= periodEnd && a.endDate >= periodStart
+      const periodAllocations = allocations.filter(
+        (a) => a.startDate <= periodEnd && a.endDate >= periodStart
       );
 
       // Calculate metrics
-      const periodDays = Math.ceil((periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24));
+      const periodDays = Math.ceil(
+        (periodEnd.getTime() - periodStart.getTime()) / (1000 * 60 * 60 * 24)
+      );
       const totalAvailableHours = periodDays * 8; // Assuming 8-hour workday
 
       let totalAllocatedHours = 0;
@@ -439,7 +452,7 @@ class ResourceService {
         totalAllocatedHours += allocation.plannedHours || 0;
         totalActualHours += allocation.actualHours || 0;
         totalCost += allocation.actualCost || allocation.plannedCost;
-        
+
         if (allocation.status === 'completed') {
           tasksCompleted++;
         }
@@ -528,13 +541,15 @@ class ResourceService {
         }
 
         // Calculate costs
-        const costPerMonth = (resource.costPerHour || 0) * 160 || // 160 hours/month
-                           (resource.costPerDay || 0) * 20; // 20 days/month
+        const costPerMonth =
+          (resource.costPerHour || 0) * 160 || // 160 hours/month
+          (resource.costPerDay || 0) * 20; // 20 days/month
         stats.costs.totalMonthly += costPerMonth;
       }
 
       stats.costs.totalYearly = stats.costs.totalMonthly * 12;
-      stats.costs.averagePerResource = resources.length > 0 ? stats.costs.totalMonthly / resources.length : 0;
+      stats.costs.averagePerResource =
+        resources.length > 0 ? stats.costs.totalMonthly / resources.length : 0;
 
       return stats;
     } catch (error) {
@@ -553,7 +568,9 @@ class ResourceService {
         actualDate: Timestamp.fromDate(record.actualDate),
         scheduledDate: record.scheduledDate ? Timestamp.fromDate(record.scheduledDate) : null,
         completedDate: record.completedDate ? Timestamp.fromDate(record.completedDate) : null,
-        nextMaintenanceDate: record.nextMaintenanceDate ? Timestamp.fromDate(record.nextMaintenanceDate) : null,
+        nextMaintenanceDate: record.nextMaintenanceDate
+          ? Timestamp.fromDate(record.nextMaintenanceDate)
+          : null,
       };
 
       const docRef = await addDoc(collection(db, MAINTENANCE_COLLECTION), recordData);
@@ -581,7 +598,7 @@ class ResourceService {
 
       const querySnapshot = await getDocs(q);
 
-      return querySnapshot.docs.map(doc => {
+      return querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,

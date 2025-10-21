@@ -13,7 +13,7 @@ import {
   completeStockCount,
   approveStockCount,
   getWarehouses,
-  getMaterialById
+  getMaterialById,
 } from '@/api/inventoryService';
 import {
   CreateMaterialInput,
@@ -23,7 +23,7 @@ import {
   UnitOfMeasure,
   ValuationMethod,
   TransactionType,
-  Warehouse
+  Warehouse,
 } from '@/types/inventory';
 
 // ============================================================================
@@ -41,13 +41,13 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
-  material
+  material,
 }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     materialName: '',
@@ -74,9 +74,9 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
     wbsCode: '',
     costCenter: '',
     glAccount: '',
-    notes: ''
+    notes: '',
   });
-  
+
   useEffect(() => {
     if (isOpen) {
       loadWarehouses();
@@ -107,12 +107,12 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
           wbsCode: material.wbsCode || '',
           costCenter: material.costCenter || '',
           glAccount: material.glAccount || '',
-          notes: material.notes || ''
+          notes: material.notes || '',
         });
       }
     }
   }, [isOpen, material]);
-  
+
   const loadWarehouses = async () => {
     try {
       const data = await getWarehouses();
@@ -121,18 +121,23 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
       console.error('Error loading warehouses:', error);
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentUser) return;
-    
+
     setLoading(true);
     try {
       if (material) {
         // Update existing material
         const updateData: UpdateMaterialInput = formData;
-        await updateMaterial(material.id, updateData, currentUser.uid, currentUser.name || currentUser.email);
+        await updateMaterial(
+          material.id,
+          updateData,
+          currentUser.uid,
+          currentUser.name || currentUser.email
+        );
         addToast('Material updated successfully', 'success');
       } else {
         // Create new material
@@ -140,7 +145,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
         await createMaterial(createData, currentUser.uid, currentUser.name || currentUser.email);
         addToast('Material created successfully', 'success');
       }
-      
+
       onSuccess();
       onClose();
     } catch (error: any) {
@@ -150,9 +155,9 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
       setLoading(false);
     }
   };
-  
+
   if (!isOpen) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
@@ -160,14 +165,11 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
           <h2 className="text-2xl font-bold text-gray-900">
             {material ? 'Edit Material' : 'Add New Material'}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="h-6 w-6" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
           <div className="p-6 space-y-6">
             {/* Basic Information */}
@@ -186,7 +188,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category <span className="text-red-500">*</span>
@@ -194,7 +196,9 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                   <select
                     required
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as MaterialCategory })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, category: e.target.value as MaterialCategory })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={MaterialCategory.RAW_MATERIAL}>Raw Material</option>
@@ -208,7 +212,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     <option value={MaterialCategory.OTHER}>Other</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Base Unit of Measure <span className="text-red-500">*</span>
@@ -216,7 +220,9 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                   <select
                     required
                     value={formData.baseUom}
-                    onChange={(e) => setFormData({ ...formData, baseUom: e.target.value as UnitOfMeasure })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, baseUom: e.target.value as UnitOfMeasure })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={UnitOfMeasure.PIECE}>Piece</option>
@@ -228,9 +234,11 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     <option value={UnitOfMeasure.SET}>Set</option>
                   </select>
                 </div>
-                
+
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -238,9 +246,11 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Specification</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Specification
+                  </label>
                   <input
                     type="text"
                     value={formData.specification}
@@ -248,9 +258,11 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Manufacturer</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Manufacturer
+                  </label>
                   <input
                     type="text"
                     value={formData.manufacturer}
@@ -258,7 +270,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Brand</label>
                   <input
@@ -268,7 +280,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
                   <input
@@ -280,7 +292,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                 </div>
               </div>
             </div>
-            
+
             {/* Stock Management */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Stock Management</h3>
@@ -294,11 +306,13 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     required
                     min="0"
                     value={formData.minimumStock}
-                    onChange={(e) => setFormData({ ...formData, minimumStock: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, minimumStock: parseFloat(e.target.value) })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Maximum Stock <span className="text-red-500">*</span>
@@ -308,11 +322,13 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     required
                     min="0"
                     value={formData.maximumStock}
-                    onChange={(e) => setFormData({ ...formData, maximumStock: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, maximumStock: parseFloat(e.target.value) })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Reorder Quantity <span className="text-red-500">*</span>
@@ -322,13 +338,15 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     required
                     min="0"
                     value={formData.reorderQuantity}
-                    onChange={(e) => setFormData({ ...formData, reorderQuantity: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, reorderQuantity: parseFloat(e.target.value) })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
             </div>
-            
+
             {/* Valuation */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Valuation</h3>
@@ -340,7 +358,12 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                   <select
                     required
                     value={formData.valuationMethod}
-                    onChange={(e) => setFormData({ ...formData, valuationMethod: e.target.value as ValuationMethod })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        valuationMethod: e.target.value as ValuationMethod,
+                      })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value={ValuationMethod.FIFO}>FIFO (First In First Out)</option>
@@ -349,7 +372,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     <option value={ValuationMethod.STANDARD}>Standard Cost</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Standard Cost (IDR)
@@ -359,13 +382,15 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     min="0"
                     step="0.01"
                     value={formData.standardCost}
-                    onChange={(e) => setFormData({ ...formData, standardCost: parseFloat(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, standardCost: parseFloat(e.target.value) })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
             </div>
-            
+
             {/* Tracking Options */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Tracking Options</h3>
@@ -379,28 +404,32 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                   />
                   <span className="text-sm text-gray-700">Track by Batch/Lot Number</span>
                 </label>
-                
+
                 <label className="flex items-center space-x-3">
                   <input
                     type="checkbox"
                     checked={formData.isSerialTracked}
-                    onChange={(e) => setFormData({ ...formData, isSerialTracked: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isSerialTracked: e.target.checked })
+                    }
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700">Track by Serial Number</span>
                 </label>
-                
+
                 <label className="flex items-center space-x-3">
                   <input
                     type="checkbox"
                     checked={formData.isExpiryTracked}
-                    onChange={(e) => setFormData({ ...formData, isExpiryTracked: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isExpiryTracked: e.target.checked })
+                    }
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700">Track Expiry Dates</span>
                 </label>
               </div>
-              
+
               {formData.isExpiryTracked && (
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
@@ -411,11 +440,13 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                       type="number"
                       min="0"
                       value={formData.shelfLife}
-                      onChange={(e) => setFormData({ ...formData, shelfLife: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shelfLife: parseInt(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Expiry Warning (days before)
@@ -424,14 +455,16 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                       type="number"
                       min="0"
                       value={formData.expiryWarningDays}
-                      onChange={(e) => setFormData({ ...formData, expiryWarningDays: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, expiryWarningDays: parseInt(e.target.value) })
+                      }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
               )}
             </div>
-            
+
             {/* Location & Vendor */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Location & Vendor</h3>
@@ -442,16 +475,20 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                   </label>
                   <select
                     value={formData.defaultWarehouseId}
-                    onChange={(e) => setFormData({ ...formData, defaultWarehouseId: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, defaultWarehouseId: e.target.value })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Warehouse</option>
-                    {warehouses.map(wh => (
-                      <option key={wh.id} value={wh.id}>{wh.warehouseName}</option>
+                    {warehouses.map((wh) => (
+                      <option key={wh.id} value={wh.id}>
+                        {wh.warehouseName}
+                      </option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Lead Time (days)
@@ -460,13 +497,15 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     type="number"
                     min="0"
                     value={formData.leadTime}
-                    onChange={(e) => setFormData({ ...formData, leadTime: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, leadTime: parseInt(e.target.value) })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
             </div>
-            
+
             {/* Accounting Integration */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Accounting Integration</h3>
@@ -480,9 +519,11 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Cost Center</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cost Center
+                  </label>
                   <input
                     type="text"
                     value={formData.costCenter}
@@ -490,7 +531,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">GL Account</label>
                   <input
@@ -502,7 +543,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                 </div>
               </div>
             </div>
-            
+
             {/* Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
@@ -514,7 +555,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
               />
             </div>
           </div>
-          
+
           <div className="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
             <button
               type="button"
@@ -555,10 +596,10 @@ export const MaterialDetailsModal: React.FC<MaterialDetailsModalProps> = ({
   onClose,
   material,
   onEdit,
-  onDelete
+  onDelete,
 }) => {
   if (!isOpen) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
@@ -567,14 +608,11 @@ export const MaterialDetailsModal: React.FC<MaterialDetailsModalProps> = ({
             <h2 className="text-2xl font-bold text-gray-900">{material.materialName}</h2>
             <p className="text-sm text-gray-500 mt-1">{material.materialCode}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="h-6 w-6" />
           </button>
         </div>
-        
+
         <div className="overflow-y-auto max-h-[calc(90vh-140px)] p-6 space-y-6">
           {/* Basic Info */}
           <div>
@@ -594,38 +632,50 @@ export const MaterialDetailsModal: React.FC<MaterialDetailsModalProps> = ({
               </div>
             </div>
           </div>
-          
+
           {/* Stock Information */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Stock Information</h3>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <span className="text-gray-500">Current Stock:</span>
-                <p className="text-lg font-bold text-gray-900">{material.currentStock} {material.baseUom}</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {material.currentStock} {material.baseUom}
+                </p>
               </div>
               <div>
                 <span className="text-gray-500">Available:</span>
-                <p className="text-lg font-bold text-green-600">{material.availableStock} {material.baseUom}</p>
+                <p className="text-lg font-bold text-green-600">
+                  {material.availableStock} {material.baseUom}
+                </p>
               </div>
               <div>
                 <span className="text-gray-500">Reserved:</span>
-                <p className="text-lg font-bold text-orange-600">{material.reservedStock} {material.baseUom}</p>
+                <p className="text-lg font-bold text-orange-600">
+                  {material.reservedStock} {material.baseUom}
+                </p>
               </div>
               <div>
                 <span className="text-gray-500">Minimum Stock:</span>
-                <p className="font-medium text-gray-900">{material.minimumStock} {material.baseUom}</p>
+                <p className="font-medium text-gray-900">
+                  {material.minimumStock} {material.baseUom}
+                </p>
               </div>
               <div>
                 <span className="text-gray-500">Maximum Stock:</span>
-                <p className="font-medium text-gray-900">{material.maximumStock} {material.baseUom}</p>
+                <p className="font-medium text-gray-900">
+                  {material.maximumStock} {material.baseUom}
+                </p>
               </div>
               <div>
                 <span className="text-gray-500">Reorder Qty:</span>
-                <p className="font-medium text-gray-900">{material.reorderQuantity} {material.baseUom}</p>
+                <p className="font-medium text-gray-900">
+                  {material.reorderQuantity} {material.baseUom}
+                </p>
               </div>
             </div>
           </div>
-          
+
           {/* Valuation */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Valuation</h3>
@@ -639,14 +689,14 @@ export const MaterialDetailsModal: React.FC<MaterialDetailsModalProps> = ({
                 <span className="ml-2 font-bold text-green-600">
                   {new Intl.NumberFormat('id-ID', {
                     style: 'currency',
-                    currency: 'IDR'
+                    currency: 'IDR',
                   }).format(material.totalValue)}
                 </span>
               </div>
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
           <button
             onClick={onClose}
@@ -685,32 +735,34 @@ interface TransactionModalProps {
 export const TransactionModal: React.FC<TransactionModalProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [materials, setMaterials] = useState<InventoryMaterial[]>([]);
-  
+
   const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.IN);
   const [warehouseId, setWarehouseId] = useState('');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
-  
-  const [items, setItems] = useState<Array<{
-    materialId: string;
-    quantity: number;
-    unitCost: number;
-  }>>([{ materialId: '', quantity: 0, unitCost: 0 }]);
-  
+
+  const [items, setItems] = useState<
+    Array<{
+      materialId: string;
+      quantity: number;
+      unitCost: number;
+    }>
+  >([{ materialId: '', quantity: 0, unitCost: 0 }]);
+
   useEffect(() => {
     if (isOpen) {
       loadWarehouses();
       loadMaterials();
     }
   }, [isOpen]);
-  
+
   const loadWarehouses = async () => {
     try {
       const data = await getWarehouses();
@@ -720,7 +772,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       console.error('Error loading warehouses:', error);
     }
   };
-  
+
   const loadMaterials = async () => {
     try {
       const { getMaterials } = await import('../api/inventoryService');
@@ -730,54 +782,60 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       console.error('Error loading materials:', error);
     }
   };
-  
+
   const addItem = () => {
     setItems([...items, { materialId: '', quantity: 0, unitCost: 0 }]);
   };
-  
+
   const removeItem = (index: number) => {
     if (items.length > 1) {
       setItems(items.filter((_, i) => i !== index));
     }
   };
-  
+
   const updateItem = (index: number, field: string, value: any) => {
     const newItems = [...items];
     (newItems[index] as any)[field] = value;
     setItems(newItems);
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentUser) return;
-    
+
     // Validation
-    if (items.some(item => !item.materialId || item.quantity === 0)) {
+    if (items.some((item) => !item.materialId || item.quantity === 0)) {
       addToast('Please fill all item details', 'error');
       return;
     }
-    
+
     setLoading(true);
     try {
       const transactionData = {
         transactionType,
         transactionDate: Timestamp.now(),
-        items: await Promise.all(items.map(async (item) => {
-          const material = await getMaterialById(item.materialId);
-          return {
-            materialId: item.materialId,
-            quantity: item.quantity,
-            uom: material?.baseUom || UnitOfMeasure.PIECE,
-            unitCost: item.unitCost
-          };
-        })),
+        items: await Promise.all(
+          items.map(async (item) => {
+            const material = await getMaterialById(item.materialId);
+            return {
+              materialId: item.materialId,
+              quantity: item.quantity,
+              uom: material?.baseUom || UnitOfMeasure.PIECE,
+              unitCost: item.unitCost,
+            };
+          })
+        ),
         warehouseId,
         reason,
-        notes
+        notes,
       };
-      
-      await createTransaction(transactionData, currentUser.uid, currentUser.name || currentUser.email);
+
+      await createTransaction(
+        transactionData,
+        currentUser.uid,
+        currentUser.name || currentUser.email
+      );
       addToast('Transaction created successfully', 'success');
       onSuccess();
       onClose();
@@ -788,22 +846,19 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setLoading(false);
     }
   };
-  
+
   if (!isOpen) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">New Inventory Transaction</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="h-6 w-6" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
@@ -823,7 +878,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <option value={TransactionType.TRANSFER}>Transfer</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Warehouse <span className="text-red-500">*</span>
@@ -834,13 +889,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   onChange={(e) => setWarehouseId(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
-                  {warehouses.map(wh => (
-                    <option key={wh.id} value={wh.id}>{wh.warehouseName}</option>
+                  {warehouses.map((wh) => (
+                    <option key={wh.id} value={wh.id}>
+                      {wh.warehouseName}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
-            
+
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold text-gray-900">Transaction Items</h3>
@@ -853,10 +910,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   Add Item
                 </button>
               </div>
-              
+
               <div className="space-y-3">
                 {items.map((item, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                  >
                     <select
                       required
                       value={item.materialId}
@@ -864,13 +924,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
                     >
                       <option value="">Select Material</option>
-                      {materials.map(mat => (
+                      {materials.map((mat) => (
                         <option key={mat.id} value={mat.id}>
                           {mat.materialCode} - {mat.materialName}
                         </option>
                       ))}
                     </select>
-                    
+
                     <input
                       type="number"
                       required
@@ -881,7 +941,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                       onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value))}
                       className="w-32 px-3 py-2 border border-gray-300 rounded-lg"
                     />
-                    
+
                     <input
                       type="number"
                       required
@@ -892,7 +952,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                       onChange={(e) => updateItem(index, 'unitCost', parseFloat(e.target.value))}
                       className="w-40 px-3 py-2 border border-gray-300 rounded-lg"
                     />
-                    
+
                     {items.length > 1 && (
                       <button
                         type="button"
@@ -906,7 +966,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 ))}
               </div>
             </div>
-            
+
             {transactionType === TransactionType.ADJUSTMENT && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -921,7 +981,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 />
               </div>
             )}
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
               <textarea
@@ -932,7 +992,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               />
             </div>
           </div>
-          
+
           <div className="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
             <button
               type="button"

@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 import { Toast } from '@/components/Toast';
 
@@ -29,14 +28,14 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const addToast = useCallback((message: string, type: ToastType) => {
     const id = Date.now();
-    setToasts(prevToasts => [...prevToasts, { id, message, type }]);
+    setToasts((prevToasts) => [...prevToasts, { id, message, type }]);
     setTimeout(() => {
       removeToast(id);
     }, 5000); // Auto-dismiss after 5 seconds
   }, []);
 
   const removeToast = (id: number) => {
-    setToasts(prevToasts => prevToasts.filter(toast => toast.id !== id));
+    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
   };
 
   return (
@@ -45,7 +44,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       <div className="fixed top-5 right-5 z-[100] space-y-2">
         {/* FIX: The `key` prop is for React's reconciliation, not a prop for the Toast component itself.
             This fixes the type error where `key` was incorrectly considered part of ToastProps. */}
-        {toasts.map(toast => (
+        {toasts.map((toast) => (
           <Toast
             key={toast.id}
             message={toast.message}

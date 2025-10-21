@@ -35,24 +35,25 @@ const CAPA_COLLECTION = 'capaRecords';
 class QualityService {
   private async generateInspectionNumber(projectId: string): Promise<string> {
     const year = new Date().getFullYear();
-    const q = query(
-      collection(db, INSPECTIONS_COLLECTION),
-      where('projectId', '==', projectId)
-    );
+    const q = query(collection(db, INSPECTIONS_COLLECTION), where('projectId', '==', projectId));
     const snapshot = await getDocs(q);
     return `QI-${year}-${String(snapshot.size + 1).padStart(3, '0')}`;
   }
 
-  async createInspection(inspection: Omit<QualityInspection, 'id' | 'inspectionNumber' | 'createdAt' | 'updatedAt'>): Promise<QualityInspection> {
+  async createInspection(
+    inspection: Omit<QualityInspection, 'id' | 'inspectionNumber' | 'createdAt' | 'updatedAt'>
+  ): Promise<QualityInspection> {
     try {
       const now = new Date();
       const inspectionNumber = await this.generateInspectionNumber(inspection.projectId);
 
       // Calculate pass rate
       const totalItems = inspection.checklist.length;
-      const passedItems = inspection.checklist.filter(item => item.result === 'pass').length;
-      const failedItems = inspection.checklist.filter(item => item.result === 'fail').length;
-      const conditionalItems = inspection.checklist.filter(item => item.result === 'conditional').length;
+      const passedItems = inspection.checklist.filter((item) => item.result === 'pass').length;
+      const failedItems = inspection.checklist.filter((item) => item.result === 'fail').length;
+      const conditionalItems = inspection.checklist.filter(
+        (item) => item.result === 'conditional'
+      ).length;
       const passRate = totalItems > 0 ? (passedItems / totalItems) * 100 : 0;
 
       const inspectionData = {
@@ -65,7 +66,9 @@ class QualityService {
         passRate,
         scheduledDate: Timestamp.fromDate(inspection.scheduledDate),
         actualDate: inspection.actualDate ? Timestamp.fromDate(inspection.actualDate) : null,
-        completedDate: inspection.completedDate ? Timestamp.fromDate(inspection.completedDate) : null,
+        completedDate: inspection.completedDate
+          ? Timestamp.fromDate(inspection.completedDate)
+          : null,
         createdAt: Timestamp.fromDate(now),
         updatedAt: Timestamp.fromDate(now),
       };
@@ -113,9 +116,12 @@ class QualityService {
     }
   }
 
-  async getInspections(projectId: string, filters?: QualityFilterOptions): Promise<QualityInspection[]> {
+  async getInspections(
+    projectId: string,
+    filters?: QualityFilterOptions
+  ): Promise<QualityInspection[]> {
     try {
-      let constraints: any[] = [where('projectId', '==', projectId)];
+      const constraints: any[] = [where('projectId', '==', projectId)];
 
       if (filters?.inspectionType && filters.inspectionType.length > 0) {
         constraints.push(where('inspectionType', 'in', filters.inspectionType));
@@ -130,7 +136,7 @@ class QualityService {
       const q = query(collection(db, INSPECTIONS_COLLECTION), ...constraints);
       const querySnapshot = await getDocs(q);
 
-      return querySnapshot.docs.map(doc => {
+      return querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -148,10 +154,15 @@ class QualityService {
     }
   }
 
-  async createDefect(defect: Omit<Defect, 'id' | 'defectNumber' | 'createdAt' | 'updatedAt'>): Promise<Defect> {
+  async createDefect(
+    defect: Omit<Defect, 'id' | 'defectNumber' | 'createdAt' | 'updatedAt'>
+  ): Promise<Defect> {
     try {
       const year = new Date().getFullYear();
-      const q = query(collection(db, DEFECTS_COLLECTION), where('projectId', '==', defect.projectId));
+      const q = query(
+        collection(db, DEFECTS_COLLECTION),
+        where('projectId', '==', defect.projectId)
+      );
       const snapshot = await getDocs(q);
       const defectNumber = `DEF-${year}-${String(snapshot.size + 1).padStart(3, '0')}`;
 
@@ -182,7 +193,7 @@ class QualityService {
 
   async getDefects(projectId: string, filters?: DefectFilterOptions): Promise<Defect[]> {
     try {
-      let constraints: any[] = [where('projectId', '==', projectId)];
+      const constraints: any[] = [where('projectId', '==', projectId)];
 
       if (filters?.severity && filters.severity.length > 0) {
         constraints.push(where('severity', 'in', filters.severity));
@@ -197,7 +208,7 @@ class QualityService {
       const q = query(collection(db, DEFECTS_COLLECTION), ...constraints);
       const querySnapshot = await getDocs(q);
 
-      return querySnapshot.docs.map(doc => {
+      return querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -207,14 +218,18 @@ class QualityService {
           createdAt: data.createdAt?.toDate(),
           updatedAt: data.updatedAt?.toDate(),
           closedAt: data.closedAt?.toDate(),
-          resolution: data.resolution ? {
-            ...data.resolution,
-            resolvedDate: data.resolution.resolvedDate?.toDate(),
-          } : undefined,
-          verification: data.verification ? {
-            ...data.verification,
-            verifiedDate: data.verification.verifiedDate?.toDate(),
-          } : undefined,
+          resolution: data.resolution
+            ? {
+                ...data.resolution,
+                resolvedDate: data.resolution.resolvedDate?.toDate(),
+              }
+            : undefined,
+          verification: data.verification
+            ? {
+                ...data.verification,
+                verifiedDate: data.verification.verifiedDate?.toDate(),
+              }
+            : undefined,
         } as Defect;
       });
     } catch (error) {
@@ -241,21 +256,25 @@ class QualityService {
     }
   }
 
-  async getQualityMetrics(projectId: string, periodStart: Date, periodEnd: Date): Promise<QualityMetrics> {
+  async getQualityMetrics(
+    projectId: string,
+    periodStart: Date,
+    periodEnd: Date
+  ): Promise<QualityMetrics> {
     try {
       const inspections = await this.getInspections(projectId);
       const defects = await this.getDefects(projectId);
 
-      const periodInspections = inspections.filter(i =>
-        i.scheduledDate >= periodStart && i.scheduledDate <= periodEnd
+      const periodInspections = inspections.filter(
+        (i) => i.scheduledDate >= periodStart && i.scheduledDate <= periodEnd
       );
 
-      const periodDefects = defects.filter(d =>
-        d.identifiedDate >= periodStart && d.identifiedDate <= periodEnd
+      const periodDefects = defects.filter(
+        (d) => d.identifiedDate >= periodStart && d.identifiedDate <= periodEnd
       );
 
-      const completedInspections = periodInspections.filter(i => i.status === 'completed');
-      const passedInspections = completedInspections.filter(i => i.overallResult === 'pass');
+      const completedInspections = periodInspections.filter((i) => i.status === 'completed');
+      const passedInspections = completedInspections.filter((i) => i.overallResult === 'pass');
 
       const metrics: QualityMetrics = {
         projectId,
@@ -264,30 +283,33 @@ class QualityService {
           total: periodInspections.length,
           completed: completedInspections.length,
           passed: passedInspections.length,
-          failed: completedInspections.filter(i => i.overallResult === 'fail').length,
-          passRate: completedInspections.length > 0 
-            ? (passedInspections.length / completedInspections.length) * 100 
-            : 0,
+          failed: completedInspections.filter((i) => i.overallResult === 'fail').length,
+          passRate:
+            completedInspections.length > 0
+              ? (passedInspections.length / completedInspections.length) * 100
+              : 0,
         },
         defects: {
           total: periodDefects.length,
-          open: periodDefects.filter(d => d.status === 'open').length,
-          closed: periodDefects.filter(d => d.status === 'closed').length,
+          open: periodDefects.filter((d) => d.status === 'open').length,
+          closed: periodDefects.filter((d) => d.status === 'closed').length,
           bySeverity: {
-            critical: periodDefects.filter(d => d.severity === 'critical').length,
-            major: periodDefects.filter(d => d.severity === 'major').length,
-            minor: periodDefects.filter(d => d.severity === 'minor').length,
-            cosmetic: periodDefects.filter(d => d.severity === 'cosmetic').length,
+            critical: periodDefects.filter((d) => d.severity === 'critical').length,
+            major: periodDefects.filter((d) => d.severity === 'major').length,
+            minor: periodDefects.filter((d) => d.severity === 'minor').length,
+            cosmetic: periodDefects.filter((d) => d.severity === 'cosmetic').length,
           },
           byCategory: {},
         },
         quality: {
-          firstTimePassRate: completedInspections.length > 0
-            ? (passedInspections.length / completedInspections.length) * 100
-            : 0,
-          defectRate: completedInspections.length > 0
-            ? periodDefects.length / completedInspections.length
-            : 0,
+          firstTimePassRate:
+            completedInspections.length > 0
+              ? (passedInspections.length / completedInspections.length) * 100
+              : 0,
+          defectRate:
+            completedInspections.length > 0
+              ? periodDefects.length / completedInspections.length
+              : 0,
           averageClosureTime: 0,
           reworkCost: periodDefects.reduce((sum, d) => sum + (d.costImpact || 0), 0),
           reworkHours: periodDefects.reduce((sum, d) => sum + (d.resolution?.reworkHours || 0), 0),

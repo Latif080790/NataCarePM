@@ -1,13 +1,18 @@
 /**
  * Change Order List View
  * Priority 3C: Change Order Management System
- * 
+ *
  * Main change order catalog with filtering, sorting, and management capabilities
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useChangeOrder } from '@/contexts/ChangeOrderContext';
-import type { ChangeOrder, ChangeOrderStatus, ChangeOrderType, ChangeOrderFilterOptions } from '@/types/changeOrder.types';
+import type {
+  ChangeOrder,
+  ChangeOrderStatus,
+  ChangeOrderType,
+  ChangeOrderFilterOptions,
+} from '@/types/changeOrder.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
 
@@ -46,8 +51,9 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
 
   // Filtered change orders
   const filteredChangeOrders = useMemo(() => {
-    return changeOrders.filter(co => {
-      const matchesSearch = !searchQuery ||
+    return changeOrders.filter((co) => {
+      const matchesSearch =
+        !searchQuery ||
         co.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         co.changeNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         co.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -101,8 +107,10 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
   const getPriorityColor = (costImpact: number): string => {
     const absImpact = Math.abs(costImpact);
     if (absImpact >= 100000) return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-    if (absImpact >= 50000) return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-    if (absImpact >= 10000) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+    if (absImpact >= 50000)
+      return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+    if (absImpact >= 10000)
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
     return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
   };
 
@@ -152,9 +160,7 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Change Orders
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Change Orders</h1>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Manage project change requests and approvals
               </p>
@@ -165,7 +171,12 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 New Change Order
               </Button>
@@ -179,8 +190,18 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <svg
+                        className="h-6 w-6 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -201,8 +222,18 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-6 w-6 text-yellow-600 dark:text-yellow-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -223,8 +254,18 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-6 w-6 text-green-600 dark:text-green-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -245,8 +286,18 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -273,13 +324,26 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* Search */}
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="search"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Search
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
                 </div>
                 <input
@@ -295,7 +359,10 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
 
             {/* Status Filter */}
             <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Status
               </label>
               <select
@@ -314,7 +381,10 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
 
             {/* Type Filter */}
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Type
               </label>
               <select
@@ -347,7 +417,12 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
                 </svg>
               </button>
               <button
@@ -359,7 +434,12 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
             </div>
@@ -378,16 +458,34 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
             </div>
           ) : filteredChangeOrders.length === 0 ? (
             <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No change orders found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                No change orders found
+              </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Get started by creating a new change order
               </p>
             </div>
           ) : (
-            <div className={viewMode === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
+            <div
+              className={
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'
+                  : 'space-y-4'
+              }
+            >
               {filteredChangeOrders.map((co) => (
                 <div
                   key={co.id}
@@ -399,7 +497,9 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                         <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                           {co.changeNumber}
                         </span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPriorityColor(co.costImpact)}`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getPriorityColor(co.costImpact)}`}
+                        >
                           {getPriorityLabel(co.costImpact)}
                         </span>
                       </div>
@@ -413,27 +513,39 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                       <div className="mt-4 space-y-2">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-500 dark:text-gray-400">Status:</span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(co.status)}`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(co.status)}`}
+                          >
                             {co.status.replace('_', ' ')}
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-500 dark:text-gray-400">Type:</span>
-                          <span className="text-gray-900 dark:text-white capitalize">{co.changeType}</span>
+                          <span className="text-gray-900 dark:text-white capitalize">
+                            {co.changeType}
+                          </span>
                         </div>
                         {co.costImpact && (
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Cost Impact:</span>
-                            <span className={`font-medium ${co.costImpact >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-                              {co.costImpact >= 0 ? '+' : ''}{formatCurrency(co.costImpact)}
+                            <span
+                              className={`font-medium ${co.costImpact >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}
+                            >
+                              {co.costImpact >= 0 ? '+' : ''}
+                              {formatCurrency(co.costImpact)}
                             </span>
                           </div>
                         )}
                         {co.scheduleImpact && (
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Schedule Impact:</span>
-                            <span className={`font-medium ${co.scheduleImpact >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-                              {co.scheduleImpact >= 0 ? '+' : ''}{co.scheduleImpact} days
+                            <span className="text-gray-500 dark:text-gray-400">
+                              Schedule Impact:
+                            </span>
+                            <span
+                              className={`font-medium ${co.scheduleImpact >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}
+                            >
+                              {co.scheduleImpact >= 0 ? '+' : ''}
+                              {co.scheduleImpact} days
                             </span>
                           </div>
                         )}
@@ -446,9 +558,24 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                         className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
                         title="View Details"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
                         </svg>
                       </button>
                       <button
@@ -456,8 +583,18 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         title="Edit"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
                         </svg>
                       </button>
                       <button
@@ -465,8 +602,18 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
                         className="text-red-400 hover:text-red-600"
                         title="Delete"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
                         </svg>
                       </button>
                     </div>

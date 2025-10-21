@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ChevronRight, Home } from 'lucide-react';
 import { Button } from './Button';
@@ -26,13 +25,11 @@ export default function BreadcrumbNavigation({ items, className = '' }: Breadcru
         <Home className="w-4 h-4" />
         <span className="sr-only">Home</span>
       </Button>
-      
+
       {items.map((item, index) => (
         <React.Fragment key={item.id || index}>
-          {index > 0 && (
-            <ChevronRight className="w-4 h-4 text-palladium" />
-          )}
-          
+          {index > 0 && <ChevronRight className="w-4 h-4 text-palladium" />}
+
           {index === items.length - 1 ? (
             // Current page - not clickable
             <span className="font-semibold text-night-black px-2 py-1 rounded-lg glass-subtle">

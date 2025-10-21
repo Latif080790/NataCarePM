@@ -83,10 +83,9 @@ export const validators = {
 
   // ID validators
   isValidId: (id: any): boolean => {
-    return typeof id === 'string' && 
-           id.length > 0 && 
-           id.length < 128 &&
-           /^[a-zA-Z0-9_-]+$/.test(id);
+    return (
+      typeof id === 'string' && id.length > 0 && id.length < 128 && /^[a-zA-Z0-9_-]+$/.test(id)
+    );
   },
 
   isValidProjectId: (id: string): ValidationResult => {
@@ -99,7 +98,9 @@ export const validators = {
     } else if (id.length > 128) {
       errors.push('Project ID is too long (max 128 characters)');
     } else if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-      errors.push('Project ID contains invalid characters (only alphanumeric, dash, underscore allowed)');
+      errors.push(
+        'Project ID contains invalid characters (only alphanumeric, dash, underscore allowed)'
+      );
     }
 
     return { valid: errors.length === 0, errors };
@@ -108,7 +109,7 @@ export const validators = {
   // Email validator
   isValidEmail: (email: string): boolean => {
     if (!email || typeof email !== 'string') return false;
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email.trim());
   },
@@ -116,7 +117,7 @@ export const validators = {
   // URL validator
   isValidUrl: (url: string): boolean => {
     if (!url || typeof url !== 'string') return false;
-    
+
     try {
       new URL(url);
       return true;
@@ -128,7 +129,7 @@ export const validators = {
   // Date validators
   isValidDate: (date: any): boolean => {
     if (!date) return false;
-    
+
     const parsed = new Date(date);
     return !isNaN(parsed.getTime());
   },
@@ -139,7 +140,7 @@ export const validators = {
     if (!validators.isValidDate(startDate)) {
       errors.push('Start date is invalid');
     }
-    
+
     if (!validators.isValidDate(endDate)) {
       errors.push('End date is invalid');
     }
@@ -147,7 +148,7 @@ export const validators = {
     if (errors.length === 0) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      
+
       if (end < start) {
         errors.push('End date must be after start date');
       }
@@ -186,7 +187,7 @@ export const validators = {
   // Phone validator
   isValidPhone: (phone: string): boolean => {
     if (!phone || typeof phone !== 'string') return false;
-    
+
     // Basic phone validation (accepts various formats)
     const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
@@ -195,7 +196,7 @@ export const validators = {
   // Sanitization
   sanitizeString: (input: string): string => {
     if (typeof input !== 'string') return '';
-    
+
     return input
       .trim()
       .replace(/[<>]/g, '') // Remove potential HTML tags
@@ -205,14 +206,14 @@ export const validators = {
 
   sanitizeHtml: (input: string): string => {
     if (typeof input !== 'string') return '';
-    
+
     return input
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#x27;')
       .replace(/\//g, '&#x2F;');
-  }
+  },
 };
 
 /**
@@ -277,7 +278,7 @@ export const validateTask = (task: Partial<Task>): ValidationResult => {
     const dueDate = new Date(task.dueDate);
     const now = new Date();
     const daysDiff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (daysDiff < 0) {
       warnings.push('Task is overdue');
     } else if (daysDiff <= 3) {
@@ -325,7 +326,12 @@ export const validateProject = (project: Partial<Project>): ValidationResult => 
   }
 
   // Description
-  if ('description' in project && project.description && typeof project.description === 'string' && project.description.length > 10000) {
+  if (
+    'description' in project &&
+    project.description &&
+    typeof project.description === 'string' &&
+    project.description.length > 10000
+  ) {
     errors.push('Project description must not exceed 10000 characters');
   }
 
@@ -382,7 +388,12 @@ export const validateUser = (user: Partial<User>): ValidationResult => {
   }
 
   // Phone
-  if ('phone' in user && user.phone && typeof user.phone === 'string' && !validators.isValidPhone(user.phone)) {
+  if (
+    'phone' in user &&
+    user.phone &&
+    typeof user.phone === 'string' &&
+    !validators.isValidPhone(user.phone)
+  ) {
     errors.push('Invalid phone number');
   }
 
@@ -445,8 +456,15 @@ export const validateDocument = (doc: Partial<Document>): ValidationResult => {
 
   // Category
   const validCategories = [
-    'contract', 'specification', 'report', 'drawing', 'permit',
-    'invoice', 'certificate', 'correspondence', 'other'
+    'contract',
+    'specification',
+    'report',
+    'drawing',
+    'permit',
+    'invoice',
+    'certificate',
+    'correspondence',
+    'other',
   ];
   if (doc.category && !validators.isValidEnum(doc.category, validCategories)) {
     errors.push(`Invalid category. Must be one of: ${validCategories.join(', ')}`);
@@ -481,17 +499,17 @@ export const validateBatch = <T>(
   totalErrors: number;
   totalWarnings: number;
 } => {
-  const results = items.map(item => validatorFn(item));
-  
+  const results = items.map((item) => validatorFn(item));
+
   const totalErrors = results.reduce((sum, result) => sum + result.errors.length, 0);
   const totalWarnings = results.reduce((sum, result) => sum + (result.warnings?.length || 0), 0);
-  const allValid = results.every(result => result.valid);
+  const allValid = results.every((result) => result.valid);
 
   return {
     allValid,
     results,
     totalErrors,
-    totalWarnings
+    totalWarnings,
   };
 };
 
@@ -508,7 +526,7 @@ export const createValidator = (
   return (value: any): ValidationResult => {
     const errors: string[] = [];
 
-    rules.forEach(rule => {
+    rules.forEach((rule) => {
       if (!rule.condition(value)) {
         errors.push(rule.errorMessage);
       }
@@ -522,10 +540,7 @@ export const createValidator = (
  * Throws ValidationError if validation fails
  * Useful for functions that should halt execution on invalid input
  */
-export const assertValid = (
-  validation: ValidationResult,
-  field?: string
-): void => {
+export const assertValid = (validation: ValidationResult, field?: string): void => {
   if (!validation.valid) {
     throw new ValidationError(validation.errors, field);
   }
@@ -538,7 +553,7 @@ export const firebaseValidators = {
   // Firestore array-contains-any has max 10 items
   isValidArrayContainsAny: (values: any[]): ValidationResult => {
     const errors: string[] = [];
-    
+
     if (!Array.isArray(values)) {
       errors.push('Value must be an array');
     } else if (values.length > 10) {
@@ -553,7 +568,7 @@ export const firebaseValidators = {
   // Firestore "in" query has max 10 values
   isValidInQuery: (values: any[]): ValidationResult => {
     const errors: string[] = [];
-    
+
     if (!Array.isArray(values)) {
       errors.push('Value must be an array');
     } else if (values.length > 10) {
@@ -568,7 +583,7 @@ export const firebaseValidators = {
   // Firestore has max 500 writes per batch
   isValidBatchSize: (size: number): ValidationResult => {
     const errors: string[] = [];
-    
+
     if (typeof size !== 'number' || size <= 0) {
       errors.push('Batch size must be a positive number');
     } else if (size > 500) {
@@ -581,22 +596,22 @@ export const firebaseValidators = {
   // Document path validation
   isValidDocumentPath: (path: string): ValidationResult => {
     const errors: string[] = [];
-    
+
     if (!path || typeof path !== 'string') {
       errors.push('Document path is required');
     } else {
       const segments = path.split('/');
-      
+
       // Must have even number of segments (collection/doc/collection/doc...)
       if (segments.length % 2 !== 0) {
         errors.push('Document path must have even number of segments');
       }
-      
+
       // Each segment must be non-empty
-      if (segments.some(segment => segment.trim().length === 0)) {
+      if (segments.some((segment) => segment.trim().length === 0)) {
         errors.push('Document path segments cannot be empty');
       }
-      
+
       // Path length limit
       if (path.length > 6144) {
         errors.push('Document path must not exceed 6144 bytes');
@@ -604,5 +619,5 @@ export const firebaseValidators = {
     }
 
     return { valid: errors.length === 0, errors };
-  }
+  },
 };

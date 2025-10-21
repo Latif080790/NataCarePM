@@ -1,7 +1,7 @@
 /**
  * AI Resource Optimization Type Definitions
  * NataCarePM - Phase 4: AI & Analytics
- * 
+ *
  * Comprehensive types for AI-powered resource allocation,
  * ML-based scheduling, and optimization recommendations
  */
@@ -13,7 +13,7 @@
 // ML Model Types
 // ============================================================================
 
-export type MLModelType = 
+export type MLModelType =
   | 'neural_network'
   | 'lstm'
   | 'random_forest'
@@ -127,7 +127,7 @@ export interface ResourceOptimizationRequest {
   requestedBy: string;
 }
 
-export type OptimizationGoal = 
+export type OptimizationGoal =
   | 'minimize_cost'
   | 'minimize_duration'
   | 'maximize_quality'
@@ -320,7 +320,12 @@ export interface OptimizationMetrics {
 export interface OptimizationWarning {
   warningId: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  category: 'resource_conflict' | 'budget_overrun' | 'schedule_delay' | 'quality_risk' | 'safety_concern';
+  category:
+    | 'resource_conflict'
+    | 'budget_overrun'
+    | 'schedule_delay'
+    | 'quality_risk'
+    | 'safety_concern';
   message: string;
   affectedTaskIds: string[];
   affectedResourceIds: string[];
@@ -346,23 +351,23 @@ export interface TrainingDataPoint {
     taskDuration: number; // hours
     requiredSkills: string[];
     budgetAmount: number;
-    
+
     // Resource characteristics
     workerExperienceYears: number;
     workerProficiencyLevel: number; // 1-5
     equipmentAge: number; // years
     equipmentCondition: number; // 1-5
-    
+
     // Environmental factors
     season: 'spring' | 'summer' | 'fall' | 'winter';
     weatherConditions: string;
     siteAccessibility: number; // 1-5
-    
+
     // Historical performance
     previousProjectsCount: number;
     averageDelayDays: number;
     averageCostOverrun: number; // percentage
-    
+
     // Additional features
     [key: string]: any;
   };

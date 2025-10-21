@@ -1,15 +1,23 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, collection, addDoc, writeBatch, serverTimestamp } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  writeBatch,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 // Firebase config (menggunakan config yang benar)
 const firebaseConfig = {
-    apiKey: "AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8",
-    authDomain: "natacara-hns.firebaseapp.com",
-    projectId: "natacara-hns",
-    storageBucket: "natacara-hns.appspot.com",
-    messagingSenderId: "118063816239",
-    appId: "1:118063816239:web:11b43366e18bc71e9170da",
-    measurementId: "G-7XPWRK3R2P"
+  apiKey: 'AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8',
+  authDomain: 'natacara-hns.firebaseapp.com',
+  projectId: 'natacara-hns',
+  storageBucket: 'natacara-hns.appspot.com',
+  messagingSenderId: '118063816239',
+  appId: '1:118063816239:web:11b43366e18bc71e9170da',
+  measurementId: 'G-7XPWRK3R2P',
 };
 
 // Initialize Firebase
@@ -33,546 +41,607 @@ const startDate = addDays(today, -30);
 const REAL_DATA = {
   // Master Data AHSP (Analisa Harga Satuan Pekerjaan)
   ahspData: {
-    version: "2024",
+    version: '2024',
     items: [
       {
-        id: "A.2.2.1.1",
-        code: "A.2.2.1.1",
-        description: "Pembersihan lapangan dan pemasangan bowplank",
-        unit: "m2",
+        id: 'A.2.2.1.1',
+        code: 'A.2.2.1.1',
+        description: 'Pembersihan lapangan dan pemasangan bowplank',
+        unit: 'm2',
         materialCosts: [
-          { name: "Kayu kelas III", quantity: 0.05, unit: "m3", unitPrice: 2500000 },
-          { name: "Paku 5cm", quantity: 0.25, unit: "kg", unitPrice: 18000 },
-          { name: "Tali rafia", quantity: 0.1, unit: "kg", unitPrice: 25000 }
+          { name: 'Kayu kelas III', quantity: 0.05, unit: 'm3', unitPrice: 2500000 },
+          { name: 'Paku 5cm', quantity: 0.25, unit: 'kg', unitPrice: 18000 },
+          { name: 'Tali rafia', quantity: 0.1, unit: 'kg', unitPrice: 25000 },
         ],
         laborCosts: [
-          { type: "Pekerja", coefficient: 0.5, wage: 120000 },
-          { type: "Tukang Kayu", coefficient: 0.25, wage: 150000 },
-          { type: "Kepala Tukang", coefficient: 0.025, wage: 160000 },
-          { type: "Mandor", coefficient: 0.0125, wage: 170000 }
+          { type: 'Pekerja', coefficient: 0.5, wage: 120000 },
+          { type: 'Tukang Kayu', coefficient: 0.25, wage: 150000 },
+          { type: 'Kepala Tukang', coefficient: 0.025, wage: 160000 },
+          { type: 'Mandor', coefficient: 0.0125, wage: 170000 },
         ],
-        equipmentCosts: [
-          { name: "Alat bantu", cost: 5000 }
-        ],
-        totalUnitPrice: 185000
+        equipmentCosts: [{ name: 'Alat bantu', cost: 5000 }],
+        totalUnitPrice: 185000,
       },
       {
-        id: "A.2.3.1.1",
-        code: "A.2.3.1.1", 
-        description: "Galian tanah pondasi kedalaman 1-2 meter",
-        unit: "m3",
+        id: 'A.2.3.1.1',
+        code: 'A.2.3.1.1',
+        description: 'Galian tanah pondasi kedalaman 1-2 meter',
+        unit: 'm3',
         materialCosts: [],
         laborCosts: [
-          { type: "Pekerja", coefficient: 0.75, wage: 120000 },
-          { type: "Mandor", coefficient: 0.025, wage: 170000 }
+          { type: 'Pekerja', coefficient: 0.75, wage: 120000 },
+          { type: 'Mandor', coefficient: 0.025, wage: 170000 },
         ],
-        equipmentCosts: [
-          { name: "Alat bantu", cost: 5000 }
-        ],
-        totalUnitPrice: 95250
+        equipmentCosts: [{ name: 'Alat bantu', cost: 5000 }],
+        totalUnitPrice: 95250,
       },
       {
-        id: "A.4.1.1.5",
-        code: "A.4.1.1.5",
-        description: "Beton bertulang mutu K-250",
-        unit: "m3", 
+        id: 'A.4.1.1.5',
+        code: 'A.4.1.1.5',
+        description: 'Beton bertulang mutu K-250',
+        unit: 'm3',
         materialCosts: [
-          { name: "Semen Portland", quantity: 384, unit: "kg", unitPrice: 1300 },
-          { name: "Pasir beton", quantity: 0.692, unit: "m3", unitPrice: 350000 },
-          { name: "Kerikil", quantity: 1.039, unit: "m3", unitPrice: 410000 },
-          { name: "Air", quantity: 215, unit: "liter", unitPrice: 15 },
-          { name: "Besi beton", quantity: 120, unit: "kg", unitPrice: 14000 }
+          { name: 'Semen Portland', quantity: 384, unit: 'kg', unitPrice: 1300 },
+          { name: 'Pasir beton', quantity: 0.692, unit: 'm3', unitPrice: 350000 },
+          { name: 'Kerikil', quantity: 1.039, unit: 'm3', unitPrice: 410000 },
+          { name: 'Air', quantity: 215, unit: 'liter', unitPrice: 15 },
+          { name: 'Besi beton', quantity: 120, unit: 'kg', unitPrice: 14000 },
         ],
         laborCosts: [
-          { type: "Pekerja", coefficient: 1.65, wage: 120000 },
-          { type: "Tukang Batu", coefficient: 0.275, wage: 150000 },
-          { type: "Kepala Tukang", coefficient: 0.0275, wage: 160000 },
-          { type: "Mandor", coefficient: 0.083, wage: 170000 }
+          { type: 'Pekerja', coefficient: 1.65, wage: 120000 },
+          { type: 'Tukang Batu', coefficient: 0.275, wage: 150000 },
+          { type: 'Kepala Tukang', coefficient: 0.0275, wage: 160000 },
+          { type: 'Mandor', coefficient: 0.083, wage: 170000 },
         ],
         equipmentCosts: [
-          { name: "Concrete mixer", cost: 50000 },
-          { name: "Concrete vibrator", cost: 25000 }
+          { name: 'Concrete mixer', cost: 50000 },
+          { name: 'Concrete vibrator', cost: 25000 },
         ],
-        totalUnitPrice: 2850000
+        totalUnitPrice: 2850000,
       },
       {
-        id: "A.4.4.1.1",
-        code: "A.4.4.1.1",
-        description: "Pasangan bata merah 1:4 tebal 1/2 batu",
-        unit: "m2",
+        id: 'A.4.4.1.1',
+        code: 'A.4.4.1.1',
+        description: 'Pasangan bata merah 1:4 tebal 1/2 batu',
+        unit: 'm2',
         materialCosts: [
-          { name: "Bata merah", quantity: 70, unit: "bh", unitPrice: 1000 },
-          { name: "Semen Portland", quantity: 11.5, unit: "kg", unitPrice: 1300 },
-          { name: "Pasir pasang", quantity: 0.043, unit: "m3", unitPrice: 300000 }
+          { name: 'Bata merah', quantity: 70, unit: 'bh', unitPrice: 1000 },
+          { name: 'Semen Portland', quantity: 11.5, unit: 'kg', unitPrice: 1300 },
+          { name: 'Pasir pasang', quantity: 0.043, unit: 'm3', unitPrice: 300000 },
         ],
         laborCosts: [
-          { type: "Pekerja", coefficient: 0.3, wage: 120000 },
-          { type: "Tukang Batu", coefficient: 0.15, wage: 150000 },
-          { type: "Kepala Tukang", coefficient: 0.015, wage: 160000 },
-          { type: "Mandor", coefficient: 0.0075, wage: 170000 }
+          { type: 'Pekerja', coefficient: 0.3, wage: 120000 },
+          { type: 'Tukang Batu', coefficient: 0.15, wage: 150000 },
+          { type: 'Kepala Tukang', coefficient: 0.015, wage: 160000 },
+          { type: 'Mandor', coefficient: 0.0075, wage: 170000 },
         ],
-        equipmentCosts: [
-          { name: "Alat bantu", cost: 3000 }
-        ],
-        totalUnitPrice: 142750
-      }
-    ]
+        equipmentCosts: [{ name: 'Alat bantu', cost: 3000 }],
+        totalUnitPrice: 142750,
+      },
+    ],
   },
 
   // Data Pekerja Real
   workers: [
-    { id: "W001", name: "Budi Santoso", type: "Pekerja", dailyWage: 120000, skillLevel: "Berpengalaman" },
-    { id: "W002", name: "Cecep Permana", type: "Pekerja", dailyWage: 120000, skillLevel: "Pemula" },
-    { id: "W003", name: "Eko Wahyudi", type: "Pekerja", dailyWage: 120000, skillLevel: "Berpengalaman" },
-    { id: "W004", name: "Firman Setiawan", type: "Pekerja", dailyWage: 120000, skillLevel: "Menengah" },
-    { id: "T001", name: "Asep Sunandar", type: "Tukang Batu", dailyWage: 150000, skillLevel: "Ahli" },
-    { id: "T002", name: "Dedi Mulyadi", type: "Tukang Kayu", dailyWage: 150000, skillLevel: "Ahli" },
-    { id: "T003", name: "Ahmad Yani", type: "Tukang Besi", dailyWage: 150000, skillLevel: "Berpengalaman" },
-    { id: "KT01", name: "Suparman", type: "Kepala Tukang", dailyWage: 160000, skillLevel: "Expert" },
-    { id: "M001", name: "Dadang Konelo", type: "Mandor", dailyWage: 170000, skillLevel: "Expert" }
+    {
+      id: 'W001',
+      name: 'Budi Santoso',
+      type: 'Pekerja',
+      dailyWage: 120000,
+      skillLevel: 'Berpengalaman',
+    },
+    { id: 'W002', name: 'Cecep Permana', type: 'Pekerja', dailyWage: 120000, skillLevel: 'Pemula' },
+    {
+      id: 'W003',
+      name: 'Eko Wahyudi',
+      type: 'Pekerja',
+      dailyWage: 120000,
+      skillLevel: 'Berpengalaman',
+    },
+    {
+      id: 'W004',
+      name: 'Firman Setiawan',
+      type: 'Pekerja',
+      dailyWage: 120000,
+      skillLevel: 'Menengah',
+    },
+    {
+      id: 'T001',
+      name: 'Asep Sunandar',
+      type: 'Tukang Batu',
+      dailyWage: 150000,
+      skillLevel: 'Ahli',
+    },
+    {
+      id: 'T002',
+      name: 'Dedi Mulyadi',
+      type: 'Tukang Kayu',
+      dailyWage: 150000,
+      skillLevel: 'Ahli',
+    },
+    {
+      id: 'T003',
+      name: 'Ahmad Yani',
+      type: 'Tukang Besi',
+      dailyWage: 150000,
+      skillLevel: 'Berpengalaman',
+    },
+    {
+      id: 'KT01',
+      name: 'Suparman',
+      type: 'Kepala Tukang',
+      dailyWage: 160000,
+      skillLevel: 'Expert',
+    },
+    { id: 'M001', name: 'Dadang Konelo', type: 'Mandor', dailyWage: 170000, skillLevel: 'Expert' },
   ],
 
   // Role dengan permission yang lengkap
   roles: [
     {
-      id: "admin",
-      name: "Administrator",
-      description: "Full access to all system functions",
-      permissions: ["read", "write", "delete", "admin", "user_management", "system_config"],
-      color: "#dc2626"
+      id: 'admin',
+      name: 'Administrator',
+      description: 'Full access to all system functions',
+      permissions: ['read', 'write', 'delete', 'admin', 'user_management', 'system_config'],
+      color: '#dc2626',
     },
     {
-      id: "pm", 
-      name: "Project Manager",
-      description: "Manage projects, reports, and team coordination",
-      permissions: ["read", "write", "project_management", "reports", "approvals"],
-      color: "#2563eb"
+      id: 'pm',
+      name: 'Project Manager',
+      description: 'Manage projects, reports, and team coordination',
+      permissions: ['read', 'write', 'project_management', 'reports', 'approvals'],
+      color: '#2563eb',
     },
     {
-      id: "site_manager",
-      name: "Site Manager", 
-      description: "On-site operations and daily reporting",
-      permissions: ["read", "write", "daily_reports", "progress_update", "workforce_management"],
-      color: "#059669"
+      id: 'site_manager',
+      name: 'Site Manager',
+      description: 'On-site operations and daily reporting',
+      permissions: ['read', 'write', 'daily_reports', 'progress_update', 'workforce_management'],
+      color: '#059669',
     },
     {
-      id: "finance",
-      name: "Finance Manager",
-      description: "Financial oversight and purchase orders",
-      permissions: ["read", "write", "financial_reports", "purchase_orders", "budget_control"],
-      color: "#7c3aed"
+      id: 'finance',
+      name: 'Finance Manager',
+      description: 'Financial oversight and purchase orders',
+      permissions: ['read', 'write', 'financial_reports', 'purchase_orders', 'budget_control'],
+      color: '#7c3aed',
     },
     {
-      id: "viewer",
-      name: "Viewer",
-      description: "Read-only access to assigned projects",
-      permissions: ["read"],
-      color: "#6b7280"
-    }
+      id: 'viewer',
+      name: 'Viewer',
+      description: 'Read-only access to assigned projects',
+      permissions: ['read'],
+      color: '#6b7280',
+    },
   ],
 
   // Data Project Construction Real
   projects: [
     {
-      id: "PROJ-2024-001",
-      name: "Pembangunan Rumah Tinggal Cluster Green Valley",
-      description: "Proyek pembangunan 12 unit rumah tinggal tipe 70 dengan konsep modern minimalis",
-      location: "Jl. Raya Bogor KM 25, Cibinong, Bogor",
-      client: "PT. Green Valley Development",
+      id: 'PROJ-2024-001',
+      name: 'Pembangunan Rumah Tinggal Cluster Green Valley',
+      description:
+        'Proyek pembangunan 12 unit rumah tinggal tipe 70 dengan konsep modern minimalis',
+      location: 'Jl. Raya Bogor KM 25, Cibinong, Bogor',
+      client: 'PT. Green Valley Development',
       contractor: "PT. NATA'CARA Construction",
-      startDate: "2024-09-01",
-      endDate: "2025-03-31",
+      startDate: '2024-09-01',
+      endDate: '2025-03-31',
       projectValue: 3600000000, // 3.6 Miliar
-      status: "On Progress",
+      status: 'On Progress',
       progress: 45.5,
-      projectManager: "user1",
-      siteManager: "user3",
+      projectManager: 'user1',
+      siteManager: 'user3',
       items: [
         {
           id: 1,
-          no: "I.1",
-          uraian: "Pekerjaan Persiapan dan Pembersihan Lahan",
+          no: 'I.1',
+          uraian: 'Pekerjaan Persiapan dan Pembersihan Lahan',
           volume: 840,
-          satuan: "m2",
+          satuan: 'm2',
           hargaSatuan: 15000,
-          kategori: "Persiapan",
-          ahspId: "A.2.2.1.1",
+          kategori: 'Persiapan',
+          ahspId: 'A.2.2.1.1',
           duration: 7,
-          startDate: "2024-09-01",
-          progress: 100
+          startDate: '2024-09-01',
+          progress: 100,
         },
         {
           id: 2,
-          no: "II.1", 
-          uraian: "Galian Tanah Pondasi dan Basement",
+          no: 'II.1',
+          uraian: 'Galian Tanah Pondasi dan Basement',
           volume: 420,
-          satuan: "m3",
+          satuan: 'm3',
           hargaSatuan: 95000,
-          kategori: "Struktur Bawah",
-          ahspId: "A.2.3.1.1",
+          kategori: 'Struktur Bawah',
+          ahspId: 'A.2.3.1.1',
           duration: 14,
           dependsOn: 1,
-          startDate: "2024-09-08",
-          progress: 100
+          startDate: '2024-09-08',
+          progress: 100,
         },
         {
           id: 3,
-          no: "II.2",
-          uraian: "Pondasi Footplate dan Sloof K-250",
+          no: 'II.2',
+          uraian: 'Pondasi Footplate dan Sloof K-250',
           volume: 85,
-          satuan: "m3", 
+          satuan: 'm3',
           hargaSatuan: 2850000,
-          kategori: "Struktur Bawah",
-          ahspId: "A.4.1.1.5",
+          kategori: 'Struktur Bawah',
+          ahspId: 'A.4.1.1.5',
           duration: 21,
           dependsOn: 2,
-          startDate: "2024-09-22",
-          progress: 95
+          startDate: '2024-09-22',
+          progress: 95,
         },
         {
           id: 4,
-          no: "III.1",
-          uraian: "Struktur Kolom dan Balok Lantai 1",
+          no: 'III.1',
+          uraian: 'Struktur Kolom dan Balok Lantai 1',
           volume: 125,
-          satuan: "m3",
+          satuan: 'm3',
           hargaSatuan: 2850000,
-          kategori: "Struktur Atas",
-          ahspId: "A.4.1.1.5", 
+          kategori: 'Struktur Atas',
+          ahspId: 'A.4.1.1.5',
           duration: 28,
           dependsOn: 3,
-          startDate: "2024-10-13",
-          progress: 75
+          startDate: '2024-10-13',
+          progress: 75,
         },
         {
           id: 5,
-          no: "III.2",
-          uraian: "Pasangan Dinding Bata Lantai 1",
+          no: 'III.2',
+          uraian: 'Pasangan Dinding Bata Lantai 1',
           volume: 1680,
-          satuan: "m2",
+          satuan: 'm2',
           hargaSatuan: 142750,
-          kategori: "Arsitektur",
-          ahspId: "A.4.4.1.1",
+          kategori: 'Arsitektur',
+          ahspId: 'A.4.4.1.1',
           duration: 35,
           dependsOn: 4,
-          startDate: "2024-11-10",
-          progress: 25
+          startDate: '2024-11-10',
+          progress: 25,
         },
         {
           id: 6,
-          no: "IV.1",
-          uraian: "Plesteran dan Acian Dalam",
+          no: 'IV.1',
+          uraian: 'Plesteran dan Acian Dalam',
           volume: 3360,
-          satuan: "m2",
+          satuan: 'm2',
           hargaSatuan: 55000,
-          kategori: "Finishing",
-          ahspId: "A.4.4.2.3",
+          kategori: 'Finishing',
+          ahspId: 'A.4.4.2.3',
           duration: 28,
           dependsOn: 5,
-          progress: 0
+          progress: 0,
         },
         {
           id: 7,
-          no: "IV.2",
-          uraian: "Instalasi MEP (Mechanical, Electrical, Plumbing)",
+          no: 'IV.2',
+          uraian: 'Instalasi MEP (Mechanical, Electrical, Plumbing)',
           volume: 12,
-          satuan: "unit",
+          satuan: 'unit',
           hargaSatuan: 18500000,
-          kategori: "MEP",
-          ahspId: "MEP.1",
+          kategori: 'MEP',
+          ahspId: 'MEP.1',
           duration: 42,
           dependsOn: 5,
-          progress: 0
+          progress: 0,
         },
         {
           id: 8,
-          no: "V.1",
-          uraian: "Pengecatan Interior dan Eksterior",
+          no: 'V.1',
+          uraian: 'Pengecatan Interior dan Eksterior',
           volume: 3360,
-          satuan: "m2",
+          satuan: 'm2',
           hargaSatuan: 35000,
-          kategori: "Finishing",
-          ahspId: "A.4.7.1.1",
+          kategori: 'Finishing',
+          ahspId: 'A.4.7.1.1',
           duration: 21,
           dependsOn: 6,
-          progress: 0
+          progress: 0,
         },
         {
           id: 9,
-          no: "VI.1",
-          uraian: "Pekerjaan Landscape dan Taman",
+          no: 'VI.1',
+          uraian: 'Pekerjaan Landscape dan Taman',
           volume: 600,
-          satuan: "m2",
+          satuan: 'm2',
           hargaSatuan: 125000,
-          kategori: "Landscape",
-          ahspId: "LAND.1",
+          kategori: 'Landscape',
+          ahspId: 'LAND.1',
           duration: 14,
           dependsOn: 8,
-          progress: 0
-        }
-      ]
+          progress: 0,
+        },
+      ],
     },
     {
-      id: "PROJ-2024-002", 
-      name: "Renovasi Kantor Pusat PT. Digital Solusi",
-      description: "Renovasi total kantor 3 lantai dengan konsep modern workspace",
-      location: "Jl. Sudirman No. 45, Jakarta Pusat", 
-      client: "PT. Digital Solusi Indonesia",
+      id: 'PROJ-2024-002',
+      name: 'Renovasi Kantor Pusat PT. Digital Solusi',
+      description: 'Renovasi total kantor 3 lantai dengan konsep modern workspace',
+      location: 'Jl. Sudirman No. 45, Jakarta Pusat',
+      client: 'PT. Digital Solusi Indonesia',
       contractor: "PT. NATA'CARA Construction",
-      startDate: "2024-10-15",
-      endDate: "2024-12-30",
+      startDate: '2024-10-15',
+      endDate: '2024-12-30',
       projectValue: 850000000, // 850 Juta
-      status: "On Progress",
+      status: 'On Progress',
       progress: 15.2,
-      projectManager: "user1",
-      siteManager: "user3",
+      projectManager: 'user1',
+      siteManager: 'user3',
       items: [
         {
           id: 11,
-          no: "I.1",
-          uraian: "Demolisi dan Pembongkaran",
+          no: 'I.1',
+          uraian: 'Demolisi dan Pembongkaran',
           volume: 450,
-          satuan: "m2",
+          satuan: 'm2',
           hargaSatuan: 35000,
-          kategori: "Demolisi",
+          kategori: 'Demolisi',
           duration: 10,
-          progress: 100
+          progress: 100,
         },
         {
           id: 12,
-          no: "II.1",
-          uraian: "Pekerjaan Partisi Gypsum",
+          no: 'II.1',
+          uraian: 'Pekerjaan Partisi Gypsum',
           volume: 280,
-          satuan: "m2", 
+          satuan: 'm2',
           hargaSatuan: 185000,
-          kategori: "Interior",
+          kategori: 'Interior',
           duration: 18,
           dependsOn: 11,
-          progress: 45
+          progress: 45,
         },
         {
           id: 13,
-          no: "III.1",
-          uraian: "Instalasi Sistem HVAC",
+          no: 'III.1',
+          uraian: 'Instalasi Sistem HVAC',
           volume: 3,
-          satuan: "lantai",
+          satuan: 'lantai',
           hargaSatuan: 45000000,
-          kategori: "MEP",
+          kategori: 'MEP',
           duration: 25,
           dependsOn: 12,
-          progress: 0
-        }
-      ]
-    }
-  ]
+          progress: 0,
+        },
+      ],
+    },
+  ],
 };
 
 async function setupRealData() {
-  console.log("🚀 Memulai setup data real ke Firestore...");
-  
+  console.log('🚀 Memulai setup data real ke Firestore...');
+
   try {
     const batch = writeBatch(db);
-    
+
     // 1. Setup Master Data AHSP
-    console.log("📊 Mengisi master data AHSP...");
-    const ahspRef = doc(db, "masterData", "ahsp");
+    console.log('📊 Mengisi master data AHSP...');
+    const ahspRef = doc(db, 'masterData', 'ahsp');
     batch.set(ahspRef, REAL_DATA.ahspData);
-    
+
     // 2. Setup Workers
-    console.log("👷 Mengisi data workers...");
+    console.log('👷 Mengisi data workers...');
     for (const worker of REAL_DATA.workers) {
-      const workerRef = doc(db, "workers", worker.id);
+      const workerRef = doc(db, 'workers', worker.id);
       batch.set(workerRef, worker);
     }
-    
+
     // 3. Setup Roles
-    console.log("🔐 Mengisi data roles...");
+    console.log('🔐 Mengisi data roles...');
     for (const role of REAL_DATA.roles) {
-      const roleRef = doc(db, "roles", role.id);
+      const roleRef = doc(db, 'roles', role.id);
       batch.set(roleRef, role);
     }
-    
+
     // Commit batch untuk master data
     await batch.commit();
-    console.log("✅ Master data berhasil disimpan!");
-    
+    console.log('✅ Master data berhasil disimpan!');
+
     // 4. Setup Projects (satu per satu karena kompleks)
-    console.log("🏗️ Mengisi data projects...");
+    console.log('🏗️ Mengisi data projects...');
     for (const project of REAL_DATA.projects) {
-      const projectRef = doc(db, "projects", project.id);
-      
+      const projectRef = doc(db, 'projects', project.id);
+
       // Data utama project
       const projectData = {
         ...project,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       };
-      
+
       await setDoc(projectRef, projectData);
-      
+
       // Tambahkan daily reports sample
       const dailyReportsData = [
         {
           id: `DR-${project.id}-001`,
           date: addDays(today, -5).toISOString().split('T')[0],
-          weather: "Cerah",
+          weather: 'Cerah',
           notes: `Progres ${project.items[0]?.uraian || 'pekerjaan'} berjalan sesuai rencana.`,
           workforce: [
-            { workerId: "W001", workerName: "Budi Santoso", hoursWorked: 8 },
-            { workerId: "T001", workerName: "Asep Sunandar", hoursWorked: 8 }
+            { workerId: 'W001', workerName: 'Budi Santoso', hoursWorked: 8 },
+            { workerId: 'T001', workerName: 'Asep Sunandar', hoursWorked: 8 },
           ],
-          workProgress: [
-            { rabItemId: project.items[0]?.id || 1, completedVolume: 50 }
-          ],
+          workProgress: [{ rabItemId: project.items[0]?.id || 1, completedVolume: 50 }],
           materialsConsumed: [
-            { name: "Semen", quantity: 10, unit: "sak" },
-            { name: "Pasir", quantity: 2, unit: "m3" }
+            { name: 'Semen', quantity: 10, unit: 'sak' },
+            { name: 'Pasir', quantity: 2, unit: 'm3' },
           ],
           photos: [],
           comments: [],
-          createdBy: "user3",
-          timestamp: addDays(today, -5).toISOString()
+          createdBy: 'user3',
+          timestamp: addDays(today, -5).toISOString(),
         },
         {
           id: `DR-${project.id}-002`,
           date: addDays(today, -3).toISOString().split('T')[0],
-          weather: "Berawan",
+          weather: 'Berawan',
           notes: `Koordinasi dengan supplier material untuk kelancaran pekerjaan.`,
           workforce: [
-            { workerId: "W001", workerName: "Budi Santoso", hoursWorked: 8 },
-            { workerId: "W002", workerName: "Cecep Permana", hoursWorked: 8 },
-            { workerId: "T001", workerName: "Asep Sunandar", hoursWorked: 8 }
+            { workerId: 'W001', workerName: 'Budi Santoso', hoursWorked: 8 },
+            { workerId: 'W002', workerName: 'Cecep Permana', hoursWorked: 8 },
+            { workerId: 'T001', workerName: 'Asep Sunandar', hoursWorked: 8 },
           ],
-          workProgress: [
-            { rabItemId: project.items[1]?.id || 2, completedVolume: 30 }
-          ],
+          workProgress: [{ rabItemId: project.items[1]?.id || 2, completedVolume: 30 }],
           materialsConsumed: [
-            { name: "Besi Beton", quantity: 500, unit: "kg" },
-            { name: "Kawat Beton", quantity: 5, unit: "kg" }
+            { name: 'Besi Beton', quantity: 500, unit: 'kg' },
+            { name: 'Kawat Beton', quantity: 5, unit: 'kg' },
           ],
           photos: [],
           comments: [],
-          createdBy: "user3",
-          timestamp: addDays(today, -3).toISOString()
-        }
+          createdBy: 'user3',
+          timestamp: addDays(today, -3).toISOString(),
+        },
       ];
-      
+
       // Simpan daily reports
       for (const report of dailyReportsData) {
         const reportRef = doc(db, `projects/${project.id}/dailyReports`, report.id);
         await setDoc(reportRef, report);
       }
-      
+
       // Tambahkan sample purchase orders
       const purchaseOrdersData = [
         {
           id: `PO-${project.id}-001`,
           poNumber: `PO/${project.id}/2024/001`,
-          supplier: "CV. Sumber Bangunan Jaya",
+          supplier: 'CV. Sumber Bangunan Jaya',
           requestDate: addDays(today, -10).toISOString(),
           requiredDate: addDays(today, 5).toISOString(),
-          status: "approved",
+          status: 'approved',
           items: [
-            { name: "Semen Portland", quantity: 100, unit: "sak", unitPrice: 65000 },
-            { name: "Pasir Beton", quantity: 20, unit: "m3", unitPrice: 350000 },
-            { name: "Kerikil", quantity: 25, unit: "m3", unitPrice: 410000 }
+            { name: 'Semen Portland', quantity: 100, unit: 'sak', unitPrice: 65000 },
+            { name: 'Pasir Beton', quantity: 20, unit: 'm3', unitPrice: 350000 },
+            { name: 'Kerikil', quantity: 25, unit: 'm3', unitPrice: 410000 },
           ],
           totalAmount: 23750000,
-          approver: "Jevline Kief",
+          approver: 'Jevline Kief',
           approvalDate: addDays(today, -8).toISOString(),
-          createdBy: "user3",
-          timestamp: addDays(today, -10).toISOString()
-        }
+          createdBy: 'user3',
+          timestamp: addDays(today, -10).toISOString(),
+        },
       ];
-      
+
       for (const po of purchaseOrdersData) {
         const poRef = doc(db, `projects/${project.id}/purchaseOrders`, po.id);
         await setDoc(poRef, po);
       }
-      
+
       // Tambahkan attendance records
       const attendanceData = {
         id: `ATT-${project.id}-${todayStr}`,
         date: todayStr,
         records: [
-          { workerId: "W001", workerName: "Budi Santoso", status: "present", checkIn: "07:00", checkOut: "16:00" },
-          { workerId: "W002", workerName: "Cecep Permana", status: "present", checkIn: "07:15", checkOut: "16:00" },
-          { workerId: "T001", workerName: "Asep Sunandar", status: "present", checkIn: "07:00", checkOut: "16:00" },
-          { workerId: "M001", workerName: "Dadang Konelo", status: "present", checkIn: "06:45", checkOut: "16:15" }
+          {
+            workerId: 'W001',
+            workerName: 'Budi Santoso',
+            status: 'present',
+            checkIn: '07:00',
+            checkOut: '16:00',
+          },
+          {
+            workerId: 'W002',
+            workerName: 'Cecep Permana',
+            status: 'present',
+            checkIn: '07:15',
+            checkOut: '16:00',
+          },
+          {
+            workerId: 'T001',
+            workerName: 'Asep Sunandar',
+            status: 'present',
+            checkIn: '07:00',
+            checkOut: '16:00',
+          },
+          {
+            workerId: 'M001',
+            workerName: 'Dadang Konelo',
+            status: 'present',
+            checkIn: '06:45',
+            checkOut: '16:15',
+          },
         ],
-        createdBy: "user3",
-        timestamp: new Date().toISOString()
+        createdBy: 'user3',
+        timestamp: new Date().toISOString(),
       };
-      
+
       const attendanceRef = doc(db, `projects/${project.id}/attendances`, attendanceData.id);
       await setDoc(attendanceRef, attendanceData);
-      
+
       console.log(`✅ Project ${project.name} berhasil disimpan!`);
     }
-    
+
     // 5. Setup Notifications
-    console.log("🔔 Mengisi notifications...");
+    console.log('🔔 Mengisi notifications...');
     const notifications = [
       {
-        id: "NOTIF-001",
-        title: "Purchase Order Perlu Persetujuan",
-        message: "PO/PROJ-2024-001/2024/002 menunggu persetujuan Anda",
-        type: "approval_required",
-        priority: "high",
+        id: 'NOTIF-001',
+        title: 'Purchase Order Perlu Persetujuan',
+        message: 'PO/PROJ-2024-001/2024/002 menunggu persetujuan Anda',
+        type: 'approval_required',
+        priority: 'high',
         isRead: false,
-        userId: "user1",
-        projectId: "PROJ-2024-001",
-        timestamp: addDays(today, -1).toISOString()
+        userId: 'user1',
+        projectId: 'PROJ-2024-001',
+        timestamp: addDays(today, -1).toISOString(),
       },
       {
-        id: "NOTIF-002", 
-        title: "Laporan Harian Telah Dibuat",
-        message: "Laporan harian tanggal " + addDays(today, -1).toISOString().split('T')[0] + " telah dibuat",
-        type: "info",
-        priority: "medium",
+        id: 'NOTIF-002',
+        title: 'Laporan Harian Telah Dibuat',
+        message:
+          'Laporan harian tanggal ' +
+          addDays(today, -1).toISOString().split('T')[0] +
+          ' telah dibuat',
+        type: 'info',
+        priority: 'medium',
         isRead: false,
-        userId: "user1",
-        projectId: "PROJ-2024-001",
-        timestamp: addDays(today, -1).toISOString()
+        userId: 'user1',
+        projectId: 'PROJ-2024-001',
+        timestamp: addDays(today, -1).toISOString(),
       },
       {
-        id: "NOTIF-003",
-        title: "Material Stock Menipis",
-        message: "Stock semen di gudang proyek Green Valley tinggal 15 sak",
-        type: "warning",
-        priority: "high", 
+        id: 'NOTIF-003',
+        title: 'Material Stock Menipis',
+        message: 'Stock semen di gudang proyek Green Valley tinggal 15 sak',
+        type: 'warning',
+        priority: 'high',
         isRead: false,
-        userId: "user3",
-        projectId: "PROJ-2024-001",
-        timestamp: addDays(today, -2).toISOString()
-      }
+        userId: 'user3',
+        projectId: 'PROJ-2024-001',
+        timestamp: addDays(today, -2).toISOString(),
+      },
     ];
-    
+
     for (const notif of notifications) {
-      const notifRef = doc(db, "notifications", notif.id);
+      const notifRef = doc(db, 'notifications', notif.id);
       await setDoc(notifRef, notif);
     }
-    
-    console.log("🎉 SETUP COMPLETE! Semua data real telah berhasil disimpan ke Firestore!");
-    console.log("📋 Data yang telah dibuat:");
-    console.log("   - Master Data AHSP: ✅");
-    console.log("   - Workers: ✅ " + REAL_DATA.workers.length + " pekerja");
-    console.log("   - Roles: ✅ " + REAL_DATA.roles.length + " role");
-    console.log("   - Projects: ✅ " + REAL_DATA.projects.length + " proyek");
-    console.log("   - Daily Reports: ✅");
-    console.log("   - Purchase Orders: ✅");
-    console.log("   - Attendance Records: ✅");
-    console.log("   - Notifications: ✅");
-    
+
+    console.log('🎉 SETUP COMPLETE! Semua data real telah berhasil disimpan ke Firestore!');
+    console.log('📋 Data yang telah dibuat:');
+    console.log('   - Master Data AHSP: ✅');
+    console.log('   - Workers: ✅ ' + REAL_DATA.workers.length + ' pekerja');
+    console.log('   - Roles: ✅ ' + REAL_DATA.roles.length + ' role');
+    console.log('   - Projects: ✅ ' + REAL_DATA.projects.length + ' proyek');
+    console.log('   - Daily Reports: ✅');
+    console.log('   - Purchase Orders: ✅');
+    console.log('   - Attendance Records: ✅');
+    console.log('   - Notifications: ✅');
   } catch (error) {
-    console.error("❌ Error setting up real data:", error);
+    console.error('❌ Error setting up real data:', error);
   }
 }
 
 // Run the setup
-setupRealData().then(() => {
-  console.log("🚀 Setup selesai! Aplikasi siap digunakan dengan data real.");
-  process.exit(0);
-}).catch((error) => {
-  console.error("💥 Setup gagal:", error);
-  process.exit(1);
-});
+setupRealData()
+  .then(() => {
+    console.log('🚀 Setup selesai! Aplikasi siap digunakan dengan data real.');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('💥 Setup gagal:', error);
+    process.exit(1);
+  });

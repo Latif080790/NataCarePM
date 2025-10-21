@@ -1,6 +1,6 @@
 /**
  * PullToRefresh Component
- * 
+ *
  * Pull-to-refresh functionality for mobile devices
  * Features:
  * - Pull down gesture detection
@@ -42,7 +42,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
     if (isRefreshing) return;
 
     const scrollTop = containerRef.current?.scrollTop || 0;
-    
+
     // Only allow pull-to-refresh when at top of scroll
     if (scrollTop === 0) {
       setCanPull(true);
@@ -67,7 +67,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
       const rubberBandFactor = 0.5;
       const adjustedDistance = deltaY * rubberBandFactor;
       setPullDistance(Math.min(adjustedDistance, threshold * 1.5));
-      
+
       // Prevent default scroll behavior when pulling
       e.preventDefault();
     }

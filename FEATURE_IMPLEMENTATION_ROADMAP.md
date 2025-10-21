@@ -110,10 +110,11 @@ utils/
 #### **Technical Specifications:**
 
 **1. Profile Photo Upload:**
+
 ```typescript
 // api/userProfileService.ts
 export const uploadProfilePhoto = async (
-  userId: string, 
+  userId: string,
   file: File
 ): Promise<APIResponse<{ photoURL: string }>> => {
   try {
@@ -122,33 +123,34 @@ export const uploadProfilePhoto = async (
     if (!validation.valid) {
       return { success: false, error: { message: validation.errors.join(', ') } };
     }
-    
+
     // Resize image to 400x400
     const resizedImage = await resizeImage(file, 400, 400);
-    
+
     // Upload to Firebase Storage
     const storageRef = ref(storage, `profile-photos/${userId}/${Date.now()}.jpg`);
     const uploadTask = await uploadBytes(storageRef, resizedImage);
     const photoURL = await getDownloadURL(uploadTask.ref);
-    
+
     // Update user profile in Firestore
     await updateDoc(doc(db, 'users', userId), { photoURL });
-    
+
     return {
       success: true,
       data: { photoURL },
-      message: 'Profile photo uploaded successfully'
+      message: 'Profile photo uploaded successfully',
     };
   } catch (error) {
     return {
       success: false,
-      error: { message: error.message, code: 'UPLOAD_ERROR' }
+      error: { message: error.message, code: 'UPLOAD_ERROR' },
     };
   }
 };
 ```
 
 **2. Password Change:**
+
 ```typescript
 // api/authService.ts
 export const changePassword = async (
@@ -158,40 +160,41 @@ export const changePassword = async (
   try {
     const user = auth.currentUser;
     if (!user || !user.email) throw new Error('User not authenticated');
-    
+
     // Re-authenticate user
     const credential = EmailAuthProvider.credential(user.email, currentPassword);
     await reauthenticateWithCredential(user, credential);
-    
+
     // Validate new password
     const validation = validatePassword(newPassword);
     if (!validation.valid) {
       return { success: false, error: { message: validation.errors.join(', ') } };
     }
-    
+
     // Update password
     await updatePassword(user, newPassword);
-    
+
     // Log activity
     await logActivity(user.uid, 'PASSWORD_CHANGED');
-    
+
     // Send email notification
     await sendPasswordChangeEmail(user.email);
-    
+
     return {
       success: true,
-      message: 'Password changed successfully'
+      message: 'Password changed successfully',
     };
   } catch (error) {
     return {
       success: false,
-      error: { message: error.message, code: 'PASSWORD_CHANGE_ERROR' }
+      error: { message: error.message, code: 'PASSWORD_CHANGE_ERROR' },
     };
   }
 };
 ```
 
 **3. Two-Factor Authentication:**
+
 ```typescript
 // api/authService.ts
 export const enableTwoFactor = async (
@@ -200,46 +203,47 @@ export const enableTwoFactor = async (
   try {
     const user = auth.currentUser;
     if (!user) throw new Error('User not authenticated');
-    
+
     let result: any = {};
-    
+
     if (method === '2FA_TOTP') {
       // Generate TOTP secret
       const secret = generateTOTPSecret();
       const qrCode = await generateQRCode(secret, user.email!);
       result = { secret, qrCode };
     }
-    
+
     // Generate backup codes
     const backupCodes = generateBackupCodes(10);
-    
+
     // Save to Firestore
     await updateDoc(doc(db, 'users', user.uid), {
       twoFactorEnabled: true,
       twoFactorMethod: method,
       twoFactorSecret: result.secret || null,
-      backupCodes: backupCodes.map(code => hashBackupCode(code)),
-      twoFactorEnabledAt: new Date()
+      backupCodes: backupCodes.map((code) => hashBackupCode(code)),
+      twoFactorEnabledAt: new Date(),
     });
-    
+
     // Log activity
     await logActivity(user.uid, '2FA_ENABLED', { method });
-    
+
     return {
       success: true,
       data: { ...result, backupCodes },
-      message: 'Two-factor authentication enabled'
+      message: 'Two-factor authentication enabled',
     };
   } catch (error) {
     return {
       success: false,
-      error: { message: error.message, code: '2FA_ENABLE_ERROR' }
+      error: { message: error.message, code: '2FA_ENABLE_ERROR' },
     };
   }
 };
 ```
 
 **4. Activity Log:**
+
 ```typescript
 // api/activityLogService.ts
 export interface ActivityLog {
@@ -270,24 +274,24 @@ export const getUserActivityLog = async (
       orderBy('timestamp', 'desc'),
       limit(limit)
     );
-    
+
     const snapshot = await getDocs(q);
-    const logs = snapshot.docs.map(doc => ({
+    const logs = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-      timestamp: doc.data().timestamp.toDate()
+      timestamp: doc.data().timestamp.toDate(),
     })) as ActivityLog[];
-    
+
     return {
       success: true,
       data: logs,
-      message: 'Activity log fetched successfully'
+      message: 'Activity log fetched successfully',
     };
   } catch (error) {
     return {
       success: false,
       data: [],
-      error: { message: error.message, code: 'FETCH_ERROR' }
+      error: { message: error.message, code: 'FETCH_ERROR' },
     };
   }
 };
@@ -301,7 +305,7 @@ export const logActivity = async (
     const ipAddress = await getClientIP();
     const userAgent = navigator.userAgent;
     const device = parseUserAgent(userAgent);
-    
+
     await addDoc(collection(db, 'activityLogs'), {
       userId,
       action,
@@ -309,7 +313,7 @@ export const logActivity = async (
       userAgent,
       device,
       timestamp: new Date(),
-      metadata: metadata || {}
+      metadata: metadata || {},
     });
   } catch (error) {
     console.error('Failed to log activity:', error);
@@ -318,6 +322,7 @@ export const logActivity = async (
 ```
 
 **5. Session Management:**
+
 ```typescript
 // api/sessionService.ts
 export interface UserSession {
@@ -332,9 +337,7 @@ export interface UserSession {
   isCurrentDevice: boolean;
 }
 
-export const getUserSessions = async (
-  userId: string
-): Promise<APIResponse<UserSession[]>> => {
+export const getUserSessions = async (userId: string): Promise<APIResponse<UserSession[]>> => {
   try {
     const q = query(
       collection(db, 'sessions'),
@@ -342,91 +345,87 @@ export const getUserSessions = async (
       where('active', '==', true),
       orderBy('lastActivity', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
     const currentDeviceId = getDeviceId();
-    
-    const sessions = snapshot.docs.map(doc => ({
+
+    const sessions = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       lastActivity: doc.data().lastActivity.toDate(),
       createdAt: doc.data().createdAt.toDate(),
-      isCurrentDevice: doc.data().deviceId === currentDeviceId
+      isCurrentDevice: doc.data().deviceId === currentDeviceId,
     })) as UserSession[];
-    
+
     return {
       success: true,
       data: sessions,
-      message: 'Sessions fetched successfully'
+      message: 'Sessions fetched successfully',
     };
   } catch (error) {
     return {
       success: false,
       data: [],
-      error: { message: error.message, code: 'FETCH_ERROR' }
+      error: { message: error.message, code: 'FETCH_ERROR' },
     };
   }
 };
 
-export const logoutSession = async (
-  sessionId: string
-): Promise<APIResponse<void>> => {
+export const logoutSession = async (sessionId: string): Promise<APIResponse<void>> => {
   try {
     await updateDoc(doc(db, 'sessions', sessionId), {
       active: false,
-      loggedOutAt: new Date()
+      loggedOutAt: new Date(),
     });
-    
+
     return {
       success: true,
-      message: 'Session logged out successfully'
+      message: 'Session logged out successfully',
     };
   } catch (error) {
     return {
       success: false,
-      error: { message: error.message, code: 'LOGOUT_ERROR' }
+      error: { message: error.message, code: 'LOGOUT_ERROR' },
     };
   }
 };
 
-export const logoutAllOtherSessions = async (
-  userId: string
-): Promise<APIResponse<number>> => {
+export const logoutAllOtherSessions = async (userId: string): Promise<APIResponse<number>> => {
   try {
     const currentDeviceId = getDeviceId();
-    
+
     const q = query(
       collection(db, 'sessions'),
       where('userId', '==', userId),
       where('active', '==', true)
     );
-    
+
     const snapshot = await getDocs(q);
     let count = 0;
-    
+
     const batch = writeBatch(db);
-    snapshot.docs.forEach(doc => {
+    snapshot.docs.forEach((doc) => {
       if (doc.data().deviceId !== currentDeviceId) {
         batch.update(doc.ref, {
           active: false,
-          loggedOutAt: new Date()
+          loggedOutAt: new Date(),
         });
         count++;
       }
     });
-    
+
     await batch.commit();
-    
+
     return {
       success: true,
       data: count,
-      message: `${count} session(s) logged out`
+      message: `${count} session(s) logged out`,
     };
   } catch (error) {
     return {
       success: false,
       data: 0,
-      error: { message: error.message, code: 'LOGOUT_ERROR' }
+      error: { message: error.message, code: 'LOGOUT_ERROR' },
     };
   }
 };
@@ -435,6 +434,7 @@ export const logoutAllOtherSessions = async (
 #### **UI Components:**
 
 **1. ProfilePhotoUpload Component:**
+
 ```typescript
 // components/ProfilePhotoUpload.tsx
 import React, { useState } from 'react';
@@ -515,6 +515,7 @@ export const ProfilePhotoUpload: React.FC = () => {
 ```
 
 **2. PasswordChangeModal Component:**
+
 ```typescript
 // components/PasswordChangeModal.tsx
 import React, { useState } from 'react';
@@ -530,9 +531,9 @@ interface PasswordChangeModalProps {
   onClose: () => void;
 }
 
-export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({ 
-  isOpen, 
-  onClose 
+export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
+  isOpen,
+  onClose
 }) => {
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState('');
@@ -609,25 +610,25 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
           <div className="space-y-2 text-sm">
             <p className="font-medium">Password must contain:</p>
             <div className="space-y-1">
-              <PasswordRequirement 
-                met={passwordStrength.hasLength} 
-                text="At least 8 characters" 
+              <PasswordRequirement
+                met={passwordStrength.hasLength}
+                text="At least 8 characters"
               />
-              <PasswordRequirement 
-                met={passwordStrength.hasUppercase} 
-                text="One uppercase letter" 
+              <PasswordRequirement
+                met={passwordStrength.hasUppercase}
+                text="One uppercase letter"
               />
-              <PasswordRequirement 
-                met={passwordStrength.hasLowercase} 
-                text="One lowercase letter" 
+              <PasswordRequirement
+                met={passwordStrength.hasLowercase}
+                text="One lowercase letter"
               />
-              <PasswordRequirement 
-                met={passwordStrength.hasNumber} 
-                text="One number" 
+              <PasswordRequirement
+                met={passwordStrength.hasNumber}
+                text="One number"
               />
-              <PasswordRequirement 
-                met={passwordStrength.hasSpecial} 
-                text="One special character" 
+              <PasswordRequirement
+                met={passwordStrength.hasSpecial}
+                text="One special character"
               />
             </div>
           </div>
@@ -675,8 +676,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={loading || !isPasswordStrong || !passwordsMatch}
           >
             {loading ? 'Changing...' : 'Change Password'}
@@ -687,9 +688,9 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   );
 };
 
-const PasswordRequirement: React.FC<{ met: boolean; text: string }> = ({ 
-  met, 
-  text 
+const PasswordRequirement: React.FC<{ met: boolean; text: string }> = ({
+  met,
+  text
 }) => (
   <div className="flex items-center space-x-2">
     {met ? (
@@ -726,6 +727,7 @@ const PasswordRequirement: React.FC<{ met: boolean; text: string }> = ({
 **Feature 1: User Profile Management** - 📋 Specifications Complete, Ready to Code
 
 **Next Steps:**
+
 1. Review specifications
 2. Create component files
 3. Implement backend services
@@ -737,6 +739,7 @@ const PasswordRequirement: React.FC<{ met: boolean; text: string }> = ({
 ---
 
 **Apakah Anda ingin saya:**
+
 1. ✅ **Mulai implementasi kode** untuk Feature 1?
 2. 📋 **Lanjutkan dengan spesifikasi** untuk Feature 2-12?
 3. 🔄 **Review dan revisi** spesifikasi Feature 1 dulu?

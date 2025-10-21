@@ -13,10 +13,10 @@ import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { AIInsightsPanel } from '@/components/AIInsightsPanel';
 import { MonitoringAlertsPanel } from '@/components/MonitoringAlertsPanel';
 import { QuickStatsSummary } from '@/components/QuickStatsSummary';
-import { 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
+import {
+  Users,
+  DollarSign,
+  TrendingUp,
   Target,
   BarChart3,
   RefreshCw,
@@ -26,7 +26,7 @@ import {
   Award,
   Clock,
   CheckCircle,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
 
@@ -45,7 +45,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
   expenses = [],
   purchaseOrders = [],
   users = [],
-  onNavigate = () => {}
+  onNavigate = () => {},
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -73,52 +73,56 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     { month: 'May', planned: 70, actual: 65 },
     { month: 'Jun', planned: 85, actual: 75 },
     { month: 'Jul', planned: 95, actual: 85 },
-    { month: 'Aug', planned: 100, actual: 92 }
+    { month: 'Aug', planned: 100, actual: 92 },
   ];
 
   // Enhanced metrics calculations
   const totalProjects = projects.length;
-  const activeProjects = projects.filter(p => p.id).length; // All projects are considered active for now
-  const activeTasks = tasks.filter(task => task.status === 'in-progress' || task.status === 'todo').length;
+  const activeProjects = projects.filter((p) => p.id).length; // All projects are considered active for now
+  const activeTasks = tasks.filter(
+    (task) => task.status === 'in-progress' || task.status === 'todo'
+  ).length;
   const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const totalPOs = purchaseOrders.reduce((sum, po) => {
     const poTotal = po.items.reduce((itemSum, item) => itemSum + (item.totalPrice || 0), 0);
     return sum + poTotal;
   }, 0);
-  
+
   // Calculate total budget - fallback to calculated expenses if no budget defined
   const totalBudget = totalExpenses + totalPOs;
   const actualSpent = totalExpenses + totalPOs;
-  
-  const completedTasks = tasks.filter(task => task.status === 'done').length;
-  const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
-  
+
+  const completedTasks = tasks.filter((task) => task.status === 'done').length;
+  const taskCompletionRate =
+    tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+
   // Performance metrics
-  const overdueTasks = tasks.filter(task => {
+  const overdueTasks = tasks.filter((task) => {
     const dueDate = new Date(task.dueDate);
     return dueDate < new Date() && task.status !== 'done';
   }).length;
-  
+
   const budgetUtilization = totalBudget > 0 ? Math.round((actualSpent / totalBudget) * 100) : 0;
   const budgetRemaining = totalBudget - actualSpent;
-  const budgetStatus = budgetUtilization > 90 ? 'warning' : budgetUtilization > 75 ? 'caution' : 'good';
+  const budgetStatus =
+    budgetUtilization > 90 ? 'warning' : budgetUtilization > 75 ? 'caution' : 'good';
 
   // Chart data
   const taskStatusData = [
     { label: 'Completed', value: completedTasks, color: '#10b981' },
     { label: 'In Progress', value: activeTasks, color: '#F87941' },
-    { label: 'Overdue', value: overdueTasks, color: '#ef4444' }
+    { label: 'Overdue', value: overdueTasks, color: '#ef4444' },
   ];
 
   const budgetData = [
     { label: 'Expenses', value: totalExpenses, color: '#F87941' },
-    { label: 'Purchase Orders', value: totalPOs, color: '#F9B095' }
+    { label: 'Purchase Orders', value: totalPOs, color: '#F9B095' },
   ];
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setLastUpdated(new Date());
     setIsRefreshing(false);
     console.log('Dashboard refreshed');
@@ -126,7 +130,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
   const breadcrumbItems = [
     { name: 'Home', onClick: () => onNavigate('dashboard') },
-    { name: 'Dashboard' }
+    { name: 'Dashboard' },
   ];
 
   if (isLoading) {
@@ -161,17 +165,22 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                         {currentProject?.name || 'Select Project'}
                       </div>
                       {currentProject?.location && (
-                        <div className="text-xs text-slate-500 truncate">{currentProject.location}</div>
+                        <div className="text-xs text-slate-500 truncate">
+                          {currentProject.location}
+                        </div>
                       )}
                     </div>
                   </div>
-                  <ChevronDown size={18} className={`text-slate-400 transition-transform flex-shrink-0 ml-2 ${showProjectDropdown ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    size={18}
+                    className={`text-slate-400 transition-transform flex-shrink-0 ml-2 ${showProjectDropdown ? 'rotate-180' : ''}`}
+                  />
                 </button>
-                
+
                 {showProjectDropdown && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-40" 
+                    <div
+                      className="fixed inset-0 z-40"
                       onClick={() => setShowProjectDropdown(false)}
                     />
                     <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto custom-scrollbar">
@@ -183,14 +192,20 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                             setShowProjectDropdown(false);
                           }}
                           className={`w-full text-left px-4 py-3 hover:bg-orange-50 transition-colors border-b border-slate-100 last:border-b-0 ${
-                            index === selectedProjectIndex ? 'bg-orange-50 border-l-3 border-l-orange-500' : ''
+                            index === selectedProjectIndex
+                              ? 'bg-orange-50 border-l-3 border-l-orange-500'
+                              : ''
                           }`}
                           aria-label={`Select ${project.name}`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-semibold text-slate-800 truncate">{project.name}</div>
-                              <div className="text-xs text-slate-500 mt-0.5 truncate">{project.location}</div>
+                              <div className="text-sm font-semibold text-slate-800 truncate">
+                                {project.name}
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5 truncate">
+                                {project.location}
+                              </div>
                             </div>
                             {index === selectedProjectIndex && (
                               <CheckCircle className="w-4 h-4 text-orange-500 flex-shrink-0 ml-2" />
@@ -203,7 +218,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 )}
               </div>
             )}
-            
+
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <Button
@@ -215,8 +230,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               >
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               </Button>
-              <Button 
-                onClick={() => onNavigate('laporan')} 
+              <Button
+                onClick={() => onNavigate('laporan')}
                 className="btn-primary h-10 px-4"
                 aria-label="View reports"
               >
@@ -237,7 +252,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               <div>
                 <h2 className="text-lg font-bold text-slate-800">Enterprise Command Center</h2>
                 <p className="text-xs text-slate-500">
-                  Last update: {lastUpdated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                  Last update:{' '}
+                  {lastUpdated.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
@@ -248,7 +264,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </div>
-          
+
           {/* Quick Metrics Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 glass-subtle rounded-lg">
@@ -295,7 +311,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </div>
-          
+
           <div className="h-64 sm:h-72">
             <SCurveChart data={sCurveData} />
           </div>
@@ -317,7 +333,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="hidden sm:inline font-medium">Real-time data</span>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
               <MetricCard
                 title="Active Projects"
@@ -375,15 +391,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-xs text-green-700 font-semibold">Analytics</span>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               {/* Completion Ring */}
               <div className="flex items-center justify-center py-4">
-                <ProgressRing
-                  progress={taskCompletionRate}
-                  size="lg"
-                  color="primary"
-                >
+                <ProgressRing progress={taskCompletionRate} size="lg" color="primary">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-slate-800">{taskCompletionRate}%</div>
                     <span className="text-xs text-slate-600">Completion</span>
@@ -409,10 +421,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Task Status Chart */}
               <div className="mt-4">
-                <SimpleBarChart
-                  data={taskStatusData}
-                  showValues={true}
-                />
+                <SimpleBarChart data={taskStatusData} showValues={true} />
               </div>
             </div>
           </Card>
@@ -431,18 +440,20 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-xs text-green-700 font-semibold">Tracking</span>
               </div>
             </div>
-            
+
             <div className="space-y-4">
               {/* Total Budget Card */}
               <div className="glass-subtle rounded-xl p-5 border border-orange-200">
                 <div className="text-center mb-4">
-                  <span className="text-sm font-semibold text-slate-600 block mb-2">Total Budget</span>
+                  <span className="text-sm font-semibold text-slate-600 block mb-2">
+                    Total Budget
+                  </span>
                   <div className="text-3xl font-bold text-slate-800 mb-1">
                     {totalBudget > 0 ? formatCurrency(totalBudget) : 'Rp 0'}
                   </div>
                   <div className="text-xs text-slate-500">Combined allocation</div>
                 </div>
-                
+
                 {/* Budget Progress Bar */}
                 {totalBudget > 0 && (
                   <div className="mt-4">
@@ -451,11 +462,13 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                       <span>{budgetUtilization}%</span>
                     </div>
                     <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full rounded-full transition-all duration-500 ${
-                          budgetStatus === 'warning' ? 'bg-red-500' : 
-                          budgetStatus === 'caution' ? 'bg-yellow-500' : 
-                          'bg-green-500'
+                          budgetStatus === 'warning'
+                            ? 'bg-red-500'
+                            : budgetStatus === 'caution'
+                              ? 'bg-yellow-500'
+                              : 'bg-green-500'
                         }`}
                         style={{ width: `${Math.min(budgetUtilization, 100)}%` }}
                       ></div>
@@ -475,10 +488,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Breakdown Chart */}
               <div className="mt-4">
                 <div className="text-sm font-semibold text-slate-700 mb-3">Budget Breakdown</div>
-                <SimpleBarChart
-                  data={budgetData}
-                  showValues={true}
-                />
+                <SimpleBarChart data={budgetData} showValues={true} />
               </div>
             </div>
           </Card>
@@ -497,7 +507,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-xs text-blue-700 font-semibold">Live</span>
               </div>
             </div>
-            
+
             <div className="space-y-4">
               {/* Team Stats Grid */}
               <div className="grid grid-cols-2 gap-4">
@@ -516,22 +526,22 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                   <p className="text-2xl font-bold text-green-600">{totalProjects || 1}</p>
                 </div>
               </div>
-              
+
               {/* Performance Score */}
               <div className="glass-subtle rounded-xl p-5 border border-orange-200">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-semibold text-slate-700">Performance Score</span>
                   <span className="text-2xl font-bold text-orange-600">85%</span>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full transition-all duration-500"
                       style={{ width: '85%' }}
                     ></div>
                   </div>
-                  
+
                   <div className="flex justify-between text-xs text-slate-600 font-medium">
                     <span>Poor</span>
                     <span>Good</span>
@@ -546,13 +556,10 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         {/* AI-Powered Analytics & Monitoring Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 whitespace-component">
           {/* AI Insights Panel */}
-          <AIInsightsPanel 
-            projectData={currentProject}
-            onRefresh={handleRefresh}
-          />
-          
+          <AIInsightsPanel projectData={currentProject} onRefresh={handleRefresh} />
+
           {/* Monitoring & Alerts Panel */}
-          <MonitoringAlertsPanel 
+          <MonitoringAlertsPanel
             onActionClick={(alert) => {
               console.log('Alert action:', alert);
               // Handle alert actions based on type
@@ -585,7 +592,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
               View All Activity
             </Button>
           </div>
-          
+
           <div className="space-y-4">
             {/* Placeholder activity items */}
             <div className="flex items-center space-x-4 p-4 glass-subtle rounded-xl">
@@ -593,11 +600,13 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <Activity className="w-5 h-5 text-precious-persimmon" />
               </div>
               <div className="flex-1">
-                <p className="text-body font-medium">New task created: "Update dashboard components"</p>
+                <p className="text-body font-medium">
+                  New task created: "Update dashboard components"
+                </p>
                 <p className="text-body-small">2 minutes ago</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4 p-4 glass-subtle rounded-xl">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
                 <Users className="w-5 h-5 text-precious-persimmon" />
@@ -607,7 +616,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <p className="text-body-small">1 hour ago</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4 p-4 glass-subtle rounded-xl">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-essence to-no-way-rose/20 flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-precious-persimmon" />

@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Shield, Plus, Search, Filter, Package, AlertTriangle, TrendingDown, 
-  DollarSign, Calendar, CheckCircle, XCircle, Users, Download 
+import {
+  Shield,
+  Plus,
+  Search,
+  Filter,
+  Package,
+  AlertTriangle,
+  TrendingDown,
+  DollarSign,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Users,
+  Download,
 } from 'lucide-react';
 import { useSafety } from '@/contexts/SafetyContext';
 import { PPEForm } from '@/components/safety/PPEForm';
@@ -36,8 +47,9 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
 
   // Filter PPE items
   const filteredItems = useMemo(() => {
-    return ppeInventory.filter(item => {
-      const matchesSearch = !searchQuery || 
+    return ppeInventory.filter((item) => {
+      const matchesSearch =
+        !searchQuery ||
         item.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -51,9 +63,11 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
   const statistics = useMemo(() => {
     const totalItems = ppeInventory.length;
     const totalValue = ppeInventory.reduce((sum, item) => sum + item.totalValue, 0);
-    const lowStockItems = ppeInventory.filter(item => item.availableQuantity <= item.reorderLevel).length;
-    const outOfStockItems = ppeInventory.filter(item => item.availableQuantity === 0).length;
-    const totalAssigned = ppeAssignments.filter(a => a.status === 'active').length;
+    const lowStockItems = ppeInventory.filter(
+      (item) => item.availableQuantity <= item.reorderLevel
+    ).length;
+    const outOfStockItems = ppeInventory.filter((item) => item.availableQuantity === 0).length;
+    const totalAssigned = ppeAssignments.filter((a) => a.status === 'active').length;
     const damagedItems = ppeInventory.reduce((sum, item) => sum + item.damagedQuantity, 0);
 
     return {
@@ -67,32 +81,38 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
   }, [ppeInventory, ppeAssignments]);
 
   // Handle create PPE
-  const handleCreatePPE = useCallback(async (itemData: Omit<PPEInventory, 'id' | 'createdAt' | 'updatedAt'>) => {
-    setIsSubmitting(true);
-    try {
-      await createPPEItem(itemData);
-      setShowCreateForm(false);
-    } catch (error) {
-      console.error('Error creating PPE item:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [createPPEItem]);
+  const handleCreatePPE = useCallback(
+    async (itemData: Omit<PPEInventory, 'id' | 'createdAt' | 'updatedAt'>) => {
+      setIsSubmitting(true);
+      try {
+        await createPPEItem(itemData);
+        setShowCreateForm(false);
+      } catch (error) {
+        console.error('Error creating PPE item:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [createPPEItem]
+  );
 
   // Handle update PPE
-  const handleUpdatePPE = useCallback(async (itemData: Omit<PPEInventory, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!selectedItem) return;
-    
-    setIsSubmitting(true);
-    try {
-      await updatePPEItem(selectedItem.id, itemData);
-      setSelectedItem(null);
-    } catch (error) {
-      console.error('Error updating PPE item:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [selectedItem, updatePPEItem]);
+  const handleUpdatePPE = useCallback(
+    async (itemData: Omit<PPEInventory, 'id' | 'createdAt' | 'updatedAt'>) => {
+      if (!selectedItem) return;
+
+      setIsSubmitting(true);
+      try {
+        await updatePPEItem(selectedItem.id, itemData);
+        setSelectedItem(null);
+      } catch (error) {
+        console.error('Error updating PPE item:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [selectedItem, updatePPEItem]
+  );
 
   // Get stock status color
   const getStockStatusColor = (item: PPEInventory): string => {
@@ -176,9 +196,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
               <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            PPE types in inventory
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">PPE types in inventory</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -193,9 +211,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
               <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Inventory value
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Inventory value</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -210,9 +226,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
               <TrendingDown className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Items need reorder
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Items need reorder</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -227,9 +241,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
               <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Currently assigned
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Currently assigned</p>
         </div>
       </div>
 
@@ -239,7 +251,8 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
           <div className="flex items-center gap-2">
             <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
             <p className="text-red-800 dark:text-red-200 font-medium">
-              {statistics.outOfStockItems} item{statistics.outOfStockItems > 1 ? 's' : ''} out of stock - Immediate reorder required
+              {statistics.outOfStockItems} item{statistics.outOfStockItems > 1 ? 's' : ''} out of
+              stock - Immediate reorder required
             </p>
           </div>
         </div>
@@ -342,7 +355,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredItems.map((item) => (
-                  <tr 
+                  <tr
                     key={item.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                     onClick={() => setSelectedItem(item)}
@@ -360,7 +373,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1">
                         {item.certifications.slice(0, 2).map((cert, idx) => (
-                          <span 
+                          <span
                             key={idx}
                             className="px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded text-xs"
                           >
@@ -380,7 +393,9 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
                           <span className={`text-sm font-medium ${getStockStatusColor(item)}`}>
                             {item.availableQuantity}/{item.totalQuantity}
                           </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">available</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            available
+                          </span>
                         </div>
                         {item.assignedQuantity > 0 && (
                           <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -394,9 +409,7 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      {getStockStatusBadge(item)}
-                    </td>
+                    <td className="px-6 py-4">{getStockStatusBadge(item)}</td>
                     <td className="px-6 py-4">
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -408,7 +421,9 @@ export const PPEManagementView: React.FC<PPEManagementViewProps> = ({ projectId 
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-900 dark:text-white">{item.storageLocation}</p>
+                      <p className="text-sm text-gray-900 dark:text-white">
+                        {item.storageLocation}
+                      </p>
                       {item.nextInspection && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-1">
                           <Calendar className="w-3 h-3" />

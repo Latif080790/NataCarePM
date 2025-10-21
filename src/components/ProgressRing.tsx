@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 interface ProgressRingProps {
   progress: number;
   size?: 'sm' | 'md' | 'lg';
@@ -18,31 +17,31 @@ export default function ProgressRing({
   color = 'primary',
   showPercentage = true,
   className = '',
-  children
+  children,
 }: ProgressRingProps) {
   const sizes = {
     sm: { width: 80, height: 80, fontSize: 'text-lg' },
     md: { width: 120, height: 120, fontSize: 'text-2xl' },
-    lg: { width: 160, height: 160, fontSize: 'text-3xl' }
+    lg: { width: 160, height: 160, fontSize: 'text-3xl' },
   };
 
   const colors = {
     primary: {
       stroke: 'url(#primaryGradient)',
-      background: '#E6E4E6'
+      background: '#E6E4E6',
     },
     success: {
       stroke: '#10b981',
-      background: '#E6E4E6'
+      background: '#E6E4E6',
     },
     warning: {
       stroke: '#f59e0b',
-      background: '#E6E4E6'
+      background: '#E6E4E6',
     },
     error: {
       stroke: '#ef4444',
-      background: '#E6E4E6'
-    }
+      background: '#E6E4E6',
+    },
   };
 
   const { width, height, fontSize } = sizes[size];
@@ -65,7 +64,7 @@ export default function ProgressRing({
             <stop offset="100%" stopColor="#F9B095" />
           </linearGradient>
         </defs>
-        
+
         {/* Background circle */}
         <circle
           cx={center}
@@ -76,7 +75,7 @@ export default function ProgressRing({
           fill="transparent"
           className="opacity-20"
         />
-        
+
         {/* Progress circle */}
         <circle
           cx={center}
@@ -90,23 +89,17 @@ export default function ProgressRing({
           strokeLinecap="round"
           className="transition-all duration-1000 ease-out drop-shadow-sm"
           style={{
-            filter: 'drop-shadow(0 2px 4px rgba(248, 121, 65, 0.2))'
+            filter: 'drop-shadow(0 2px 4px rgba(248, 121, 65, 0.2))',
           }}
         />
       </svg>
-      
+
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {showPercentage ? (
           <div className="text-center">
-            <span className={`${fontSize} font-bold gradient-text`}>
-              {Math.round(progress)}%
-            </span>
-            {children && (
-              <div className="text-body-small visual-secondary mt-1">
-                {children}
-              </div>
-            )}
+            <span className={`${fontSize} font-bold gradient-text`}>{Math.round(progress)}%</span>
+            {children && <div className="text-body-small visual-secondary mt-1">{children}</div>}
           </div>
         ) : (
           children

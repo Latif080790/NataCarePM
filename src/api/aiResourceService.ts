@@ -1,14 +1,23 @@
 /**
  * AI Resource Optimization Service
  * NataCarePM - Phase 4: AI & Analytics
- * 
+ *
  * ML-powered resource allocation, scheduling optimization,
  * and predictive resource planning using TensorFlow.js
  */
 
 import * as tf from '@tensorflow/tfjs';
 import { Matrix } from 'ml-matrix';
-import { collection, getDocs, query, where, Timestamp, addDoc, updateDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  Timestamp,
+  addDoc,
+  updateDoc,
+  doc,
+} from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {
   MLModelMetadata,
@@ -96,42 +105,48 @@ class MLModelManager {
    */
   async buildResourceAllocationModel(): Promise<tf.LayersModel> {
     const config = MODEL_CONFIGS.RESOURCE_ALLOCATION_NN;
-    
+
     const model = tf.sequential();
-    
+
     // Input layer
-    model.add(tf.layers.dense({
-      inputShape: [config.inputDim],
-      units: config.hiddenLayers[0],
-      activation: 'relu',
-      kernelInitializer: 'heNormal',
-    }));
-    
-    model.add(tf.layers.dropout({ rate: 0.3 }));
-    
-    // Hidden layers
-    for (let i = 1; i < config.hiddenLayers.length; i++) {
-      model.add(tf.layers.dense({
-        units: config.hiddenLayers[i],
+    model.add(
+      tf.layers.dense({
+        inputShape: [config.inputDim],
+        units: config.hiddenLayers[0],
         activation: 'relu',
         kernelInitializer: 'heNormal',
-      }));
+      })
+    );
+
+    model.add(tf.layers.dropout({ rate: 0.3 }));
+
+    // Hidden layers
+    for (let i = 1; i < config.hiddenLayers.length; i++) {
+      model.add(
+        tf.layers.dense({
+          units: config.hiddenLayers[i],
+          activation: 'relu',
+          kernelInitializer: 'heNormal',
+        })
+      );
       model.add(tf.layers.dropout({ rate: 0.2 }));
     }
-    
+
     // Output layer
-    model.add(tf.layers.dense({
-      units: config.outputDim,
-      activation: 'softmax',
-    }));
-    
+    model.add(
+      tf.layers.dense({
+        units: config.outputDim,
+        activation: 'softmax',
+      })
+    );
+
     // Compile model
     model.compile({
       optimizer: tf.train.adam(config.learningRate),
       loss: 'categoricalCrossentropy',
       metrics: ['accuracy'],
     });
-    
+
     return model;
   }
 
@@ -140,36 +155,42 @@ class MLModelManager {
    */
   async buildDurationPredictionModel(): Promise<tf.LayersModel> {
     const config = MODEL_CONFIGS.DURATION_PREDICTION_LSTM;
-    
+
     const model = tf.sequential();
-    
+
     // LSTM layer
-    model.add(tf.layers.lstm({
-      inputShape: [null, config.inputDim], // Sequence input
-      units: config.lstmUnits,
-      returnSequences: false,
-    }));
-    
+    model.add(
+      tf.layers.lstm({
+        inputShape: [null, config.inputDim], // Sequence input
+        units: config.lstmUnits,
+        returnSequences: false,
+      })
+    );
+
     model.add(tf.layers.dropout({ rate: 0.2 }));
-    
+
     // Dense output layer
-    model.add(tf.layers.dense({
-      units: 32,
-      activation: 'relu',
-    }));
-    
-    model.add(tf.layers.dense({
-      units: config.outputDim,
-      activation: 'linear', // Regression output
-    }));
-    
+    model.add(
+      tf.layers.dense({
+        units: 32,
+        activation: 'relu',
+      })
+    );
+
+    model.add(
+      tf.layers.dense({
+        units: config.outputDim,
+        activation: 'linear', // Regression output
+      })
+    );
+
     // Compile model
     model.compile({
       optimizer: tf.train.adam(config.learningRate),
       loss: 'meanSquaredError',
       metrics: ['mae'],
     });
-    
+
     return model;
   }
 
@@ -183,13 +204,13 @@ class MLModelManager {
     validationSplit: number = 0.2
   ): Promise<MLModelMetadata> {
     const startTime = Date.now();
-    
+
     // Prepare tensors
     const { xs, ys } = this.prepareTrainingTensors(trainingData);
-    
+
     // Training callbacks
     const history: any[] = [];
-    
+
     const customCallback: tf.CustomCallbackArgs = {
       onEpochEnd: async (epoch, logs) => {
         history.push({
@@ -199,11 +220,13 @@ class MLModelManager {
           valLoss: logs?.val_loss || 0,
           valAccuracy: logs?.val_acc || logs?.val_accuracy || 0,
         });
-        
-        console.log(`Epoch ${epoch}: loss = ${logs?.loss?.toFixed(4)}, acc = ${logs?.acc?.toFixed(4)}`);
+
+        console.log(
+          `Epoch ${epoch}: loss = ${logs?.loss?.toFixed(4)}, acc = ${logs?.acc?.toFixed(4)}`
+        );
       },
     };
-    
+
     // Train model
     const result = await model.fit(xs, ys, {
       epochs: MODEL_CONFIGS.RESOURCE_ALLOCATION_NN.epochs,
@@ -212,10 +235,10 @@ class MLModelManager {
       callbacks: customCallback,
       shuffle: true,
     });
-    
+
     // Calculate performance metrics
     const finalLogs = history[history.length - 1];
-    
+
     const metadata: MLModelMetadata = {
       modelId,
       name: 'Resource Allocation Neural Network',
@@ -241,48 +264,48 @@ class MLModelManager {
       updatedAt: new Date(),
       createdBy: 'AI System',
     };
-    
+
     // Store model
     this.models.set(modelId, model);
     this.modelMetadata.set(modelId, metadata);
-    
+
     // Save to Firestore
     await this.saveModelMetadata(metadata);
-    
+
     // Cleanup tensors
     xs.dispose();
     ys.dispose();
-    
+
     console.log(`Training completed in ${Date.now() - startTime}ms`);
-    
+
     return metadata;
   }
 
   /**
    * Prepare Training Tensors from Dataset
    */
-  private prepareTrainingTensors(dataset: TrainingDataset): { xs: tf.Tensor, ys: tf.Tensor } {
+  private prepareTrainingTensors(dataset: TrainingDataset): { xs: tf.Tensor; ys: tf.Tensor } {
     const features: number[][] = [];
     const labels: number[][] = [];
-    
+
     for (const dataPoint of dataset.dataPoints) {
       // Extract numeric features
       const featureVector = this.extractFeatureVector(dataPoint.features);
       features.push(featureVector);
-      
+
       // One-hot encode or normalize labels
       const labelVector = this.extractLabelVector(dataPoint.labels);
       labels.push(labelVector);
     }
-    
+
     // Apply normalization if available
     if (dataset.normalizationParams) {
       this.normalizeFeatures(features, dataset.normalizationParams);
     }
-    
+
     const xs = tf.tensor2d(features);
     const ys = tf.tensor2d(labels);
-    
+
     return { xs, ys };
   }
 
@@ -291,7 +314,7 @@ class MLModelManager {
    */
   private extractFeatureVector(features: any): number[] {
     const vector: number[] = [];
-    
+
     vector.push(features.taskComplexity || 0);
     vector.push(features.taskDuration || 0);
     vector.push(features.budgetAmount || 0);
@@ -303,20 +326,20 @@ class MLModelManager {
     vector.push(features.previousProjectsCount || 0);
     vector.push(features.averageDelayDays || 0);
     vector.push(features.averageCostOverrun || 0);
-    
+
     // Encode categorical features
     const seasonEncoding = this.encodeSeason(features.season);
     vector.push(...seasonEncoding);
-    
+
     // Encode skills (simplified)
     const skillCount = features.requiredSkills?.length || 0;
     vector.push(skillCount);
-    
+
     // Pad to inputDim if necessary
     while (vector.length < MODEL_CONFIGS.RESOURCE_ALLOCATION_NN.inputDim) {
       vector.push(0);
     }
-    
+
     return vector.slice(0, MODEL_CONFIGS.RESOURCE_ALLOCATION_NN.inputDim);
   }
 
@@ -326,15 +349,15 @@ class MLModelManager {
   private extractLabelVector(labels: any): number[] {
     // For classification: one-hot encode success categories
     // For regression: return continuous values
-    
+
     const vector: number[] = [];
-    
+
     // Success rate categories (0-1 -> 10 bins)
     const successBin = Math.floor((labels.successRate || 0) * 10);
     for (let i = 0; i < 10; i++) {
       vector.push(i === successBin ? 1 : 0);
     }
-    
+
     return vector;
   }
 
@@ -343,7 +366,7 @@ class MLModelManager {
    */
   private encodeSeason(season: string): number[] {
     const encoding = [0, 0, 0, 0]; // [spring, summer, fall, winter]
-    
+
     switch (season) {
       case 'spring':
         encoding[0] = 1;
@@ -358,7 +381,7 @@ class MLModelManager {
         encoding[3] = 1;
         break;
     }
-    
+
     return encoding;
   }
 
@@ -373,7 +396,7 @@ class MLModelManager {
           features[i][j] = (features[i][j] - params.mean[j]) / (params.std[j] || 1);
         } else if (params.min && params.max) {
           // Min-max normalization
-          features[i][j] = (features[i][j] - params.min[j]) / ((params.max[j] - params.min[j]) || 1);
+          features[i][j] = (features[i][j] - params.min[j]) / (params.max[j] - params.min[j] || 1);
         }
       }
     }
@@ -387,16 +410,16 @@ class MLModelManager {
     if (!model) {
       throw new Error(`Model ${modelId} not found`);
     }
-    
+
     const featureVector = this.extractFeatureVector(inputFeatures);
     const inputTensor = tf.tensor2d([featureVector]);
-    
+
     const prediction = model.predict(inputTensor) as tf.Tensor;
-    const result = await prediction.array() as number[][];
-    
+    const result = (await prediction.array()) as number[][];
+
     inputTensor.dispose();
     prediction.dispose();
-    
+
     return result[0];
   }
 
@@ -426,15 +449,12 @@ class MLModelManager {
   async loadModelMetadata(modelId: string): Promise<MLModelMetadata | null> {
     const cached = this.modelMetadata.get(modelId);
     if (cached) return cached;
-    
-    const q = query(
-      collection(db, COLLECTIONS.AI_MODELS),
-      where('modelId', '==', modelId)
-    );
-    
+
+    const q = query(collection(db, COLLECTIONS.AI_MODELS), where('modelId', '==', modelId));
+
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
-    
+
     const data = snapshot.docs[0].data();
     const metadata: MLModelMetadata = {
       ...data,
@@ -442,9 +462,9 @@ class MLModelManager {
       createdAt: data.createdAt?.toDate(),
       updatedAt: data.updatedAt?.toDate(),
     } as MLModelMetadata;
-    
+
     this.modelMetadata.set(modelId, metadata);
-    
+
     return metadata;
   }
 }
@@ -471,37 +491,37 @@ class GeneticAlgorithmOptimizer {
     constraints: any
   ): Promise<GeneticAlgorithmResult> {
     const startTime = Date.now();
-    
+
     // Initialize population
     this.initializePopulation(tasks, resources);
-    
+
     const fitnessHistory: number[] = [];
     let convergenceGeneration: number | undefined;
     let bestIndividual = this.population[0];
-    
+
     // Evolution loop
     for (this.generation = 0; this.generation < this.config.maxGenerations; this.generation++) {
       // Evaluate fitness
       this.evaluateFitness(constraints);
-      
+
       // Sort by fitness (descending)
       this.population.sort((a, b) => b.fitness - a.fitness);
-      
+
       bestIndividual = this.population[0];
       fitnessHistory.push(bestIndividual.fitness);
-      
+
       // Check convergence
       if (this.hasConverged(fitnessHistory)) {
         convergenceGeneration = this.generation;
         break;
       }
-      
+
       // Create next generation
       this.evolve();
     }
-    
+
     const executionTimeMs = Date.now() - startTime;
-    
+
     return {
       bestIndividual,
       bestFitness: bestIndividual.fitness,
@@ -517,7 +537,7 @@ class GeneticAlgorithmOptimizer {
    */
   private initializePopulation(tasks: any[], resources: Resource[]): void {
     this.population = [];
-    
+
     for (let i = 0; i < this.config.populationSize; i++) {
       const individual: Individual = {
         genome: this.createRandomAllocation(tasks, resources),
@@ -534,14 +554,14 @@ class GeneticAlgorithmOptimizer {
    */
   private createRandomAllocation(tasks: any[], resources: Resource[]): ResourceAllocation[] {
     const allocations: ResourceAllocation[] = [];
-    
+
     for (const task of tasks) {
       // Randomly assign resources to task
       const numResources = Math.floor(Math.random() * 3) + 1;
-      
+
       for (let i = 0; i < numResources; i++) {
         const resource = resources[Math.floor(Math.random() * resources.length)];
-        
+
         allocations.push({
           allocationId: `alloc_${Date.now()}_${i}`,
           resourceId: resource.id,
@@ -559,7 +579,7 @@ class GeneticAlgorithmOptimizer {
         });
       }
     }
-    
+
     return allocations;
   }
 
@@ -585,24 +605,25 @@ class GeneticAlgorithmOptimizer {
    */
   private calculateFitness(genome: ResourceAllocation[], constraints: any): number {
     let fitness = 0;
-    
+
     // Factor 1: Total cost (minimize)
     const totalCost = genome.reduce((sum, alloc) => sum + alloc.estimatedCost, 0);
-    const costScore = constraints.budgetLimit 
-      ? Math.max(0, 1 - (totalCost / constraints.budgetLimit))
+    const costScore = constraints.budgetLimit
+      ? Math.max(0, 1 - totalCost / constraints.budgetLimit)
       : 0.5;
-    
+
     // Factor 2: Resource utilization (maximize)
-    const avgUtilization = genome.reduce((sum, alloc) => sum + alloc.allocationPercentage, 0) / genome.length;
+    const avgUtilization =
+      genome.reduce((sum, alloc) => sum + alloc.allocationPercentage, 0) / genome.length;
     const utilizationScore = avgUtilization / 100;
-    
+
     // Factor 3: Constraint violations (minimize)
     const violations = this.countConstraintViolations(genome, constraints);
     const violationPenalty = violations * 0.1;
-    
+
     // Composite fitness
-    fitness = (costScore * 0.4) + (utilizationScore * 0.4) - violationPenalty + 0.2;
-    
+    fitness = costScore * 0.4 + utilizationScore * 0.4 - violationPenalty + 0.2;
+
     return Math.max(0, fitness);
   }
 
@@ -611,23 +632,24 @@ class GeneticAlgorithmOptimizer {
    */
   private countConstraintViolations(genome: ResourceAllocation[], constraints: any): number {
     let violations = 0;
-    
+
     // Check budget constraint
     const totalCost = genome.reduce((sum, alloc) => sum + alloc.estimatedCost, 0);
     if (constraints.budgetLimit && totalCost > constraints.budgetLimit) {
       violations++;
     }
-    
+
     // Check deadline constraint
     if (constraints.deadlineDate) {
-      const maxEndDate = genome.reduce((max, alloc) => 
-        alloc.endDate > max ? alloc.endDate : max, genome[0]?.endDate || new Date()
+      const maxEndDate = genome.reduce(
+        (max, alloc) => (alloc.endDate > max ? alloc.endDate : max),
+        genome[0]?.endDate || new Date()
       );
       if (maxEndDate > constraints.deadlineDate) {
         violations++;
       }
     }
-    
+
     return violations;
   }
 
@@ -636,10 +658,10 @@ class GeneticAlgorithmOptimizer {
    */
   private hasConverged(fitnessHistory: number[]): boolean {
     if (fitnessHistory.length < 10) return false;
-    
+
     const recent = fitnessHistory.slice(-10);
     const variance = this.calculateVariance(recent);
-    
+
     return variance < (this.config.convergenceThreshold || 0.001);
   }
 
@@ -648,7 +670,7 @@ class GeneticAlgorithmOptimizer {
    */
   private calculateVariance(values: number[]): number {
     const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
-    const squaredDiffs = values.map(v => Math.pow(v - mean, 2));
+    const squaredDiffs = values.map((v) => Math.pow(v - mean, 2));
     return squaredDiffs.reduce((sum, v) => sum + v, 0) / values.length;
   }
 
@@ -657,24 +679,24 @@ class GeneticAlgorithmOptimizer {
    */
   private evolve(): void {
     const nextGeneration: Individual[] = [];
-    
+
     // Elitism: keep top performers
     const eliteCount = Math.floor(this.config.populationSize * this.config.elitismRate);
     for (let i = 0; i < eliteCount; i++) {
       nextGeneration.push({ ...this.population[i], age: this.population[i].age + 1 });
     }
-    
+
     // Crossover and mutation
     while (nextGeneration.length < this.config.populationSize) {
       const parent1 = this.selectParent();
       const parent2 = this.selectParent();
-      
+
       let offspring = this.crossover(parent1, parent2);
       offspring = this.mutate(offspring);
-      
+
       nextGeneration.push(offspring);
     }
-    
+
     this.population = nextGeneration;
   }
 
@@ -684,15 +706,13 @@ class GeneticAlgorithmOptimizer {
   private selectParent(): Individual {
     const tournamentSize = this.config.tournamentSize || 5;
     const tournament: Individual[] = [];
-    
+
     for (let i = 0; i < tournamentSize; i++) {
       const randomIndex = Math.floor(Math.random() * this.population.length);
       tournament.push(this.population[randomIndex]);
     }
-    
-    return tournament.reduce((best, current) => 
-      current.fitness > best.fitness ? current : best
-    );
+
+    return tournament.reduce((best, current) => (current.fitness > best.fitness ? current : best));
   }
 
   /**
@@ -702,13 +722,13 @@ class GeneticAlgorithmOptimizer {
     if (Math.random() > this.config.crossoverRate) {
       return { ...parent1, generation: this.generation + 1, age: 0 };
     }
-    
+
     const crossoverPoint = Math.floor(parent1.genome.length / 2);
     const childGenome = [
       ...parent1.genome.slice(0, crossoverPoint),
       ...parent2.genome.slice(crossoverPoint),
     ];
-    
+
     return {
       genome: childGenome,
       fitness: 0,
@@ -722,7 +742,7 @@ class GeneticAlgorithmOptimizer {
    */
   private mutate(individual: Individual): Individual {
     const mutatedGenome = [...individual.genome];
-    
+
     for (let i = 0; i < mutatedGenome.length; i++) {
       if (Math.random() < this.config.mutationRate) {
         // Mutate allocation percentage
@@ -732,7 +752,7 @@ class GeneticAlgorithmOptimizer {
         };
       }
     }
-    
+
     return {
       ...individual,
       genome: mutatedGenome,
@@ -757,13 +777,13 @@ class AIResourceService {
    */
   async initializeModels(): Promise<void> {
     console.log('Initializing AI models...');
-    
+
     // Build and train resource allocation model
     const model = await this.modelManager.buildResourceAllocationModel();
-    
+
     // Load or create sample training data
     const trainingData = await this.loadTrainingData();
-    
+
     if (trainingData.dataPoints.length > 0) {
       await this.modelManager.trainModel('resource_allocation_v1', model, trainingData);
       console.log('Resource Allocation model trained successfully');
@@ -789,55 +809,53 @@ class AIResourceService {
   /**
    * Optimize Resource Allocation
    */
-  async optimizeResources(
-    request: ResourceOptimizationRequest
-  ): Promise<OptimizationResult> {
+  async optimizeResources(request: ResourceOptimizationRequest): Promise<OptimizationResult> {
     const startTime = Date.now();
-    
+
     console.log(`Starting optimization for ${request.projectIds.length} projects...`);
-    
+
     // Fetch projects, tasks, and resources
     const { projects, tasks, resources } = await this.fetchOptimizationData(request.projectIds);
-    
+
     // Run Genetic Algorithm
     this.gaOptimizer = new GeneticAlgorithmOptimizer({
       ...MODEL_CONFIGS.SCHEDULING_GA,
       fitnessFunction: this.mapOptimizationGoal(request.optimizationGoal),
     });
-    
+
     const gaResult = await this.gaOptimizer.optimize(tasks, resources, request.constraints);
-    
+
     // Generate recommendations
     const recommendations = this.generateRecommendations(
       gaResult.bestIndividual.genome,
       tasks,
       resources
     );
-    
+
     // Create scheduling plan
     const schedulingPlan = this.createSchedulingPlan(
       gaResult.bestIndividual.genome,
       tasks,
       request.projectIds[0]
     );
-    
+
     // Calculate metrics
     const metrics = this.calculateOptimizationMetrics(
       gaResult.bestIndividual.genome,
       tasks,
       resources
     );
-    
+
     // Generate alternatives
     const alternatives = this.generateAlternatives(gaResult.fitnessHistory, tasks, resources);
-    
+
     // Detect warnings
     const warnings = this.detectWarnings(gaResult.bestIndividual.genome, request.constraints);
-    
+
     const result: OptimizationResult = {
       resultId: `opt_result_${Date.now()}`,
       requestId: request.requestId,
-      status: warnings.filter(w => w.severity === 'critical').length > 0 ? 'partial' : 'success',
+      status: warnings.filter((w) => w.severity === 'critical').length > 0 ? 'partial' : 'success',
       confidenceScore: gaResult.bestFitness,
       recommendations,
       schedulingPlan,
@@ -847,12 +865,12 @@ class AIResourceService {
       computedAt: new Date(),
       computationTimeMs: Date.now() - startTime,
     };
-    
+
     // Save result
     await this.saveOptimizationResult(result);
-    
+
     console.log(`Optimization completed in ${result.computationTimeMs}ms`);
-    
+
     return result;
   }
 
@@ -868,12 +886,12 @@ class AIResourceService {
     const projectsSnapshot = await getDocs(
       query(collection(db, 'projects'), where('__name__', 'in', projectIds))
     );
-    
-    const projects: Project[] = projectsSnapshot.docs.map(doc => ({
+
+    const projects: Project[] = projectsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Project[];
-    
+
     // Extract tasks from projects
     const tasks: any[] = [];
     for (const project of projects) {
@@ -892,14 +910,14 @@ class AIResourceService {
         }
       }
     }
-    
+
     // Fetch resources
     const resourcesSnapshot = await getDocs(collection(db, 'resources'));
-    const resources: Resource[] = resourcesSnapshot.docs.map(doc => ({
+    const resources: Resource[] = resourcesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Resource[];
-    
+
     return { projects, tasks, resources };
   }
 
@@ -912,27 +930,27 @@ class AIResourceService {
     resources: Resource[]
   ): ResourceRecommendation[] {
     const recommendations: ResourceRecommendation[] = [];
-    
+
     // Group allocations by task
     const taskAllocations = new Map<string, ResourceAllocation[]>();
-    
+
     for (const alloc of genome) {
       if (!alloc.taskId) continue;
-      
+
       if (!taskAllocations.has(alloc.taskId)) {
         taskAllocations.set(alloc.taskId, []);
       }
       taskAllocations.get(alloc.taskId)!.push(alloc);
     }
-    
+
     // Create recommendations for each task
     for (const [taskId, allocations] of taskAllocations) {
-      const task = tasks.find(t => t.id === taskId);
+      const task = tasks.find((t) => t.id === taskId);
       if (!task) continue;
-      
-      const recommendedResources: RecommendedResource[] = allocations.map(alloc => {
-        const resource = resources.find(r => r.id === alloc.resourceId);
-        
+
+      const recommendedResources: RecommendedResource[] = allocations.map((alloc) => {
+        const resource = resources.find((r) => r.id === alloc.resourceId);
+
         return {
           resourceId: alloc.resourceId,
           resourceName: resource?.name || 'Unknown',
@@ -952,7 +970,7 @@ class AIResourceService {
           },
         };
       });
-      
+
       recommendations.push({
         recommendationId: `rec_${taskId}_${Date.now()}`,
         taskId,
@@ -968,7 +986,7 @@ class AIResourceService {
         riskScore: 15,
       });
     }
-    
+
     return recommendations;
   }
 
@@ -980,7 +998,7 @@ class AIResourceService {
     tasks: any[],
     projectId: string
   ): SchedulingPlan {
-    const taskSchedules: TaskSchedule[] = tasks.map(task => ({
+    const taskSchedules: TaskSchedule[] = tasks.map((task) => ({
       taskId: task.id,
       taskName: task.name,
       startDate: new Date(task.startDate),
@@ -988,20 +1006,18 @@ class AIResourceService {
       duration: 40, // hours
       isCritical: Math.random() > 0.7,
       slack: Math.random() * 20,
-      assignedResources: genome
-        .filter(a => a.taskId === task.id)
-        .map(a => a.resourceId),
+      assignedResources: genome.filter((a) => a.taskId === task.id).map((a) => a.resourceId),
       predecessors: [],
       successors: [],
       estimatedCost: genome
-        .filter(a => a.taskId === task.id)
+        .filter((a) => a.taskId === task.id)
         .reduce((sum, a) => sum + a.estimatedCost, 0),
       complexity: Math.floor(Math.random() * 10) + 1,
       riskLevel: 'medium',
     }));
-    
-    const criticalPath = taskSchedules.filter(t => t.isCritical).map(t => t.taskId);
-    
+
+    const criticalPath = taskSchedules.filter((t) => t.isCritical).map((t) => t.taskId);
+
     return {
       planId: `plan_${projectId}_${Date.now()}`,
       projectId,
@@ -1025,14 +1041,15 @@ class AIResourceService {
     resources: Resource[]
   ): OptimizationMetrics {
     const totalCost = genome.reduce((sum, a) => sum + a.estimatedCost, 0);
-    const baselineCost = tasks.reduce((sum, t) => sum + (t.unitPrice * t.volume), 0);
-    
+    const baselineCost = tasks.reduce((sum, t) => sum + t.unitPrice * t.volume, 0);
+
     return {
       costSavings: Math.max(0, baselineCost - totalCost),
       costSavingsPercentage: ((baselineCost - totalCost) / baselineCost) * 100,
       timeSavings: 24, // hours
       timeSavingsPercentage: 15,
-      resourceUtilizationAvg: genome.reduce((sum, a) => sum + a.allocationPercentage, 0) / genome.length,
+      resourceUtilizationAvg:
+        genome.reduce((sum, a) => sum + a.allocationPercentage, 0) / genome.length,
       resourceUtilizationImprovement: 12,
       qualityScoreAvg: 85,
       riskScoreAvg: 18,
@@ -1085,12 +1102,9 @@ class AIResourceService {
   /**
    * Detect Warnings
    */
-  private detectWarnings(
-    genome: ResourceAllocation[],
-    constraints: any
-  ): OptimizationWarning[] {
+  private detectWarnings(genome: ResourceAllocation[], constraints: any): OptimizationWarning[] {
     const warnings: OptimizationWarning[] = [];
-    
+
     // Check budget constraint
     const totalCost = genome.reduce((sum, a) => sum + a.estimatedCost, 0);
     if (constraints.budgetLimit && totalCost > constraints.budgetLimit * 0.95) {
@@ -1107,7 +1121,7 @@ class AIResourceService {
         },
       });
     }
-    
+
     return warnings;
   }
 
@@ -1116,15 +1130,15 @@ class AIResourceService {
    */
   private async loadTrainingData(): Promise<TrainingDataset> {
     const snapshot = await getDocs(collection(db, COLLECTIONS.TRAINING_DATA));
-    
-    const dataPoints: TrainingDataPoint[] = snapshot.docs.map(doc => {
+
+    const dataPoints: TrainingDataPoint[] = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         ...data,
         timestamp: data.timestamp?.toDate() || new Date(),
       } as TrainingDataPoint;
     });
-    
+
     return {
       datasetId: 'training_dataset_v1',
       name: 'Resource Optimization Training Data',

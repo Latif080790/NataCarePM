@@ -18,6 +18,7 @@ This guide covers the newly implemented PWA, Testing, and Monitoring features (P
 ## Prerequisites
 
 Ensure you have:
+
 - ✅ Node.js 18+ installed
 - ✅ npm or yarn package manager
 - ✅ All dependencies installed: `npm install --legacy-peer-deps`
@@ -37,6 +38,7 @@ cp .env.template .env
 ### 2. Required Credentials
 
 #### Sentry (Error Tracking)
+
 1. Sign up at [sentry.io](https://sentry.io/)
 2. Create a new React project
 3. Copy your DSN from **Settings → Client Keys (DSN)**
@@ -47,6 +49,7 @@ cp .env.template .env
    ```
 
 #### Google Analytics 4
+
 1. Go to [analytics.google.com](https://analytics.google.com/)
 2. Create a new GA4 property
 3. Create a web data stream
@@ -58,6 +61,7 @@ cp .env.template .env
    ```
 
 #### VAPID Keys (Push Notifications)
+
 1. Generate keys:
    ```bash
    npx web-push generate-vapid-keys
@@ -98,6 +102,7 @@ npm run preview
 ### PWA Install Prompt
 
 Users will see an install prompt after 5 seconds (configurable). The prompt:
+
 - Shows native install UI on Android/Desktop
 - Shows step-by-step guide on iOS
 - Has a 7-day dismiss cooldown
@@ -108,7 +113,7 @@ Users will see an install prompt after 5 seconds (configurable). The prompt:
 In `App.tsx`:
 
 ```typescript
-<PWAInstallPrompt 
+<PWAInstallPrompt
   position="bottom-right"  // or bottom-left, top-right, top-left
   showInitialDelay={3000}  // milliseconds
   collectEmail={true}      // ask for email
@@ -119,6 +124,7 @@ In `App.tsx`:
 ### Offline Page
 
 When offline, users see a beautiful offline page at `/offline.html` with:
+
 - Connection status indicator
 - Auto-reload on reconnection
 - List of available offline features
@@ -133,7 +139,7 @@ import { subscribeToPushNotifications } from './src/utils/pwa';
 const subscribe = async () => {
   const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
   const subscription = await subscribeToPushNotifications(vapidKey);
-  
+
   if (subscription) {
     // Send subscription to your backend
     await fetch('/api/push/subscribe', {
@@ -160,7 +166,7 @@ const payload = JSON.stringify({
   title: 'New Project Update',
   body: 'Task "Design Review" was completed',
   icon: '/icons/icon-192x192.png',
-  data: { projectId: '123', taskId: '456' }
+  data: { projectId: '123', taskId: '456' },
 });
 
 await webpush.sendNotification(subscription, payload);
@@ -389,12 +395,14 @@ PWAEvents.pushEnabled();
 ### User Feedback Widget
 
 The feedback widget is automatically displayed in the bottom-right corner. Users can:
+
 - Report bugs
 - Suggest improvements
 - Rate their experience (1-5 stars)
 - Provide general feedback
 
 Feedback is automatically sent to:
+
 - ✅ Sentry (for bugs and issues)
 - ✅ Google Analytics 4 (for metrics)
 - ⏳ Your backend API (TODO: implement)
@@ -408,6 +416,7 @@ Feedback is automatically sent to:
 **Problem**: Service worker not registering
 
 **Solution**:
+
 1. Check you're in production mode: `npm run build && npm run preview`
 2. Check browser console for errors
 3. Verify `sw.js` is accessible at `/sw.js`
@@ -416,9 +425,10 @@ Feedback is automatically sent to:
 **Problem**: Old service worker cached
 
 **Solution**:
+
 ```javascript
 // Force update
-await navigator.serviceWorker.ready.then(reg => {
+await navigator.serviceWorker.ready.then((reg) => {
   reg.update();
 });
 ```
@@ -428,6 +438,7 @@ await navigator.serviceWorker.ready.then(reg => {
 **Problem**: Install prompt not showing
 
 **Solution**:
+
 1. Verify you're using HTTPS or localhost
 2. Check manifest.json is accessible
 3. Verify all icons exist
@@ -438,6 +449,7 @@ await navigator.serviceWorker.ready.then(reg => {
 
 **Solution**:
 iOS doesn't support `beforeinstallprompt`. Users must:
+
 1. Tap Share button
 2. Select "Add to Home Screen"
 3. Tap "Add"
@@ -449,6 +461,7 @@ Our prompt shows these instructions automatically on iOS.
 **Problem**: Sentry not capturing errors
 
 **Solution**:
+
 1. Verify DSN is correct in `.env`
 2. Check `VITE_SENTRY_ENABLED=true`
 3. Verify environment: errors are filtered in development
@@ -458,6 +471,7 @@ Our prompt shows these instructions automatically on iOS.
 
 **Solution**:
 Adjust sample rates in `src/config/sentry.config.ts`:
+
 ```typescript
 tracesSampleRate: 0.1,  // 10% sampling
 replaysSessionSampleRate: 0.05,  // 5% sampling
@@ -468,6 +482,7 @@ replaysSessionSampleRate: 0.05,  // 5% sampling
 **Problem**: GA4 not tracking events
 
 **Solution**:
+
 1. Verify Measurement ID is correct
 2. Check `VITE_GA4_ENABLED=true`
 3. Use GA4 DebugView in real-time
@@ -483,6 +498,7 @@ Web Vitals may take 24-48 hours to appear in GA4 dashboard.
 **Problem**: Playwright tests failing
 
 **Solution**:
+
 1. Install browsers: `npx playwright install`
 2. Verify dev server is running
 3. Check test credentials in test files
@@ -492,6 +508,7 @@ Web Vitals may take 24-48 hours to appear in GA4 dashboard.
 
 **Solution**:
 Increase timeout in `playwright.config.ts`:
+
 ```typescript
 use: {
   actionTimeout: 30000,

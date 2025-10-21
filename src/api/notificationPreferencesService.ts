@@ -7,10 +7,7 @@ import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger';
 import { logUserActivity } from './activityLogService';
-import type { 
-  NotificationPreferences,
-  NotificationPreferenceUpdate
-} from '@/types';
+import type { NotificationPreferences, NotificationPreferenceUpdate } from '@/types';
 
 // Collection name
 const USERS_COLLECTION = 'users';
@@ -28,7 +25,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
     documentUpdates: true,
     systemAlerts: true,
     weeklyDigest: true,
-    monthlyReport: false
+    monthlyReport: false,
   },
   inAppNotifications: {
     enabled: true,
@@ -39,34 +36,34 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
     budgetAlerts: true,
     mentions: true,
     comments: true,
-    statusUpdates: true
+    statusUpdates: true,
   },
   smsNotifications: {
     enabled: false,
     criticalAlertsOnly: true,
     budgetThreshold: true,
     approvalUrgent: true,
-    securityAlerts: true
+    securityAlerts: true,
   },
   pushNotifications: {
     enabled: true,
     taskReminders: true,
     approvalRequests: true,
     chatMessages: false,
-    criticalAlerts: true
+    criticalAlerts: true,
   },
   quietHours: {
     enabled: false,
     startTime: '22:00',
     endTime: '08:00',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   },
   frequencySettings: {
     maxEmailsPerDay: 50,
     maxSMSPerDay: 5,
     batchNotifications: false,
-    batchInterval: 30 // minutes
-  }
+    batchInterval: 30, // minutes
+  },
 };
 
 /**
@@ -98,30 +95,29 @@ export const getNotificationPreferences = async (
     return {
       emailNotifications: {
         ...DEFAULT_PREFERENCES.emailNotifications,
-        ...preferences.emailNotifications
+        ...preferences.emailNotifications,
       },
       inAppNotifications: {
         ...DEFAULT_PREFERENCES.inAppNotifications,
-        ...preferences.inAppNotifications
+        ...preferences.inAppNotifications,
       },
       smsNotifications: {
         ...DEFAULT_PREFERENCES.smsNotifications,
-        ...preferences.smsNotifications
+        ...preferences.smsNotifications,
       },
       pushNotifications: {
         ...DEFAULT_PREFERENCES.pushNotifications,
-        ...preferences.pushNotifications
+        ...preferences.pushNotifications,
       },
       quietHours: {
         ...DEFAULT_PREFERENCES.quietHours,
-        ...preferences.quietHours
+        ...preferences.quietHours,
       },
       frequencySettings: {
         ...DEFAULT_PREFERENCES.frequencySettings,
-        ...preferences.frequencySettings
-      }
+        ...preferences.frequencySettings,
+      },
     };
-
   } catch (error: any) {
     logger.error('Error fetching notification preferences', error, { userId });
     return DEFAULT_PREFERENCES;
@@ -151,8 +147,8 @@ export const updateNotificationPreferences = async (
           ...currentPreferences,
           emailNotifications: {
             ...currentPreferences.emailNotifications,
-            ...settings.emailNotifications
-          }
+            ...settings.emailNotifications,
+          },
         };
         break;
 
@@ -161,8 +157,8 @@ export const updateNotificationPreferences = async (
           ...currentPreferences,
           inAppNotifications: {
             ...currentPreferences.inAppNotifications,
-            ...settings.inAppNotifications
-          }
+            ...settings.inAppNotifications,
+          },
         };
         break;
 
@@ -171,8 +167,8 @@ export const updateNotificationPreferences = async (
           ...currentPreferences,
           smsNotifications: {
             ...currentPreferences.smsNotifications,
-            ...settings.smsNotifications
-          }
+            ...settings.smsNotifications,
+          },
         };
         break;
 
@@ -181,8 +177,8 @@ export const updateNotificationPreferences = async (
           ...currentPreferences,
           pushNotifications: {
             ...currentPreferences.pushNotifications,
-            ...settings.pushNotifications
-          }
+            ...settings.pushNotifications,
+          },
         };
         break;
 
@@ -191,8 +187,8 @@ export const updateNotificationPreferences = async (
           ...currentPreferences,
           quietHours: {
             ...currentPreferences.quietHours,
-            ...settings.quietHours
-          }
+            ...settings.quietHours,
+          },
         };
         break;
 
@@ -201,15 +197,15 @@ export const updateNotificationPreferences = async (
           ...currentPreferences,
           frequencySettings: {
             ...currentPreferences.frequencySettings,
-            ...settings.frequencySettings
-          }
+            ...settings.frequencySettings,
+          },
         };
         break;
 
       default:
         return {
           success: false,
-          error: 'Invalid section'
+          error: 'Invalid section',
         };
     }
 
@@ -217,7 +213,7 @@ export const updateNotificationPreferences = async (
     const userRef = doc(db, USERS_COLLECTION, userId);
     await updateDoc(userRef, {
       notificationPreferences: updatedPreferences,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('Notification preferences updated', { userId, section });
@@ -229,19 +225,18 @@ export const updateNotificationPreferences = async (
       category: 'profile',
       description: `Updated ${section} notification preferences`,
       status: 'success',
-      metadata: { section, changes: settings }
+      metadata: { section, changes: settings },
     });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error updating notification preferences', error, { userId: request.userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to update notification preferences'
+      error: error.message || 'Failed to update notification preferences',
     };
   }
 };
@@ -258,7 +253,7 @@ export const resetNotificationPreferences = async (
     const userRef = doc(db, USERS_COLLECTION, userId);
     await updateDoc(userRef, {
       notificationPreferences: DEFAULT_PREFERENCES,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('Notification preferences reset', { userId });
@@ -269,19 +264,18 @@ export const resetNotificationPreferences = async (
       action: 'preferences_updated',
       category: 'profile',
       description: 'Reset notification preferences to defaults',
-      status: 'success'
+      status: 'success',
     });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error resetting notification preferences', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to reset notification preferences'
+      error: error.message || 'Failed to reset notification preferences',
     };
   }
 };
@@ -302,7 +296,7 @@ export const isWithinQuietHours = (preferences: NotificationPreferences): boolea
   // Parse start and end times
   const [startHour, startMinute] = preferences.quietHours.startTime.split(':').map(Number);
   const [endHour, endMinute] = preferences.quietHours.endTime.split(':').map(Number);
-  
+
   const startTime = startHour * 60 + startMinute;
   const endTime = endHour * 60 + endMinute;
 
@@ -332,28 +326,46 @@ export const shouldSendNotification = async (
     switch (channel) {
       case 'email':
         if (!preferences.emailNotifications.enabled) return false;
-        if (category && preferences.emailNotifications[category as keyof typeof preferences.emailNotifications] === false) {
+        if (
+          category &&
+          preferences.emailNotifications[
+            category as keyof typeof preferences.emailNotifications
+          ] === false
+        ) {
           return false;
         }
         break;
 
       case 'inApp':
         if (!preferences.inAppNotifications.enabled) return false;
-        if (category && preferences.inAppNotifications[category as keyof typeof preferences.inAppNotifications] === false) {
+        if (
+          category &&
+          preferences.inAppNotifications[
+            category as keyof typeof preferences.inAppNotifications
+          ] === false
+        ) {
           return false;
         }
         break;
 
       case 'sms':
         if (!preferences.smsNotifications.enabled) return false;
-        if (category && preferences.smsNotifications[category as keyof typeof preferences.smsNotifications] === false) {
+        if (
+          category &&
+          preferences.smsNotifications[category as keyof typeof preferences.smsNotifications] ===
+            false
+        ) {
           return false;
         }
         break;
 
       case 'push':
         if (!preferences.pushNotifications.enabled) return false;
-        if (category && preferences.pushNotifications[category as keyof typeof preferences.pushNotifications] === false) {
+        if (
+          category &&
+          preferences.pushNotifications[category as keyof typeof preferences.pushNotifications] ===
+            false
+        ) {
           return false;
         }
         break;
@@ -368,7 +380,6 @@ export const shouldSendNotification = async (
     }
 
     return true;
-
   } catch (error: any) {
     logger.error('Error checking notification preferences', error, { userId, notificationType });
     // Default to sending notification if error occurs
@@ -391,7 +402,7 @@ export const getNotificationStatistics = async (
   try {
     // This would require a separate notifications_sent collection
     // For now, return placeholder data
-    
+
     logger.info('Getting notification statistics', { userId, days });
 
     // In production, query notifications_sent collection
@@ -401,25 +412,24 @@ export const getNotificationStatistics = async (
         email: 0,
         inApp: 0,
         sms: 0,
-        push: 0
+        push: 0,
       },
       bySuppressed: 0,
-      averagePerDay: 0
+      averagePerDay: 0,
     };
-
   } catch (error: any) {
     logger.error('Error getting notification statistics', error, { userId });
-    
+
     return {
       totalSent: 0,
       byChannel: {
         email: 0,
         inApp: 0,
         sms: 0,
-        push: 0
+        push: 0,
       },
       bySuppressed: 0,
-      averagePerDay: 0
+      averagePerDay: 0,
     };
   }
 };
@@ -441,7 +451,7 @@ export const enableAllNotifications = async (
         documentUpdates: true,
         systemAlerts: true,
         weeklyDigest: true,
-        monthlyReport: true
+        monthlyReport: true,
       },
       inAppNotifications: {
         enabled: true,
@@ -452,44 +462,43 @@ export const enableAllNotifications = async (
         budgetAlerts: true,
         mentions: true,
         comments: true,
-        statusUpdates: true
+        statusUpdates: true,
       },
       smsNotifications: {
         enabled: true,
         criticalAlertsOnly: false,
         budgetThreshold: true,
         approvalUrgent: true,
-        securityAlerts: true
+        securityAlerts: true,
       },
       pushNotifications: {
         enabled: true,
         taskReminders: true,
         approvalRequests: true,
         chatMessages: true,
-        criticalAlerts: true
+        criticalAlerts: true,
       },
       quietHours: DEFAULT_PREFERENCES.quietHours,
-      frequencySettings: DEFAULT_PREFERENCES.frequencySettings
+      frequencySettings: DEFAULT_PREFERENCES.frequencySettings,
     };
 
     const userRef = doc(db, USERS_COLLECTION, userId);
     await updateDoc(userRef, {
       notificationPreferences: updatedPreferences,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('All notifications enabled', { userId });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error enabling all notifications', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to enable all notifications'
+      error: error.message || 'Failed to enable all notifications',
     };
   }
 };
@@ -504,42 +513,41 @@ export const disableAllNotifications = async (
     const updatedPreferences: NotificationPreferences = {
       emailNotifications: {
         ...DEFAULT_PREFERENCES.emailNotifications,
-        enabled: false
+        enabled: false,
       },
       inAppNotifications: {
         ...DEFAULT_PREFERENCES.inAppNotifications,
-        enabled: false
+        enabled: false,
       },
       smsNotifications: {
         ...DEFAULT_PREFERENCES.smsNotifications,
-        enabled: false
+        enabled: false,
       },
       pushNotifications: {
         ...DEFAULT_PREFERENCES.pushNotifications,
-        enabled: false
+        enabled: false,
       },
       quietHours: DEFAULT_PREFERENCES.quietHours,
-      frequencySettings: DEFAULT_PREFERENCES.frequencySettings
+      frequencySettings: DEFAULT_PREFERENCES.frequencySettings,
     };
 
     const userRef = doc(db, USERS_COLLECTION, userId);
     await updateDoc(userRef, {
       notificationPreferences: updatedPreferences,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('All notifications disabled', { userId });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error disabling all notifications', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to disable all notifications'
+      error: error.message || 'Failed to disable all notifications',
     };
   }
 };
@@ -552,5 +560,5 @@ export default {
   shouldSendNotification,
   getNotificationStatistics,
   enableAllNotifications,
-  disableAllNotifications
+  disableAllNotifications,
 };

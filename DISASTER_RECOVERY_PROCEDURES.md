@@ -32,6 +32,7 @@ This document provides step-by-step procedures for recovering NataCarePM systems
 ### Scope
 
 Covers disaster recovery for:
+
 - Firebase Firestore database
 - Firebase Authentication
 - Firebase Storage (documents, images)
@@ -58,13 +59,13 @@ Covers disaster recovery for:
 
 ### Targets
 
-| System Component | RTO | RPO | MTD | Priority |
-|-----------------|-----|-----|-----|----------|
-| **Firestore Database** | 4 hours | 1 hour | 8 hours | Critical |
-| **Authentication** | 2 hours | 24 hours | 4 hours | Critical |
-| **File Storage** | 6 hours | 24 hours | 12 hours | High |
-| **Application Deployment** | 1 hour | N/A | 2 hours | High |
-| **Analytics Data** | 24 hours | 7 days | 48 hours | Medium |
+| System Component           | RTO      | RPO      | MTD      | Priority |
+| -------------------------- | -------- | -------- | -------- | -------- |
+| **Firestore Database**     | 4 hours  | 1 hour   | 8 hours  | Critical |
+| **Authentication**         | 2 hours  | 24 hours | 4 hours  | Critical |
+| **File Storage**           | 6 hours  | 24 hours | 12 hours | High     |
+| **Application Deployment** | 1 hour   | N/A      | 2 hours  | High     |
+| **Analytics Data**         | 24 hours | 7 days   | 48 hours | Medium   |
 
 ### SLA Commitments
 
@@ -79,9 +80,11 @@ Covers disaster recovery for:
 ### Severity Levels
 
 #### **Severity 1 - Critical** 🔴
+
 **Impact**: Complete system outage, data loss, security breach
 
 **Examples**:
+
 - Firestore database corruption
 - Complete data center failure
 - Security breach with data exfiltration
@@ -91,9 +94,11 @@ Covers disaster recovery for:
 **Team**: Full DR team + management
 
 #### **Severity 2 - Major** 🟡
+
 **Impact**: Partial outage, degraded performance, single region failure
 
 **Examples**:
+
 - Single Firebase region unavailable
 - Authentication service degradation
 - File upload failures
@@ -103,9 +108,11 @@ Covers disaster recovery for:
 **Team**: DR team lead + on-call engineer
 
 #### **Severity 3 - Minor** 🟢
+
 **Impact**: Individual user issues, non-critical feature unavailable
 
 **Examples**:
+
 - Single user data corruption
 - Document upload issues
 - Report generation failures
@@ -123,6 +130,7 @@ Covers disaster recovery for:
 **Scenario**: Complete database loss or corruption
 
 **Prerequisites**:
+
 - Access to Firebase Console
 - `gcloud` CLI installed and authenticated
 - Recent backup available in Cloud Storage
@@ -134,6 +142,7 @@ Covers disaster recovery for:
 ##### Phase 1: Assessment (15 minutes)
 
 **1.1 Verify the Incident**
+
 ```bash
 # Check Firestore status
 gcloud firestore operations list --project=natacare-pm
@@ -146,6 +155,7 @@ gcloud firestore databases describe --database=(default) --project=natacare-pm
 ```
 
 **1.2 Identify Last Known Good Backup**
+
 ```bash
 # List available backups
 gsutil ls gs://natacare-pm-firestore-backups/firestore-backups/
@@ -155,6 +165,7 @@ gsutil cat gs://natacare-pm-firestore-backups/firestore-backups/2024-10-18T02-00
 ```
 
 **1.3 Calculate Data Loss Window**
+
 ```bash
 # Backup time: 2024-10-18 02:00 UTC
 # Current time: 2024-10-18 14:30 UTC
@@ -163,6 +174,7 @@ gsutil cat gs://natacare-pm-firestore-backups/firestore-backups/2024-10-18T02-00
 ```
 
 **1.4 Declare Incident**
+
 - Create incident ticket: `INC-[YYYYMMDD]-[NUMBER]`
 - Notify stakeholders (see Communication Plan)
 - Activate DR team
@@ -171,6 +183,7 @@ gsutil cat gs://natacare-pm-firestore-backups/firestore-backups/2024-10-18T02-00
 ##### Phase 2: Preparation (30 minutes)
 
 **2.1 Enable Maintenance Mode**
+
 ```bash
 # Deploy maintenance page
 firebase hosting:channel:deploy maintenance --project=natacare-pm
@@ -180,6 +193,7 @@ firebase hosting:channel:deploy maintenance --project=natacare-pm
 ```
 
 **2.2 Create Current Database Snapshot** (if accessible)
+
 ```bash
 # Export current state before restoration
 gcloud firestore export gs://natacare-pm-firestore-backups/pre-restore-$(date +%Y%m%d-%H%M%S) \
@@ -187,6 +201,7 @@ gcloud firestore export gs://natacare-pm-firestore-backups/pre-restore-$(date +%
 ```
 
 **2.3 Verify Backup Integrity**
+
 ```bash
 # Download backup metadata
 gsutil cp gs://natacare-pm-firestore-backups/firestore-backups/2024-10-18T02-00-00-000Z/*.overall_export_metadata .
@@ -203,6 +218,7 @@ gcloud firestore import gs://natacare-pm-firestore-backups/firestore-backups/202
 ##### Phase 3: Restoration (1-2 hours)
 
 **3.1 Clear Existing Database** (if necessary)
+
 ```bash
 # ⚠️ DANGER: This deletes all data!
 # Only proceed if current data is confirmed corrupted
@@ -215,6 +231,7 @@ firebase firestore:delete --all-collections --project=natacare-pm --yes
 ```
 
 **3.2 Import Backup**
+
 ```bash
 # Start import operation
 gcloud firestore import \
@@ -230,6 +247,7 @@ watch -n 10 'gcloud firestore operations list --project=natacare-pm'
 ```
 
 **3.3 Verify Import Progress**
+
 ```bash
 # Check operation status
 OPERATION_NAME="projects/natacare-pm/databases/(default)/operations/ASA1MTAwNDQyNDI4"
@@ -245,6 +263,7 @@ gcloud firestore operations describe $OPERATION_NAME \
 ##### Phase 4: Verification (30-60 minutes)
 
 **4.1 Data Integrity Checks**
+
 ```bash
 # Count documents per collection
 node scripts/count-documents.js
@@ -258,6 +277,7 @@ node scripts/count-documents.js
 ```
 
 **4.2 Sample Data Verification**
+
 ```javascript
 // Run in Firebase Console or script
 const db = firebase.firestore();
@@ -267,19 +287,20 @@ db.collection('users')
   .orderBy('createdAt', 'desc')
   .limit(10)
   .get()
-  .then(snapshot => {
+  .then((snapshot) => {
     console.log('Recent users:', snapshot.size);
-    snapshot.forEach(doc => console.log(doc.id, doc.data().email));
+    snapshot.forEach((doc) => console.log(doc.id, doc.data().email));
   });
 
 // Check projects
 db.collection('projects')
   .where('status', '==', 'active')
   .get()
-  .then(snapshot => console.log('Active projects:', snapshot.size));
+  .then((snapshot) => console.log('Active projects:', snapshot.size));
 ```
 
 **4.3 Application Testing**
+
 - [ ] Login with test account
 - [ ] Create new project
 - [ ] Add task to project
@@ -289,6 +310,7 @@ db.collection('projects')
 - [ ] Verify analytics data
 
 **4.4 User Acceptance Testing**
+
 - [ ] Login successful
 - [ ] Recent projects visible
 - [ ] Tasks show correct assignees
@@ -299,6 +321,7 @@ db.collection('projects')
 ##### Phase 5: Recovery Completion (15-30 minutes)
 
 **5.1 Data Gap Analysis**
+
 ```bash
 # Calculate lost data window
 echo "Backup time: 2024-10-18 02:00 UTC"
@@ -311,6 +334,7 @@ echo "Data loss: 14 hours"
 ```
 
 **5.2 Disable Maintenance Mode**
+
 ```bash
 # Deploy production app
 npm run build
@@ -321,6 +345,7 @@ curl https://natacare-pm.web.app/health
 ```
 
 **5.3 Post-Recovery Monitoring**
+
 ```bash
 # Monitor error rates
 # Firebase Console → Analytics → Errors
@@ -333,6 +358,7 @@ curl https://natacare-pm.web.app/health
 ```
 
 **5.4 Documentation**
+
 - [ ] Update incident log with final status
 - [ ] Document data loss window
 - [ ] List affected users/projects
@@ -350,6 +376,7 @@ curl https://natacare-pm.web.app/health
 #### Steps
 
 **1. Export Target Collection from Backup**
+
 ```bash
 # Restore to temporary database first
 gcloud firestore import \
@@ -360,12 +387,14 @@ gcloud firestore import \
 ```
 
 **2. Verify Restored Data**
+
 ```bash
 # Query temporary database
 gcloud firestore databases describe --database=restore-temp --project=natacare-pm
 ```
 
 **3. Export and Re-import to Production**
+
 ```bash
 # Export from temp database
 gcloud firestore export \
@@ -386,6 +415,7 @@ gcloud firestore import \
 ```
 
 **4. Cleanup**
+
 ```bash
 # Delete temporary database
 gcloud firestore databases delete restore-temp --project=natacare-pm
@@ -405,6 +435,7 @@ gsutil rm -r gs://natacare-pm-firestore-backups/temp-export-*
 #### User Account Recovery
 
 **1. Single User Password Reset**
+
 ```bash
 # Via Firebase Console
 # 1. Go to Authentication → Users
@@ -419,21 +450,22 @@ await admin.auth().generatePasswordResetLink('user@example.com');
 ```
 
 **2. Bulk User Recreation** (after complete auth loss)
+
 ```javascript
 // Restore from Firestore backup
 const users = await db.collection('users').get();
 
 for (const userDoc of users.docs) {
   const userData = userDoc.data();
-  
+
   try {
     await admin.auth().createUser({
       uid: userDoc.id,
       email: userData.email,
       displayName: userData.name,
-      emailVerified: true
+      emailVerified: true,
     });
-    
+
     console.log('Restored user:', userData.email);
   } catch (error) {
     console.error('Failed to restore:', userData.email, error);
@@ -442,11 +474,12 @@ for (const userDoc of users.docs) {
 ```
 
 **3. 2FA Recovery**
+
 ```javascript
 // Disable 2FA for affected users (temporary)
 await db.collection('users').doc(userId).update({
   twoFactorEnabled: false,
-  twoFactorSecret: admin.firestore.FieldValue.delete()
+  twoFactorSecret: admin.firestore.FieldValue.delete(),
 });
 
 // User must re-enable 2FA on next login
@@ -463,6 +496,7 @@ await db.collection('users').doc(userId).update({
 #### Steps
 
 **1. Verify Backup Availability**
+
 ```bash
 # List Cloud Storage backups
 gsutil ls gs://natacare-pm-storage-backups/
@@ -472,6 +506,7 @@ gsutil du -sh gs://natacare-pm-storage-backups/2024-10-18/
 ```
 
 **2. Restore Files**
+
 ```bash
 # Sync from backup to production bucket
 gsutil -m rsync -r -d \
@@ -484,14 +519,16 @@ gsutil -m rsync -r -d \
 ```
 
 **3. Verify File Accessibility**
+
 ```javascript
 // Test file access via app
 const storage = firebase.storage();
 const testRef = storage.ref('documents/test-doc.pdf');
 
-testRef.getDownloadURL()
-  .then(url => console.log('File accessible:', url))
-  .catch(error => console.error('Access failed:', error));
+testRef
+  .getDownloadURL()
+  .then((url) => console.log('File accessible:', url))
+  .catch((error) => console.error('Access failed:', error));
 ```
 
 ---
@@ -505,6 +542,7 @@ testRef.getDownloadURL()
 #### Steps
 
 **1. List Recent Deployments**
+
 ```bash
 # Firebase Hosting deployments
 firebase hosting:channel:list --project=natacare-pm
@@ -514,6 +552,7 @@ gcloud functions list --project=natacare-pm
 ```
 
 **2. Rollback to Previous Version**
+
 ```bash
 # Rollback hosting
 firebase hosting:rollback --project=natacare-pm
@@ -523,6 +562,7 @@ firebase hosting:clone source-site-id:source-channel-id target-site-id:target-ch
 ```
 
 **3. Verify Rollback**
+
 ```bash
 # Check current version
 curl https://natacare-pm.web.app/version.json
@@ -606,11 +646,13 @@ echo "$(date),${TODAY},${BACKUP_SIZE},${FILE_COUNT},success" >> backup-verificat
 **Procedure** (First Sunday of month):
 
 1. **Prepare Test Environment**
+
    ```bash
    gcloud firestore databases create test-restore --location=us-central1
    ```
 
 2. **Restore Previous Month's Backup**
+
    ```bash
    LAST_MONTH=$(date -d "last month" +%Y-%m-01)
    gcloud firestore import \
@@ -625,15 +667,16 @@ echo "$(date),${TODAY},${BACKUP_SIZE},${FILE_COUNT},success" >> backup-verificat
    - Measure restore duration (should be < RTO)
 
 4. **Cleanup**
+
    ```bash
    gcloud firestore databases delete test-restore
    ```
 
 5. **Document Results**
-   - Restore duration: _____ minutes
+   - Restore duration: **\_** minutes
    - Data integrity: Pass/Fail
-   - Issues encountered: _____
-   - Action items: _____
+   - Issues encountered: **\_**
+   - Action items: **\_**
 
 ---
 
@@ -641,26 +684,29 @@ echo "$(date),${TODAY},${BACKUP_SIZE},${FILE_COUNT},success" >> backup-verificat
 
 ### Disaster Recovery Drills
 
-| Test Type | Frequency | Duration | Participants | Success Criteria |
-|-----------|-----------|----------|--------------|------------------|
-| **Tabletop Exercise** | Monthly | 1 hour | DR Team | All steps documented, < 5 questions |
-| **Backup Restore Test** | Monthly | 2 hours | DevOps | RTO < 4h, RPO < 1h, 100% data integrity |
-| **Full DR Simulation** | Quarterly | 4 hours | All Teams | Complete recovery, communications work |
-| **Regional Failover** | Semi-Annual | 6 hours | Full DR Team | < 2h failover, zero data loss |
+| Test Type               | Frequency   | Duration | Participants | Success Criteria                        |
+| ----------------------- | ----------- | -------- | ------------ | --------------------------------------- |
+| **Tabletop Exercise**   | Monthly     | 1 hour   | DR Team      | All steps documented, < 5 questions     |
+| **Backup Restore Test** | Monthly     | 2 hours  | DevOps       | RTO < 4h, RPO < 1h, 100% data integrity |
+| **Full DR Simulation**  | Quarterly   | 4 hours  | All Teams    | Complete recovery, communications work  |
+| **Regional Failover**   | Semi-Annual | 6 hours  | Full DR Team | < 2h failover, zero data loss           |
 
 ### Drill Scenarios
 
 **Scenario 1: Database Corruption** (Monthly)
+
 - Severity: Critical
 - Trigger: Manual database deletion in test environment
 - Expected Outcome: Full restoration within 4 hours
 
 **Scenario 2: Regional Outage** (Quarterly)
+
 - Severity: Major
 - Trigger: Simulate Firebase region unavailability
 - Expected Outcome: Failover to secondary region < 2 hours
 
 **Scenario 3: Ransomware Attack** (Semi-Annual)
+
 - Severity: Critical
 - Trigger: Security team simulates data encryption
 - Expected Outcome: Restore from clean backup, security measures validated
@@ -671,11 +717,11 @@ echo "$(date),${TODAY},${BACKUP_SIZE},${FILE_COUNT},success" >> backup-verificat
 
 ### Stakeholder Notification Matrix
 
-| Severity | Stakeholders | Method | Timing |
-|----------|--------------|--------|--------|
-| **Critical** | CEO, CTO, All Users | Email, SMS, In-App | Immediate (< 15 min) |
-| **Major** | Management, Power Users | Email, In-App | < 1 hour |
-| **Minor** | Affected Users | In-App Notification | < 4 hours |
+| Severity     | Stakeholders            | Method              | Timing               |
+| ------------ | ----------------------- | ------------------- | -------------------- |
+| **Critical** | CEO, CTO, All Users     | Email, SMS, In-App  | Immediate (< 15 min) |
+| **Major**    | Management, Power Users | Email, In-App       | < 1 hour             |
+| **Minor**    | Affected Users          | In-App Notification | < 4 hours            |
 
 ### Communication Templates
 
@@ -787,13 +833,13 @@ NataCarePM Operations Team
 
 ### Disaster Recovery Team
 
-| Role | Name | Phone | Email | Backup |
-|------|------|-------|-------|--------|
-| **DR Lead** | [Name] | +62-XXX-XXXX-XXXX | dr-lead@company.com | [Backup Name] |
-| **Firebase Admin** | [Name] | +62-XXX-XXXX-XXXX | firebase@company.com | [Backup Name] |
-| **DevOps Engineer** | [Name] | +62-XXX-XXXX-XXXX | devops@company.com | [Backup Name] |
-| **Security Lead** | [Name] | +62-XXX-XXXX-XXXX | security@company.com | [Backup Name] |
-| **Communications** | [Name] | +62-XXX-XXXX-XXXX | comms@company.com | [Backup Name] |
+| Role                | Name   | Phone             | Email                | Backup        |
+| ------------------- | ------ | ----------------- | -------------------- | ------------- |
+| **DR Lead**         | [Name] | +62-XXX-XXXX-XXXX | dr-lead@company.com  | [Backup Name] |
+| **Firebase Admin**  | [Name] | +62-XXX-XXXX-XXXX | firebase@company.com | [Backup Name] |
+| **DevOps Engineer** | [Name] | +62-XXX-XXXX-XXXX | devops@company.com   | [Backup Name] |
+| **Security Lead**   | [Name] | +62-XXX-XXXX-XXXX | security@company.com | [Backup Name] |
+| **Communications**  | [Name] | +62-XXX-XXXX-XXXX | comms@company.com    | [Backup Name] |
 
 ### Escalation Path
 
@@ -809,12 +855,12 @@ Level 4: CEO (2+ hours or critical incidents)
 
 ### External Contacts
 
-| Service | Contact | Phone | Support URL |
-|---------|---------|-------|-------------|
-| **Firebase** | Google Cloud Support | +1-XXX-XXX-XXXX | https://firebase.google.com/support |
-| **Cloud Storage** | Google Cloud Support | +1-XXX-XXX-XXXX | https://cloud.google.com/support |
-| **DNS Provider** | [Provider] | +XX-XXX-XXX-XXXX | [Support URL] |
-| **CDN Provider** | [Provider] | +XX-XXX-XXX-XXXX | [Support URL] |
+| Service           | Contact              | Phone            | Support URL                         |
+| ----------------- | -------------------- | ---------------- | ----------------------------------- |
+| **Firebase**      | Google Cloud Support | +1-XXX-XXX-XXXX  | https://firebase.google.com/support |
+| **Cloud Storage** | Google Cloud Support | +1-XXX-XXX-XXXX  | https://cloud.google.com/support    |
+| **DNS Provider**  | [Provider]           | +XX-XXX-XXX-XXXX | [Support URL]                       |
+| **CDN Provider**  | [Provider]           | +XX-XXX-XXX-XXXX | [Support URL]                       |
 
 ---
 
@@ -823,22 +869,26 @@ Level 4: CEO (2+ hours or critical incidents)
 ### Appendix A: Pre-Disaster Checklist
 
 **Daily**:
+
 - [ ] Verify automated backups completed
 - [ ] Review Firebase monitoring alerts
 - [ ] Check error rates in logs
 
 **Weekly**:
+
 - [ ] Test backup restoration to staging
 - [ ] Review and update DR contact list
 - [ ] Check backup storage capacity
 
 **Monthly**:
+
 - [ ] Conduct DR drill
 - [ ] Review and update procedures
 - [ ] Audit access controls
 - [ ] Test communication channels
 
 **Quarterly**:
+
 - [ ] Full DR simulation exercise
 - [ ] Review RTO/RPO compliance
 - [ ] Update disaster recovery plan
@@ -939,17 +989,17 @@ gcloud firestore databases delete DATABASE_ID --project=PROJECT
 
 ## Document History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2024-10-18 | DevOps Team | Initial disaster recovery procedures |
+| Version | Date       | Author      | Changes                              |
+| ------- | ---------- | ----------- | ------------------------------------ |
+| 1.0     | 2024-10-18 | DevOps Team | Initial disaster recovery procedures |
 
 ## Review and Approval
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| **Author** | DevOps Lead | _________ | ______ |
-| **Reviewer** | Security Lead | _________ | ______ |
-| **Approver** | CTO | _________ | ______ |
+| Role         | Name          | Signature  | Date     |
+| ------------ | ------------- | ---------- | -------- |
+| **Author**   | DevOps Lead   | ****\_**** | **\_\_** |
+| **Reviewer** | Security Lead | ****\_**** | **\_\_** |
+| **Approver** | CTO           | ****\_**** | **\_\_** |
 
 ---
 

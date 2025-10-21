@@ -1,7 +1,7 @@
 /**
  * Risk Management API Service
  * Priority 3B: Risk Management System
- * 
+ *
  * Comprehensive risk identification, assessment, mitigation, and monitoring.
  */
 
@@ -44,12 +44,15 @@ class RiskService {
   /**
    * Calculate risk score and priority level
    */
-  private calculateRiskScore(severity: RiskSeverity, probability: RiskProbability): {
+  private calculateRiskScore(
+    severity: RiskSeverity,
+    probability: RiskProbability
+  ): {
     score: number;
     priorityLevel: RiskPriorityLevel;
   } {
     const score = severity * probability;
-    
+
     let priorityLevel: RiskPriorityLevel;
     if (score >= 16) priorityLevel = 'critical';
     else if (score >= 10) priorityLevel = 'high';
@@ -62,11 +65,22 @@ class RiskService {
   /**
    * Create a new risk
    */
-  async createRisk(risk: Omit<Risk, 'id' | 'createdAt' | 'updatedAt' | 'riskScore' | 'priorityLevel' | 'reviewHistory' | 'statusHistory'>): Promise<Risk> {
+  async createRisk(
+    risk: Omit<
+      Risk,
+      | 'id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'riskScore'
+      | 'priorityLevel'
+      | 'reviewHistory'
+      | 'statusHistory'
+    >
+  ): Promise<Risk> {
     try {
       const { score, priorityLevel } = this.calculateRiskScore(risk.severity, risk.probability);
       const now = new Date();
-      
+
       const riskNumber = await this.generateRiskNumber(risk.projectId);
 
       const riskData = {
@@ -75,13 +89,15 @@ class RiskService {
         riskScore: score,
         priorityLevel,
         reviewHistory: [],
-        statusHistory: [{
-          timestamp: Timestamp.fromDate(now),
-          changedBy: risk.identifiedBy,
-          previousStatus: null as any,
-          newStatus: risk.status,
-          reason: 'Initial creation',
-        }],
+        statusHistory: [
+          {
+            timestamp: Timestamp.fromDate(now),
+            changedBy: risk.identifiedBy,
+            previousStatus: null as any,
+            newStatus: risk.status,
+            reason: 'Initial creation',
+          },
+        ],
         createdAt: Timestamp.fromDate(now),
         updatedAt: Timestamp.fromDate(now),
         identifiedDate: Timestamp.fromDate(risk.identifiedDate),
@@ -114,7 +130,7 @@ class RiskService {
         riskScore: score,
         priorityLevel,
         reviewHistory: [],
-        statusHistory: riskData.statusHistory.map(s => ({
+        statusHistory: riskData.statusHistory.map((s) => ({
           ...s,
           timestamp: s.timestamp.toDate(),
         })),
@@ -137,10 +153,10 @@ class RiskService {
       where('projectId', '==', projectId),
       orderBy('createdAt', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
     const count = snapshot.size + 1;
-    
+
     return `RISK-${year}-${String(count).padStart(3, '0')}`;
   }
 
@@ -169,7 +185,7 @@ class RiskService {
    */
   async getRisks(projectId: string, filters?: RiskFilterOptions): Promise<Risk[]> {
     try {
-      let constraints: any[] = [where('projectId', '==', projectId)];
+      const constraints: any[] = [where('projectId', '==', projectId)];
 
       if (filters?.category && filters.category.length > 0) {
         constraints.push(where('category', 'in', filters.category));
@@ -188,23 +204,19 @@ class RiskService {
       const q = query(collection(db, RISKS_COLLECTION), ...constraints);
       const querySnapshot = await getDocs(q);
 
-      let risks = querySnapshot.docs.map(doc =>
-        this.convertFirestoreToRisk(doc.id, doc.data())
-      );
+      let risks = querySnapshot.docs.map((doc) => this.convertFirestoreToRisk(doc.id, doc.data()));
 
       // Client-side filters
       if (filters?.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
-        risks = risks.filter(r =>
-          r.title.toLowerCase().includes(term) ||
-          r.description.toLowerCase().includes(term)
+        risks = risks.filter(
+          (r) => r.title.toLowerCase().includes(term) || r.description.toLowerCase().includes(term)
         );
       }
 
       if (filters?.scoreRange) {
-        risks = risks.filter(r =>
-          r.riskScore >= filters.scoreRange!.min &&
-          r.riskScore <= filters.scoreRange!.max
+        risks = risks.filter(
+          (r) => r.riskScore >= filters.scoreRange!.min && r.riskScore <= filters.scoreRange!.max
         );
       }
 
@@ -222,7 +234,7 @@ class RiskService {
     try {
       const docRef = doc(db, RISKS_COLLECTION, riskId);
       const current = await this.getRiskById(riskId);
-      
+
       if (!current) {
         throw new Error('Risk not found');
       }
@@ -234,7 +246,7 @@ class RiskService {
         const severity = updates.severity || current.severity;
         const probability = updates.probability || current.probability;
         const { score, priorityLevel } = this.calculateRiskScore(severity, probability);
-        
+
         updateData.riskScore = score;
         updateData.priorityLevel = priorityLevel;
       }
@@ -248,7 +260,7 @@ class RiskService {
           newStatus: updates.status,
           reason: updateData.statusChangeReason || 'Status updated',
         };
-        
+
         updateData.statusHistory = [...current.statusHistory, statusChange];
       }
 
@@ -290,7 +302,7 @@ class RiskService {
         ...review,
         reviewDate: Timestamp.fromDate(review.reviewDate),
         nextReviewDate: Timestamp.fromDate(review.nextReviewDate),
-        changes: review.changes.map(c => ({
+        changes: review.changes.map((c) => ({
           ...c,
           oldValue: c.oldValue instanceof Date ? Timestamp.fromDate(c.oldValue) : c.oldValue,
           newValue: c.newValue instanceof Date ? Timestamp.fromDate(c.newValue) : c.newValue,
@@ -319,24 +331,31 @@ class RiskService {
       const stats: RiskDashboardStats = {
         overview: {
           totalRisks: risks.length,
-          activeRisks: risks.filter(r => ['identified', 'assessed', 'mitigating', 'monitoring'].includes(r.status)).length,
-          closedRisks: risks.filter(r => r.status === 'closed').length,
-          occurredRisks: risks.filter(r => r.status === 'occurred').length,
+          activeRisks: risks.filter((r) =>
+            ['identified', 'assessed', 'mitigating', 'monitoring'].includes(r.status)
+          ).length,
+          closedRisks: risks.filter((r) => r.status === 'closed').length,
+          occurredRisks: risks.filter((r) => r.status === 'occurred').length,
         },
         distribution: {
           byPriority: {
-            critical: risks.filter(r => r.priorityLevel === 'critical').length,
-            high: risks.filter(r => r.priorityLevel === 'high').length,
-            medium: risks.filter(r => r.priorityLevel === 'medium').length,
-            low: risks.filter(r => r.priorityLevel === 'low').length,
+            critical: risks.filter((r) => r.priorityLevel === 'critical').length,
+            high: risks.filter((r) => r.priorityLevel === 'high').length,
+            medium: risks.filter((r) => r.priorityLevel === 'medium').length,
+            low: risks.filter((r) => r.priorityLevel === 'low').length,
           },
           byCategory: {} as any,
           byStatus: {} as any,
         },
         financial: {
           totalEstimatedImpact: risks.reduce((sum, r) => sum + r.estimatedImpact, 0),
-          totalActualImpact: risks.filter(r => r.occurred).reduce((sum, r) => sum + (r.occurred?.actualCost || 0), 0),
-          mitigationCosts: risks.reduce((sum, r) => sum + (r.mitigationPlan?.estimatedCost || 0), 0),
+          totalActualImpact: risks
+            .filter((r) => r.occurred)
+            .reduce((sum, r) => sum + (r.occurred?.actualCost || 0), 0),
+          mitigationCosts: risks.reduce(
+            (sum, r) => sum + (r.mitigationPlan?.estimatedCost || 0),
+            0
+          ),
           contingencyBudget: 0, // To be calculated from project budget
           contingencyUsed: 0,
         },
@@ -394,19 +413,23 @@ class RiskService {
       createdAt: data.createdAt?.toDate(),
       updatedAt: data.updatedAt?.toDate(),
       lastReviewedAt: data.lastReviewedAt?.toDate(),
-      statusHistory: data.statusHistory?.map((s: any) => ({
-        ...s,
-        timestamp: s.timestamp?.toDate(),
-      })) || [],
-      reviewHistory: data.reviewHistory?.map((r: any) => ({
-        ...r,
-        reviewDate: r.reviewDate?.toDate(),
-        nextReviewDate: r.nextReviewDate?.toDate(),
-      })) || [],
-      occurred: data.occurred ? {
-        ...data.occurred,
-        date: data.occurred.date?.toDate(),
-      } : undefined,
+      statusHistory:
+        data.statusHistory?.map((s: any) => ({
+          ...s,
+          timestamp: s.timestamp?.toDate(),
+        })) || [],
+      reviewHistory:
+        data.reviewHistory?.map((r: any) => ({
+          ...r,
+          reviewDate: r.reviewDate?.toDate(),
+          nextReviewDate: r.nextReviewDate?.toDate(),
+        })) || [],
+      occurred: data.occurred
+        ? {
+            ...data.occurred,
+            date: data.occurred.date?.toDate(),
+          }
+        : undefined,
     } as Risk;
   }
 }

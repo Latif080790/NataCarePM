@@ -2,7 +2,7 @@
 
 /**
  * Safety Management System - Build Verification Script
- * 
+ *
  * This script verifies that all Safety Management components
  * are properly integrated and ready for production deployment.
  */
@@ -16,12 +16,12 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, '..');
 
 console.log('🔍 Safety Management System - Build Verification\n');
-console.log('=' .repeat(60));
+console.log('='.repeat(60));
 
 const results = {
   passed: [],
   failed: [],
-  warnings: []
+  warnings: [],
 };
 
 // Files to verify
@@ -30,30 +30,30 @@ const filesToCheck = [
   { path: 'types/safety.types.ts', type: 'Type Definitions', required: true },
   { path: 'types/offline.types.ts', type: 'Type Definitions', required: true },
   { path: 'types/executive.types.ts', type: 'Type Definitions', required: true },
-  
+
   // API Service
   { path: 'api/safetyService.ts', type: 'API Service', required: true },
-  
+
   // Context
   { path: 'contexts/SafetyContext.tsx', type: 'State Management', required: true },
-  
+
   // Views
   { path: 'views/SafetyDashboardView.tsx', type: 'View Component', required: true },
   { path: 'views/IncidentManagementView.tsx', type: 'View Component', required: true },
   { path: 'views/TrainingManagementView.tsx', type: 'View Component', required: true },
   { path: 'views/PPEManagementView.tsx', type: 'View Component', required: true },
-  
+
   // Form Components
   { path: 'components/safety/IncidentForm.tsx', type: 'Form Component', required: true },
   { path: 'components/safety/TrainingForm.tsx', type: 'Form Component', required: true },
   { path: 'components/safety/PPEForm.tsx', type: 'Form Component', required: true },
   { path: 'components/safety/AuditForm.tsx', type: 'Form Component', required: true },
-  
+
   // Documentation
   { path: 'docs/SAFETY_MANAGEMENT_USER_GUIDE.md', type: 'Documentation', required: true },
   { path: 'docs/SAFETY_MANAGEMENT_DEVELOPER_GUIDE.md', type: 'Documentation', required: true },
   { path: 'docs/SAFETY_MANAGEMENT_API_DOCUMENTATION.md', type: 'Documentation', required: true },
-  
+
   // Progress Reports
   { path: 'PHASE_3.5_COMPREHENSIVE_PROGRESS_REPORT.md', type: 'Progress Report', required: false },
   { path: 'PHASE_3.5_SAFETY_COMPLETE_SUMMARY.md', type: 'Summary Report', required: false },
@@ -61,10 +61,10 @@ const filesToCheck = [
 
 console.log('\n📁 Checking File Existence...\n');
 
-filesToCheck.forEach(file => {
+filesToCheck.forEach((file) => {
   const fullPath = path.join(rootDir, file.path);
   const exists = fs.existsSync(fullPath);
-  
+
   if (exists) {
     const stats = fs.statSync(fullPath);
     const sizeKB = (stats.size / 1024).toFixed(2);
@@ -89,21 +89,21 @@ console.log('\n📊 Code Statistics...\n');
 let totalLines = 0;
 let totalSize = 0;
 
-const codeFiles = filesToCheck.filter(f => {
+const codeFiles = filesToCheck.filter((f) => {
   const ext = path.extname(f.path);
   return ['.ts', '.tsx'].includes(ext);
 });
 
-codeFiles.forEach(file => {
+codeFiles.forEach((file) => {
   const fullPath = path.join(rootDir, file.path);
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
     const lines = content.split('\n').length;
     const stats = fs.statSync(fullPath);
-    
+
     totalLines += lines;
     totalSize += stats.size;
-    
+
     console.log(`  ${file.path.padEnd(55)} ${String(lines).padStart(5)} lines`);
   }
 });
@@ -121,14 +121,14 @@ const docFiles = [
   { path: 'docs/SAFETY_MANAGEMENT_API_DOCUMENTATION.md', name: 'API Documentation' },
 ];
 
-docFiles.forEach(doc => {
+docFiles.forEach((doc) => {
   const fullPath = path.join(rootDir, doc.path);
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
     const lines = content.split('\n').length;
     const words = content.split(/\s+/).length;
     const sections = (content.match(/^#+\s/gm) || []).length;
-    
+
     console.log(`  ${doc.name}:`);
     console.log(`    ✓ Lines: ${lines.toLocaleString()}`);
     console.log(`    ✓ Words: ${words.toLocaleString()}`);
@@ -141,23 +141,28 @@ docFiles.forEach(doc => {
 console.log('\n🧩 Component Integration Check...\n');
 
 const components = [
-  { name: 'SafetyContext', file: 'contexts/SafetyContext.tsx', exports: ['SafetyProvider', 'useSafety'] },
+  {
+    name: 'SafetyContext',
+    file: 'contexts/SafetyContext.tsx',
+    exports: ['SafetyProvider', 'useSafety'],
+  },
   { name: 'IncidentForm', file: 'components/safety/IncidentForm.tsx', exports: ['IncidentForm'] },
   { name: 'TrainingForm', file: 'components/safety/TrainingForm.tsx', exports: ['TrainingForm'] },
   { name: 'PPEForm', file: 'components/safety/PPEForm.tsx', exports: ['PPEForm'] },
   { name: 'AuditForm', file: 'components/safety/AuditForm.tsx', exports: ['AuditForm'] },
 ];
 
-components.forEach(comp => {
+components.forEach((comp) => {
   const fullPath = path.join(rootDir, comp.file);
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
-    const allExportsFound = comp.exports.every(exp => 
-      content.includes(`export const ${exp}`) || 
-      content.includes(`export function ${exp}`) ||
-      content.includes(`export { ${exp}`)
+    const allExportsFound = comp.exports.every(
+      (exp) =>
+        content.includes(`export const ${exp}`) ||
+        content.includes(`export function ${exp}`) ||
+        content.includes(`export { ${exp}`)
     );
-    
+
     if (allExportsFound) {
       console.log(`  ✅ ${comp.name.padEnd(30)} All exports present`);
     } else {
@@ -170,19 +175,21 @@ components.forEach(comp => {
 // Type safety check
 console.log('\n🔐 Type Safety Verification...\n');
 
-const typeFiles = filesToCheck.filter(f => f.path.endsWith('.ts') || f.path.endsWith('.tsx'));
+const typeFiles = filesToCheck.filter((f) => f.path.endsWith('.ts') || f.path.endsWith('.tsx'));
 let anyTypesFound = false;
-let strictModeEnabled = true;
+const strictModeEnabled = true;
 
-typeFiles.forEach(file => {
+typeFiles.forEach((file) => {
   const fullPath = path.join(rootDir, file.path);
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
-    
+
     // Check for 'any' types (excluding comments)
-    const codeLines = content.split('\n').filter(line => !line.trim().startsWith('//'));
-    const hasAnyType = codeLines.some(line => /:\s*any\b/.test(line) && !line.includes('export type'));
-    
+    const codeLines = content.split('\n').filter((line) => !line.trim().startsWith('//'));
+    const hasAnyType = codeLines.some(
+      (line) => /:\s*any\b/.test(line) && !line.includes('export type')
+    );
+
     if (hasAnyType) {
       anyTypesFound = true;
       console.log(`  ⚠️  ${file.path} contains 'any' types`);
@@ -208,8 +215,8 @@ const oshaFeatures = [
 const safetyServicePath = path.join(rootDir, 'api/safetyService.ts');
 if (fs.existsSync(safetyServicePath)) {
   const content = fs.readFileSync(safetyServicePath, 'utf8');
-  
-  oshaFeatures.forEach(feature => {
+
+  oshaFeatures.forEach((feature) => {
     if (feature.pattern.test(content)) {
       console.log(`  ✅ ${feature.name.padEnd(30)} Implemented`);
     } else {
@@ -230,12 +237,12 @@ console.log(`  ⚠️  Warnings: ${results.warnings.length}`);
 
 if (results.failed.length > 0) {
   console.log('\n❌ Failed Items:');
-  results.failed.forEach(item => console.log(`     - ${item}`));
+  results.failed.forEach((item) => console.log(`     - ${item}`));
 }
 
 if (results.warnings.length > 0) {
   console.log('\n⚠️  Warnings:');
-  results.warnings.forEach(item => console.log(`     - ${item}`));
+  results.warnings.forEach((item) => console.log(`     - ${item}`));
 }
 
 console.log('\n' + '='.repeat(60));

@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
-import { 
-  AlertTriangle, 
-  Database, 
-  WifiOff, 
+import {
+  AlertTriangle,
+  Database,
+  WifiOff,
   ArrowLeft,
   Construction,
   Calendar,
@@ -13,7 +13,7 @@ import {
   FileText,
   BarChart3,
   Settings,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { Spinner } from './Spinner';
 
@@ -36,34 +36,33 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
   viewName,
   viewId,
   onNavigateBack,
-  comingSoonFeatures = []
+  comingSoonFeatures = [],
 }) => {
-  
   // Coming Soon View
   if (type === 'coming-soon' && viewName && viewId && onNavigateBack) {
     const getViewIcon = (id: string) => {
       const iconMap: { [key: string]: React.ComponentType<any> } = {
-        'tasks': Calendar,
-        'task_list': Calendar,
-        'kanban': Users,
-        'kanban_board': Users,
-        'dependencies': BarChart3,
-        'notifications': Settings,
-        'laporan_harian': FileText,
-        'progres': BarChart3,
-        'absensi': Users,
-        'biaya_proyek': BarChart3,
-        'arus_kas': BarChart3,
-        'strategic_cost': BarChart3,
-        'logistik': Settings,
-        'dokumen': FileText,
-        'laporan': FileText,
-        'user_management': Users,
-        'master_data': Settings,
-        'audit_trail': FileText,
-        'profile': Users
+        tasks: Calendar,
+        task_list: Calendar,
+        kanban: Users,
+        kanban_board: Users,
+        dependencies: BarChart3,
+        notifications: Settings,
+        laporan_harian: FileText,
+        progres: BarChart3,
+        absensi: Users,
+        biaya_proyek: BarChart3,
+        arus_kas: BarChart3,
+        strategic_cost: BarChart3,
+        logistik: Settings,
+        dokumen: FileText,
+        laporan: FileText,
+        user_management: Users,
+        master_data: Settings,
+        audit_trail: FileText,
+        profile: Users,
       };
-      
+
       return iconMap[id] || Construction;
     };
 
@@ -75,7 +74,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
       'Export functionality',
       'Mobile-responsive interface',
       'Role-based permissions',
-      'Automated notifications'
+      'Automated notifications',
     ];
 
     const features = comingSoonFeatures.length > 0 ? comingSoonFeatures : defaultFeatures;
@@ -83,7 +82,6 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
     return (
       <div className="min-h-screen glass-bg p-6">
         <div className="max-w-4xl mx-auto">
-          
           {/* Header */}
           <div className="mb-8">
             <Button
@@ -94,7 +92,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
               <ArrowLeft className="w-4 h-4 mr-2" />
               Kembali ke Dashboard
             </Button>
-            
+
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-2xl gradient-bg-primary flex items-center justify-center floating">
                 <ViewIcon className="w-8 h-8 text-white" />
@@ -108,7 +106,6 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
 
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
             {/* Development Status */}
             <Card className="glass-enhanced border-violet-essence/20">
               <CardHeader>
@@ -120,11 +117,13 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
               <CardContent className="space-y-6">
                 <div className="glass-subtle rounded-xl p-4 border border-violet-essence/20">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-semibold text-night-black">Progress Pengembangan</span>
+                    <span className="text-sm font-semibold text-night-black">
+                      Progress Pengembangan
+                    </span>
                     <span className="text-sm text-precious-persimmon font-bold">75%</span>
                   </div>
                   <div className="w-full bg-violet-essence-100 rounded-full h-3">
-                    <div 
+                    <div
                       className="gradient-bg-primary h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
                       style={{ width: '75%' }}
                     >
@@ -140,7 +139,9 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-xl glass-subtle">
                     <div className="w-3 h-3 rounded-full bg-precious-persimmon animate-pulse"></div>
-                    <span className="text-sm text-night-black">Backend Integration - Dalam Proses</span>
+                    <span className="text-sm text-night-black">
+                      Backend Integration - Dalam Proses
+                    </span>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-xl glass-subtle">
                     <div className="w-3 h-3 rounded-full bg-palladium"></div>
@@ -167,7 +168,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
               <CardContent>
                 <div className="space-y-3">
                   {features.map((feature, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="flex items-center gap-3 p-3 rounded-xl glass-subtle hover:border-violet-essence/40 transition-all duration-300 group border border-violet-essence/20"
                     >
@@ -184,7 +185,10 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
                     <Calendar className="w-5 h-5" />
                     <span className="font-semibold">Estimasi Rilis</span>
                   </div>
-                  <p className="text-sm opacity-90">Modul ini akan tersedia dalam update selanjutnya. Terima kasih atas kesabaran Anda!</p>
+                  <p className="text-sm opacity-90">
+                    Modul ini akan tersedia dalam update selanjutnya. Terima kasih atas kesabaran
+                    Anda!
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -198,16 +202,16 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={onNavigateBack}
                     className="h-auto p-4 flex flex-col items-center gap-2"
                   >
                     <ArrowLeft className="w-5 h-5" />
                     <span className="text-sm">Kembali</span>
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     variant="outline"
                     onClick={() => window.location.reload()}
                     className="h-auto p-4 flex flex-col items-center gap-2"
@@ -215,8 +219,8 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
                     <Zap className="w-5 h-5" />
                     <span className="text-sm">Refresh</span>
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     variant="outline"
                     onClick={() => console.log('Help center - Coming soon')}
                     className="h-auto p-4 flex flex-col items-center gap-2"
@@ -224,8 +228,8 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
                     <FileText className="w-5 h-5" />
                     <span className="text-sm">Bantuan</span>
                   </Button>
-                  
-                  <Button 
+
+                  <Button
                     variant="outline"
                     onClick={() => console.log('Feedback - Coming soon')}
                     className="h-auto p-4 flex flex-col items-center gap-2"
@@ -252,7 +256,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
           description: description || 'Mohon tunggu sebentar sementara kami memuat data Anda.',
           bgColor: 'glass-bg',
           iconBg: 'gradient-bg-primary',
-          iconColor: 'text-white'
+          iconColor: 'text-white',
         };
       case 'error':
         return {
@@ -261,7 +265,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
           description: description || 'Kami mengalami masalah saat memuat tampilan ini.',
           bgColor: 'glass-bg',
           iconBg: 'bg-red-500',
-          iconColor: 'text-white'
+          iconColor: 'text-white',
         };
       case 'empty':
         return {
@@ -270,7 +274,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
           description: description || 'Belum ada data yang tersedia untuk ditampilkan.',
           bgColor: 'glass-bg',
           iconBg: 'bg-palladium',
-          iconColor: 'text-white'
+          iconColor: 'text-white',
         };
       case 'offline':
         return {
@@ -279,7 +283,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
           description: description || 'Periksa koneksi internet Anda dan coba lagi.',
           bgColor: 'glass-bg',
           iconBg: 'bg-orange-500',
-          iconColor: 'text-white'
+          iconColor: 'text-white',
         };
       default:
         return {
@@ -288,7 +292,7 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
           description: 'Mohon tunggu...',
           bgColor: 'glass-bg',
           iconBg: 'gradient-bg-primary',
-          iconColor: 'text-white'
+          iconColor: 'text-white',
         };
     }
   };
@@ -299,18 +303,14 @@ export const FallbackView: React.FC<FallbackViewProps> = ({
     <div className={`min-h-screen ${content.bgColor} p-6 flex items-center justify-center`}>
       <Card className="glass-enhanced border-violet-essence/20 max-w-md w-full">
         <CardContent className="p-12 text-center">
-          <div className={`w-20 h-20 ${content.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-6 floating`}>
-            <div className={content.iconColor}>
-              {content.icon}
-            </div>
+          <div
+            className={`w-20 h-20 ${content.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-6 floating`}
+          >
+            <div className={content.iconColor}>{content.icon}</div>
           </div>
           <h2 className="text-2xl font-bold gradient-text mb-3">{content.title}</h2>
           <p className="text-palladium mb-8 leading-relaxed">{content.description}</p>
-          {action && (
-            <div className="space-y-3">
-              {action}
-            </div>
-          )}
+          {action && <div className="space-y-3">{action}</div>}
         </CardContent>
       </Card>
     </div>

@@ -54,9 +54,9 @@ Retrieves all safety incidents for a specific project.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| projectId | string | Yes | Unique identifier for the project |
+| Parameter | Type   | Required | Description                       |
+| --------- | ------ | -------- | --------------------------------- |
+| projectId | string | Yes      | Unique identifier for the project |
 
 **Returns:** `Promise<SafetyIncident[]>`
 
@@ -84,11 +84,7 @@ console.log(incidents);
 
 ```typescript
 const incidentsRef = collection(db, 'safetyIncidents');
-const q = query(
-  incidentsRef,
-  where('projectId', '==', projectId),
-  orderBy('occurredAt', 'desc')
-);
+const q = query(incidentsRef, where('projectId', '==', projectId), orderBy('occurredAt', 'desc'));
 ```
 
 ---
@@ -101,9 +97,9 @@ Retrieves a single incident by its unique identifier.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Unique incident identifier |
+| Parameter | Type   | Required | Description                |
+| --------- | ------ | -------- | -------------------------- |
+| id        | string | Yes      | Unique incident identifier |
 
 **Returns:** `Promise<SafetyIncident>`
 
@@ -153,6 +149,7 @@ interface CreateIncidentRequest {
 **Returns:** `Promise<SafetyIncident>` - Created incident with auto-generated fields
 
 **Auto-generated Fields:**
+
 - `id`: Firestore document ID
 - `incidentNumber`: Sequential number (e.g., "INC-2024-001")
 - `createdAt`: Current timestamp
@@ -180,16 +177,16 @@ const newIncident = await safetyService.createIncident({
       injuryType: 'Sprain',
       injurySeverity: 'minor',
       medicalTreatment: 'first_aid',
-      daysLost: 0
-    }
+      daysLost: 0,
+    },
   ],
   witnesses: [
     {
       id: 'witness-1',
       name: 'Jane Smith',
       role: 'Supervisor',
-      statement: 'I saw the incident occur'
-    }
+      statement: 'I saw the incident occur',
+    },
   ],
   correctiveActions: [
     {
@@ -199,11 +196,11 @@ const newIncident = await safetyService.createIncident({
       targetDate: new Date('2024-10-20'),
       status: 'pending',
       completedDate: undefined,
-      notes: ''
-    }
+      notes: '',
+    },
   ],
   attachments: [],
-  oshaRecordable: false
+  oshaRecordable: false,
 });
 
 console.log(newIncident.incidentNumber); // "INC-2024-012"
@@ -219,10 +216,10 @@ Updates an existing incident with partial data.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Incident ID to update |
-| updates | Partial<SafetyIncident> | Yes | Fields to update |
+| Parameter | Type                    | Required | Description           |
+| --------- | ----------------------- | -------- | --------------------- |
+| id        | string                  | Yes      | Incident ID to update |
+| updates   | Partial<SafetyIncident> | Yes      | Fields to update      |
 
 **Returns:** `Promise<void>`
 
@@ -239,9 +236,9 @@ await safetyService.updateIncident('inc-001', {
       targetDate: new Date('2024-10-20'),
       status: 'completed',
       completedDate: new Date(),
-      notes: 'Signs installed in all wet areas'
-    }
-  ]
+      notes: 'Signs installed in all wet areas',
+    },
+  ],
 });
 ```
 
@@ -255,9 +252,9 @@ Deletes an incident from the system.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Incident ID to delete |
+| Parameter | Type   | Required | Description           |
+| --------- | ------ | -------- | --------------------- |
+| id        | string | Yes      | Incident ID to delete |
 
 **Returns:** `Promise<void>`
 
@@ -279,9 +276,9 @@ Retrieves all training sessions for a project.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| projectId | string | Yes | Project identifier |
+| Parameter | Type   | Required | Description        |
+| --------- | ------ | -------- | ------------------ |
+| projectId | string | Yes      | Project identifier |
 
 **Returns:** `Promise<SafetyTraining[]>`
 
@@ -354,11 +351,11 @@ const training = await safetyService.createTraining({
       title: 'Fall Protection Handbook',
       type: 'document',
       url: 'https://...',
-      uploadedAt: new Date()
-    }
+      uploadedAt: new Date(),
+    },
   ],
   certificationRequired: true,
-  certificationValidityDays: 365
+  certificationValidityDays: 365,
 });
 
 console.log(training.trainingNumber); // "TRN-2024-005"
@@ -408,7 +405,7 @@ await safetyService.recordAttendance('train-001', {
   certificateIssued: true,
   certificateNumber: 'CERT-2024-001',
   certificateExpiryDate: new Date('2025-11-01'),
-  notes: 'Excellent performance'
+  notes: 'Excellent performance',
 });
 ```
 
@@ -424,9 +421,9 @@ Retrieves all PPE inventory items for a project.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| projectId | string | Yes | Project identifier |
+| Parameter | Type   | Required | Description        |
+| --------- | ------ | -------- | ------------------ |
+| projectId | string | Yes      | Project identifier |
 
 **Returns:** `Promise<PPEInventory[]>`
 
@@ -501,7 +498,7 @@ const ppeItem = await safetyService.createPPEItem({
   certificationStandard: 'ANSI Z87.1',
   expirationTracking: false,
   lastInspectionDate: new Date(),
-  nextInspectionDate: new Date('2025-01-01')
+  nextInspectionDate: new Date('2025-01-01'),
 });
 ```
 
@@ -546,7 +543,7 @@ const assignment = await safetyService.assignPPE({
   assignedDate: new Date(),
   status: 'assigned',
   condition: 'new',
-  notes: 'Standard hard hat assignment'
+  notes: 'Standard hard hat assignment',
 });
 ```
 
@@ -560,11 +557,11 @@ Records the return of PPE from a worker.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| assignmentId | string | Yes | PPE assignment ID |
-| condition | string | Yes | Condition upon return |
-| notes | string | No | Additional notes |
+| Parameter    | Type   | Required | Description           |
+| ------------ | ------ | -------- | --------------------- |
+| assignmentId | string | Yes      | PPE assignment ID     |
+| condition    | string | Yes      | Condition upon return |
+| notes        | string | No       | Additional notes      |
 
 **Returns:** `Promise<void>`
 
@@ -586,9 +583,9 @@ Retrieves all safety audits for a project.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| projectId | string | Yes | Project identifier |
+| Parameter | Type   | Required | Description        |
+| --------- | ------ | -------- | ------------------ |
+| projectId | string | Yes      | Project identifier |
 
 **Returns:** `Promise<SafetyAudit[]>`
 
@@ -645,7 +642,7 @@ const audit = await safetyService.createAudit({
       item: 'Guardrails installed on elevated platforms',
       compliant: true,
       notes: 'All platforms have proper guardrails',
-      evidence: []
+      evidence: [],
     },
     {
       id: 'item-2',
@@ -653,8 +650,8 @@ const audit = await safetyService.createAudit({
       item: 'Workers wearing hard hats in designated areas',
       compliant: false,
       notes: '2 workers found without hard hats',
-      evidence: []
-    }
+      evidence: [],
+    },
   ],
   findings: [
     {
@@ -666,15 +663,12 @@ const audit = await safetyService.createAudit({
       correctiveAction: 'Retrain workers on PPE requirements',
       responsibility: 'Site Supervisor',
       targetDate: new Date('2024-11-05'),
-      status: 'pending'
-    }
+      status: 'pending',
+    },
   ],
   overallScore: 85,
   complianceLevel: 'minor_issues',
-  recommendations: [
-    'Increase PPE enforcement',
-    'Conduct additional training sessions'
-  ]
+  recommendations: ['Increase PPE enforcement', 'Conduct additional training sessions'],
 });
 
 console.log(audit.auditNumber); // "AUD-2024-003"
@@ -692,15 +686,16 @@ Calculates OSHA safety metrics for a specific time period.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| projectId | string | Yes | Project identifier |
-| periodStart | Date | Yes | Start date of period |
-| periodEnd | Date | Yes | End date of period |
+| Parameter   | Type   | Required | Description          |
+| ----------- | ------ | -------- | -------------------- |
+| projectId   | string | Yes      | Project identifier   |
+| periodStart | Date   | Yes      | Start date of period |
+| periodEnd   | Date   | Yes      | End date of period   |
 
 **Returns:** `Promise<SafetyMetrics>`
 
 **Calculated Metrics:**
+
 - **TRIR** (Total Recordable Incident Rate): `(Recordable Incidents × 200,000) / Total Work Hours`
 - **LTIFR** (Lost Time Injury Frequency Rate): `(Lost Time Injuries × 200,000) / Total Work Hours`
 - **DART** (Days Away, Restricted, Transfer Rate): `(DART Cases × 200,000) / Total Work Hours`
@@ -769,9 +764,9 @@ Retrieves a comprehensive dashboard summary with current status.
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| projectId | string | Yes | Project identifier |
+| Parameter | Type   | Required | Description        |
+| --------- | ------ | -------- | ------------------ |
+| projectId | string | Yes      | Project identifier |
 
 **Returns:** `Promise<SafetyDashboardSummary>`
 
@@ -833,6 +828,7 @@ try {
 ```
 
 **Error Codes:**
+
 - `permission-denied`: User lacks required permissions
 - `not-found`: Requested document doesn't exist
 - `unauthenticated`: User not authenticated
@@ -847,15 +843,16 @@ try {
 
 Firebase Firestore has the following limits:
 
-| Operation | Limit |
-|-----------|-------|
-| Writes per second | 10,000 |
-| Reads per second | 50,000 |
-| Document size | 1 MB |
-| Field name size | 1,500 bytes |
+| Operation          | Limit       |
+| ------------------ | ----------- |
+| Writes per second  | 10,000      |
+| Reads per second   | 50,000      |
+| Document size      | 1 MB        |
+| Field name size    | 1,500 bytes |
 | Collection ID size | 1,500 bytes |
 
 **Best Practices:**
+
 - Implement pagination for large datasets
 - Cache frequently accessed data
 - Use batch operations when possible
@@ -884,52 +881,57 @@ async function completeIncidentWorkflow() {
       occurredAt: new Date(),
       reportedAt: new Date(),
       reportedBy: 'user-456',
-      injuredPersons: [{
-        id: 'person-1',
-        name: 'John Doe',
-        role: 'Carpenter',
-        injuryType: 'Laceration',
-        injurySeverity: 'minor',
-        medicalTreatment: 'first_aid',
-        daysLost: 0
-      }],
+      injuredPersons: [
+        {
+          id: 'person-1',
+          name: 'John Doe',
+          role: 'Carpenter',
+          injuryType: 'Laceration',
+          injurySeverity: 'minor',
+          medicalTreatment: 'first_aid',
+          daysLost: 0,
+        },
+      ],
       witnesses: [],
-      correctiveActions: [{
-        id: 'action-1',
-        action: 'Provide cut-resistant gloves',
-        responsibility: 'Safety Manager',
-        targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        status: 'pending'
-      }],
+      correctiveActions: [
+        {
+          id: 'action-1',
+          action: 'Provide cut-resistant gloves',
+          responsibility: 'Safety Manager',
+          targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          status: 'pending',
+        },
+      ],
       attachments: [],
-      oshaRecordable: false
+      oshaRecordable: false,
     });
-    
+
     console.log('Incident created:', incident.incidentNumber);
-    
+
     // 2. Update status to investigating
     await safetyService.updateIncident(incident.id, {
-      status: 'investigating'
+      status: 'investigating',
     });
-    
+
     // 3. Complete corrective action
     await safetyService.updateIncident(incident.id, {
       status: 'resolved',
-      correctiveActions: [{
-        ...incident.correctiveActions[0],
-        status: 'completed',
-        completedDate: new Date(),
-        notes: 'Cut-resistant gloves provided to all workers'
-      }]
+      correctiveActions: [
+        {
+          ...incident.correctiveActions[0],
+          status: 'completed',
+          completedDate: new Date(),
+          notes: 'Cut-resistant gloves provided to all workers',
+        },
+      ],
     });
-    
+
     // 4. Close incident
     await safetyService.updateIncident(incident.id, {
-      status: 'closed'
+      status: 'closed',
     });
-    
+
     console.log('Incident workflow completed');
-    
   } catch (error) {
     console.error('Error in incident workflow:', error);
   }
@@ -956,14 +958,14 @@ async function manageTrainingSession() {
       attendees: [],
       materials: [],
       certificationRequired: true,
-      certificationValidityDays: 730 // 2 years
+      certificationValidityDays: 730, // 2 years
     });
-    
+
     console.log('Training created:', training.trainingNumber);
-    
+
     // 2. Record attendees
     const workers = ['user-1', 'user-2', 'user-3'];
-    
+
     for (const userId of workers) {
       await safetyService.recordAttendance(training.id, {
         id: `att-${userId}`,
@@ -976,17 +978,16 @@ async function manageTrainingSession() {
         passed: true,
         certificateIssued: true,
         certificateNumber: `CERT-${training.trainingNumber}-${userId}`,
-        certificateExpiryDate: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000)
+        certificateExpiryDate: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000),
       });
     }
-    
+
     // 3. Mark training as completed
     await safetyService.updateTraining(training.id, {
-      status: 'completed'
+      status: 'completed',
     });
-    
+
     console.log('Training session completed');
-    
   } catch (error) {
     console.error('Error managing training:', error);
   }
@@ -1010,15 +1011,15 @@ async function managePPE() {
       assignedQuantity: 0,
       minimumStock: 10,
       reorderPoint: 15,
-      unitCost: 25.00,
+      unitCost: 25.0,
       storageLocation: 'Equipment Room A',
       certificationStandard: 'ANSI Z89.1 Type I',
       expirationTracking: true,
       expirationDate: new Date('2029-12-31'),
       lastInspectionDate: new Date(),
-      nextInspectionDate: new Date('2025-01-01')
+      nextInspectionDate: new Date('2025-01-01'),
     });
-    
+
     // 2. Assign PPE to worker
     const assignment = await safetyService.assignPPE({
       projectId: 'project-123',
@@ -1029,22 +1030,22 @@ async function managePPE() {
       quantity: 1,
       assignedDate: new Date(),
       status: 'assigned',
-      condition: 'new'
+      condition: 'new',
     });
-    
+
     // 3. Check inventory levels
     const inventory = await safetyService.getPPEInventory('project-123');
-    const lowStockItems = inventory.filter(item => 
-      item.availableQuantity <= item.reorderPoint
-    );
-    
+    const lowStockItems = inventory.filter((item) => item.availableQuantity <= item.reorderPoint);
+
     if (lowStockItems.length > 0) {
-      console.log('Low stock alert:', lowStockItems.map(item => item.itemName));
+      console.log(
+        'Low stock alert:',
+        lowStockItems.map((item) => item.itemName)
+      );
     }
-    
+
     // 4. Return PPE
     await safetyService.returnPPE(assignment.id, 'good', 'Normal wear and tear');
-    
   } catch (error) {
     console.error('Error managing PPE:', error);
   }
@@ -1058,39 +1059,38 @@ async function displaySafetyMetrics() {
   try {
     // Get comprehensive dashboard
     const summary = await safetyService.getDashboardSummary('project-123');
-    
+
     // Display current OSHA rates
     console.log('=== OSHA Safety Rates ===');
     console.log(`TRIR: ${summary.currentMetrics.rates.totalRecordableIncidentRate.toFixed(2)}`);
     console.log(`LTIFR: ${summary.currentMetrics.rates.lostTimeInjuryFrequencyRate.toFixed(2)}`);
     console.log(`DART: ${summary.currentMetrics.rates.daysAwayRestrictedTransferRate.toFixed(2)}`);
-    
+
     // Display trends
     console.log('\n=== Trends ===');
     console.log(`TRIR Trend: ${summary.trends.trirTrend}`);
     console.log(`Incident Trend: ${summary.trends.incidentTrend}`);
-    
+
     // Display critical incidents
     console.log('\n=== Critical Incidents ===');
     console.log(`Count: ${summary.criticalIncidents.length}`);
-    summary.criticalIncidents.forEach(incident => {
+    summary.criticalIncidents.forEach((incident) => {
       console.log(`- ${incident.title} (${incident.severity})`);
     });
-    
+
     // Display compliance score
     console.log('\n=== Compliance ===');
     console.log(`Overall Score: ${summary.complianceScore}%`);
     console.log(`Days Without Lost Time: ${summary.daysWithoutLostTime}`);
-    
+
     // Display PPE alerts
     if (summary.ppeAlerts.lowStock.length > 0) {
       console.log('\n=== PPE Alerts ===');
       console.log('Low Stock Items:');
-      summary.ppeAlerts.lowStock.forEach(item => {
+      summary.ppeAlerts.lowStock.forEach((item) => {
         console.log(`- ${item.itemName}: ${item.availableQuantity} remaining`);
       });
     }
-    
   } catch (error) {
     console.error('Error displaying metrics:', error);
   }
@@ -1105,33 +1105,33 @@ All type definitions are located in `types/safety.types.ts`. Key types:
 
 ```typescript
 // Core types
-SafetyIncident
-SafetyTraining
-PPEInventory
-PPEAssignment
-SafetyAudit
-SafetyMetrics
-SafetyDashboardSummary
+SafetyIncident;
+SafetyTraining;
+PPEInventory;
+PPEAssignment;
+SafetyAudit;
+SafetyMetrics;
+SafetyDashboardSummary;
 
 // Enums
-IncidentType
-IncidentSeverity
-IncidentStatus
-TrainingType
-TrainingStatus
-PPECategory
-AuditType
-AuditStatus
+IncidentType;
+IncidentSeverity;
+IncidentStatus;
+TrainingType;
+TrainingStatus;
+PPECategory;
+AuditType;
+AuditStatus;
 
 // Supporting types
-InjuredPerson
-Witness
-CorrectiveAction
-Attachment
-TrainingAttendee
-TrainingMaterial
-AuditChecklistItem
-AuditFinding
+InjuredPerson;
+Witness;
+CorrectiveAction;
+Attachment;
+TrainingAttendee;
+TrainingMaterial;
+AuditChecklistItem;
+AuditFinding;
 ```
 
 ---
@@ -1139,16 +1139,19 @@ AuditFinding
 ## Appendix B: OSHA Reference
 
 **OSHA Standards Implemented:**
+
 - OSHA 1904 - Recordkeeping
 - OSHA 1926 - Construction Safety
 - ISO 45001 - Occupational Health & Safety Management
 
 **Metric Formulas:**
+
 - TRIR = (Recordable Incidents × 200,000) / Total Work Hours
 - LTIFR = (Lost Time Injuries × 200,000) / Total Work Hours
 - DART = (DART Cases × 200,000) / Total Work Hours
 
 **Industry Benchmarks:**
+
 - TRIR: < 2.0 (Excellent), 2.0-4.0 (Average), > 4.0 (Poor)
 - LTIFR: < 1.0 (Excellent), 1.0-2.0 (Average), > 2.0 (Poor)
 

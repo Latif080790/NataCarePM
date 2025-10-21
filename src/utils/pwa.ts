@@ -1,6 +1,6 @@
 /**
  * PWA Utilities
- * 
+ *
  * Features:
  * - Service Worker registration
  * - Update detection
@@ -23,7 +23,9 @@ export interface ServiceWorkerConfig {
 /**
  * Register Service Worker
  */
-export async function registerServiceWorker(config?: ServiceWorkerConfig): Promise<ServiceWorkerRegistration | null> {
+export async function registerServiceWorker(
+  config?: ServiceWorkerConfig
+): Promise<ServiceWorkerRegistration | null> {
   if (!('serviceWorker' in navigator)) {
     console.warn('[PWA] Service Worker not supported');
     return null;
@@ -31,7 +33,7 @@ export async function registerServiceWorker(config?: ServiceWorkerConfig): Promi
 
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
+      scope: '/',
     });
 
     console.log('[PWA] Service Worker registered:', registration.scope);
@@ -39,7 +41,7 @@ export async function registerServiceWorker(config?: ServiceWorkerConfig): Promi
     // Check for updates
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing;
-      
+
       if (!newWorker) return;
 
       newWorker.addEventListener('statechange', () => {
@@ -56,7 +58,6 @@ export async function registerServiceWorker(config?: ServiceWorkerConfig): Promi
     }
 
     return registration;
-
   } catch (error) {
     console.error('[PWA] Service Worker registration failed:', error);
     config?.onError?.(error as Error);
@@ -126,7 +127,9 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 /**
  * Subscribe to push notifications
  */
-export async function subscribeToPushNotifications(vapidPublicKey: string): Promise<PushSubscription | null> {
+export async function subscribeToPushNotifications(
+  vapidPublicKey: string
+): Promise<PushSubscription | null> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.warn('[PWA] Push notifications not supported');
     return null;
@@ -134,10 +137,10 @@ export async function subscribeToPushNotifications(vapidPublicKey: string): Prom
 
   try {
     const registration = await navigator.serviceWorker.ready;
-    
+
     // Check for existing subscription
     let subscription = await registration.pushManager.getSubscription();
-    
+
     if (subscription) {
       console.log('[PWA] Already subscribed to push notifications');
       return subscription;
@@ -145,7 +148,7 @@ export async function subscribeToPushNotifications(vapidPublicKey: string): Prom
 
     // Request permission
     const permission = await requestNotificationPermission();
-    
+
     if (permission !== 'granted') {
       console.log('[PWA] Notification permission denied');
       return null;
@@ -154,12 +157,11 @@ export async function subscribeToPushNotifications(vapidPublicKey: string): Prom
     // Subscribe
     subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     });
 
     console.log('[PWA] Subscribed to push notifications');
     return subscription;
-
   } catch (error) {
     console.error('[PWA] Push subscription failed:', error);
     return null;
@@ -177,7 +179,7 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
   try {
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription();
-    
+
     if (!subscription) {
       return false;
     }
@@ -185,7 +187,6 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
     const success = await subscription.unsubscribe();
     console.log('[PWA] Unsubscribed from push notifications:', success);
     return success;
-
   } catch (error) {
     console.error('[PWA] Push unsubscription failed:', error);
     return false;
@@ -252,10 +253,7 @@ export function isOnline(): boolean {
 /**
  * Listen for online/offline events
  */
-export function onConnectionChange(
-  onOnline: () => void,
-  onOffline: () => void
-): () => void {
+export function onConnectionChange(onOnline: () => void, onOffline: () => void): () => void {
   window.addEventListener('online', onOnline);
   window.addEventListener('offline', onOffline);
 
@@ -279,7 +277,7 @@ export async function clearAllCaches(): Promise<void> {
 
   try {
     const cacheNames = await caches.keys();
-    await Promise.all(cacheNames.map(name => caches.delete(name)));
+    await Promise.all(cacheNames.map((name) => caches.delete(name)));
     console.log('[PWA] All caches cleared');
   } catch (error) {
     console.error('[PWA] Failed to clear caches:', error);
@@ -301,7 +299,7 @@ export async function getCacheSize(): Promise<number> {
     for (const name of cacheNames) {
       const cache = await caches.open(name);
       const requests = await cache.keys();
-      
+
       for (const request of requests) {
         const response = await cache.match(request);
         if (response) {
@@ -328,11 +326,11 @@ export async function precacheUrls(urls: string[]): Promise<void> {
 
   try {
     const registration = await navigator.serviceWorker.ready;
-    
+
     if (registration.active) {
       registration.active.postMessage({
         type: 'CACHE_URLS',
-        urls
+        urls,
       });
     }
   } catch (error) {
@@ -352,7 +350,7 @@ export function trackInstall(): void {
     (window as any).gtag('event', 'pwa_installed', {
       event_category: 'PWA',
       event_label: 'App Installed',
-      value: 1
+      value: 1,
     });
   }
 
@@ -361,7 +359,7 @@ export function trackInstall(): void {
   installs.push({
     timestamp: Date.now(),
     userAgent: navigator.userAgent,
-    standalone: isAppInstalled()
+    standalone: isAppInstalled(),
   });
   localStorage.setItem('pwa_installs', JSON.stringify(installs));
 }
@@ -375,14 +373,14 @@ export function trackOfflineUsage(action: string, details?: any): void {
     timestamp: Date.now(),
     action,
     details,
-    online: navigator.onLine
+    online: navigator.onLine,
   });
-  
+
   // Keep last 100 actions
   if (offlineActions.length > 100) {
     offlineActions.shift();
   }
-  
+
   localStorage.setItem('pwa_offline_actions', JSON.stringify(offlineActions));
 
   // Also track with analytics if online
@@ -390,7 +388,7 @@ export function trackOfflineUsage(action: string, details?: any): void {
     (window as any).gtag('event', 'pwa_offline_usage', {
       event_category: 'PWA',
       event_label: action,
-      value: 1
+      value: 1,
     });
   }
 }
@@ -403,10 +401,8 @@ export function trackOfflineUsage(action: string, details?: any): void {
  * Convert VAPID key from base64 to Uint8Array
  */
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);

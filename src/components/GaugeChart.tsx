@@ -18,10 +18,10 @@ interface GaugeChartProps {
 export function GaugeChart({ value, max }: GaugeChartProps) {
   const percentage = Math.max(0, Math.min(100, (value / max) * 100));
   return (
-    <RadialProgress 
-      title="Performance" 
-      description={`${value.toFixed(1)} / ${max}`} 
-      value={percentage} 
+    <RadialProgress
+      title="Performance"
+      description={`${value.toFixed(1)} / ${max}`}
+      value={percentage}
     />
   );
 }
@@ -32,34 +32,39 @@ export function RadialProgress({ title, description, value, className = '' }: Ra
   const offset = circumference - (normalizedValue / 100) * circumference;
 
   return (
-    <Card className={`glass-enhanced border-violet-essence/20 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ${className}`}>
+    <Card
+      className={`glass-enhanced border-violet-essence/20 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ${className}`}
+    >
       <CardHeader className="pb-4 border-b border-violet-essence/10">
         <CardTitle className="text-lg font-bold gradient-text">{title}</CardTitle>
         <CardDescription className="text-palladium">{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex items-center justify-center p-6">
         <div className="relative w-36 h-36 group">
-          <svg className="w-full h-full transform group-hover:scale-105 transition-transform duration-300" viewBox="0 0 100 100">
+          <svg
+            className="w-full h-full transform group-hover:scale-105 transition-transform duration-300"
+            viewBox="0 0 100 100"
+          >
             {/* Enhanced background circle with gradient */}
             <defs>
               <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{stopColor: '#E6E4E6', stopOpacity: 0.3}} />
-                <stop offset="100%" style={{stopColor: '#E6E4E6', stopOpacity: 0.1}} />
+                <stop offset="0%" style={{ stopColor: '#E6E4E6', stopOpacity: 0.3 }} />
+                <stop offset="100%" style={{ stopColor: '#E6E4E6', stopOpacity: 0.1 }} />
               </linearGradient>
               <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{stopColor: '#F87941', stopOpacity: 1}} />
-                <stop offset="50%" style={{stopColor: '#F9B095', stopOpacity: 1}} />
-                <stop offset="100%" style={{stopColor: '#F87941', stopOpacity: 1}} />
+                <stop offset="0%" style={{ stopColor: '#F87941', stopOpacity: 1 }} />
+                <stop offset="50%" style={{ stopColor: '#F9B095', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#F87941', stopOpacity: 1 }} />
               </linearGradient>
               <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                <feMerge> 
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
+                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
             </defs>
-            
+
             {/* Background circle */}
             <circle
               className="stroke-current text-violet-essence/30"
@@ -69,7 +74,7 @@ export function RadialProgress({ title, description, value, className = '' }: Ra
               r="45"
               fill="url(#bg-gradient)"
             />
-            
+
             {/* Progress circle */}
             <circle
               className={`transition-all duration-1000 ease-in-out`}
@@ -86,7 +91,7 @@ export function RadialProgress({ title, description, value, className = '' }: Ra
               filter="url(#glow)"
             />
           </svg>
-          
+
           {/* Enhanced center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-3xl font-bold gradient-text group-hover:scale-110 transition-transform duration-300">
@@ -94,7 +99,7 @@ export function RadialProgress({ title, description, value, className = '' }: Ra
             </span>
             <div className="w-4 h-1 rounded-full bg-gradient-to-r from-precious-persimmon to-no-way-rose mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          
+
           {/* Floating indicator */}
           <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-green-400 border-2 border-white shadow-lg animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>

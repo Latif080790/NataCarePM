@@ -14,7 +14,7 @@ import {
   Zap,
   Bell,
   Database,
-  GitBranch
+  GitBranch,
 } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,7 +25,7 @@ import {
   getAutomationExecutions,
   toggleAutomationRule,
   retryFailedExecution,
-  getIntegrationStatistics
+  getIntegrationStatistics,
 } from '@/api/automationService';
 import { getNotifications, getUnreadCount } from '@/api/notificationService';
 import { getAuditLogs, getAuditStatistics } from '@/api/auditService';
@@ -35,14 +35,16 @@ import {
   AutomationStatus,
   Notification,
   AuditLog,
-  IntegrationStatistics
+  IntegrationStatistics,
 } from '@/types/automation';
 
 const IntegrationDashboardView: React.FC = () => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'rules' | 'executions' | 'notifications' | 'audit'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'rules' | 'executions' | 'notifications' | 'audit'
+  >('overview');
   const [isLoading, setIsLoading] = useState(true);
 
   // Data states
@@ -54,7 +56,9 @@ const IntegrationDashboardView: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Filter states
-  const [executionStatusFilter, setExecutionStatusFilter] = useState<AutomationStatus | 'all'>('all');
+  const [executionStatusFilter, setExecutionStatusFilter] = useState<AutomationStatus | 'all'>(
+    'all'
+  );
   const [ruleFilter, setRuleFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<'today' | 'week' | 'month'>('week');
 
@@ -89,10 +93,9 @@ const IntegrationDashboardView: React.FC = () => {
 
       // Load statistics
       const endDate = Timestamp.now();
-      const startDate = Timestamp.fromMillis(endDate.toMillis() - (7 * 24 * 60 * 60 * 1000));
+      const startDate = Timestamp.fromMillis(endDate.toMillis() - 7 * 24 * 60 * 60 * 1000);
       const stats = await getIntegrationStatistics(startDate, endDate);
       setStatistics(stats);
-
     } catch (error: any) {
       addToast('Failed to load integration data', 'error');
       console.error('Error loading integration data:', error);
@@ -159,7 +162,7 @@ const IntegrationDashboardView: React.FC = () => {
     }
   };
 
-  const filteredExecutions = recentExecutions.filter(execution => {
+  const filteredExecutions = recentExecutions.filter((execution) => {
     if (executionStatusFilter !== 'all' && execution.status !== executionStatusFilter) {
       return false;
     }
@@ -175,9 +178,10 @@ const IntegrationDashboardView: React.FC = () => {
   const renderOverview = () => {
     if (!statistics) return null;
 
-    const successRate = statistics.totalExecutions > 0
-      ? (statistics.successfulExecutions / statistics.totalExecutions) * 100
-      : 0;
+    const successRate =
+      statistics.totalExecutions > 0
+        ? (statistics.successfulExecutions / statistics.totalExecutions) * 100
+        : 0;
 
     return (
       <div className="space-y-6">
@@ -191,18 +195,14 @@ const IntegrationDashboardView: React.FC = () => {
               </div>
               <Activity className="w-10 h-10 text-blue-500" />
             </div>
-            <div className="mt-4 text-sm text-gray-500">
-              Last 7 days
-            </div>
+            <div className="mt-4 text-sm text-gray-500">Last 7 days</div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Success Rate</p>
-                <p className="text-2xl font-bold mt-1 text-green-600">
-                  {successRate.toFixed(1)}%
-                </p>
+                <p className="text-2xl font-bold mt-1 text-green-600">{successRate.toFixed(1)}%</p>
               </div>
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
@@ -216,14 +216,12 @@ const IntegrationDashboardView: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Active Rules</p>
                 <p className="text-2xl font-bold mt-1">
-                  {automationRules.filter(r => r.isActive).length}
+                  {automationRules.filter((r) => r.isActive).length}
                 </p>
               </div>
               <Zap className="w-10 h-10 text-yellow-500" />
             </div>
-            <div className="mt-4 text-sm text-gray-500">
-              {automationRules.length} total rules
-            </div>
+            <div className="mt-4 text-sm text-gray-500">{automationRules.length} total rules</div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
@@ -234,9 +232,7 @@ const IntegrationDashboardView: React.FC = () => {
               </div>
               <Bell className="w-10 h-10 text-purple-500" />
             </div>
-            <div className="mt-4 text-sm text-gray-500">
-              {notifications.length} total
-            </div>
+            <div className="mt-4 text-sm text-gray-500">{notifications.length} total</div>
           </div>
         </div>
 
@@ -278,7 +274,9 @@ const IntegrationDashboardView: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(execution.status)}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(execution.status)}`}
+                  >
                     {execution.status}
                   </span>
                 </div>
@@ -369,9 +367,8 @@ const IntegrationDashboardView: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {automationRules.map((rule) => {
-              const successRate = rule.executionCount > 0
-                ? (rule.successCount / rule.executionCount) * 100
-                : 0;
+              const successRate =
+                rule.executionCount > 0 ? (rule.successCount / rule.executionCount) * 100 : 0;
 
               return (
                 <tr key={rule.id} className="hover:bg-gray-50">
@@ -399,9 +396,7 @@ const IntegrationDashboardView: React.FC = () => {
                           style={{ width: `${successRate}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-600">
-                        {successRate.toFixed(0)}%
-                      </span>
+                      <span className="text-sm text-gray-600">{successRate.toFixed(0)}%</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {rule.successCount}/{rule.executionCount} executions
@@ -410,9 +405,7 @@ const IntegrationDashboardView: React.FC = () => {
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        rule.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                        rule.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                       }`}
                     >
                       {rule.isActive ? 'Active' : 'Inactive'}
@@ -510,7 +503,9 @@ const IntegrationDashboardView: React.FC = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
                       {getStatusIcon(execution.status)}
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(execution.status)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(execution.status)}`}
+                      >
                         {execution.status}
                       </span>
                     </div>
@@ -572,7 +567,7 @@ const IntegrationDashboardView: React.FC = () => {
             { id: 'rules', label: 'Rules', icon: Zap },
             { id: 'executions', label: 'Executions', icon: Activity },
             { id: 'notifications', label: 'Notifications', icon: Bell },
-            { id: 'audit', label: 'Audit Trail', icon: Database }
+            { id: 'audit', label: 'Audit Trail', icon: Database },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -604,14 +599,10 @@ const IntegrationDashboardView: React.FC = () => {
           {activeTab === 'rules' && renderRules()}
           {activeTab === 'executions' && renderExecutions()}
           {activeTab === 'notifications' && (
-            <div className="text-center text-gray-500 py-12">
-              Notifications view - Coming soon
-            </div>
+            <div className="text-center text-gray-500 py-12">Notifications view - Coming soon</div>
           )}
           {activeTab === 'audit' && (
-            <div className="text-center text-gray-500 py-12">
-              Audit trail view - Coming soon
-            </div>
+            <div className="text-center text-gray-500 py-12">Audit trail view - Coming soon</div>
           )}
         </>
       )}

@@ -1,16 +1,19 @@
 # Sentry Error Tracking Setup
 
 ## Overview
+
 Sentry has been integrated into NataCarePM for production error tracking and monitoring.
 
 ## Installation
 
 ### 1. Install Sentry Package
+
 ```bash
 npm install @sentry/react
 ```
 
 ### 2. Configure Environment Variables
+
 Add to your `.env.local` file:
 
 ```env
@@ -29,12 +32,14 @@ VITE_APP_VERSION=1.0.0
 ## Features Implemented
 
 ### 1. Automatic Error Tracking
+
 - All unhandled errors are automatically captured
 - React error boundary integration
 - Network error filtering
 - Browser extension error filtering
 
 ### 2. Manual Error Capture
+
 ```typescript
 import { logger } from './utils/logger';
 
@@ -42,11 +47,12 @@ import { logger } from './utils/logger';
 logger.captureException(error, {
   feature: 'purchase-orders',
   action: 'create',
-  userId: currentUser.id
+  userId: currentUser.id,
 });
 ```
 
 ### 3. Breadcrumbs
+
 ```typescript
 import { logger } from './utils/logger';
 
@@ -55,6 +61,7 @@ logger.addBreadcrumb('User clicked create button', 'user-action', 'info');
 ```
 
 ### 4. User Context
+
 ```typescript
 import { logger } from './utils/logger';
 
@@ -62,7 +69,7 @@ import { logger } from './utils/logger';
 logger.setUser({
   id: user.id,
   email: user.email,
-  username: user.displayName
+  username: user.displayName,
 });
 
 // Clear user context (on logout)
@@ -70,12 +77,14 @@ logger.clearUser();
 ```
 
 ### 5. Performance Monitoring
+
 - 10% of transactions are sampled
 - Tracks page load times
 - API call performance
 - Component render performance
 
 ### 6. Session Replay
+
 - 10% of normal sessions
 - 100% of sessions with errors
 - All sensitive data is masked
@@ -83,6 +92,7 @@ logger.clearUser();
 ## Usage in Code
 
 ### Logger Integration
+
 The existing logger automatically sends errors to Sentry in production:
 
 ```typescript
@@ -94,6 +104,7 @@ logger.warn('Budget threshold exceeded');
 ```
 
 ### React Component Error Boundary
+
 ```typescript
 // In your main App.tsx or index.tsx
 import { getSentryErrorBoundary } from './utils/sentryInit';
@@ -110,13 +121,16 @@ function App() {
 ```
 
 ### Try-Catch with Sentry
+
 ```typescript
 try {
   await someRiskyOperation();
 } catch (error) {
   logger.captureException(error as Error, {
     operation: 'someRiskyOperation',
-    params: { /* relevant data */ }
+    params: {
+      /* relevant data */
+    },
   });
   throw error; // Re-throw if needed
 }
@@ -130,12 +144,14 @@ try {
 ## Testing Sentry Integration
 
 ### 1. Test in Production Build
+
 ```bash
 npm run build
 npm run preview
 ```
 
 ### 2. Trigger a Test Error
+
 ```typescript
 // Add a button in your app
 <button onClick={() => {
@@ -146,6 +162,7 @@ npm run preview
 ```
 
 ### 3. Check Sentry Dashboard
+
 - Go to sentry.io
 - Navigate to Issues
 - You should see your test error appear within seconds
@@ -153,19 +170,23 @@ npm run preview
 ## Best Practices
 
 ### 1. Contextual Information
+
 Always provide context when capturing errors:
+
 ```typescript
 logger.captureException(error, {
   feature: 'material-requests',
   action: 'approve',
   mrId: mr.id,
   userId: currentUser.id,
-  projectId: project.id
+  projectId: project.id,
 });
 ```
 
 ### 2. Add Breadcrumbs
+
 Add breadcrumbs before critical operations:
+
 ```typescript
 logger.addBreadcrumb('Starting MR approval', 'workflow', 'info');
 const result = await approveMR(mrId);
@@ -173,7 +194,9 @@ logger.addBreadcrumb('MR approved successfully', 'workflow', 'info');
 ```
 
 ### 3. Filter Sensitive Data
+
 Sentry is configured to mask all text and inputs in session replays. Additional filtering in `sentryInit.ts`:
+
 ```typescript
 beforeSend(event, hint) {
   // Remove sensitive data from event
@@ -185,6 +208,7 @@ beforeSend(event, hint) {
 ```
 
 ### 4. User Privacy
+
 ```typescript
 // Set user context without PII
 logger.setUser({
@@ -206,12 +230,14 @@ Edit `utils/sentryInit.ts` to customize:
 ## Monitoring & Alerts
 
 ### Sentry Dashboard
+
 - **Issues**: See all errors with stack traces
 - **Performance**: Monitor slow transactions
 - **Releases**: Track errors by version
 - **Alerts**: Set up email/Slack notifications
 
 ### Recommended Alerts
+
 1. **New Issue**: Alert when a new error type appears
 2. **Regression**: Alert when a previously resolved error returns
 3. **Spike**: Alert when error count suddenly increases
@@ -220,11 +246,13 @@ Edit `utils/sentryInit.ts` to customize:
 ## Cost Optimization
 
 ### Free Tier
+
 - 5,000 errors/month
 - 10,000 performance units/month
 - 50 replays/month
 
 ### Optimize Usage
+
 1. **Reduce Sample Rates**: Lower `tracesSampleRate` to 0.05 (5%)
 2. **Filter Noisy Errors**: Add common errors to `ignoreErrors`
 3. **Disable Replays**: Set `replaysSessionSampleRate: 0`
@@ -233,6 +261,7 @@ Edit `utils/sentryInit.ts` to customize:
 ## Troubleshooting
 
 ### Errors Not Appearing in Sentry
+
 1. Check `VITE_SENTRY_DSN` is set
 2. Verify DSN is correct
 3. Ensure running production build (`npm run build`)
@@ -240,15 +269,18 @@ Edit `utils/sentryInit.ts` to customize:
 5. Check Sentry project settings (inbound filters)
 
 ### Too Many Errors
+
 1. Add common errors to `ignoreErrors`
 2. Use `beforeSend` to filter out false positives
 3. Set up rate limiting in Sentry project settings
 
 ### Sentry Not Loading
+
 - Sentry is only loaded in production when `VITE_SENTRY_DSN` is set
 - Check network tab for Sentry API calls
 - Verify no ad blockers are blocking Sentry
 
 ## Support
+
 - Sentry Docs: https://docs.sentry.io/platforms/javascript/guides/react/
 - NataCarePM Issue: Create GitHub issue with [Sentry] prefix

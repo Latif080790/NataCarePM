@@ -11,7 +11,7 @@ type SetupStep = 'intro' | 'generate' | 'scan' | 'verify' | 'backup' | 'complete
 
 /**
  * Two-Factor Authentication Setup Component
- * 
+ *
  * Guides user through 2FA setup process:
  * 1. Introduction
  * 2. Generate QR code
@@ -19,19 +19,16 @@ type SetupStep = 'intro' | 'generate' | 'scan' | 'verify' | 'backup' | 'complete
  * 4. Verify code
  * 5. Save backup codes
  * 6. Complete
- * 
+ *
  * @example
  * ```tsx
- * <TwoFactorSetup 
- *   onComplete={() => console.log('2FA enabled')} 
- *   onCancel={() => console.log('Setup canceled')} 
+ * <TwoFactorSetup
+ *   onComplete={() => console.log('2FA enabled')}
+ *   onCancel={() => console.log('Setup canceled')}
  * />
  * ```
  */
-export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
-  onComplete,
-  onCancel
-}) => {
+export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({ onComplete, onCancel }) => {
   const { currentUser } = useAuth();
   const [step, setStep] = useState<SetupStep>('intro');
   const [qrCode, setQrCode] = useState<string>('');
@@ -46,8 +43,11 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
     <div className="2fa-setup-step">
       <div className="step-icon">🔐</div>
       <h2>Setup Two-Factor Authentication</h2>
-      <p>Add an extra layer of security to your account by requiring both your password and an authentication code to sign in.</p>
-      
+      <p>
+        Add an extra layer of security to your account by requiring both your password and an
+        authentication code to sign in.
+      </p>
+
       <div className="benefits-list">
         <h3>Benefits:</h3>
         <ul>
@@ -88,16 +88,16 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       setError('User not authenticated');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const result = await twoFactorService.generateSecret(
         currentUser.uid,
         currentUser.email || 'user@natacare.com'
       );
-      
+
       setQrCode(result.qrCode);
       setSecret(result.secret);
       setBackupCodes(result.backupCodes);
@@ -124,7 +124,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
         <div className="step-icon">🔑</div>
         <h2>Generate Your Secret Key</h2>
         <p>Click below to generate your unique 2FA secret key and QR code.</p>
-        
+
         <div className="button-group">
           <button className="btn-primary" onClick={handleGenerate} disabled={loading}>
             {loading ? 'Generating...' : 'Generate QR Code'}
@@ -133,7 +133,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
             Back
           </button>
         </div>
-        
+
         {error && (
           <div className="error-message">
             <span className="error-icon">⚠️</span>
@@ -149,7 +149,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       <div className="step-icon">📱</div>
       <h2>Scan QR Code</h2>
       <p>Open your authenticator app and scan this QR code:</p>
-      
+
       {qrCode && (
         <div className="qr-code-container">
           <img src={qrCode} alt="2FA QR Code" className="qr-code" />
@@ -161,7 +161,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
           <summary>Can't scan? Enter manually</summary>
           <div className="secret-key">
             <code>{secret}</code>
-            <button 
+            <button
               className="btn-copy"
               onClick={() => {
                 navigator.clipboard.writeText(secret);
@@ -172,9 +172,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
               📋 Copy
             </button>
           </div>
-          <p className="help-text">
-            Enter this key manually in your authenticator app.
-          </p>
+          <p className="help-text">Enter this key manually in your authenticator app.</p>
         </details>
       </div>
 
@@ -195,10 +193,10 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       setError('Please enter a valid 6-digit code');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       await twoFactorService.enableTwoFactor(currentUser.uid, verificationCode);
       setStep('backup');
@@ -214,7 +212,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       <div className="step-icon">✓</div>
       <h2>Verify Setup</h2>
       <p>Enter the 6-digit code from your authenticator app to verify setup:</p>
-      
+
       <div className="verification-input-container">
         <input
           type="text"
@@ -227,9 +225,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
           autoFocus
           disabled={loading}
         />
-        <div className="input-hint">
-          Enter the 6-digit code shown in your app
-        </div>
+        <div className="input-hint">Enter the 6-digit code shown in your app</div>
       </div>
 
       {error && (
@@ -240,15 +236,15 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       )}
 
       <div className="button-group">
-        <button 
-          className="btn-primary" 
-          onClick={handleVerify} 
+        <button
+          className="btn-primary"
+          onClick={handleVerify}
           disabled={loading || verificationCode.length !== 6}
         >
           {loading ? 'Verifying...' : 'Verify & Enable'}
         </button>
-        <button 
-          className="btn-secondary" 
+        <button
+          className="btn-secondary"
           onClick={() => {
             setStep('scan');
             setVerificationCode('');
@@ -288,11 +284,11 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       <div className="2fa-setup-step">
         <div className="step-icon warning">⚠️</div>
         <h2>Save Your Backup Codes</h2>
-        
+
         <div className="warning-box">
           <p className="warning-text">
-            <strong>Important!</strong> Save these backup codes in a safe place. 
-            You can use them to access your account if you lose your phone.
+            <strong>Important!</strong> Save these backup codes in a safe place. You can use them to
+            access your account if you lose your phone.
           </p>
           <p className="warning-sub">
             Each code can only be used once. We recommend printing or saving them securely.
@@ -324,16 +320,11 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
 
         <div className="checkbox-container">
           <input type="checkbox" id="saved-checkbox" required />
-          <label htmlFor="saved-checkbox">
-            I have saved my backup codes in a secure location
-          </label>
+          <label htmlFor="saved-checkbox">I have saved my backup codes in a secure location</label>
         </div>
 
         <div className="button-group">
-          <button 
-            className="btn-primary" 
-            onClick={() => setStep('complete')}
-          >
+          <button className="btn-primary" onClick={() => setStep('complete')}>
             Continue
           </button>
         </div>
@@ -347,7 +338,7 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       <div className="step-icon success">✓</div>
       <h2>Two-Factor Authentication Enabled!</h2>
       <p>Your account is now protected with two-factor authentication.</p>
-      
+
       <div className="success-info">
         <div className="info-item">
           <span className="info-icon">🔐</span>
@@ -383,8 +374,8 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       </div>
 
       <div className="button-group">
-        <button 
-          className="btn-primary" 
+        <button
+          className="btn-primary"
           onClick={() => {
             onComplete?.();
           }}
@@ -420,20 +411,34 @@ export const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({
       {/* Progress Indicator */}
       {step !== 'complete' && (
         <div className="setup-progress">
-          <div className={`progress-step ${['intro', 'generate', 'scan', 'verify', 'backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}>1</div>
+          <div
+            className={`progress-step ${['intro', 'generate', 'scan', 'verify', 'backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}
+          >
+            1
+          </div>
           <div className="progress-line"></div>
-          <div className={`progress-step ${['scan', 'verify', 'backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}>2</div>
+          <div
+            className={`progress-step ${['scan', 'verify', 'backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}
+          >
+            2
+          </div>
           <div className="progress-line"></div>
-          <div className={`progress-step ${['verify', 'backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}>3</div>
+          <div
+            className={`progress-step ${['verify', 'backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}
+          >
+            3
+          </div>
           <div className="progress-line"></div>
-          <div className={`progress-step ${['backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}>4</div>
+          <div
+            className={`progress-step ${['backup', 'complete'].indexOf(step) >= 0 ? 'active' : ''}`}
+          >
+            4
+          </div>
         </div>
       )}
 
       {/* Current Step Content */}
-      <div className="setup-content">
-        {renderStep()}
-      </div>
+      <div className="setup-content">{renderStep()}</div>
 
       <style>{`
         .two-factor-setup {

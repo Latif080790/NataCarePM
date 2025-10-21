@@ -10,7 +10,7 @@ describe('DocumentService', () => {
       const doc = createMockDocument({
         title: 'Construction Contract',
         category: 'contract',
-        projectId: 'project-123'
+        projectId: 'project-123',
       });
 
       expect(doc).toBeDefined();
@@ -36,8 +36,8 @@ describe('DocumentService', () => {
           visibility: 'confidential',
           permissions: [],
           inheritFromProject: false,
-          downloadRestrictions: []
-        }
+          downloadRestrictions: [],
+        },
       });
 
       expect(doc.accessControl.visibility).toBe('confidential');
@@ -52,8 +52,8 @@ describe('DocumentService', () => {
           isEncrypted: true,
           encryptionLevel: 'end-to-end',
           algorithm: 'AES-256',
-          keyId: 'key-12345'
-        }
+          keyId: 'key-12345',
+        },
       });
 
       expect(doc.encryptionStatus.isEncrypted).toBe(true);
@@ -73,23 +73,25 @@ describe('DocumentService', () => {
     it('should track compliance standards', () => {
       const doc = createMockDocument({
         complianceInfo: {
-          standards: [{
-            name: 'ISO 9001',
-            version: '2015',
-            applicable: true,
-            lastChecked: new Date(),
-            complianceLevel: 'compliant',
-            findings: []
-          }],
+          standards: [
+            {
+              name: 'ISO 9001',
+              version: '2015',
+              applicable: true,
+              lastChecked: new Date(),
+              complianceLevel: 'compliant',
+              findings: [],
+            },
+          ],
           certifications: ['ISO 9001:2015'],
           retentionPolicy: {
             retentionPeriod: 10,
             archivalLocation: 'secure-vault',
-            legalHold: true
+            legalHold: true,
           },
           dataClassification: 'confidential',
-          regulatoryRequirements: []
-        }
+          regulatoryRequirements: [],
+        },
       });
 
       expect(doc.complianceInfo.standards).toHaveLength(1);
@@ -116,8 +118,8 @@ describe('DocumentService', () => {
           steps: [],
           isCompleted: false,
           canSkipSteps: false,
-          escalationRules: []
-        }
+          escalationRules: [],
+        },
       });
 
       expect(doc.workflow.currentStep).toBe(2);
@@ -134,8 +136,8 @@ describe('DocumentService', () => {
           steps: [],
           isCompleted: true,
           canSkipSteps: false,
-          escalationRules: []
-        }
+          escalationRules: [],
+        },
       });
 
       expect(doc.workflow.isCompleted).toBe(true);
@@ -153,8 +155,8 @@ describe('DocumentService', () => {
 
     it('should vary document categories', () => {
       const docs = createMockDocuments(10);
-      
-      const categories = docs.map(d => d.category);
+
+      const categories = docs.map((d) => d.category);
       expect(new Set(categories).size).toBeGreaterThan(1);
     });
 
@@ -162,7 +164,7 @@ describe('DocumentService', () => {
       const projectId = 'project-xyz';
       const docs = createMockDocuments(5, projectId);
 
-      docs.forEach(doc => {
+      docs.forEach((doc) => {
         expect(doc.projectId).toBe(projectId);
       });
     });
@@ -172,7 +174,7 @@ describe('DocumentService', () => {
     it('should have searchable content', () => {
       const doc = createMockDocument({
         searchableContent: 'Important contract terms and conditions',
-        keywords: ['contract', 'terms', 'legal']
+        keywords: ['contract', 'terms', 'legal'],
       });
 
       expect(doc.searchableContent).toContain('contract');
@@ -182,7 +184,7 @@ describe('DocumentService', () => {
     it('should support language and region', () => {
       const doc = createMockDocument({
         language: 'id',
-        region: 'ID'
+        region: 'ID',
       });
 
       expect(doc.language).toBe('id');

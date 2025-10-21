@@ -1,8 +1,8 @@
 /**
  * Sentry Configuration for Error Tracking and Performance Monitoring
- * 
+ *
  * Priority 2C: Monitoring & Analytics
- * 
+ *
  * Features:
  * - Error tracking and reporting
  * - Performance monitoring (Web Vitals)
@@ -32,14 +32,14 @@ const defaultConfig: SentryConfig = {
   // TODO: Replace with actual Sentry DSN from Sentry.io project
   dsn: import.meta.env.VITE_SENTRY_DSN || '',
   environment: import.meta.env.MODE || 'development',
-  
+
   // Performance Monitoring
   tracesSampleRate: import.meta.env.MODE === 'production' ? 0.2 : 1.0, // 20% in production, 100% in dev
-  
+
   // Session Replay
   replaysSessionSampleRate: 0.1, // 10% of sessions
   replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
-  
+
   // Enable only in production or when explicitly set
   enabled: import.meta.env.MODE === 'production' || import.meta.env.VITE_SENTRY_ENABLED === 'true',
 };
@@ -52,7 +52,8 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
 
   // Skip initialization if disabled or no DSN provided
   if (!finalConfig.enabled || !finalConfig.dsn) {
-    console.log('[Sentry] Initialization skipped:', 
+    console.log(
+      '[Sentry] Initialization skipped:',
       !finalConfig.enabled ? 'Disabled' : 'No DSN provided'
     );
     return;
@@ -61,7 +62,7 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
   Sentry.init({
     dsn: finalConfig.dsn,
     environment: finalConfig.environment,
-    
+
     // Integrations
     integrations: [
       new Sentry.BrowserTracing({
@@ -113,23 +114,23 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
       'top.GLOBALS',
       'chrome-extension://',
       'moz-extension://',
-      
+
       // Random plugins/extensions
-      'Can\'t find variable: ZiteReader',
+      "Can't find variable: ZiteReader",
       'jigsaw is not defined',
       'ComboSearch is not defined',
-      
+
       // Facebook related
       'fb_xd_fragment',
-      
+
       // Network errors that are expected
       'NetworkError',
       'Failed to fetch',
       'Load failed',
-      
+
       // AbortError from fetch cancellations
       'AbortError',
-      
+
       // ResizeObserver errors (common and harmless)
       'ResizeObserver loop limit exceeded',
       'ResizeObserver loop completed with undelivered notifications',
@@ -187,10 +188,7 @@ export function addSentryBreadcrumb(
 /**
  * Capture exception manually
  */
-export function captureSentryException(
-  error: Error,
-  context?: Record<string, any>
-): string {
+export function captureSentryException(error: Error, context?: Record<string, any>): string {
   return Sentry.captureException(error, {
     contexts: context ? { custom: context } : undefined,
   });
@@ -213,27 +211,22 @@ export function captureSentryMessage(
 /**
  * Start a new transaction for performance monitoring
  */
-export function startSentryTransaction(
-  name: string,
-  op: string
-): Sentry.Transaction {
+export function startSentryTransaction(name: string, op: string): Sentry.Transaction {
   return Sentry.startTransaction({ name, op });
 }
 
 /**
  * Show user feedback dialog
  */
-export function showSentryFeedbackDialog(
-  eventId?: string
-): void {
+export function showSentryFeedbackDialog(eventId?: string): void {
   const id = eventId || Sentry.lastEventId();
-  
+
   if (id) {
     Sentry.showReportDialog({
       eventId: id,
-      title: 'It looks like we\'re having issues.',
+      title: "It looks like we're having issues.",
       subtitle: 'Our team has been notified.',
-      subtitle2: 'If you\'d like to help, tell us what happened below.',
+      subtitle2: "If you'd like to help, tell us what happened below.",
       labelName: 'Name',
       labelEmail: 'Email',
       labelComments: 'What happened?',

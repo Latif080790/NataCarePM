@@ -1,8 +1,8 @@
 /**
  * Google Analytics 4 Configuration
- * 
+ *
  * Priority 2C: Monitoring & Analytics
- * 
+ *
  * Features:
  * - Page view tracking
  * - Event tracking (custom events)
@@ -43,7 +43,8 @@ export function initializeGA4(config: Partial<GA4Config> = {}): void {
 
   // Skip initialization if disabled or no measurement ID
   if (!finalConfig.enabled || !finalConfig.measurementId) {
-    console.log('[GA4] Initialization skipped:', 
+    console.log(
+      '[GA4] Initialization skipped:',
       !finalConfig.enabled ? 'Disabled' : 'No Measurement ID provided'
     );
     return;
@@ -88,12 +89,7 @@ export function trackPageView(path?: string, title?: string): void {
 /**
  * Track custom event
  */
-export function trackEvent(
-  category: string,
-  action: string,
-  label?: string,
-  value?: number
-): void {
+export function trackEvent(category: string, action: string, label?: string, value?: number): void {
   ReactGA.event({
     category,
     action,
@@ -298,16 +294,16 @@ function trackWebVitals(): void {
 
   // Cumulative Layout Shift
   onCLS(sendToGA4);
-  
+
   // First Input Delay
   onFID(sendToGA4);
-  
+
   // First Contentful Paint
   onFCP(sendToGA4);
-  
+
   // Largest Contentful Paint
   onLCP(sendToGA4);
-  
+
   // Time to First Byte
   onTTFB(sendToGA4);
 }

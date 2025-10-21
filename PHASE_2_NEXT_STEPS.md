@@ -34,9 +34,11 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
 ### Day 2: VAPID Keys & Push Setup
 
 - [ ] **Generate VAPID Keys**
+
   ```bash
   npx web-push generate-vapid-keys
   ```
+
   - [ ] Copy **public key** to `.env`:
     ```
     VITE_VAPID_PUBLIC_KEY=<public-key>
@@ -114,6 +116,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
 ### Setup
 
 - [ ] **Install Playwright Browsers**
+
   ```bash
   npx playwright install
   ```
@@ -126,7 +129,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
 ### Unit Tests (Target: 60% coverage)
 
 - [ ] **Component Tests** (~50 components)
-  
+
   Priority components to test:
   - [ ] `PWAInstallPrompt.tsx`
   - [ ] `UserFeedbackWidget.tsx`
@@ -140,6 +143,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
   - [ ] Modal components
 
   Template:
+
   ```typescript
   import { render, screen, fireEvent } from '@testing-library/react';
   import MyComponent from '../MyComponent';
@@ -159,7 +163,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
   ```
 
 - [ ] **Service/Utility Tests** (~30 files)
-  
+
   Priority services:
   - [ ] `pwa.ts` - PWA utilities
   - [ ] `sentry.config.ts` - Sentry functions
@@ -170,7 +174,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
   - [ ] Date formatting utilities
 
 - [ ] **Hook Tests** (~10 hooks)
-  
+
   Priority hooks:
   - [ ] `useAuth`
   - [ ] `useProject`
@@ -179,6 +183,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
   - [ ] Custom form hooks
 
   Template:
+
   ```typescript
   import { renderHook, act } from '@testing-library/react';
   import useMyHook from '../useMyHook';
@@ -237,6 +242,7 @@ Use this checklist to complete the remaining 45% of Phase 2 implementation.
 ### Test Coverage
 
 - [ ] **Run Coverage Report**
+
   ```bash
   npm run test:coverage
   ```
@@ -361,6 +367,7 @@ Phase 2 is considered **100% complete** when:
 ## 📞 SUPPORT
 
 Questions? Check:
+
 1. [`PHASE_2_DEVELOPER_GUIDE.md`](./PHASE_2_DEVELOPER_GUIDE.md)
 2. [`PHASE_2_IMPLEMENTATION_PROGRESS.md`](./PHASE_2_IMPLEMENTATION_PROGRESS.md)
 3. [`PHASE_2_SESSION_SUMMARY.md`](./PHASE_2_SESSION_SUMMARY.md)

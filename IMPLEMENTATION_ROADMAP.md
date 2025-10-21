@@ -1,4 +1,5 @@
 # 🚀 IMPLEMENTATION ROADMAP - Priority Enhancements
+
 ## **Concrete Action Plan with Code Examples**
 
 ---
@@ -8,12 +9,14 @@
 ### 1.1 Input Sanitization & XSS Protection
 
 **Install Dependencies:**
+
 ```bash
 npm install dompurify
 npm install @types/dompurify --save-dev
 ```
 
 **Implementation:**
+
 ```typescript
 // utils/sanitize.ts
 import DOMPurify from 'dompurify';
@@ -37,8 +40,8 @@ import { sanitizeHTML, sanitizeInput } from '../utils/sanitize';
 
 const CommentDisplay = ({ comment }) => {
   return (
-    <div dangerouslySetInnerHTML={{ 
-      __html: sanitizeHTML(comment.content) 
+    <div dangerouslySetInnerHTML={{
+      __html: sanitizeHTML(comment.content)
     }} />
   );
 };
@@ -52,6 +55,7 @@ const handleSubmit = (e) => {
 ### 1.2 Environment Variables Security
 
 **Create Environment Files:**
+
 ```bash
 # .env.local (ADD TO .gitignore!)
 VITE_FIREBASE_API_KEY=AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -64,6 +68,7 @@ VITE_GEMINI_API_KEY=AIzaSyXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **Update firebaseConfig.ts:**
+
 ```typescript
 // firebaseConfig.ts
 import { initializeApp } from 'firebase/app';
@@ -77,17 +82,17 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Validate required env vars
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
-  'VITE_FIREBASE_PROJECT_ID'
+  'VITE_FIREBASE_PROJECT_ID',
 ];
 
-requiredEnvVars.forEach(varName => {
+requiredEnvVars.forEach((varName) => {
   if (!import.meta.env[varName]) {
     throw new Error(`Missing required environment variable: ${varName}`);
   }
@@ -102,32 +107,33 @@ export const storage = getStorage(app);
 ### 1.3 Firestore Security Rules
 
 **Create: firebase/firestore.rules**
+
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function getUserRole() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleId;
     }
-    
+
     function isAdmin() {
       return isSignedIn() && getUserRole() == 'admin';
     }
-    
+
     function isPM() {
       return isSignedIn() && getUserRole() in ['admin', 'pm'];
     }
-    
+
     // Users collection
     match /users/{userId} {
       allow read: if isSignedIn();
@@ -135,27 +141,27 @@ service cloud.firestore {
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
     }
-    
+
     // Projects collection
     match /projects/{projectId} {
       allow read: if isSignedIn();
       allow create: if isPM();
       allow update: if isPM();
       allow delete: if isAdmin();
-      
+
       // Project members subcollection
       match /members/{memberId} {
         allow read: if isSignedIn();
         allow write: if isPM();
       }
     }
-    
+
     // RAB items
     match /rab_items/{itemId} {
       allow read: if isSignedIn();
       allow write: if isPM();
     }
-    
+
     // Tasks
     match /tasks/{taskId} {
       allow read: if isSignedIn();
@@ -163,7 +169,7 @@ service cloud.firestore {
       allow update: if isSignedIn();
       allow delete: if isPM();
     }
-    
+
     // Daily reports
     match /daily_reports/{reportId} {
       allow read: if isSignedIn();
@@ -171,7 +177,7 @@ service cloud.firestore {
       allow update: if isOwner(resource.data.createdBy) || isPM();
       allow delete: if isAdmin();
     }
-    
+
     // Audit logs (read-only for non-admins)
     match /audit_logs/{logId} {
       allow read: if isSignedIn();
@@ -184,6 +190,7 @@ service cloud.firestore {
 ### 1.4 Code Splitting for Performance
 
 **Update App.tsx with Lazy Loading:**
+
 ```typescript
 // App.tsx
 import React, { Suspense, lazy } from 'react';
@@ -222,6 +229,7 @@ const viewComponents = {
 ```
 
 **Optimize Vite Build Configuration:**
+
 ```typescript
 // vite.config.ts
 import { defineConfig } from 'vite';
@@ -235,53 +243,47 @@ export default defineConfig({
         manualChunks: {
           // Vendor chunks
           'react-vendor': ['react', 'react-dom'],
-          'firebase': [
-            'firebase/app',
-            'firebase/auth',
-            'firebase/firestore',
-            'firebase/storage'
-          ],
-          'icons': ['lucide-react'],
-          'date': ['date-fns'],
-          
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          icons: ['lucide-react'],
+          date: ['date-fns'],
+
           // Feature chunks
-          'dashboard': [
+          dashboard: [
             './src/views/DashboardView.tsx',
             './src/components/MetricCard.tsx',
-            './src/components/SCurveChart.tsx'
+            './src/components/SCurveChart.tsx',
           ],
-          'rab': [
-            './src/views/RabAhspView.tsx'
-          ],
-          'charts': [
+          rab: ['./src/views/RabAhspView.tsx'],
+          charts: [
             './src/components/LineChart.tsx',
             './src/components/GaugeChart.tsx',
-            './src/components/SimpleBarChart.tsx'
-          ]
-        }
-      }
+            './src/components/SimpleBarChart.tsx',
+          ],
+        },
+      },
     },
     // Enable minification
     minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: true, // Remove console.log in production
-        drop_debugger: true
-      }
+        drop_debugger: true,
+      },
     },
     // Reduce chunk size warnings threshold
-    chunkSizeWarningLimit: 600
+    chunkSizeWarningLimit: 600,
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'firebase/app', 'firebase/auth', 'firebase/firestore']
-  }
+    include: ['react', 'react-dom', 'firebase/app', 'firebase/auth', 'firebase/firestore'],
+  },
 });
 ```
 
 ### 1.5 Global Error Boundary
 
 **Create Enhanced Error Boundary:**
+
 ```typescript
 // components/GlobalErrorBoundary.tsx
 import React, { Component, ErrorInfo, ReactNode } from 'react';
@@ -311,10 +313,10 @@ class GlobalErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
-    
+
     // Log to error reporting service
     this.logErrorToService(error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo
@@ -330,9 +332,9 @@ class GlobalErrorBoundary extends Component<Props, State> {
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent
     };
-    
+
     console.error('Error Report:', errorReport);
-    
+
     // Send to backend
     fetch('/api/errors', {
       method: 'POST',
@@ -365,7 +367,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
                 </p>
               </div>
             </div>
-            
+
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <div className="mb-6 p-4 bg-slate-900 border border-slate-700 rounded-lg">
                 <h3 className="text-sm font-semibold text-red-400 mb-2">Error Details:</h3>
@@ -376,7 +378,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
                 </pre>
               </div>
             )}
-            
+
             <div className="flex space-x-4">
               <Button
                 onClick={this.handleReload}
@@ -385,7 +387,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
                 <RefreshCw className="w-4 h-4" />
                 <span>Reload Page</span>
               </Button>
-              
+
               <Button
                 onClick={this.handleGoHome}
                 className="flex items-center space-x-2 bg-slate-700 hover:bg-slate-600"
@@ -394,7 +396,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
                 <span>Go to Dashboard</span>
               </Button>
             </div>
-            
+
             <div className="mt-6 p-4 bg-slate-700/50 rounded-lg">
               <p className="text-xs text-slate-400">
                 If this problem persists, please contact support with the error code:{' '}
@@ -416,6 +418,7 @@ export default GlobalErrorBoundary;
 ```
 
 **Wrap App with Error Boundary:**
+
 ```typescript
 // index.tsx
 import React from 'react';
@@ -449,38 +452,44 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 ### 2.1 Schema Validation with Zod
 
 **Install Zod:**
+
 ```bash
 npm install zod
 ```
 
 **Create Validation Schemas:**
+
 ```typescript
 // schemas/project.schema.ts
 import { z } from 'zod';
 
-export const ProjectSchema = z.object({
-  id: z.string().uuid().optional(),
-  name: z.string()
-    .min(3, 'Project name must be at least 3 characters')
-    .max(100, 'Project name must be less than 100 characters'),
-  description: z.string().max(500).optional(),
-  client: z.string().min(1, 'Client name is required'),
-  location: z.string().min(1, 'Location is required'),
-  startDate: z.date(),
-  endDate: z.date(),
-  budget: z.number()
-    .positive('Budget must be positive')
-    .max(1000000000000, 'Budget exceeds maximum value'),
-  status: z.enum(['planning', 'ongoing', 'completed', 'on-hold']),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  members: z.array(z.string()).min(1, 'At least one member is required'),
-  createdBy: z.string().optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
-}).refine(data => data.endDate > data.startDate, {
-  message: 'End date must be after start date',
-  path: ['endDate']
-});
+export const ProjectSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    name: z
+      .string()
+      .min(3, 'Project name must be at least 3 characters')
+      .max(100, 'Project name must be less than 100 characters'),
+    description: z.string().max(500).optional(),
+    client: z.string().min(1, 'Client name is required'),
+    location: z.string().min(1, 'Location is required'),
+    startDate: z.date(),
+    endDate: z.date(),
+    budget: z
+      .number()
+      .positive('Budget must be positive')
+      .max(1000000000000, 'Budget exceeds maximum value'),
+    status: z.enum(['planning', 'ongoing', 'completed', 'on-hold']),
+    priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+    members: z.array(z.string()).min(1, 'At least one member is required'),
+    createdBy: z.string().optional(),
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional(),
+  })
+  .refine((data) => data.endDate > data.startDate, {
+    message: 'End date must be after start date',
+    path: ['endDate'],
+  });
 
 export type Project = z.infer<typeof ProjectSchema>;
 
@@ -489,16 +498,16 @@ export const validateProject = (data: unknown) => {
   try {
     return {
       success: true as const,
-      data: ProjectSchema.parse(data)
+      data: ProjectSchema.parse(data),
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         success: false as const,
-        errors: error.errors.map(err => ({
+        errors: error.errors.map((err) => ({
           field: err.path.join('.'),
-          message: err.message
-        }))
+          message: err.message,
+        })),
       };
     }
     throw error;
@@ -507,6 +516,7 @@ export const validateProject = (data: unknown) => {
 ```
 
 **Usage in Forms:**
+
 ```typescript
 // views/ProjectFormView.tsx
 import { validateProject, ProjectSchema } from '../schemas/project.schema';
@@ -519,10 +529,10 @@ const ProjectFormView = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate before submission
     const validation = validateProject(formData);
-    
+
     if (!validation.success) {
       const errorMap = {};
       validation.errors.forEach(err => {
@@ -532,7 +542,7 @@ const ProjectFormView = () => {
       addToast('Please fix form errors', 'error');
       return;
     }
-    
+
     // Safe to submit - data is typed and validated
     try {
       await projectService.create(validation.data);
@@ -545,7 +555,7 @@ const ProjectFormView = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <input 
+        <input
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
         />
@@ -562,12 +572,14 @@ const ProjectFormView = () => {
 ### 2.2 React Query for Data Fetching
 
 **Install React Query:**
+
 ```bash
 npm install @tanstack/react-query
 npm install @tanstack/react-query-devtools
 ```
 
 **Setup Query Client:**
+
 ```typescript
 // index.tsx or App.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -595,6 +607,7 @@ function App() {
 ```
 
 **Implement in Views:**
+
 ```typescript
 // views/DashboardView.tsx
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -602,42 +615,42 @@ import { projectService } from '../api/projectService';
 
 const DashboardView = () => {
   const queryClient = useQueryClient();
-  
+
   // Fetch projects with caching
-  const { 
-    data: projects, 
-    isLoading, 
+  const {
+    data: projects,
+    isLoading,
     error,
-    refetch 
+    refetch
   } = useQuery({
     queryKey: ['projects'],
     queryFn: () => projectService.getAllProjects(),
     staleTime: 5 * 60 * 1000
   });
-  
+
   // Fetch tasks
   const { data: tasks } = useQuery({
     queryKey: ['tasks', selectedProjectId],
     queryFn: () => projectService.getTasks(selectedProjectId),
     enabled: !!selectedProjectId // Only fetch when project selected
   });
-  
+
   // Mutation for updating project
   const updateProjectMutation = useMutation({
-    mutationFn: (data: { id: string; updates: Partial<Project> }) => 
+    mutationFn: (data: { id: string; updates: Partial<Project> }) =>
       projectService.update(data.id, data.updates),
     onMutate: async (data) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['projects'] });
-      
+
       // Snapshot previous value
       const previousProjects = queryClient.getQueryData(['projects']);
-      
+
       // Optimistically update
       queryClient.setQueryData(['projects'], (old: Project[]) =>
         old.map(p => p.id === data.id ? { ...p, ...data.updates } : p)
       );
-      
+
       return { previousProjects };
     },
     onError: (err, data, context) => {
@@ -653,10 +666,10 @@ const DashboardView = () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     }
   });
-  
+
   if (isLoading) return <Spinner />;
   if (error) return <ErrorDisplay error={error} />;
-  
+
   return (
     <div>
       {/* Dashboard content */}
@@ -671,6 +684,7 @@ const DashboardView = () => {
 ### 2.3 Performance Monitoring
 
 **Add Performance Tracking:**
+
 ```typescript
 // utils/performance.ts
 interface PerformanceMetric {
@@ -681,43 +695,43 @@ interface PerformanceMetric {
 
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
-  
+
   startMeasure(name: string) {
     performance.mark(`${name}-start`);
   }
-  
+
   endMeasure(name: string) {
     performance.mark(`${name}-end`);
     performance.measure(name, `${name}-start`, `${name}-end`);
-    
+
     const measure = performance.getEntriesByName(name)[0];
     const metric: PerformanceMetric = {
       name,
       duration: measure.duration,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    
+
     this.metrics.push(metric);
-    
+
     // Log slow operations
     if (measure.duration > 1000) {
       console.warn(`Slow operation detected: ${name} took ${measure.duration.toFixed(2)}ms`);
     }
-    
+
     // Clean up
     performance.clearMarks(`${name}-start`);
     performance.clearMarks(`${name}-end`);
     performance.clearMeasures(name);
-    
+
     return metric;
   }
-  
+
   getMetrics() {
     return this.metrics;
   }
-  
+
   getAverageTime(name: string) {
-    const relevant = this.metrics.filter(m => m.name === name);
+    const relevant = this.metrics.filter((m) => m.name === name);
     if (relevant.length === 0) return 0;
     return relevant.reduce((sum, m) => sum + m.duration, 0) / relevant.length;
   }
@@ -743,11 +757,13 @@ export const usePerformanceTrack = (componentName: string) => {
 ### 3.1 Setup Vitest
 
 **Install Testing Dependencies:**
+
 ```bash
 npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
 ```
 
 **Configure Vitest:**
+
 ```typescript
 // vite.config.ts
 import { defineConfig } from 'vite';
@@ -762,19 +778,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/mockData.ts'
-      ]
-    }
-  }
+      exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*', '**/mockData.ts'],
+    },
+  },
 });
 ```
 
 **Test Setup File:**
+
 ```typescript
 // src/test/setup.ts
 import { expect, afterEach, vi } from 'vitest';
@@ -792,16 +803,17 @@ vi.mock('../firebaseConfig', () => ({
   auth: {
     currentUser: null,
     signInWithEmailAndPassword: vi.fn(),
-    signOut: vi.fn()
+    signOut: vi.fn(),
   },
   db: {
     collection: vi.fn(),
-    doc: vi.fn()
-  }
+    doc: vi.fn(),
+  },
 }));
 ```
 
 **Example Component Tests:**
+
 ```typescript
 // components/__tests__/MetricCard.test.tsx
 import { describe, it, expect } from 'vitest';
@@ -811,38 +823,38 @@ import MetricCard from '../MetricCard';
 describe('MetricCard', () => {
   it('renders metric value and title', () => {
     render(
-      <MetricCard 
-        title="Active Projects" 
-        value={10} 
-        trend="up" 
+      <MetricCard
+        title="Active Projects"
+        value={10}
+        trend="up"
       />
     );
-    
+
     expect(screen.getByText('10')).toBeInTheDocument();
     expect(screen.getByText('Active Projects')).toBeInTheDocument();
   });
-  
+
   it('displays trend arrow based on trend prop', () => {
     const { rerender } = render(
       <MetricCard title="Test" value={5} trend="up" />
     );
-    
+
     expect(screen.getByTestId('trend-up')).toBeInTheDocument();
-    
+
     rerender(<MetricCard title="Test" value={5} trend="down" />);
     expect(screen.getByTestId('trend-down')).toBeInTheDocument();
   });
-  
+
   it('calls onClick when clicked', async () => {
     const handleClick = vi.fn();
     const { user } = render(
-      <MetricCard 
-        title="Test" 
-        value={5} 
-        onClick={handleClick} 
+      <MetricCard
+        title="Test"
+        value={5}
+        onClick={handleClick}
       />
     );
-    
+
     await user.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -850,6 +862,7 @@ describe('MetricCard', () => {
 ```
 
 **Update package.json:**
+
 ```json
 {
   "scripts": {
@@ -866,6 +879,7 @@ describe('MetricCard', () => {
 ## 📈 **EXPECTED RESULTS**
 
 ### After Phase 1 (2 weeks):
+
 - ✅ **Security Score:** C → B+
 - ✅ **Bundle Size:** 850 KB → 600 KB
 - ✅ **Initial Load:** 320 KB → 220 KB
@@ -873,12 +887,14 @@ describe('MetricCard', () => {
 - ✅ **Firestore Security:** Rules deployed
 
 ### After Phase 2 (4 weeks):
+
 - ✅ **Data Validation:** 100% coverage
 - ✅ **Cache Hit Rate:** > 80%
 - ✅ **API Response Time:** < 500ms
 - ✅ **Error Rate:** < 2%
 
 ### After Phase 3 (6 weeks):
+
 - ✅ **Test Coverage:** > 60%
 - ✅ **CI/CD Pipeline:** Automated
 - ✅ **Deployment Time:** < 5 minutes

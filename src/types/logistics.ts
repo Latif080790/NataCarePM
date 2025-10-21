@@ -1,12 +1,12 @@
 /**
  * LOGISTICS MODULE TYPE DEFINITIONS
- * 
+ *
  * Comprehensive type system for logistics operations including:
  * - Goods Receipt (GR)
  * - Material Request (MR)
  * - Inventory Management
  * - Vendor Management
- * 
+ *
  * Created: October 2025
  */
 
@@ -18,23 +18,23 @@
  * GR Status Workflow:
  * draft → submitted → inspecting → approved → rejected → completed
  */
-export type GRStatus = 
-  | 'draft'           // Initial creation, can be edited
-  | 'submitted'       // Submitted for inspection
-  | 'inspecting'      // Quality inspection in progress
-  | 'approved'        // Inspection passed, ready to complete
-  | 'rejected'        // Inspection failed, needs action
-  | 'completed'       // Inventory updated, PO updated, integration complete
-  | 'cancelled';      // Cancelled GR
+export type GRStatus =
+  | 'draft' // Initial creation, can be edited
+  | 'submitted' // Submitted for inspection
+  | 'inspecting' // Quality inspection in progress
+  | 'approved' // Inspection passed, ready to complete
+  | 'rejected' // Inspection failed, needs action
+  | 'completed' // Inventory updated, PO updated, integration complete
+  | 'cancelled'; // Cancelled GR
 
 /**
  * Quality inspection result for each item
  */
-export type QualityStatus = 
-  | 'pending'         // Not yet inspected
-  | 'passed'          // Quality OK
-  | 'partial'         // Some items rejected
-  | 'failed';         // All items rejected
+export type QualityStatus =
+  | 'pending' // Not yet inspected
+  | 'passed' // Quality OK
+  | 'partial' // Some items rejected
+  | 'failed'; // All items rejected
 
 /**
  * Inspection photo/document attachment
@@ -57,42 +57,42 @@ export interface GRInspectionPhoto {
 export interface GRItem {
   id: string;
   grId: string;
-  poItemId: string;                 // Link to PO item
+  poItemId: string; // Link to PO item
   materialCode: string;
   materialName: string;
-  
+
   // Quantities
-  poQuantity: number;               // Original PO quantity
-  previouslyReceived: number;       // Already received in previous GRs
-  receivedQuantity: number;         // Current GR quantity
-  acceptedQuantity: number;         // Quantity that passed inspection
-  rejectedQuantity: number;         // Quantity that failed inspection
-  
+  poQuantity: number; // Original PO quantity
+  previouslyReceived: number; // Already received in previous GRs
+  receivedQuantity: number; // Current GR quantity
+  acceptedQuantity: number; // Quantity that passed inspection
+  rejectedQuantity: number; // Quantity that failed inspection
+
   unit: string;
-  
+
   // Quality Inspection
   qualityStatus: QualityStatus;
   inspectionNotes?: string;
   inspectorId?: string;
   inspectorName?: string;
   inspectionDate?: string;
-  
+
   // Defect tracking
   defectDescription?: string;
   defectPhotos: GRInspectionPhoto[];
-  
+
   // Storage location
   warehouseId?: string;
   warehouseName?: string;
   storageLocation?: string;
-  
+
   // Pricing (from PO)
   unitPrice: number;
   totalPrice: number;
-  
+
   // Variance tracking
-  quantityVariance: number;         // receivedQuantity - poQuantity
-  variancePercentage: number;       // (variance / poQuantity) * 100
+  quantityVariance: number; // receivedQuantity - poQuantity
+  variancePercentage: number; // (variance / poQuantity) * 100
   varianceReason?: string;
 }
 
@@ -101,41 +101,41 @@ export interface GRItem {
  */
 export interface GoodsReceipt {
   id: string;
-  grNumber: string;                 // Auto-generated: GR-YYYYMMDD-XXXX
+  grNumber: string; // Auto-generated: GR-YYYYMMDD-XXXX
   projectId: string;
-  
+
   // PO Reference
   poId: string;
   poNumber: string;
   vendorId: string;
   vendorName: string;
-  
+
   // GR Details
   status: GRStatus;
-  receiptDate: string;              // Actual goods arrival date
-  deliveryNote?: string;            // Vendor's delivery note number
-  vehicleNumber?: string;           // Delivery vehicle
+  receiptDate: string; // Actual goods arrival date
+  deliveryNote?: string; // Vendor's delivery note number
+  vehicleNumber?: string; // Delivery vehicle
   driverName?: string;
-  
+
   // Items
   items: GRItem[];
-  
+
   // Summary
   totalItems: number;
   totalQuantity: number;
   totalValue: number;
-  
+
   // Inspection Summary
   inspectionStatus: 'not-started' | 'in-progress' | 'completed';
   overallQualityStatus: QualityStatus;
   inspectionCompletedAt?: string;
-  
+
   // Integration flags
   inventoryUpdated: boolean;
   poUpdated: boolean;
   wbsUpdated: boolean;
   apInvoiceCreated: boolean;
-  
+
   // Audit trail
   createdBy: string;
   createdAt: string;
@@ -145,12 +145,12 @@ export interface GoodsReceipt {
   approvedAt?: string;
   completedBy?: string;
   completedAt?: string;
-  
+
   // Notes
-  receiverNotes?: string;           // Notes from receiver
-  inspectorNotes?: string;          // Notes from quality inspector
-  remarks?: string;                 // General remarks
-  
+  receiverNotes?: string; // Notes from receiver
+  inspectorNotes?: string; // Notes from quality inspector
+  remarks?: string; // General remarks
+
   // Photos
   photos: GRInspectionPhoto[];
 }
@@ -204,8 +204,8 @@ export interface GRSummary {
   completedGRs: number;
   rejectedItems: number;
   totalValue: number;
-  averageInspectionTime: number;    // in hours
-  onTimeDeliveryRate: number;       // percentage
+  averageInspectionTime: number; // in hours
+  onTimeDeliveryRate: number; // percentage
 }
 
 /**
@@ -218,7 +218,7 @@ export interface GRFilterOptions {
   qualityStatus?: QualityStatus[];
   dateFrom?: string;
   dateTo?: string;
-  searchTerm?: string;              // Search in GR number, PO number, vendor name
+  searchTerm?: string; // Search in GR number, PO number, vendor name
 }
 
 /**
@@ -236,10 +236,10 @@ export interface GRValidationResult {
 
 /**
  * MR Status Workflow:
- * draft → submitted → site_manager_review → pm_review → 
+ * draft → submitted → site_manager_review → pm_review →
  * budget_check → approved → rejected → converted_to_po → completed
  */
-export type MRStatus = 
+export type MRStatus =
   | 'draft'
   | 'submitted'
   | 'site_manager_review'
@@ -262,31 +262,31 @@ export type MRPriority = 'low' | 'medium' | 'high' | 'urgent';
 export interface MRItem {
   id: string;
   mrId: string;
-  materialCode?: string;            // If existing material
+  materialCode?: string; // If existing material
   materialName: string;
   description: string;
-  specification?: string;           // Technical specifications
+  specification?: string; // Technical specifications
   quantity: number;
-  requestedQty: number;             // Alias for quantity (used in modals)
+  requestedQty: number; // Alias for quantity (used in modals)
   unit: string;
-  
+
   // Budget allocation
   wbsElementId?: string;
-  wbsCode?: string;                 // Alias for wbsElementId
+  wbsCode?: string; // Alias for wbsElementId
   estimatedUnitPrice: number;
   estimatedTotalPrice: number;
-  estimatedTotal: number;           // Alias for estimatedTotalPrice
-  
+  estimatedTotal: number; // Alias for estimatedTotalPrice
+
   // Inventory check
   currentStock: number;
   reorderPoint: number;
   stockStatus: 'sufficient' | 'low' | 'out_of_stock';
-  
+
   // Justification
   justification: string;
   urgencyReason?: string;
-  notes?: string;                   // General notes
-  
+  notes?: string; // General notes
+
   // PO conversion tracking
   convertedToPO: boolean;
   poId?: string;
@@ -298,59 +298,59 @@ export interface MRItem {
  */
 export interface MaterialRequest {
   id: string;
-  mrNumber: string;                 // Auto-generated: MR-YYYYMMDD-XXXX
+  mrNumber: string; // Auto-generated: MR-YYYYMMDD-XXXX
   projectId: string;
-  
+
   // Request details
   status: MRStatus;
   priority: MRPriority;
-  requiredDate: string;             // When materials are needed
-  purpose: string;                  // Purpose of request
-  deliveryLocation?: string;        // Where materials should be delivered
-  notes?: string;                   // General notes
-  createdAt: string;                // Creation timestamp
-  
+  requiredDate: string; // When materials are needed
+  purpose: string; // Purpose of request
+  deliveryLocation?: string; // Where materials should be delivered
+  notes?: string; // General notes
+  createdAt: string; // Creation timestamp
+
   // Items
   items: MRItem[];
   totalItems: number;
   totalEstimatedValue: number;
-  
+
   // Approval workflow
   requestedBy: string;
   requestedAt: string;
-  
+
   siteManagerId?: string;
   siteManagerApprovedAt?: string;
   siteManagerNotes?: string;
-  
+
   pmId?: string;
   pmApprovedAt?: string;
   pmNotes?: string;
-  
+
   budgetCheckedBy?: string;
   budgetCheckedAt?: string;
   budgetStatus?: 'sufficient' | 'insufficient' | 'needs_reallocation';
   budgetNotes?: string;
-  
+
   finalApprovedBy?: string;
   finalApprovedAt?: string;
-  
+
   rejectedBy?: string;
   rejectedAt?: string;
   rejectionReason?: string;
-  
+
   // PO conversion
   convertedToPO: boolean;
-  poIds: string[];                  // Can be split into multiple POs
-  poId?: string;                    // Primary PO ID
-  convertedAt?: string;             // When converted to PO
-  
+  poIds: string[]; // Can be split into multiple POs
+  poId?: string; // Primary PO ID
+  convertedAt?: string; // When converted to PO
+
   // Approval stages for tracking
   approvalStages?: ApprovalStage[];
-  
+
   // Attachments
-  attachments: string[];            // URLs to supporting documents
-  
+  attachments: string[]; // URLs to supporting documents
+
   remarks?: string;
 }
 
@@ -410,11 +410,11 @@ export interface ConvertMRtoPOInput {
 /**
  * Inventory transaction types
  */
-export type InventoryTransactionType = 
-  | 'IN'                            // Goods Receipt
-  | 'OUT'                           // Material Issue
-  | 'ADJUSTMENT'                    // Physical count adjustment
-  | 'TRANSFER';                     // Warehouse transfer
+export type InventoryTransactionType =
+  | 'IN' // Goods Receipt
+  | 'OUT' // Material Issue
+  | 'ADJUSTMENT' // Physical count adjustment
+  | 'TRANSFER'; // Warehouse transfer
 
 /**
  * Inventory transaction
@@ -422,35 +422,35 @@ export type InventoryTransactionType =
 export interface InventoryTransaction {
   id: string;
   projectId: string;
-  transactionNumber: string;        // Auto-generated
+  transactionNumber: string; // Auto-generated
   transactionType: InventoryTransactionType;
   transactionDate: string;
-  
+
   materialCode: string;
   materialName: string;
-  
+
   // Quantities
   quantityBefore: number;
-  quantityChange: number;           // Positive for IN, negative for OUT
+  quantityChange: number; // Positive for IN, negative for OUT
   quantityAfter: number;
-  
+
   unit: string;
-  
+
   // Location
   warehouseId: string;
   warehouseName: string;
   storageLocation?: string;
-  
+
   // Reference documents
   referenceType?: 'GR' | 'MI' | 'PO' | 'MR' | 'PHYSICAL_COUNT';
   referenceId?: string;
   referenceNumber?: string;
-  
+
   // Cost tracking
   unitCost: number;
   totalCost: number;
   wbsElementId?: string;
-  
+
   // Audit
   performedBy: string;
   notes?: string;
@@ -467,23 +467,23 @@ export interface Material {
   description: string;
   category: string;
   unit: string;
-  
+
   // Inventory control
   reorderPoint: number;
   minStock: number;
   maxStock: number;
   leadTimeDays: number;
-  
+
   // Costing
   averageCost: number;
   lastPurchasePrice: number;
   standardCost?: number;
-  
+
   // Current stock across all warehouses
   totalStock: number;
-  availableStock: number;           // Total - reserved
+  availableStock: number; // Total - reserved
   reservedStock: number;
-  
+
   // Status
   isActive: boolean;
   createdAt: string;
@@ -516,20 +516,20 @@ export interface VendorEvaluation {
   vendorId: string;
   evaluationDate: string;
   evaluatedBy: string;
-  
+
   // Performance metrics
-  qualityScore: number;             // 0-100
-  deliveryScore: number;            // 0-100
-  priceScore: number;               // 0-100
-  serviceScore: number;             // 0-100
-  overallScore: number;             // Average
-  
+  qualityScore: number; // 0-100
+  deliveryScore: number; // 0-100
+  priceScore: number; // 0-100
+  serviceScore: number; // 0-100
+  overallScore: number; // Average
+
   // Detailed metrics
-  onTimeDeliveryRate: number;       // percentage
-  qualityRejectionRate: number;     // percentage
-  responseTime: number;             // hours
+  onTimeDeliveryRate: number; // percentage
+  qualityRejectionRate: number; // percentage
+  responseTime: number; // hours
   complaintCount: number;
-  
+
   notes?: string;
   recommendation: 'highly_recommended' | 'recommended' | 'conditional' | 'not_recommended';
 }
@@ -541,40 +541,40 @@ export interface EnhancedVendor {
   id: string;
   vendorCode: string;
   name: string;
-  category: string[];               // e.g., ['Construction', 'Electrical']
-  
+  category: string[]; // e.g., ['Construction', 'Electrical']
+
   // Contact
   contactPerson: string;
   phone: string;
   email: string;
   address: string;
-  
+
   // Legal
-  npwp?: string;                    // Tax ID
-  siup?: string;                    // Business permit
-  certifications: string[];         // ISO, etc.
-  
+  npwp?: string; // Tax ID
+  siup?: string; // Business permit
+  certifications: string[]; // ISO, etc.
+
   // Payment terms
   paymentTerms: string;
   creditLimit: number;
-  
+
   // Performance tracking
   totalPOs: number;
   totalValue: number;
   activeGRs: number;
   completedGRs: number;
-  
+
   latestEvaluation?: VendorEvaluation;
   averageQualityScore: number;
   averageDeliveryScore: number;
   overallRating: number;
-  
+
   // Status
   isActive: boolean;
   isBlacklisted: boolean;
   blacklistReason?: string;
   blacklistDate?: string;
-  
+
   createdAt: string;
   updatedAt: string;
 }

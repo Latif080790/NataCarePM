@@ -7,6 +7,7 @@ This document provides implementation details for high availability and automati
 ## Architecture
 
 ### Current Single-Region Setup
+
 ```
 ┌─────────────────────────────────────────┐
 │         Firebase (us-central1)          │
@@ -26,6 +27,7 @@ This document provides implementation details for high availability and automati
 ```
 
 ### Target Multi-Region Architecture
+
 ```
                   ┌──────────────────┐
                   │   Global DNS     │
@@ -88,21 +90,21 @@ export interface ServiceHealth {
  */
 export async function performHealthCheck(): Promise<HealthStatus> {
   const startTime = Date.now();
-  
+
   const [firestoreHealth, authHealth, storageHealth, hostingHealth] = await Promise.all([
     checkFirestore(),
     checkAuth(),
     checkStorage(),
-    checkHosting()
+    checkHosting(),
   ]);
-  
+
   const totalLatency = Date.now() - startTime;
-  const allHealthy = 
+  const allHealthy =
     firestoreHealth.status === 'healthy' &&
     authHealth.status === 'healthy' &&
     storageHealth.status === 'healthy' &&
     hostingHealth.status === 'healthy';
-  
+
   const status: HealthStatus = {
     healthy: allHealthy,
     timestamp: Date.now(),
@@ -110,22 +112,22 @@ export async function performHealthCheck(): Promise<HealthStatus> {
       firestore: firestoreHealth,
       auth: authHealth,
       storage: storageHealth,
-      hosting: hostingHealth
+      hosting: hostingHealth,
     },
     region: process.env.VITE_FIREBASE_REGION || 'us-central1',
-    latency: totalLatency
+    latency: totalLatency,
   };
-  
+
   // Log health status to Firestore for monitoring
   try {
     await setDoc(doc(db, 'system_health', 'latest'), {
       ...status,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error('Failed to log health status:', error);
   }
-  
+
   return status;
 }
 
@@ -134,31 +136,31 @@ export async function performHealthCheck(): Promise<HealthStatus> {
  */
 async function checkFirestore(): Promise<ServiceHealth> {
   const startTime = Date.now();
-  
+
   try {
     // Attempt to read a system document
     const healthDoc = await getDoc(doc(db, 'system', 'health_check'));
-    
+
     // If document doesn't exist, create it
     if (!healthDoc.exists()) {
       await setDoc(doc(db, 'system', 'health_check'), {
-        lastCheck: serverTimestamp()
+        lastCheck: serverTimestamp(),
       });
     }
-    
+
     const latency = Date.now() - startTime;
-    
+
     return {
       status: latency < 1000 ? 'healthy' : 'degraded',
       latency,
-      lastCheck: Date.now()
+      lastCheck: Date.now(),
     };
   } catch (error: any) {
     return {
       status: 'down',
       latency: Date.now() - startTime,
       lastCheck: Date.now(),
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -168,25 +170,25 @@ async function checkFirestore(): Promise<ServiceHealth> {
  */
 async function checkAuth(): Promise<ServiceHealth> {
   const startTime = Date.now();
-  
+
   try {
     // Check if auth is initialized
     const currentUser = auth.currentUser;
-    
+
     // Auth is accessible if we can check current user
     const latency = Date.now() - startTime;
-    
+
     return {
       status: latency < 500 ? 'healthy' : 'degraded',
       latency,
-      lastCheck: Date.now()
+      lastCheck: Date.now(),
     };
   } catch (error: any) {
     return {
       status: 'down',
       latency: Date.now() - startTime,
       lastCheck: Date.now(),
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -196,11 +198,11 @@ async function checkAuth(): Promise<ServiceHealth> {
  */
 async function checkStorage(): Promise<ServiceHealth> {
   const startTime = Date.now();
-  
+
   try {
     // Attempt to get storage reference
     const testRef = storage.ref('health_check/test.txt');
-    
+
     // Try to get download URL (doesn't need to exist)
     try {
       await testRef.getDownloadURL();
@@ -211,24 +213,24 @@ async function checkStorage(): Promise<ServiceHealth> {
         return {
           status: latency < 1000 ? 'healthy' : 'degraded',
           latency,
-          lastCheck: Date.now()
+          lastCheck: Date.now(),
         };
       }
       throw error;
     }
-    
+
     const latency = Date.now() - startTime;
     return {
       status: latency < 1000 ? 'healthy' : 'degraded',
       latency,
-      lastCheck: Date.now()
+      lastCheck: Date.now(),
     };
   } catch (error: any) {
     return {
       status: 'down',
       latency: Date.now() - startTime,
       lastCheck: Date.now(),
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -238,27 +240,27 @@ async function checkStorage(): Promise<ServiceHealth> {
  */
 async function checkHosting(): Promise<ServiceHealth> {
   const startTime = Date.now();
-  
+
   try {
     // Fetch version file or health endpoint
     const response = await fetch('/health.json', {
       method: 'GET',
-      cache: 'no-cache'
+      cache: 'no-cache',
     });
-    
+
     const latency = Date.now() - startTime;
-    
+
     return {
       status: response.ok && latency < 2000 ? 'healthy' : 'degraded',
       latency,
-      lastCheck: Date.now()
+      lastCheck: Date.now(),
     };
   } catch (error: any) {
     return {
       status: 'down',
       latency: Date.now() - startTime,
       lastCheck: Date.now(),
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -269,7 +271,7 @@ async function checkHosting(): Promise<ServiceHealth> {
 export class HealthMonitor {
   private intervalId: NodeJS.Timeout | null = null;
   private listeners: Array<(status: HealthStatus) => void> = [];
-  
+
   /**
    * Start monitoring with specified interval
    */
@@ -278,18 +280,18 @@ export class HealthMonitor {
       console.warn('Health monitor already running');
       return;
     }
-    
+
     console.log(`Starting health monitor (interval: ${intervalMs}ms)`);
-    
+
     // Initial check
     this.runCheck();
-    
+
     // Periodic checks
     this.intervalId = setInterval(() => {
       this.runCheck();
     }, intervalMs);
   }
-  
+
   /**
    * Stop monitoring
    */
@@ -300,35 +302,35 @@ export class HealthMonitor {
       console.log('Health monitor stopped');
     }
   }
-  
+
   /**
    * Subscribe to health status updates
    */
   subscribe(callback: (status: HealthStatus) => void) {
     this.listeners.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
-      this.listeners = this.listeners.filter(cb => cb !== callback);
+      this.listeners = this.listeners.filter((cb) => cb !== callback);
     };
   }
-  
+
   /**
    * Run health check and notify listeners
    */
   private async runCheck() {
     try {
       const status = await performHealthCheck();
-      
+
       // Notify all listeners
-      this.listeners.forEach(callback => {
+      this.listeners.forEach((callback) => {
         try {
           callback(status);
         } catch (error) {
           console.error('Error in health check callback:', error);
         }
       });
-      
+
       // Log unhealthy status
       if (!status.healthy) {
         console.warn('Health check failed:', status);
@@ -383,11 +385,11 @@ export const REGIONS: RegionConfig[] = [
       projectId: process.env.VITE_FIREBASE_PROJECT_ID || '',
       storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || '',
       messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: process.env.VITE_FIREBASE_APP_ID || ''
+      appId: process.env.VITE_FIREBASE_APP_ID || '',
     },
     priority: 1,
     healthCheckUrl: 'https://us-central1-natacare-pm.cloudfunctions.net/health',
-    latencyThreshold: 1000
+    latencyThreshold: 1000,
   },
   {
     id: 'us-east1',
@@ -398,11 +400,11 @@ export const REGIONS: RegionConfig[] = [
       projectId: process.env.VITE_FIREBASE_PROJECT_ID || '',
       storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET_SECONDARY || '',
       messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: process.env.VITE_FIREBASE_APP_ID_SECONDARY || ''
+      appId: process.env.VITE_FIREBASE_APP_ID_SECONDARY || '',
     },
     priority: 2,
     healthCheckUrl: 'https://us-east1-natacare-pm.cloudfunctions.net/health',
-    latencyThreshold: 1500
+    latencyThreshold: 1500,
   },
   {
     id: 'europe-west1',
@@ -413,12 +415,12 @@ export const REGIONS: RegionConfig[] = [
       projectId: process.env.VITE_FIREBASE_PROJECT_ID || '',
       storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET_TERTIARY || '',
       messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: process.env.VITE_FIREBASE_APP_ID_TERTIARY || ''
+      appId: process.env.VITE_FIREBASE_APP_ID_TERTIARY || '',
     },
     priority: 3,
     healthCheckUrl: 'https://europe-west1-natacare-pm.cloudfunctions.net/health',
-    latencyThreshold: 2000
-  }
+    latencyThreshold: 2000,
+  },
 ];
 
 /**
@@ -427,24 +429,24 @@ export const REGIONS: RegionConfig[] = [
 export const FAILOVER_CONFIG = {
   // Number of consecutive failed checks before failover
   failureThreshold: 3,
-  
+
   // Time to wait before attempting failover (ms)
   failoverDelay: 5000,
-  
+
   // Time to wait before failing back to primary (ms)
   failbackDelay: 300000, // 5 minutes
-  
+
   // Health check interval (ms)
   healthCheckInterval: 30000, // 30 seconds
-  
+
   // Maximum failover attempts before giving up
   maxFailoverAttempts: 3,
-  
+
   // Enable automatic failover
   autoFailoverEnabled: true,
-  
+
   // Enable automatic failback
-  autoFailbackEnabled: true
+  autoFailbackEnabled: true,
 };
 
 /**
@@ -452,7 +454,7 @@ export const FAILOVER_CONFIG = {
  */
 export function getCurrentRegion(): RegionConfig {
   const storedRegionId = localStorage.getItem('active_region');
-  const region = REGIONS.find(r => r.id === storedRegionId) || REGIONS[0];
+  const region = REGIONS.find((r) => r.id === storedRegionId) || REGIONS[0];
   return region;
 }
 
@@ -486,14 +488,14 @@ export function recordFailover(from: string, to: string, reason: string): void {
     timestamp: Date.now(),
     from,
     to,
-    reason
+    reason,
   });
-  
+
   // Keep only last 50 events
   if (history.length > 50) {
     history.shift();
   }
-  
+
   localStorage.setItem('failover_history', JSON.stringify(history));
 }
 ```
@@ -512,13 +514,13 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { 
-  REGIONS, 
-  FAILOVER_CONFIG, 
-  getCurrentRegion, 
+import {
+  REGIONS,
+  FAILOVER_CONFIG,
+  getCurrentRegion,
   setCurrentRegion,
   recordFailover,
-  RegionConfig 
+  RegionConfig,
 } from '../config/failover';
 import { performHealthCheck, HealthStatus } from './healthCheck';
 
@@ -528,39 +530,38 @@ export class FailoverManager {
   private failureCount: number = 0;
   private failoverInProgress: boolean = false;
   private healthCheckInterval: NodeJS.Timeout | null = null;
-  
+
   constructor() {
     this.currentRegion = getCurrentRegion();
   }
-  
+
   /**
    * Initialize Firebase with current region
    */
   async initialize(): Promise<void> {
     console.log(`Initializing Firebase in region: ${this.currentRegion.name}`);
-    
+
     try {
       this.firebaseApp = initializeApp(this.currentRegion.firebaseConfig);
-      
+
       // Test connection
       const healthStatus = await performHealthCheck();
-      
+
       if (!healthStatus.healthy) {
         console.warn('Initial health check failed, attempting failover');
         await this.performFailover('Initial health check failed');
       }
-      
+
       // Start health monitoring
       if (FAILOVER_CONFIG.autoFailoverEnabled) {
         this.startHealthMonitoring();
       }
-      
     } catch (error) {
       console.error('Firebase initialization failed:', error);
       await this.performFailover('Initialization failed');
     }
   }
-  
+
   /**
    * Start continuous health monitoring
    */
@@ -568,14 +569,14 @@ export class FailoverManager {
     if (this.healthCheckInterval) {
       return;
     }
-    
+
     console.log('Starting health monitoring');
-    
+
     this.healthCheckInterval = setInterval(async () => {
       await this.checkHealthAndFailover();
     }, FAILOVER_CONFIG.healthCheckInterval);
   }
-  
+
   /**
    * Stop health monitoring
    */
@@ -586,7 +587,7 @@ export class FailoverManager {
       console.log('Health monitoring stopped');
     }
   }
-  
+
   /**
    * Check health and perform failover if needed
    */
@@ -594,14 +595,14 @@ export class FailoverManager {
     if (this.failoverInProgress) {
       return;
     }
-    
+
     try {
       const healthStatus = await performHealthCheck();
-      
+
       if (healthStatus.healthy) {
         // Reset failure count on successful check
         this.failureCount = 0;
-        
+
         // Check if we should fail back to primary
         if (FAILOVER_CONFIG.autoFailbackEnabled) {
           await this.checkFailback();
@@ -609,9 +610,11 @@ export class FailoverManager {
       } else {
         // Increment failure count
         this.failureCount++;
-        
-        console.warn(`Health check failed (${this.failureCount}/${FAILOVER_CONFIG.failureThreshold})`);
-        
+
+        console.warn(
+          `Health check failed (${this.failureCount}/${FAILOVER_CONFIG.failureThreshold})`
+        );
+
         // Perform failover if threshold reached
         if (this.failureCount >= FAILOVER_CONFIG.failureThreshold) {
           await this.performFailover('Multiple health check failures');
@@ -620,13 +623,13 @@ export class FailoverManager {
     } catch (error) {
       console.error('Health check error:', error);
       this.failureCount++;
-      
+
       if (this.failureCount >= FAILOVER_CONFIG.failureThreshold) {
         await this.performFailover('Health check error');
       }
     }
   }
-  
+
   /**
    * Perform failover to next available region
    */
@@ -635,72 +638,71 @@ export class FailoverManager {
       console.warn('Failover already in progress');
       return;
     }
-    
+
     this.failoverInProgress = true;
     const originalRegion = this.currentRegion;
-    
+
     console.log(`🔄 Initiating failover from ${originalRegion.name}. Reason: ${reason}`);
-    
+
     try {
       // Find next available region
       const nextRegion = await this.findHealthyRegion();
-      
+
       if (!nextRegion) {
         console.error('❌ No healthy regions available for failover');
         this.failoverInProgress = false;
         return;
       }
-      
+
       console.log(`✅ Failing over to ${nextRegion.name}`);
-      
+
       // Wait for failover delay
-      await new Promise(resolve => setTimeout(resolve, FAILOVER_CONFIG.failoverDelay));
-      
+      await new Promise((resolve) => setTimeout(resolve, FAILOVER_CONFIG.failoverDelay));
+
       // Reinitialize Firebase with new region
       this.currentRegion = nextRegion;
       this.firebaseApp = initializeApp(nextRegion.firebaseConfig, `region-${nextRegion.id}`);
-      
+
       // Update stored region
       setCurrentRegion(nextRegion.id);
-      
+
       // Record failover
       recordFailover(originalRegion.id, nextRegion.id, reason);
-      
+
       // Reset failure count
       this.failureCount = 0;
-      
+
       // Notify user
       this.notifyFailover(originalRegion.name, nextRegion.name);
-      
+
       console.log(`✅ Failover complete: ${originalRegion.name} → ${nextRegion.name}`);
-      
     } catch (error) {
       console.error('❌ Failover failed:', error);
     } finally {
       this.failoverInProgress = false;
     }
   }
-  
+
   /**
    * Find next healthy region
    */
   private async findHealthyRegion(): Promise<RegionConfig | null> {
     // Get regions sorted by priority
     const sortedRegions = [...REGIONS].sort((a, b) => a.priority - b.priority);
-    
+
     // Skip current region
-    const candidateRegions = sortedRegions.filter(r => r.id !== this.currentRegion.id);
-    
+    const candidateRegions = sortedRegions.filter((r) => r.id !== this.currentRegion.id);
+
     // Test each region
     for (const region of candidateRegions) {
       try {
         console.log(`Testing region: ${region.name}`);
-        
+
         const response = await fetch(region.healthCheckUrl, {
           method: 'GET',
-          signal: AbortSignal.timeout(5000)
+          signal: AbortSignal.timeout(5000),
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.healthy) {
@@ -712,10 +714,10 @@ export class FailoverManager {
         console.warn(`${region.name} health check failed:`, error);
       }
     }
-    
+
     return null;
   }
-  
+
   /**
    * Check if we should fail back to primary region
    */
@@ -724,12 +726,12 @@ export class FailoverManager {
     if (this.currentRegion.priority === 1) {
       return;
     }
-    
-    const primaryRegion = REGIONS.find(r => r.priority === 1);
+
+    const primaryRegion = REGIONS.find((r) => r.priority === 1);
     if (!primaryRegion) {
       return;
     }
-    
+
     // Check if enough time has passed since last failover
     const lastFailover = localStorage.getItem('failover_timestamp');
     if (lastFailover) {
@@ -738,14 +740,14 @@ export class FailoverManager {
         return; // Too soon to fail back
       }
     }
-    
+
     // Check if primary is healthy
     try {
       const response = await fetch(primaryRegion.healthCheckUrl, {
         method: 'GET',
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(5000),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.healthy) {
@@ -757,64 +759,64 @@ export class FailoverManager {
       console.log('Primary region not yet healthy for failback');
     }
   }
-  
+
   /**
    * Fail back to specified region
    */
   private async performFailback(targetRegion: RegionConfig): Promise<void> {
     const currentRegion = this.currentRegion;
-    
+
     console.log(`⏪ Failing back from ${currentRegion.name} to ${targetRegion.name}`);
-    
+
     this.currentRegion = targetRegion;
     this.firebaseApp = initializeApp(targetRegion.firebaseConfig, `region-${targetRegion.id}`);
-    
+
     setCurrentRegion(targetRegion.id);
     recordFailover(currentRegion.id, targetRegion.id, 'Automatic failback to primary');
-    
+
     this.notifyFailover(currentRegion.name, targetRegion.name);
-    
+
     console.log(`✅ Failback complete: ${currentRegion.name} → ${targetRegion.name}`);
   }
-  
+
   /**
    * Notify user of failover
    */
   private notifyFailover(from: string, to: string): void {
     // Create toast notification or system message
     const event = new CustomEvent('failover', {
-      detail: { from, to }
+      detail: { from, to },
     });
     window.dispatchEvent(event);
   }
-  
+
   /**
    * Get current region info
    */
   getCurrentRegionInfo(): RegionConfig {
     return this.currentRegion;
   }
-  
+
   /**
    * Manual failover trigger
    */
   async manualFailover(targetRegionId: string): Promise<void> {
-    const targetRegion = REGIONS.find(r => r.id === targetRegionId);
-    
+    const targetRegion = REGIONS.find((r) => r.id === targetRegionId);
+
     if (!targetRegion) {
       throw new Error(`Region not found: ${targetRegionId}`);
     }
-    
+
     const currentRegion = this.currentRegion;
-    
+
     console.log(`Manual failover: ${currentRegion.name} → ${targetRegion.name}`);
-    
+
     this.currentRegion = targetRegion;
     this.firebaseApp = initializeApp(targetRegion.firebaseConfig, `region-${targetRegion.id}`);
-    
+
     setCurrentRegion(targetRegion.id);
     recordFailover(currentRegion.id, targetRegion.id, 'Manual failover');
-    
+
     this.notifyFailover(currentRegion.name, targetRegion.name);
   }
 }
@@ -846,33 +848,33 @@ export function useFailover() {
   const [status, setStatus] = useState<FailoverStatus>({
     currentRegion: failoverManager.getCurrentRegionInfo(),
     isHealthy: true,
-    lastFailover: null
+    lastFailover: null,
   });
-  
+
   useEffect(() => {
     // Listen for failover events
     const handleFailover = (event: CustomEvent) => {
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
         currentRegion: failoverManager.getCurrentRegionInfo(),
-        lastFailover: new Date()
+        lastFailover: new Date(),
       }));
     };
-    
+
     window.addEventListener('failover', handleFailover as EventListener);
-    
+
     return () => {
       window.removeEventListener('failover', handleFailover as EventListener);
     };
   }, []);
-  
+
   const manualFailover = async (regionId: string) => {
     await failoverManager.manualFailover(regionId);
   };
-  
+
   return {
     ...status,
-    manualFailover
+    manualFailover,
   };
 }
 ```
@@ -903,12 +905,11 @@ const secondaryDb = admin.firestore();
  */
 export const replicateToSecondary = functions
   .runWith({ timeoutSeconds: 60, memory: '512MB' })
-  .firestore
-  .document('{collection}/{docId}')
+  .firestore.document('{collection}/{docId}')
   .onWrite(async (change, context) => {
     const collection = context.params.collection;
     const docId = context.params.docId;
-    
+
     try {
       if (!change.after.exists) {
         // Document deleted
@@ -971,27 +972,27 @@ import { REGIONS } from '../config/failover';
 
 async function testFailover() {
   console.log('=== Failover Test ===\n');
-  
+
   // Initialize
   await failoverManager.initialize();
-  
+
   console.log('Current region:', failoverManager.getCurrentRegionInfo().name);
-  
+
   // Test failover to each region
   for (const region of REGIONS) {
     console.log(`\nTesting failover to ${region.name}...`);
-    
+
     try {
       await failoverManager.manualFailover(region.id);
       console.log(`✅ Failover to ${region.name} successful`);
-      
+
       // Wait 5 seconds
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     } catch (error) {
       console.error(`❌ Failover to ${region.name} failed:`, error);
     }
   }
-  
+
   console.log('\n=== Test Complete ===');
 }
 
@@ -1054,17 +1055,20 @@ VITE_AUTO_FAILBACK_ENABLED=true
 Given Firebase limitations and cost considerations, we recommend:
 
 **Phase 1: Enhanced Monitoring** (Current Implementation)
+
 - Health check system ✅
 - Automated monitoring ✅
 - Alert notifications ✅
 - Manual failover capability ✅
 
 **Phase 2: Geographic DNS Routing** (Future)
+
 - Use Cloudflare or AWS Route53 for geo-routing
 - Route users to nearest Firebase region automatically
 - Implement read-only failover for secondary regions
 
 **Phase 3: True Multi-Region** (Enterprise)
+
 - Migrate to Google Cloud Run + Cloud SQL
 - Use Cloud Spanner for multi-region database
 - Implement active-active architecture
@@ -1073,14 +1077,14 @@ Given Firebase limitations and cost considerations, we recommend:
 
 ### Estimated Monthly Costs
 
-| Component | Cost/Month |
-|-----------|------------|
-| **Primary Firebase Project** | $50 |
-| **Secondary Firebase Project** | $30 |
-| **Cloud Functions (Replication)** | $20 |
-| **Cloud Monitoring** | $10 |
-| **Load Balancer/DNS** | $15 |
-| **Total** | **$125/month** |
+| Component                         | Cost/Month     |
+| --------------------------------- | -------------- |
+| **Primary Firebase Project**      | $50            |
+| **Secondary Firebase Project**    | $30            |
+| **Cloud Functions (Replication)** | $20            |
+| **Cloud Monitoring**              | $10            |
+| **Load Balancer/DNS**             | $15            |
+| **Total**                         | **$125/month** |
 
 **Note**: This is 2.5x the cost of single-region setup.
 

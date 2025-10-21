@@ -10,7 +10,7 @@ describe('PurchaseOrderService', () => {
       const po = createMockPurchaseOrder({
         prNumber: 'PR-2025-100',
         poNumber: 'PO-2025-100',
-        requester: 'user-123'
+        requester: 'user-123',
       });
 
       expect(po).toBeDefined();
@@ -19,14 +19,9 @@ describe('PurchaseOrderService', () => {
     });
 
     it('should have proper status values', () => {
-      const statuses = [
-        'Menunggu Persetujuan',
-        'Disetujuan',
-        'Ditolak',
-        'PO Dibuat'
-      ] as const;
+      const statuses = ['Menunggu Persetujuan', 'Disetujuan', 'Ditolak', 'PO Dibuat'] as const;
 
-      statuses.forEach(status => {
+      statuses.forEach((status) => {
         const po = createMockPurchaseOrder({ status });
         expect(po.status).toBe(status);
       });
@@ -44,7 +39,7 @@ describe('PurchaseOrderService', () => {
 
     it('should track GRN status', () => {
       const po = createMockPurchaseOrder({
-        grnStatus: 'Sebagian Diterima'
+        grnStatus: 'Sebagian Diterima',
       });
 
       expect(po.grnStatus).toBe('Sebagian Diterima');
@@ -64,9 +59,9 @@ describe('PurchaseOrderService', () => {
             pricePerUnit: 50000,
             totalPrice: 5000000,
             receivedQuantity: 0,
-            status: 'pending'
-          }
-        ]
+            status: 'pending',
+          },
+        ],
       });
 
       const item = po.items[0];
@@ -87,9 +82,9 @@ describe('PurchaseOrderService', () => {
             pricePerUnit: 10000000,
             totalPrice: 500000000,
             receivedQuantity: 25,
-            status: 'partial'
-          }
-        ]
+            status: 'partial',
+          },
+        ],
       });
 
       expect(po.items[0].receivedQuantity).toBe(25);
@@ -107,7 +102,7 @@ describe('PurchaseOrderService', () => {
 
     it('should calculate total amount', () => {
       const po = createMockPurchaseOrder({
-        totalAmount: 10000000
+        totalAmount: 10000000,
       });
 
       expect(po.totalAmount).toBe(10000000);
@@ -117,7 +112,7 @@ describe('PurchaseOrderService', () => {
     it('should link to vendor', () => {
       const po = createMockPurchaseOrder({
         vendorId: 'vendor-123',
-        vendorName: 'PT Supplier Jaya'
+        vendorName: 'PT Supplier Jaya',
       });
 
       expect(po.vendorId).toBe('vendor-123');
@@ -129,7 +124,7 @@ describe('PurchaseOrderService', () => {
     it('should track approver', () => {
       const po = createMockPurchaseOrder({
         approver: 'manager-123',
-        approvalDate: '2025-10-17'
+        approvalDate: '2025-10-17',
       });
 
       expect(po.approver).toBe('manager-123');
@@ -140,7 +135,7 @@ describe('PurchaseOrderService', () => {
       const po = createMockPurchaseOrder({
         status: 'Menunggu Persetujuan',
         approver: undefined,
-        approvalDate: undefined
+        approvalDate: undefined,
       });
 
       expect(po.status).toBe('Menunggu Persetujuan');

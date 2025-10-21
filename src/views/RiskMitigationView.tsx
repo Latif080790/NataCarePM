@@ -1,7 +1,7 @@
 /**
  * Risk Mitigation View
  * Priority 3B: Risk Management System
- * 
+ *
  * Track mitigation plans, actions, and effectiveness
  */
 
@@ -16,17 +16,13 @@ interface RiskMitigationViewProps {
 }
 
 const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) => {
-  const {
-    risks,
-    risksLoading,
-    risksError,
-    fetchRisks,
-    updateRisk,
-  } = useRisk();
+  const { risks, risksLoading, risksError, fetchRisks, updateRisk } = useRisk();
 
   // Local state
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'overdue' | 'completed'>('active');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'overdue' | 'completed'>(
+    'active'
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch risks on mount
@@ -36,13 +32,14 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
 
   // Get risks with mitigation plans
   const risksWithMitigation = useMemo(() => {
-    return risks.filter(risk => risk.mitigationPlan && risk.mitigationPlan.actions.length > 0);
+    return risks.filter((risk) => risk.mitigationPlan && risk.mitigationPlan.actions.length > 0);
   }, [risks]);
 
   // Filter risks based on action status
   const filteredRisks = useMemo(() => {
-    return risksWithMitigation.filter(risk => {
-      const matchesSearch = !searchQuery ||
+    return risksWithMitigation.filter((risk) => {
+      const matchesSearch =
+        !searchQuery ||
         risk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         risk.description.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -51,17 +48,16 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
       if (filterStatus === 'all') return true;
 
       const actions = risk.mitigationPlan!.actions;
-      
+
       if (filterStatus === 'active') {
-        return actions.some(a => a.status === 'in_progress' || a.status === 'pending');
+        return actions.some((a) => a.status === 'in_progress' || a.status === 'pending');
       } else if (filterStatus === 'overdue') {
         const now = new Date();
-        return actions.some(a => 
-          (a.status === 'in_progress' || a.status === 'pending') && 
-          new Date(a.dueDate) < now
+        return actions.some(
+          (a) => (a.status === 'in_progress' || a.status === 'pending') && new Date(a.dueDate) < now
         );
       } else if (filterStatus === 'completed') {
-        return actions.every(a => a.status === 'completed');
+        return actions.every((a) => a.status === 'completed');
       }
 
       return true;
@@ -71,9 +67,9 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
   // Get all mitigation actions across all risks
   const allActions = useMemo(() => {
     const actions: Array<{ risk: Risk; action: MitigationAction }> = [];
-    
-    filteredRisks.forEach(risk => {
-      risk.mitigationPlan?.actions.forEach(action => {
+
+    filteredRisks.forEach((risk) => {
+      risk.mitigationPlan?.actions.forEach((action) => {
         actions.push({ risk, action });
       });
     });
@@ -100,8 +96,10 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
       else if (action.status === 'completed') stats.completed++;
       else if (action.status === 'cancelled') stats.cancelled++;
 
-      if ((action.status === 'pending' || action.status === 'in_progress') && 
-          new Date(action.dueDate) < now) {
+      if (
+        (action.status === 'pending' || action.status === 'in_progress') &&
+        new Date(action.dueDate) < now
+      ) {
         stats.overdue++;
       }
     });
@@ -112,17 +110,23 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
   // Get action status color
   const getActionStatusColor = (status: MitigationAction['status']) => {
     switch (status) {
-      case 'pending': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'pending':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
     }
   };
 
   // Check if action is overdue
   const isOverdue = (action: MitigationAction): boolean => {
-    return (action.status === 'pending' || action.status === 'in_progress') && 
-           new Date(action.dueDate) < new Date();
+    return (
+      (action.status === 'pending' || action.status === 'in_progress') &&
+      new Date(action.dueDate) < new Date()
+    );
   };
 
   // Format date
@@ -148,11 +152,16 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
   // Get strategy color
   const getStrategyColor = (strategy: string): string => {
     switch (strategy) {
-      case 'avoid': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'mitigate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'transfer': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'accept': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'avoid':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'mitigate':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'transfer':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'accept':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -178,8 +187,18 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <svg
+                      className="h-6 w-6 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
                     </svg>
                   </div>
                   <div className="ml-5 w-0 flex-1">
@@ -200,8 +219,18 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <svg
+                      className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
                     </svg>
                   </div>
                   <div className="ml-5 w-0 flex-1">
@@ -222,8 +251,18 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-6 w-6 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <div className="ml-5 w-0 flex-1">
@@ -244,8 +283,18 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-6 w-6 text-green-600 dark:text-green-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <div className="ml-5 w-0 flex-1">
@@ -266,8 +315,18 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-6 w-6 text-red-600 dark:text-red-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <div className="ml-5 w-0 flex-1">
@@ -293,13 +352,26 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Search */}
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="search"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Search Risks
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
                   </svg>
                 </div>
                 <input
@@ -315,7 +387,10 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
 
             {/* Status Filter */}
             <div>
-              <label htmlFor="filterStatus" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="filterStatus"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Filter by Status
               </label>
               <select
@@ -345,17 +420,32 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
             </div>
           ) : filteredRisks.length === 0 ? (
             <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No mitigation plans found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                No mitigation plans found
+              </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Try adjusting your filters
               </p>
             </div>
           ) : (
             filteredRisks.map((risk) => (
-              <div key={risk.id} className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+              <div
+                key={risk.id}
+                className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden"
+              >
                 <div className="p-6">
                   {/* Risk Header */}
                   <div className="flex items-start justify-between mb-4">
@@ -367,16 +457,23 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
                         {risk.description}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          risk.priorityLevel === 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                          risk.priorityLevel === 'high' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
-                          risk.priorityLevel === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                          'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            risk.priorityLevel === 'critical'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              : risk.priorityLevel === 'high'
+                                ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                                : risk.priorityLevel === 'medium'
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          }`}
+                        >
                           {risk.priorityLevel}
                         </span>
                         {risk.mitigationPlan && (
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStrategyColor(risk.mitigationPlan.strategy)}`}>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStrategyColor(risk.mitigationPlan.strategy)}`}
+                          >
                             {getStrategyLabel(risk.mitigationPlan.strategy)}
                           </span>
                         )}
@@ -387,13 +484,18 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
                         onClick={() => setSelectedRisk(selectedRisk?.id === risk.id ? null : risk)}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                       >
-                        <svg 
+                        <svg
                           className={`w-6 h-6 transform transition-transform ${selectedRisk?.id === risk.id ? 'rotate-180' : ''}`}
-                          fill="none" 
-                          stroke="currentColor" 
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -431,7 +533,13 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
                           <div>
                             <span className="text-gray-500 dark:text-gray-400">Effectiveness:</span>
                             <span className="ml-2 font-medium text-green-600 dark:text-green-400">
-                              {((risk.mitigationPlan.effectiveness.severityReduction + risk.mitigationPlan.effectiveness.probabilityReduction) / 10 * 100).toFixed(0)}%
+                              {(
+                                ((risk.mitigationPlan.effectiveness.severityReduction +
+                                  risk.mitigationPlan.effectiveness.probabilityReduction) /
+                                  10) *
+                                100
+                              ).toFixed(0)}
+                              %
                             </span>
                           </div>
                         )}
@@ -461,7 +569,9 @@ const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) =>
                                   {action.action}
                                 </p>
                                 <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                                  <span className={`inline-flex items-center px-2 py-0.5 rounded ${getActionStatusColor(action.status)}`}>
+                                  <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded ${getActionStatusColor(action.status)}`}
+                                  >
                                     {action.status.replace('_', ' ')}
                                   </span>
                                   <span className="text-gray-500 dark:text-gray-400">

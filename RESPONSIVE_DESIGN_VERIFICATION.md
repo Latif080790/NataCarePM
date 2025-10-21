@@ -35,24 +35,24 @@ xl:  1280px  // Extra large screens
 ```typescript
 // Device Detection
 export const BREAKPOINTS = {
-  mobileXS: 320,   // iPhone SE
-  mobileSM: 375,   // iPhone 12/13
-  mobileMD: 390,   // iPhone 14
-  mobileLG: 430,   // iPhone 14 Pro Max
-  tablet: 768,     // iPad
-  tabletLG: 1024,  // iPad Pro
-  desktop: 1440,   // Desktop
+  mobileXS: 320, // iPhone SE
+  mobileSM: 375, // iPhone 12/13
+  mobileMD: 390, // iPhone 14
+  mobileLG: 430, // iPhone 14 Pro Max
+  tablet: 768, // iPad
+  tabletLG: 1024, // iPad Pro
+  desktop: 1440, // Desktop
   desktopXL: 1920, // Large desktop
 };
 
 // React Hooks Available
-- useIsMobile()      // Detects mobile viewport
-- useIsTablet()      // Detects tablet viewport
-- useIsDesktop()     // Detects desktop viewport
-- useDeviceType()    // Returns: 'mobile' | 'tablet' | 'desktop'
-- useWindowSize()    // Returns current window dimensions
-- useOrientation()   // Returns: 'portrait' | 'landscape'
-- usePrefersReducedMotion() // Accessibility support
+-useIsMobile() - // Detects mobile viewport
+  useIsTablet() - // Detects tablet viewport
+  useIsDesktop() - // Detects desktop viewport
+  useDeviceType() - // Returns: 'mobile' | 'tablet' | 'desktop'
+  useWindowSize() - // Returns current window dimensions
+  useOrientation() - // Returns: 'portrait' | 'landscape'
+  usePrefersReducedMotion(); // Accessibility support
 ```
 
 ---
@@ -62,12 +62,13 @@ export const BREAKPOINTS = {
 ### 1. Navigation System
 
 #### A. Desktop Sidebar
+
 **File**: `components/Sidebar.tsx`
 
 ```tsx
 // Responsive Classes
 <aside className={`
-  ${isCollapsed ? 'w-20' : 'w-80'} 
+  ${isCollapsed ? 'w-20' : 'w-80'}
   h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900
   border-r border-slate-700/50 shadow-2xl
   transition-all duration-500 ease-out
@@ -78,10 +79,12 @@ export const BREAKPOINTS = {
 ```
 
 **Behavior**:
+
 - ❌ **Mobile (< 768px)**: Hidden, replaced by mobile navigation
 - ✅ **Tablet/Desktop (≥ 768px)**: Visible with collapse functionality
 
 #### B. Mobile Navigation
+
 **File**: `components/MobileNavigation.tsx`
 
 ```tsx
@@ -94,19 +97,21 @@ if (!isMobile) {
 
 return (
   <>
-    <HamburgerButton />      // Fixed top-left hamburger
-    <MobileDrawer />         // Slide-in navigation
-    <BottomNav />            // Fixed bottom navigation bar
+    <HamburgerButton /> // Fixed top-left hamburger
+    <MobileDrawer /> // Slide-in navigation
+    <BottomNav /> // Fixed bottom navigation bar
   </>
 );
 ```
 
 **Components**:
+
 1. **HamburgerButton**: Fixed position (top-left, z-index: 1001)
 2. **MobileDrawer**: Full-screen slide-in menu with touch gestures
 3. **BottomNav**: Fixed bottom bar with 5 quick actions
 
 ### 2. Main App Layout
+
 **File**: `App.tsx`
 
 ```tsx
@@ -116,10 +121,10 @@ return (
     <div className="hidden md:block">
       <Sidebar />
     </div>
-    
+
     {/* Mobile Navigation - Only shown on mobile */}
     <MobileNavigation />
-    
+
     <main className="flex-1 flex flex-col overflow-hidden">
       <Header />
       {/* Responsive padding: p-6 on desktop, mobile-p-4 on mobile */}
@@ -132,6 +137,7 @@ return (
 ```
 
 **Key Responsive Features**:
+
 - `hidden md:block` - Hide sidebar on mobile
 - `pb-20 md:pb-6` - Extra bottom padding on mobile for bottom nav
 - `mobile-p-4` - Custom mobile padding utility
@@ -141,9 +147,11 @@ return (
 ## 🧩 View-Specific Responsive Design
 
 ### 1. AI Resource Optimization View
+
 **File**: `views/AIResourceOptimizationView.tsx` (601 lines)
 
 #### Summary Cards Grid
+
 ```tsx
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
   {/* ML Models Card */}
@@ -155,11 +163,13 @@ return (
 ```
 
 **Responsive Behavior**:
+
 - **Mobile (< 768px)**: 1 column (stack vertically)
 - **Tablet (768px - 1023px)**: 2 columns
 - **Desktop (≥ 1024px)**: 4 columns
 
 #### Tabs System
+
 ```tsx
 <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 mt-4">
   <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium`}>
@@ -171,14 +181,17 @@ return (
 ```
 
 **Mobile Optimization**:
+
 - Horizontal scroll if needed
 - Touch-friendly targets (44px minimum)
 - Icons + text on desktop, icons only on mobile
 
 ### 2. Predictive Analytics View
+
 **File**: `views/PredictiveAnalyticsView.tsx` (499 lines)
 
 #### Summary Cards Grid
+
 ```tsx
 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
   <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
@@ -197,27 +210,30 @@ return (
 ```
 
 **Responsive Behavior**:
+
 - **Mobile (< 768px)**: 1 column
 - **Tablet/Desktop (≥ 768px)**: 4 columns
 
 #### Tables - Horizontal Scroll
+
 ```tsx
 <div className="overflow-x-auto">
-  <table className="w-full">
-    {/* Table content */}
-  </table>
+  <table className="w-full">{/* Table content */}</table>
 </div>
 ```
 
 **Mobile Optimization**:
+
 - Horizontal scroll for wide tables
 - Sticky headers
 - Touch-friendly row heights
 
 ### 3. Dashboard View
+
 **File**: `views/DashboardView.tsx` (657 lines)
 
 #### Loading State
+
 ```tsx
 if (isLoading) {
   return (
@@ -231,6 +247,7 @@ if (isLoading) {
 ```
 
 **DashboardSkeleton Component** (`components/DashboardSkeleton.tsx`):
+
 ```tsx
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
   {[1, 2, 3, 4].map((i) => (
@@ -251,11 +268,13 @@ if (isLoading) {
 ```
 
 **Responsive Grid**:
+
 - **Mobile**: 1 column (all content stacks)
 - **Tablet**: 2 columns for metrics
 - **Desktop**: 4 columns for metrics, 3 columns for charts
 
 ### 4. Mobile Dashboard View
+
 **File**: `components/MobileDashboardView.tsx` (207 lines)
 
 ```tsx
@@ -305,6 +324,7 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ```
 
 **Mobile-Specific Features**:
+
 - ✅ Pull-to-refresh gesture
 - ✅ Swipeable cards with touch gestures
 - ✅ Large touch targets (minimum 44x44px)
@@ -318,6 +338,7 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ### 1. Common Responsive Patterns
 
 #### Grid Layouts
+
 ```tsx
 // 1-2-4 Column Grid (Most Common)
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -342,6 +363,7 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ```
 
 #### Flex Layouts
+
 ```tsx
 // Stack on mobile, row on desktop
 <div className="flex flex-col md:flex-row gap-4">
@@ -362,15 +384,15 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ### 2. Responsive Component Examples
 
 #### EVMDashboard
+
 **File**: `components/EVMDashboard.tsx`
 
 ```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-  {/* EVM Metrics */}
-</div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">{/* EVM Metrics */}</div>
 ```
 
 #### DocumentUpload
+
 **File**: `components/DocumentUpload.tsx`
 
 ```tsx
@@ -384,21 +406,19 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ```
 
 #### DocumentViewer
+
 **File**: `components/DocumentViewer.tsx`
 
 ```tsx
-<div className="grid gap-4 md:grid-cols-2">
-  {/* Document metadata */}
-</div>
+<div className="grid gap-4 md:grid-cols-2">{/* Document metadata */}</div>
 ```
 
 #### CreateTaskModal
+
 **File**: `components/CreateTaskModal.tsx`
 
 ```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {/* Form fields */}
-</div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{/* Form fields */}</div>
 ```
 
 ---
@@ -423,6 +443,7 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ### 2. Touch Gestures
 
 **SwipeableCards Component**:
+
 ```tsx
 // Supports swipe gestures for navigation
 <SwipeableCards showIndicators>
@@ -433,14 +454,14 @@ export const MobileDashboardView: React.FC = ({ project, tasks, onNavigate }) =>
 ```
 
 **PullToRefresh Component**:
+
 ```tsx
 // Pull-down gesture to refresh data
-<PullToRefresh onRefresh={handleRefresh}>
-  {/* Content */}
-</PullToRefresh>
+<PullToRefresh onRefresh={handleRefresh}>{/* Content */}</PullToRefresh>
 ```
 
 **Mobile Drawer**:
+
 ```tsx
 // Swipe from left edge to open, swipe right to close
 <MobileDrawer isOpen={isOpen} onClose={onClose}>
@@ -471,13 +492,12 @@ All components support dark mode with responsive design:
 <div className="bg-white dark:bg-gray-800">
   <h1 className="text-gray-900 dark:text-white">Title</h1>
   <p className="text-gray-600 dark:text-gray-400">Description</p>
-  <div className="border-gray-200 dark:border-gray-700">
-    {/* Content */}
-  </div>
+  <div className="border-gray-200 dark:border-gray-700">{/* Content */}</div>
 </div>
 ```
 
 **Color Schemes**:
+
 - Light Mode: `bg-white`, `text-gray-900`, `border-gray-200`
 - Dark Mode: `bg-gray-800`, `text-white`, `border-gray-700`
 
@@ -486,6 +506,7 @@ All components support dark mode with responsive design:
 ## ♿ Accessibility Features
 
 ### 1. ARIA Labels
+
 ```tsx
 <button
   aria-label="Select project"
@@ -504,18 +525,16 @@ All components support dark mode with responsive design:
 ```
 
 ### 2. Keyboard Navigation
+
 ```tsx
 // All interactive elements support keyboard
-<button
-  onClick={handleClick}
-  onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-  tabIndex={0}
->
+<button onClick={handleClick} onKeyDown={(e) => e.key === 'Enter' && handleClick()} tabIndex={0}>
   {/* ... */}
 </button>
 ```
 
 ### 3. Reduced Motion
+
 ```typescript
 import { usePrefersReducedMotion } from '@/constants/responsive';
 
@@ -532,36 +551,37 @@ const prefersReducedMotion = usePrefersReducedMotion();
 
 ### Device Coverage
 
-| Device Type | Screen Size | Breakpoint | Status |
-|------------|-------------|------------|--------|
-| **iPhone SE** | 320px | Mobile XS | ✅ Tested |
-| **iPhone 12/13** | 375px | Mobile SM | ✅ Tested |
-| **iPhone 14** | 390px | Mobile MD | ✅ Tested |
-| **iPhone 14 Pro Max** | 430px | Mobile LG | ✅ Tested |
-| **iPad** | 768px | Tablet | ✅ Tested |
-| **iPad Pro** | 1024px | Tablet LG | ✅ Tested |
-| **Desktop** | 1440px | Desktop | ✅ Tested |
-| **Large Desktop** | 1920px | Desktop XL | ✅ Tested |
+| Device Type           | Screen Size | Breakpoint | Status    |
+| --------------------- | ----------- | ---------- | --------- |
+| **iPhone SE**         | 320px       | Mobile XS  | ✅ Tested |
+| **iPhone 12/13**      | 375px       | Mobile SM  | ✅ Tested |
+| **iPhone 14**         | 390px       | Mobile MD  | ✅ Tested |
+| **iPhone 14 Pro Max** | 430px       | Mobile LG  | ✅ Tested |
+| **iPad**              | 768px       | Tablet     | ✅ Tested |
+| **iPad Pro**          | 1024px      | Tablet LG  | ✅ Tested |
+| **Desktop**           | 1440px      | Desktop    | ✅ Tested |
+| **Large Desktop**     | 1920px      | Desktop XL | ✅ Tested |
 
 ### Feature Coverage
 
-| Feature | Mobile | Tablet | Desktop | Status |
-|---------|--------|--------|---------|--------|
-| **Navigation** | Bottom Nav + Drawer | Sidebar (collapsible) | Full Sidebar | ✅ Adaptive |
-| **Dashboard** | Stack Layout | 2 columns | 4 columns | ✅ Adaptive |
-| **AI Resource Optimization** | 1 column | 2 columns | 4 columns | ✅ Adaptive |
-| **Predictive Analytics** | 1 column | 4 columns | 4 columns | ✅ Adaptive |
-| **Forms** | Stack | 1-2 columns | 2 columns | ✅ Adaptive |
-| **Tables** | Horizontal Scroll | Full Width | Full Width | ✅ Adaptive |
-| **Charts** | Full Width | Full Width | Multi-column | ✅ Adaptive |
-| **Modals** | Full Screen | Centered | Centered | ✅ Adaptive |
-| **Dark Mode** | ✅ | ✅ | ✅ | ✅ All devices |
+| Feature                      | Mobile              | Tablet                | Desktop      | Status         |
+| ---------------------------- | ------------------- | --------------------- | ------------ | -------------- |
+| **Navigation**               | Bottom Nav + Drawer | Sidebar (collapsible) | Full Sidebar | ✅ Adaptive    |
+| **Dashboard**                | Stack Layout        | 2 columns             | 4 columns    | ✅ Adaptive    |
+| **AI Resource Optimization** | 1 column            | 2 columns             | 4 columns    | ✅ Adaptive    |
+| **Predictive Analytics**     | 1 column            | 4 columns             | 4 columns    | ✅ Adaptive    |
+| **Forms**                    | Stack               | 1-2 columns           | 2 columns    | ✅ Adaptive    |
+| **Tables**                   | Horizontal Scroll   | Full Width            | Full Width   | ✅ Adaptive    |
+| **Charts**                   | Full Width          | Full Width            | Multi-column | ✅ Adaptive    |
+| **Modals**                   | Full Screen         | Centered              | Centered     | ✅ Adaptive    |
+| **Dark Mode**                | ✅                  | ✅                    | ✅           | ✅ All devices |
 
 ---
 
 ## 🎨 Custom Responsive Utilities
 
 ### Mobile-Specific Classes
+
 ```css
 /* globals.css */
 .mobile-p-4 {
@@ -584,6 +604,7 @@ const prefersReducedMotion = usePrefersReducedMotion();
 ```
 
 ### Viewport Height Fix (Mobile Safari)
+
 ```typescript
 // Initialize in app startup
 import { initViewportHeight } from '@/constants/responsive';
@@ -604,12 +625,14 @@ useEffect(() => {
 ## 📱 Progressive Web App (PWA)
 
 ### Mobile Features
+
 1. **Offline Support**: Service worker caches all assets
 2. **Install Prompt**: Add to Home Screen
 3. **Push Notifications**: Real-time updates
 4. **Background Sync**: Sync data when online
 
 **Manifest** (`public/manifest.json`):
+
 ```json
 {
   "name": "NataCarePM",
@@ -630,6 +653,7 @@ useEffect(() => {
 ## ✅ Verification Results
 
 ### Build Status
+
 ```bash
 ✅ Production Build: Successful
 ✅ Bundle Size: Optimized
@@ -641,6 +665,7 @@ useEffect(() => {
 ```
 
 ### Code Statistics
+
 - **Responsive Utilities**: 650 lines (`constants/responsive.ts`)
 - **Mobile Components**: 10+ components
 - **Responsive Views**: 40+ views
@@ -648,6 +673,7 @@ useEffect(() => {
 - **Breakpoint Usage**: 200+ instances
 
 ### Responsive Coverage
+
 - ✅ **100% of Views**: Responsive
 - ✅ **100% of Components**: Adaptive
 - ✅ **100% of Forms**: Mobile-optimized
@@ -659,22 +685,26 @@ useEffect(() => {
 ## 🎯 Key Responsive Features Summary
 
 ### Navigation
+
 - ✅ Desktop: Full sidebar with collapse
 - ✅ Tablet: Collapsible sidebar
 - ✅ Mobile: Bottom navigation + hamburger drawer
 
 ### Layouts
+
 - ✅ Desktop: 4-column grids
 - ✅ Tablet: 2-column grids
 - ✅ Mobile: Stack (1 column)
 
 ### Touch Optimization
+
 - ✅ Minimum 44x44px touch targets
 - ✅ Swipe gestures (cards, drawer)
 - ✅ Pull-to-refresh
 - ✅ Haptic feedback
 
 ### Performance
+
 - ✅ Lazy loading (route-based code splitting)
 - ✅ Responsive images
 - ✅ Optimized bundle size
@@ -701,6 +731,7 @@ npm run preview
 ```
 
 ### Mobile Testing (Real Devices)
+
 1. **Connect to same WiFi** as development machine
 2. **Find local IP** of development machine
 3. **Access**: `http://[LOCAL_IP]:3000`
@@ -709,6 +740,7 @@ npm run preview
 6. **Test offline**: Enable airplane mode
 
 ### Browser DevTools
+
 1. **Chrome DevTools**: F12 → Toggle device toolbar (Ctrl+Shift+M)
 2. **Responsive Mode**: Test all breakpoints
 3. **Network Throttling**: Test on 3G/4G speeds
@@ -719,12 +751,14 @@ npm run preview
 ## 📊 Performance Metrics
 
 ### Mobile Performance
+
 - **First Contentful Paint**: < 1.5s
 - **Time to Interactive**: < 3s
 - **Largest Contentful Paint**: < 2.5s
 - **Cumulative Layout Shift**: < 0.1
 
 ### Bundle Size
+
 - **Initial Bundle**: ~500KB (gzipped)
 - **Lazy Chunks**: 20-50KB each
 - **Total Assets**: ~2MB (with images)
@@ -747,6 +781,7 @@ npm run preview
 8. ✅ **AI Views Responsive** (Resource Optimization, Predictive Analytics)
 
 **No additional work required** - The system adapts seamlessly to:
+
 - 📱 **Mobile phones** (320px - 767px)
 - 📱 **Tablets** (768px - 1023px)
 - 💻 **Desktops** (1024px+)

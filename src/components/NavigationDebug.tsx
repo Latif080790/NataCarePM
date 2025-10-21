@@ -10,7 +10,7 @@ interface NavigationDebugProps {
 export const NavigationDebug: React.FC<NavigationDebugProps> = ({
   currentView,
   availableViews,
-  userPermissions = []
+  userPermissions = [],
 }) => {
   const isViewAvailable = availableViews.includes(currentView);
 
@@ -37,8 +37,8 @@ export const NavigationDebug: React.FC<NavigationDebugProps> = ({
           <div>
             <span className="font-medium">Status:</span>
             <p className="text-slate-400 mt-1">
-              {isViewAvailable 
-                ? `✅ View "${currentView}" is registered and available` 
+              {isViewAvailable
+                ? `✅ View "${currentView}" is registered and available`
                 : `❌ View "${currentView}" not found in viewComponents`}
             </p>
           </div>
@@ -48,8 +48,8 @@ export const NavigationDebug: React.FC<NavigationDebugProps> = ({
           <p className="font-medium mb-1">Available Views ({availableViews.length}):</p>
           <div className="max-h-32 overflow-y-auto bg-slate-800 p-2 rounded text-[10px]">
             {availableViews.sort().map((view, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className={`${view === currentView ? 'text-green-400 font-bold' : 'text-slate-400'}`}
               >
                 {idx + 1}. {view}
@@ -63,8 +63,8 @@ export const NavigationDebug: React.FC<NavigationDebugProps> = ({
             <p className="font-medium mb-1">User Permissions ({userPermissions.length}):</p>
             <div className="flex flex-wrap gap-1">
               {userPermissions.map((perm, idx) => (
-                <span 
-                  key={idx} 
+                <span
+                  key={idx}
                   className="bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded text-[9px]"
                 >
                   {perm}

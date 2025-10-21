@@ -3,9 +3,15 @@
  * Priority 3C: Change Order Management System
  */
 
-export type ChangeOrderType = 'scope' | 'schedule' | 'budget' | 'design' | 'specification' | 'other';
+export type ChangeOrderType =
+  | 'scope'
+  | 'schedule'
+  | 'budget'
+  | 'design'
+  | 'specification'
+  | 'other';
 
-export type ChangeOrderStatus = 
+export type ChangeOrderStatus =
   | 'draft'
   | 'submitted'
   | 'under_review'
@@ -74,43 +80,43 @@ export interface Attachment {
 export interface ChangeOrder {
   id: string;
   projectId: string;
-  
+
   changeNumber: string; // e.g., "CO-2024-001"
   title: string;
   description: string;
   changeType: ChangeOrderType;
-  
+
   requestedBy: string;
   requestedDate: Date;
   requiredBy?: Date; // when does this need to be decided
-  
+
   status: ChangeOrderStatus;
-  
+
   justification: string;
   alternativesConsidered?: string;
-  
+
   costImpact: number;
   scheduleImpact: number; // days
   budgetImpact: BudgetImpact;
   scheduleImpactDetail?: ScheduleImpact;
-  
+
   approvalWorkflow: ApprovalStep[];
   approvalHistory: ApprovalRecord[];
   currentApproverLevel: number;
-  
+
   attachments: Attachment[];
-  
+
   implementationPlan?: string;
   implementationStartDate?: Date;
   implementationEndDate?: Date;
   implementedDate?: Date;
   implementedBy?: string;
-  
+
   rejectionReason?: string;
   cancellationReason?: string;
-  
+
   relatedChangeOrders?: string[];
-  
+
   createdAt: Date;
   updatedAt: Date;
   submittedAt?: Date;
@@ -123,13 +129,13 @@ export interface ChangeOrderSummary {
   totalChangeOrders: number;
   byStatus: Record<ChangeOrderStatus, number>;
   byType: Record<ChangeOrderType, number>;
-  
+
   totalCostImpact: number;
   totalScheduleImpact: number;
-  
+
   approvalRate: number; // percentage
   averageApprovalTime: number; // days
-  
+
   pendingApprovals: number;
   overdueApprovals: number;
 }

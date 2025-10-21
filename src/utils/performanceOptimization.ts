@@ -1,6 +1,6 @@
 /**
  * Performance Optimization Utilities
- * 
+ *
  * Utilities for performance monitoring and optimization helpers
  */
 
@@ -15,8 +15,8 @@ export function deepCompareProps<T extends Record<string, any>>(
   nextProps: T,
   keysToCompare?: (keyof T)[]
 ): boolean {
-  const keys = keysToCompare || Object.keys(prevProps) as (keyof T)[];
-  
+  const keys = keysToCompare || (Object.keys(prevProps) as (keyof T)[]);
+
   for (const key of keys) {
     if (prevProps[key] !== nextProps[key]) {
       // For arrays and objects, do shallow comparison
@@ -30,7 +30,7 @@ export function deepCompareProps<T extends Record<string, any>>(
       }
     }
   }
-  
+
   return true;
 }
 
@@ -38,18 +38,23 @@ export function deepCompareProps<T extends Record<string, any>>(
  * Performance monitoring hook
  * Logs render count and render time in development
  */
-export function useRenderMonitor(componentName: string, enabled = process.env.NODE_ENV === 'development') {
+export function useRenderMonitor(
+  componentName: string,
+  enabled = process.env.NODE_ENV === 'development'
+) {
   const renderCount = useRef(0);
   const lastRender = useRef(Date.now());
-  
+
   useEffect(() => {
     if (!enabled) return;
-    
+
     renderCount.current += 1;
     const renderTime = Date.now() - lastRender.current;
     lastRender.current = Date.now();
-    
-    console.log(`[Performance] ${componentName} rendered ${renderCount.current} times (${renderTime}ms since last render)`);
+
+    console.log(
+      `[Performance] ${componentName} rendered ${renderCount.current} times (${renderTime}ms since last render)`
+    );
   });
 }
 
@@ -61,13 +66,13 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
-  
+
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {
       timeout = null;
       func(...args);
     };
-    
+
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
@@ -81,12 +86,12 @@ export function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean = false;
-  
+
   return function executedFunction(...args: Parameters<T>) {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
   };
 }
@@ -96,13 +101,16 @@ export function throttle<T extends (...args: any[]) => any>(
  */
 export function measureRenderTime(componentName: string) {
   const startTime = performance.now();
-  
+
   return () => {
     const endTime = performance.now();
     const renderTime = endTime - startTime;
-    
-    if (renderTime > 16) { // > 16ms = may cause frame drop
-      console.warn(`[Performance] ${componentName} took ${renderTime.toFixed(2)}ms to render (>16ms threshold)`);
+
+    if (renderTime > 16) {
+      // > 16ms = may cause frame drop
+      console.warn(
+        `[Performance] ${componentName} took ${renderTime.toFixed(2)}ms to render (>16ms threshold)`
+      );
     }
   };
 }

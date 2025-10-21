@@ -2,13 +2,14 @@
 
 **Version**: 1.0.0  
 **Last Updated**: 2025-10-20  
-**Status**: Production Ready ✅  
+**Status**: Production Ready ✅
 
 ---
 
 ## 🚀 Quick Start
 
 ### Installation
+
 ```bash
 # Dependencies already installed
 npm install --legacy-peer-deps
@@ -56,12 +57,7 @@ NataCarePM/
 import { useAIResource } from '@/contexts/AIResourceContext';
 
 // In component
-const {
-  requestOptimization,
-  recommendations,
-  getAllocations,
-  getBottlenecks,
-} = useAIResource();
+const { requestOptimization, recommendations, getAllocations, getBottlenecks } = useAIResource();
 
 // Run optimization
 const result = await requestOptimization({
@@ -91,12 +87,8 @@ const result = await requestOptimization({
 import { usePredictiveAnalytics } from '@/contexts/PredictiveAnalyticsContext';
 
 // In component
-const {
-  generateForecast,
-  generateCostForecast,
-  getLatestCostForecast,
-  getAllForecasts,
-} = usePredictiveAnalytics();
+const { generateForecast, generateCostForecast, getLatestCostForecast, getAllForecasts } =
+  usePredictiveAnalytics();
 
 // Generate all forecasts
 const response = await generateForecast({
@@ -150,44 +142,45 @@ await deleteModelFromIndexedDB('model_id');
 
 ## 🧠 ML Models
 
-| Model | Type | Input | Output | Use Case |
-|-------|------|-------|--------|----------|
-| Resource Allocation | NN | 25 features | 10 classes | Resource matching |
-| Duration Prediction | LSTM | Sequence [15] | 1 value | Task duration |
-| Cost Forecasting | LSTM | Sequence [30, 10] | 1 value | Cost prediction |
-| Schedule Forecasting | LSTM | Sequence [20, 8] | 1 value | Completion date |
-| Risk Analysis | NN | 15 features | 5 classes | Risk severity |
-| Genetic Algorithm | GA | Tasks + Resources | Allocations | Optimization |
+| Model                | Type | Input             | Output      | Use Case          |
+| -------------------- | ---- | ----------------- | ----------- | ----------------- |
+| Resource Allocation  | NN   | 25 features       | 10 classes  | Resource matching |
+| Duration Prediction  | LSTM | Sequence [15]     | 1 value     | Task duration     |
+| Cost Forecasting     | LSTM | Sequence [30, 10] | 1 value     | Cost prediction   |
+| Schedule Forecasting | LSTM | Sequence [20, 8]  | 1 value     | Completion date   |
+| Risk Analysis        | NN   | 15 features       | 5 classes   | Risk severity     |
+| Genetic Algorithm    | GA   | Tasks + Resources | Allocations | Optimization      |
 
 ---
 
 ## 🎨 Optimization Goals
 
-| Goal | Description | Use When |
-|------|-------------|----------|
-| `minimize_cost` | Reduce total project cost | Budget is primary concern |
-| `minimize_duration` | Shorten completion time | Deadline is critical |
-| `maximize_quality` | Improve deliverable quality | Quality is top priority |
-| `balance_cost_time` | Balance cost and time | Need trade-off |
-| `maximize_utilization` | Increase resource efficiency | Optimize resource usage |
-| `minimize_idle_time` | Reduce resource downtime | Maximize productivity |
+| Goal                   | Description                  | Use When                  |
+| ---------------------- | ---------------------------- | ------------------------- |
+| `minimize_cost`        | Reduce total project cost    | Budget is primary concern |
+| `minimize_duration`    | Shorten completion time      | Deadline is critical      |
+| `maximize_quality`     | Improve deliverable quality  | Quality is top priority   |
+| `balance_cost_time`    | Balance cost and time        | Need trade-off            |
+| `maximize_utilization` | Increase resource efficiency | Optimize resource usage   |
+| `minimize_idle_time`   | Reduce resource downtime     | Maximize productivity     |
 
 ---
 
 ## 📊 Forecast Types
 
-| Type | Horizon | Confidence | Key Metrics |
-|------|---------|------------|-------------|
-| Cost | 30 days | 95% | Total cost, overrun %, contributors |
-| Schedule | 90 days | 90% | Completion date, delay days, probability |
-| Risk | 60 days | 85% | Risk score, severity, emerging risks |
-| Quality | 30 days | 80% | Quality score, defect rate, pass rate |
+| Type     | Horizon | Confidence | Key Metrics                              |
+| -------- | ------- | ---------- | ---------------------------------------- |
+| Cost     | 30 days | 95%        | Total cost, overrun %, contributors      |
+| Schedule | 90 days | 90%        | Completion date, delay days, probability |
+| Risk     | 60 days | 85%        | Risk score, severity, emerging risks     |
+| Quality  | 30 days | 80%        | Quality score, defect rate, pass rate    |
 
 ---
 
 ## 🔧 Configuration Options
 
 ### Forecast Config
+
 ```typescript
 {
   forecastHorizon: 30,        // Days to forecast
@@ -200,6 +193,7 @@ await deleteModelFromIndexedDB('model_id');
 ```
 
 ### Optimization Constraints
+
 ```typescript
 {
   budgetLimit: 500000,
@@ -219,14 +213,14 @@ await deleteModelFromIndexedDB('model_id');
 
 ## 📈 Expected Performance
 
-| Metric | Target | Typical Result |
-|--------|--------|----------------|
-| Cost Forecast Accuracy | 90%+ | 85-95% |
-| Schedule Accuracy | 85%+ | 80-90% |
-| Risk Detection | 80%+ | 75-90% |
-| Optimization Time | <30s | 15-25s |
-| Model Load Time | <500ms | 200-400ms |
-| UI Response | <100ms | 50-100ms |
+| Metric                 | Target | Typical Result |
+| ---------------------- | ------ | -------------- |
+| Cost Forecast Accuracy | 90%+   | 85-95%         |
+| Schedule Accuracy      | 85%+   | 80-90%         |
+| Risk Detection         | 80%+   | 75-90%         |
+| Optimization Time      | <30s   | 15-25s         |
+| Model Load Time        | <500ms | 200-400ms      |
+| UI Response            | <100ms | 50-100ms       |
 
 ---
 
@@ -244,6 +238,7 @@ npm test -- --coverage
 ```
 
 ### Test Categories
+
 - Time Series Forecasting (10 tests)
 - ML Model Building (5 tests)
 - Genetic Algorithm (4 tests)
@@ -254,6 +249,7 @@ npm test -- --coverage
 ## 🐛 Troubleshooting
 
 ### Issue: Model Not Loading
+
 ```typescript
 // Check if model exists
 const exists = await modelExists('model_id');
@@ -263,6 +259,7 @@ if (!exists) {
 ```
 
 ### Issue: Insufficient Historical Data
+
 ```typescript
 // Ensure minimum data points
 const minRequired = 31; // For 30-day sequence + 1
@@ -272,10 +269,11 @@ if (historicalData.length < minRequired) {
 ```
 
 ### Issue: Optimization Takes Too Long
+
 ```typescript
 // Reduce population size or generations
 const config = {
-  populationSize: 50,  // Default: 100
+  populationSize: 50, // Default: 100
   maxGenerations: 100, // Default: 200
 };
 ```
@@ -285,24 +283,28 @@ const config = {
 ## 💡 Best Practices
 
 ### 1. Model Training
+
 - Use at least 100 historical data points
 - Normalize features before training
 - Validate with separate test set
 - Save models after training
 
 ### 2. Forecasting
+
 - Generate forecasts weekly
 - Use 95% confidence for critical decisions
 - Compare multiple forecast methods
 - Update with actual data regularly
 
 ### 3. Optimization
+
 - Start with balanced objectives
 - Review AI recommendations before accepting
 - Monitor optimization metrics
 - Adjust constraints as needed
 
 ### 4. Performance
+
 - Cache forecast results
 - Load models on demand
 - Use web workers for heavy computation
@@ -313,6 +315,7 @@ const config = {
 ## 📝 Common Patterns
 
 ### Pattern 1: Forecast-Optimize-Execute
+
 ```typescript
 // 1. Generate forecast
 const forecast = await generateCostForecast('proj_123');
@@ -331,20 +334,18 @@ recommendations.forEach(rec => {
 ```
 
 ### Pattern 2: Multi-Project Analysis
+
 ```typescript
 // Get forecasts for all projects
 const projects = ['proj_1', 'proj_2', 'proj_3'];
-const forecasts = await Promise.all(
-  projects.map(id => generateCostForecast(id))
-);
+const forecasts = await Promise.all(projects.map((id) => generateCostForecast(id)));
 
 // Find projects at risk
-const atRisk = forecasts.filter(f => 
-  f.riskLevel === 'high' || f.riskLevel === 'critical'
-);
+const atRisk = forecasts.filter((f) => f.riskLevel === 'high' || f.riskLevel === 'critical');
 ```
 
 ### Pattern 3: Model Versioning
+
 ```typescript
 // Save versioned model
 const version = `v${Date.now()}`;
@@ -360,7 +361,7 @@ await saveModelToIndexedDB(`cost_model_${version}`, model, {
 // Load latest version
 const models = await listSavedModels();
 const latest = models
-  .filter(m => m.modelType === 'cost_forecaster')
+  .filter((m) => m.modelType === 'cost_forecaster')
   .sort((a, b) => b.trainedAt.getTime() - a.trainedAt.getTime())[0];
 ```
 
@@ -377,6 +378,7 @@ const latest = models
 ## 📞 Support
 
 For issues or questions:
+
 1. Check documentation files
 2. Review type definitions
 3. Inspect browser console

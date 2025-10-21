@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
@@ -44,10 +43,11 @@ export class SafeViewWrapper extends React.Component<SafeViewWrapperProps, Error
               </div>
               <h2 className="text-2xl font-bold text-red-800 mb-2">View Error</h2>
               <p className="text-red-600 mb-6">
-                Something went wrong while rendering this view. Please try refreshing or contact support.
+                Something went wrong while rendering this view. Please try refreshing or contact
+                support.
               </p>
               <div className="space-y-3">
-                <Button 
+                <Button
                   onClick={() => {
                     this.setState({ hasError: false });
                     this.props.onRetry?.();
@@ -57,7 +57,7 @@ export class SafeViewWrapper extends React.Component<SafeViewWrapperProps, Error
                   <RefreshCw className="w-4 h-4" />
                   <span>Try Again</span>
                 </Button>
-                <Button 
+                <Button
                   onClick={() => window.location.reload()}
                   className="w-full bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg"
                 >
@@ -66,7 +66,9 @@ export class SafeViewWrapper extends React.Component<SafeViewWrapperProps, Error
               </div>
               {this.state.error && (
                 <details className="mt-6 text-left">
-                  <summary className="text-sm text-gray-600 cursor-pointer">Technical Details</summary>
+                  <summary className="text-sm text-gray-600 cursor-pointer">
+                    Technical Details
+                  </summary>
                   <pre className="mt-2 text-xs text-gray-800 bg-gray-100 p-3 rounded overflow-auto">
                     {this.state.error.message}
                   </pre>

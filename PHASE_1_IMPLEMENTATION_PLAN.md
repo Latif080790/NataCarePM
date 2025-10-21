@@ -12,6 +12,7 @@
 Phase 1 focuses on building a **secure, resilient, and performant foundation** for NataCarePM. This phase addresses critical security vulnerabilities, implements disaster recovery, and optimizes performance to production-ready standards.
 
 **Key Objectives:**
+
 1. ✅ **Security:** Protect against 95% of common attacks
 2. ✅ **Resilience:** 99.9% data safety with automated backups
 3. ✅ **Performance:** 2x faster load times (3.5s → <1.5s)
@@ -21,16 +22,16 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 
 ## 🎯 SUCCESS CRITERIA
 
-| Metric | Current | Target | Measurement |
-|--------|---------|--------|-------------|
-| **Security Score** | 0/100 | 95/100 | Security audit checklist |
-| **Backup RTO** | N/A | <4 hours | Recovery time test |
-| **Backup RPO** | N/A | <1 hour | Data loss simulation |
-| **Initial Load** | 3.5s | <1.5s | Lighthouse audit |
-| **Bundle Size** | 2.8MB | <1.5MB | Webpack analyzer |
-| **Test Coverage** | 45% | 60% | Jest coverage report |
-| **TypeScript Errors** | 0 | 0 | tsc --noEmit |
-| **Production Ready** | No | Yes | Deployment checklist |
+| Metric                | Current | Target   | Measurement              |
+| --------------------- | ------- | -------- | ------------------------ |
+| **Security Score**    | 0/100   | 95/100   | Security audit checklist |
+| **Backup RTO**        | N/A     | <4 hours | Recovery time test       |
+| **Backup RPO**        | N/A     | <1 hour  | Data loss simulation     |
+| **Initial Load**      | 3.5s    | <1.5s    | Lighthouse audit         |
+| **Bundle Size**       | 2.8MB   | <1.5MB   | Webpack analyzer         |
+| **Test Coverage**     | 45%     | 60%      | Jest coverage report     |
+| **TypeScript Errors** | 0       | 0        | tsc --noEmit             |
+| **Production Ready**  | No      | Yes      | Deployment checklist     |
 
 ---
 
@@ -39,18 +40,20 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 ### Current State Analysis
 
 **Dependencies:**
+
 ```json
 {
   "firebase": "^12.4.0",
-  "dompurify": "^3.3.0",  // ✅ Already installed
-  "qrcode": "^1.5.4",     // ✅ Already installed
-  "zod": "^4.1.12",       // ✅ Already installed
-  "bcryptjs": "^3.0.2",   // ✅ Already installed
-  "otpauth": "^9.4.1"     // ✅ Already installed
+  "dompurify": "^3.3.0", // ✅ Already installed
+  "qrcode": "^1.5.4", // ✅ Already installed
+  "zod": "^4.1.12", // ✅ Already installed
+  "bcryptjs": "^3.0.2", // ✅ Already installed
+  "otpauth": "^9.4.1" // ✅ Already installed
 }
 ```
 
 **Security Infrastructure:**
+
 - ✅ `rateLimiter` - Already implemented in `utils/rateLimiter.ts`
 - ✅ `twoFactorService` - Already integrated in `api/twoFactorService.ts`
 - ✅ `AuthContext` - Already supports 2FA flow
@@ -60,12 +63,14 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 - ❌ CSP headers - NOT configured
 
 **Performance Status:**
+
 - ✅ Vite code splitting - Configured in `vite.config.ts`
 - ❌ Lazy loading views - NOT implemented (static imports)
 - ❌ React.memo - NOT applied
 - ❌ Firebase persistence - NOT enabled
 
 **Disaster Recovery:**
+
 - ❌ Automated backups - NOT setup
 - ❌ Recovery procedures - NOT documented
 - ❌ Failover mechanism - NOT implemented
@@ -79,6 +84,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 1-2: Security Hardening (16 hours)**
 
 **Todo #2: Rate Limiting Enhancement** (4 hours)
+
 - Status: ✅ Already implemented in `utils/rateLimiter.ts`
 - Action: Review and enhance with Redis-like persistence
 - Deliverables:
@@ -87,6 +93,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Integration with all API endpoints
 
 **Todo #3: 2FA System Verification** (4 hours)
+
 - Status: ✅ Already implemented in `api/twoFactorService.ts`
 - Action: Verify integration, add UI components
 - Deliverables:
@@ -96,6 +103,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Trusted devices feature
 
 **Todo #4: Input Validation & Sanitization** (4 hours)
+
 - Create comprehensive Zod schemas for:
   - Login form (email, password)
   - Registration form
@@ -108,6 +116,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Apply to all 15+ forms in application
 
 **Todo #5: XSS Protection Layer** (4 hours)
+
 - Integrate DOMPurify in all components that render:
   - User-generated content
   - Rich text editors
@@ -123,6 +132,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 3: RBAC & CSP (8 hours)**
 
 **Todo #6: RBAC Enforcement Middleware** (4 hours)
+
 - Create role-based access control system:
   - `src/middleware/rbac.ts` - Permission checking
   - `src/hooks/usePermissions.ts` - React hook
@@ -135,6 +145,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - 20+ unit tests
 
 **Todo #7: Content Security Policy** (4 hours)
+
 - Configure CSP headers for:
   - Vite development server
   - Firebase Hosting
@@ -149,6 +160,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 4-5: Disaster Recovery (16 hours)**
 
 **Todo #8: Automated Backup System** (8 hours)
+
 - Setup Firebase Cloud Functions for:
   - Daily automated backups (Firestore export)
   - Cross-region storage replication
@@ -161,6 +173,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Email alerts on failure
 
 **Todo #9: Recovery Procedures Documentation** (4 hours)
+
 - Document comprehensive DR plan:
   - RTO target: <4 hours
   - RPO target: <1 hour
@@ -174,6 +187,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Quarterly drill schedule
 
 **Todo #10: Failover Mechanism** (4 hours)
+
 - Implement automatic failover:
   - Secondary Firebase region setup
   - Health check monitoring
@@ -192,6 +206,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 6-7: Code Splitting & Lazy Loading (16 hours)**
 
 **Todo #11: Lazy Loading Implementation** (8 hours)
+
 - Convert all view imports to React.lazy():
   - 25+ view components
   - Add Suspense boundaries
@@ -205,6 +220,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Lighthouse audit comparison
 
 **Todo #12: React Memoization** (8 hours)
+
 - Apply React.memo to top 20 components:
   - Card components
   - Chart components
@@ -226,6 +242,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 8: Firebase Caching (8 hours)**
 
 **Todo #13: Firebase Persistence & Caching** (8 hours)
+
 - Enable Firestore features:
   - IndexedDB persistence
   - Query result caching
@@ -244,6 +261,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 9: Security & DR Testing (8 hours)**
 
 **Todo #14: Security Testing Suite** (4 hours)
+
 - Create test cases for:
   - Rate limiting (brute force simulation)
   - 2FA flow (TOTP verification)
@@ -257,6 +275,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - OWASP Top 10 coverage report
 
 **Todo #15: DR Testing** (4 hours)
+
 - Test disaster scenarios:
   - Full database restoration
   - Point-in-time recovery
@@ -271,6 +290,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
 #### **Day 10: Performance Audit & Documentation (8 hours)**
 
 **Todo #16: Performance Baseline & Audit** (4 hours)
+
 - Run comprehensive audits:
   - Lighthouse CI (target 92/100)
   - Bundle analyzer (target 58% reduction)
@@ -283,6 +303,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Production readiness checklist
 
 **Todo #17: Security & DR Documentation** (2 hours)
+
 - Create comprehensive docs:
   - `SECURITY.md` - All security features
   - `DISASTER_RECOVERY.md` - DR procedures
@@ -295,6 +316,7 @@ Phase 1 focuses on building a **secure, resilient, and performant foundation** f
   - Best practices guide
 
 **Todo #18: Phase 1 Verification & Report** (2 hours)
+
 - Final verification:
   - All 17 tasks completed
   - All tests passing (60%+ coverage)
@@ -359,27 +381,31 @@ NataCarePM/
 ### Security Implementation Details
 
 #### 1. Input Validation Example (Zod)
+
 ```typescript
 // src/schemas/authSchemas.ts
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z.string()
+  email: z
+    .string()
     .email('Invalid email format')
     .min(5, 'Email too short')
     .max(100, 'Email too long'),
-  password: z.string()
+  password: z
+    .string()
     .min(12, 'Password must be at least 12 characters')
     .regex(/[A-Z]/, 'Must contain uppercase letter')
     .regex(/[a-z]/, 'Must contain lowercase letter')
     .regex(/[0-9]/, 'Must contain number')
-    .regex(/[^A-Za-z0-9]/, 'Must contain special character')
+    .regex(/[^A-Za-z0-9]/, 'Must contain special character'),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 ```
 
 #### 2. XSS Protection Example
+
 ```typescript
 // src/utils/sanitizer.ts
 import DOMPurify from 'dompurify';
@@ -388,7 +414,7 @@ export const sanitizeHTML = (dirty: string): string => {
   return DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
     ALLOWED_ATTR: ['href', 'title', 'target'],
-    KEEP_CONTENT: true
+    KEEP_CONTENT: true,
   });
 };
 
@@ -398,6 +424,7 @@ export const sanitizeUserInput = (input: string): string => {
 ```
 
 #### 3. RBAC Middleware Example
+
 ```typescript
 // src/middleware/rbac.ts
 import { User } from '../types';
@@ -408,13 +435,10 @@ type Role = 'admin' | 'pm' | 'viewer';
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   admin: ['read', 'write', 'delete', 'admin'],
   pm: ['read', 'write'],
-  viewer: ['read']
+  viewer: ['read'],
 };
 
-export const hasPermission = (
-  user: User | null,
-  requiredPermission: Permission
-): boolean => {
+export const hasPermission = (user: User | null, requiredPermission: Permission): boolean => {
   if (!user) return false;
   const role = user.roleId as Role;
   return ROLE_PERMISSIONS[role]?.includes(requiredPermission) || false;
@@ -432,6 +456,7 @@ export const requirePermission = (permission: Permission) => {
 ### Performance Optimization Details
 
 #### 1. Lazy Loading Example
+
 ```typescript
 // App.tsx - Before
 import DashboardView from './views/DashboardView';
@@ -451,6 +476,7 @@ const ProjectsView = lazy(() => import('./views/ProjectsView'));
 ```
 
 #### 2. React.memo Example
+
 ```typescript
 // components/Card.tsx - Before
 export const Card = ({ children }: CardProps) => {
@@ -466,23 +492,24 @@ export const Card = memo(({ children }: CardProps) => {
 ```
 
 #### 3. Firebase Persistence
+
 ```typescript
 // firebaseConfig.ts - Add
 import { enableIndexedDbPersistence } from 'firebase/firestore';
 
-enableIndexedDbPersistence(db)
-  .catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('Browser does not support persistence.');
-    }
-  });
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+  } else if (err.code === 'unimplemented') {
+    console.warn('Browser does not support persistence.');
+  }
+});
 ```
 
 ### Disaster Recovery Details
 
 #### 1. Automated Backup Function
+
 ```typescript
 // functions/backups/dailyBackup.ts
 import * as functions from 'firebase-functions';
@@ -494,13 +521,13 @@ export const dailyBackup = functions.pubsub
   .onRun(async () => {
     const bucket = admin.storage().bucket('gs://natacara-hns-backups');
     const timestamp = new Date().toISOString();
-    
+
     // Export Firestore
     await admin.firestore().exportDocuments({
       outputUriPrefix: `gs://natacara-hns-backups/firestore-${timestamp}`,
-      collectionIds: [] // Empty = all collections
+      collectionIds: [], // Empty = all collections
     });
-    
+
     console.log(`Backup completed: firestore-${timestamp}`);
   });
 ```
@@ -510,6 +537,7 @@ export const dailyBackup = functions.pubsub
 ## 📊 EXPECTED METRICS IMPROVEMENT
 
 ### Before Phase 1
+
 ```
 Security Score:        0/100     ❌ Vulnerable
 Data Safety:           60%       ⚠️ At Risk
@@ -524,6 +552,7 @@ Production Ready:      NO        ❌
 ```
 
 ### After Phase 1 (Target)
+
 ```
 Security Score:        95/100    ✅ Hardened
 Data Safety:           99.9%     ✅ Protected
@@ -543,6 +572,7 @@ Lighthouse Score:      92/100    ✅ Excellent
 ## 🎯 QUALITY ASSURANCE CHECKLIST
 
 ### Security Verification
+
 - [ ] Rate limiting active on all endpoints
 - [ ] 2FA working for all users
 - [ ] All forms have Zod validation
@@ -553,6 +583,7 @@ Lighthouse Score:      92/100    ✅ Excellent
 - [ ] OWASP Top 10 coverage verified
 
 ### Disaster Recovery Verification
+
 - [ ] Daily backups running automatically
 - [ ] Cross-region replication active
 - [ ] RTO < 4 hours verified
@@ -562,6 +593,7 @@ Lighthouse Score:      92/100    ✅ Excellent
 - [ ] DR drill completed successfully
 
 ### Performance Verification
+
 - [ ] All views lazy loaded
 - [ ] React.memo on 20+ components
 - [ ] Firebase persistence enabled
@@ -571,6 +603,7 @@ Lighthouse Score:      92/100    ✅ Excellent
 - [ ] All Web Vitals green
 
 ### Testing Verification
+
 - [ ] Test coverage > 60%
 - [ ] All security tests passing
 - [ ] All DR tests passing
@@ -584,6 +617,7 @@ Lighthouse Score:      92/100    ✅ Excellent
 ## 🚀 DEPLOYMENT READINESS
 
 ### Pre-Deployment Checklist
+
 - [ ] All 18 tasks completed
 - [ ] All tests passing
 - [ ] Documentation updated
@@ -594,6 +628,7 @@ Lighthouse Score:      92/100    ✅ Excellent
 - [ ] Rollback plan documented
 
 ### Production Deployment Steps
+
 1. Run final type check: `npm run type-check`
 2. Run final tests: `npm run test`
 3. Build production: `npm run build`
@@ -608,13 +643,13 @@ Lighthouse Score:      92/100    ✅ Excellent
 
 ## 💰 BUDGET BREAKDOWN
 
-| Task | Hours | Rate | Cost |
-|------|-------|------|------|
-| Security Hardening (Todo #2-7) | 24h | $100/h | $2,400 |
-| Disaster Recovery (Todo #8-10) | 16h | $100/h | $1,600 |
-| Performance Optimization (Todo #11-13) | 24h | $100/h | $2,400 |
-| Testing & Documentation (Todo #14-18) | 16h | $100/h | $1,600 |
-| **TOTAL** | **80h** | **$100/h** | **$8,000** |
+| Task                                   | Hours   | Rate       | Cost       |
+| -------------------------------------- | ------- | ---------- | ---------- |
+| Security Hardening (Todo #2-7)         | 24h     | $100/h     | $2,400     |
+| Disaster Recovery (Todo #8-10)         | 16h     | $100/h     | $1,600     |
+| Performance Optimization (Todo #11-13) | 24h     | $100/h     | $2,400     |
+| Testing & Documentation (Todo #14-18)  | 16h     | $100/h     | $1,600     |
+| **TOTAL**                              | **80h** | **$100/h** | **$8,000** |
 
 **Note:** Original estimate was $18,000. Optimized to $8,000 by leveraging existing implementations (rateLimiter, twoFactorService already done).
 
@@ -623,25 +658,28 @@ Lighthouse Score:      92/100    ✅ Excellent
 ## 📝 RISK MITIGATION
 
 ### Technical Risks
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Firebase persistence issues | Medium | High | Thorough testing on multiple browsers |
-| CSP breaking third-party scripts | High | Medium | Whitelist trusted domains, test incrementally |
-| Lazy loading breaking routes | Low | High | Comprehensive integration tests |
-| Backup function failures | Low | Critical | Daily monitoring, email alerts |
+
+| Risk                             | Probability | Impact   | Mitigation                                    |
+| -------------------------------- | ----------- | -------- | --------------------------------------------- |
+| Firebase persistence issues      | Medium      | High     | Thorough testing on multiple browsers         |
+| CSP breaking third-party scripts | High        | Medium   | Whitelist trusted domains, test incrementally |
+| Lazy loading breaking routes     | Low         | High     | Comprehensive integration tests               |
+| Backup function failures         | Low         | Critical | Daily monitoring, email alerts                |
 
 ### Timeline Risks
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Underestimated complexity | Medium | High | Buffer time in Week 2 |
-| Blocked by dependencies | Low | Medium | Parallel task execution where possible |
-| Testing uncovers critical bugs | Medium | High | Allocate 20% time for bug fixes |
+
+| Risk                           | Probability | Impact | Mitigation                             |
+| ------------------------------ | ----------- | ------ | -------------------------------------- |
+| Underestimated complexity      | Medium      | High   | Buffer time in Week 2                  |
+| Blocked by dependencies        | Low         | Medium | Parallel task execution where possible |
+| Testing uncovers critical bugs | Medium      | High   | Allocate 20% time for bug fixes        |
 
 ---
 
 ## 🎓 NEXT STEPS AFTER PHASE 1
 
 Once Phase 1 is complete:
+
 1. ✅ Deploy to production
 2. ✅ Monitor for 1 week
 3. ✅ Gather user feedback

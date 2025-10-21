@@ -14,11 +14,11 @@ import {
   getDoc,
   updateDoc,
   serverTimestamp,
-  arrayUnion,
+  // arrayUnion, // Disabled: unused
   Timestamp,
 } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
-import { auth, db } from '../../firebaseConfig';
+import { auth, db } from '@/firebaseConfig'; // Perbaiki path jika file ada di src
 import { validatePassword } from '@/utils/passwordValidator';
 import type { APIResponse, PasswordHistory } from '@/types/userProfile';
 import { PASSWORD_REQUIREMENTS } from '@/types/userProfile';
@@ -256,7 +256,7 @@ const checkPasswordHistory = async (
 ): Promise<APIResponse<boolean>> => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
-    
+
     if (!userDoc.exists()) {
       return {
         success: true, // User doesn't have history yet, allow
@@ -270,7 +270,7 @@ const checkPasswordHistory = async (
     // Get recent password hashes
     const recentHashes = passwordHistory
       .slice(-PASSWORD_REQUIREMENTS.historyCount)
-      .map(entry => entry.passwordHash);
+      .map((entry) => entry.passwordHash);
 
     // Check if new password matches any recent hash using bcrypt
     for (const hash of recentHashes) {
@@ -311,10 +311,7 @@ const hashPassword = async (password: string): Promise<string> => {
 /**
  * Add password to user's history
  */
-const addToPasswordHistory = async (
-  userId: string,
-  password: string
-): Promise<void> => {
+const addToPasswordHistory = async (userId: string, password: string): Promise<void> => {
   try {
     const userRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userRef);
@@ -377,10 +374,13 @@ export const getPasswordHistory = async (
     const history: PasswordHistory[] = userData.passwordHistory || [];
 
     // Remove actual password hashes from response for security
-    const sanitizedHistory = history.map(entry => ({
+    const sanitizedHistory = history.map((entry) => ({
       ...entry,
       passwordHash: '***', // Hide hash
-      createdAt: entry.createdAt instanceof Timestamp ? (entry.createdAt as Timestamp).toDate() : entry.createdAt,
+      createdAt:
+        entry.createdAt instanceof Timestamp
+          ? (entry.createdAt as Timestamp).toDate()
+          : entry.createdAt,
     }));
 
     return {
@@ -404,9 +404,7 @@ export const getPasswordHistory = async (
 /**
  * Get last password change date
  */
-export const getLastPasswordChange = async (
-  userId: string
-): Promise<APIResponse<Date | null>> => {
+export const getLastPasswordChange = async (userId: string): Promise<APIResponse<Date | null>> => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
 

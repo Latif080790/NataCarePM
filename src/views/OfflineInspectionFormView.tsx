@@ -1,13 +1,23 @@
 /**
  * Offline Inspection Form View
  * Phase 3.5: Mobile Offline Inspections
- * 
+ *
  * Mobile-optimized inspection form with offline support
  */
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Camera, Plus, Trash2, Save, CheckCircle, XCircle, MinusCircle, WifiOff, Wifi } from 'lucide-react';
+import {
+  Camera,
+  Plus,
+  Trash2,
+  Save,
+  CheckCircle,
+  XCircle,
+  MinusCircle,
+  WifiOff,
+  Wifi,
+} from 'lucide-react';
 import { useOffline } from '@/contexts/OfflineContext';
 import { useProject } from '@/contexts/ProjectContext';
 import type { OfflineInspection } from '@/types/offline.types';
@@ -19,7 +29,7 @@ const OfflineInspectionFormView: React.FC = () => {
   const { id } = useParams();
   const { isOnline, createInspection, updateInspection, addAttachment } = useOffline();
   const { currentProject } = useProject();
-  
+
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,9 +64,7 @@ const OfflineInspectionFormView: React.FC = () => {
   const updateChecklistItem = useCallback((id: string, updates: Partial<ChecklistItem>) => {
     setFormData((prev) => ({
       ...prev,
-      checklist: prev.checklist.map((item) =>
-        item.id === id ? { ...item, ...updates } : item
-      ),
+      checklist: prev.checklist.map((item) => (item.id === id ? { ...item, ...updates } : item)),
     }));
   }, []);
 
@@ -92,10 +100,12 @@ const OfflineInspectionFormView: React.FC = () => {
   // Calculate overall result
   const overallResult = useMemo(() => {
     if (formData.checklist.length === 0) return undefined;
-    
+
     const hasFailures = formData.checklist.some((item) => item.result === 'fail');
-    const allPass = formData.checklist.every((item) => item.result === 'pass' || item.result === 'na');
-    
+    const allPass = formData.checklist.every(
+      (item) => item.result === 'pass' || item.result === 'na'
+    );
+
     if (hasFailures) return 'fail';
     if (allPass) return 'pass';
     return 'conditional';
@@ -134,14 +144,10 @@ const OfflineInspectionFormView: React.FC = () => {
         });
         inspectionId = id;
       } else {
-        const inspection = await createInspection(
-          currentProject.id,
-          'general',
-          {
-            ...formData,
-            overallResult,
-          }
-        );
+        const inspection = await createInspection(currentProject.id, 'general', {
+          ...formData,
+          overallResult,
+        });
         inspectionId = inspection.localId;
         setCurrentInspectionId(inspectionId);
       }
@@ -155,18 +161,29 @@ const OfflineInspectionFormView: React.FC = () => {
       }
 
       setSaved(true);
-      
+
       setTimeout(() => {
         navigate('/inspections/offline');
       }, 1500);
-      
     } catch (error) {
       console.error('Failed to save inspection:', error);
       alert('Failed to save inspection');
     } finally {
       setLoading(false);
     }
-  }, [isValid, currentProject, currentInspectionId, id, formData, overallResult, attachments, updateInspection, createInspection, addAttachment, navigate]);
+  }, [
+    isValid,
+    currentProject,
+    currentInspectionId,
+    id,
+    formData,
+    overallResult,
+    attachments,
+    updateInspection,
+    createInspection,
+    addAttachment,
+    navigate,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
@@ -188,7 +205,7 @@ const OfflineInspectionFormView: React.FC = () => {
               </span>
             </div>
           </div>
-          
+
           {!isOnline && (
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -206,7 +223,7 @@ const OfflineInspectionFormView: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Basic Information
           </h2>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -295,9 +312,7 @@ const OfflineInspectionFormView: React.FC = () => {
                     <input
                       type="text"
                       value={item.item}
-                      onChange={(e) =>
-                        updateChecklistItem(item.id, { item: e.target.value })
-                      }
+                      onChange={(e) => updateChecklistItem(item.id, { item: e.target.value })}
                       className="flex-1 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                       placeholder="Checklist item"
                     />
@@ -348,9 +363,7 @@ const OfflineInspectionFormView: React.FC = () => {
                   {item.notes !== undefined && (
                     <textarea
                       value={item.notes}
-                      onChange={(e) =>
-                        updateChecklistItem(item.id, { notes: e.target.value })
-                      }
+                      onChange={(e) => updateChecklistItem(item.id, { notes: e.target.value })}
                       rows={2}
                       className="mt-2 ml-8 w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                       placeholder="Notes (optional)"
@@ -432,8 +445,8 @@ const OfflineInspectionFormView: React.FC = () => {
                 overallResult === 'pass'
                   ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
                   : overallResult === 'fail'
-                  ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                  : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                    ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                    : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
               }`}
             >
               {overallResult === 'pass' && <CheckCircle className="w-5 h-5" />}

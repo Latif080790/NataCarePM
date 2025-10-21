@@ -1,7 +1,7 @@
 /**
  * Executive Dashboard Service
  * Phase 3.5: Quick Wins - Executive Dashboard
- * 
+ *
  * Aggregates high-level KPIs and metrics for C-level decision making
  */
 
@@ -43,7 +43,7 @@ class ExecutiveService {
     customDateRange?: { start: Date; end: Date }
   ): Promise<ExecutiveDashboardData> {
     const dateRange = this.getDateRange(timeFrame, customDateRange);
-    
+
     // Fetch all data in parallel for performance
     const [
       kpis,
@@ -92,13 +92,7 @@ class ExecutiveService {
     dateRange: { start: Date; end: Date },
     projectId?: string
   ): Promise<ExecutiveKPI[]> {
-    const [
-      financial,
-      schedule,
-      quality,
-      safety,
-      productivity,
-    ] = await Promise.all([
+    const [financial, schedule, quality, safety, productivity] = await Promise.all([
       this.getFinancialOverview(dateRange, projectId),
       this.getSchedulePerformance(dateRange, projectId),
       this.getQualitySafetySummary(dateRange, projectId),
@@ -168,9 +162,10 @@ class ExecutiveService {
         id: 'on-time-delivery',
         name: 'On-Time Delivery',
         category: 'schedule',
-        value: schedule.milestones.total > 0 
-          ? (schedule.milestones.completed / schedule.milestones.total) * 100 
-          : 0,
+        value:
+          schedule.milestones.total > 0
+            ? (schedule.milestones.completed / schedule.milestones.total) * 100
+            : 0,
         unit: '%',
         target: 95,
         trend: 'stable',
@@ -233,9 +228,14 @@ class ExecutiveService {
         target: 90,
         trend: 'up',
         trendPercentage: 0,
-        status: safety.safety.daysSinceLastIncident >= 90 ? 'excellent' : 
-                safety.safety.daysSinceLastIncident >= 60 ? 'good' :
-                safety.safety.daysSinceLastIncident >= 30 ? 'warning' : 'critical',
+        status:
+          safety.safety.daysSinceLastIncident >= 90
+            ? 'excellent'
+            : safety.safety.daysSinceLastIncident >= 60
+              ? 'good'
+              : safety.safety.daysSinceLastIncident >= 30
+                ? 'warning'
+                : 'critical',
         comparison: {
           previousPeriod: 90,
           change: 0,
@@ -273,7 +273,13 @@ class ExecutiveService {
         target: 85,
         trend: this.determineTrend(productivity.laborProductivity.efficiency, 85),
         trendPercentage: Math.abs(productivity.laborProductivity.efficiency - 85),
-        status: this.determineKPIStatus(productivity.laborProductivity.efficiency, 85, 80, 75, false),
+        status: this.determineKPIStatus(
+          productivity.laborProductivity.efficiency,
+          85,
+          80,
+          75,
+          false
+        ),
         comparison: {
           previousPeriod: 85,
           change: productivity.laborProductivity.efficiency - 85,
@@ -299,22 +305,25 @@ class ExecutiveService {
       : query(collection(db, 'projects'));
 
     const snapshot = await getDocs(projectsQuery);
-    const projects = snapshot.docs.map(doc => ({
+    const projects = snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     })) as Project[];
 
     // Calculate project values from RAB items
     const getProjectValue = (p: Project) => {
-      return p.items?.reduce((sum, item) => sum + ((item.hargaSatuan || 0) * (item.volume || 0)), 0) || 0;
+      return (
+        p.items?.reduce((sum, item) => sum + (item.hargaSatuan || 0) * (item.volume || 0), 0) || 0
+      );
     };
 
     const getProjectProgress = (p: Project) => {
       if (!p.items || p.items.length === 0) return 0;
       const totalVolume = p.items.reduce((sum, item) => sum + (item.volume || 0), 0);
-      const completedVolume = p.dailyReports?.reduce((sum, report) => {
-        return sum + (report.workProgress?.reduce((s, wp) => s + wp.completedVolume, 0) || 0);
-      }, 0) || 0;
+      const completedVolume =
+        p.dailyReports?.reduce((sum, report) => {
+          return sum + (report.workProgress?.reduce((s, wp) => s + wp.completedVolume, 0) || 0);
+        }, 0) || 0;
       return totalVolume > 0 ? (completedVolume / totalVolume) * 100 : 0;
     };
 
@@ -324,8 +333,8 @@ class ExecutiveService {
       return progress >= 100;
     };
 
-    const activeProjects = projects.filter(p => !isCompleted(p));
-    const completedProjects = projects.filter(p => isCompleted(p));
+    const activeProjects = projects.filter((p) => !isCompleted(p));
+    const completedProjects = projects.filter((p) => isCompleted(p));
     const pausedProjects: Project[] = []; // Would need actual status field
 
     const totalValue = projects.reduce((sum, p) => sum + getProjectValue(p), 0);
@@ -333,39 +342,45 @@ class ExecutiveService {
 
     // Calculate by phase (based on progress percentage)
     const byPhase = {
-      planning: projects.filter(p => getProjectProgress(p) < 25).length,
-      design: projects.filter(p => {
+      planning: projects.filter((p) => getProjectProgress(p) < 25).length,
+      design: projects.filter((p) => {
         const prog = getProjectProgress(p);
         return prog >= 25 && prog < 50;
       }).length,
-      construction: projects.filter(p => {
+      construction: projects.filter((p) => {
         const prog = getProjectProgress(p);
         return prog >= 50 && prog < 90;
       }).length,
-      closeout: projects.filter(p => getProjectProgress(p) >= 90).length,
+      closeout: projects.filter((p) => getProjectProgress(p) >= 90).length,
     };
 
     // Calculate by status (simplified - based on schedule)
     const byStatus = {
-      onTrack: activeProjects.filter(p => {
+      onTrack: activeProjects.filter((p) => {
         const startDate = new Date(p.startDate);
         const now = new Date();
-        const daysPassed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysPassed = Math.floor(
+          (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
         const expectedProgress = Math.min((daysPassed / 180) * 100, 100); // Assume 180 days
         return getProjectProgress(p) >= expectedProgress;
       }).length,
-      atRisk: activeProjects.filter(p => {
+      atRisk: activeProjects.filter((p) => {
         const startDate = new Date(p.startDate);
         const now = new Date();
-        const daysPassed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysPassed = Math.floor(
+          (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
         const expectedProgress = Math.min((daysPassed / 180) * 100, 100);
         const progressDiff = expectedProgress - getProjectProgress(p);
         return progressDiff > 5 && progressDiff <= 15;
       }).length,
-      delayed: activeProjects.filter(p => {
+      delayed: activeProjects.filter((p) => {
         const startDate = new Date(p.startDate);
         const now = new Date();
-        const daysPassed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysPassed = Math.floor(
+          (now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
         const expectedProgress = Math.min((daysPassed / 180) * 100, 100);
         const progressDiff = expectedProgress - getProjectProgress(p);
         return progressDiff > 15;
@@ -376,7 +391,7 @@ class ExecutiveService {
     const topProjects = projects
       .sort((a, b) => getProjectValue(b) - getProjectValue(a))
       .slice(0, 5)
-      .map(p => ({
+      .map((p) => ({
         id: p.id,
         name: p.name,
         value: getProjectValue(p),
@@ -406,12 +421,12 @@ class ExecutiveService {
   ): Promise<FinancialOverview> {
     // This would aggregate from actual financial data
     // Simplified implementation for demonstration
-    
+
     const totalBudget = 5000000;
     const actualCost = 3200000;
     const committedCost = 800000;
     const forecastCost = 4800000;
-    
+
     const variance = totalBudget - actualCost;
     const variancePercentage = (variance / totalBudget) * 100;
 
@@ -771,11 +786,7 @@ class ExecutiveService {
   /**
    * Helper: Determine KPI trend
    */
-  private determineTrend(
-    value: number,
-    target: number,
-    lowerIsBetter: boolean = false
-  ): KPITrend {
+  private determineTrend(value: number, target: number, lowerIsBetter: boolean = false): KPITrend {
     const diff = value - target;
     const threshold = Math.abs(target * 0.05); // 5% threshold
 

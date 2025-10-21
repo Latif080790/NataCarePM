@@ -13,7 +13,8 @@ import { z } from 'zod';
  * - At least 1 number
  * - At least 1 special character
  */
-const passwordSchema = z.string()
+const passwordSchema = z
+  .string()
   .min(12, 'Password must be at least 12 characters long')
   .max(128, 'Password is too long (max 128 characters)')
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -25,7 +26,8 @@ const passwordSchema = z.string()
  * Email Validation
  * Standard email format with additional checks
  */
-const emailSchema = z.string()
+const emailSchema = z
+  .string()
   .min(5, 'Email is too short')
   .max(100, 'Email is too long')
   .email('Please enter a valid email address')
@@ -37,10 +39,8 @@ const emailSchema = z.string()
  */
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string()
-    .min(1, 'Password is required')
-    .max(128, 'Password is too long'),
-  rememberMe: z.boolean().optional().default(false)
+  password: z.string().min(1, 'Password is required').max(128, 'Password is too long'),
+  rememberMe: z.boolean().optional().default(false),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
@@ -48,23 +48,25 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 /**
  * Registration Form Schema
  */
-export const registrationSchema = z.object({
-  name: z.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name is too long')
-    .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
-    .trim(),
-  email: emailSchema,
-  password: passwordSchema,
-  confirmPassword: z.string(),
-  agreeToTerms: z.boolean()
-    .refine(val => val === true, {
-      message: 'You must agree to the Terms of Service and Privacy Policy'
-    })
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
-});
+export const registrationSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, 'Name must be at least 2 characters')
+      .max(100, 'Name is too long')
+      .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
+      .trim(),
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    agreeToTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must agree to the Terms of Service and Privacy Policy',
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 export type RegistrationFormData = z.infer<typeof registrationSchema>;
 
@@ -72,7 +74,7 @@ export type RegistrationFormData = z.infer<typeof registrationSchema>;
  * Password Reset Request Schema
  */
 export const passwordResetRequestSchema = z.object({
-  email: emailSchema
+  email: emailSchema,
 });
 
 export type PasswordResetRequestData = z.infer<typeof passwordResetRequestSchema>;
@@ -80,35 +82,39 @@ export type PasswordResetRequestData = z.infer<typeof passwordResetRequestSchema
 /**
  * Password Reset Confirm Schema
  */
-export const passwordResetConfirmSchema = z.object({
-  resetToken: z.string()
-    .min(20, 'Invalid reset token')
-    .max(500, 'Invalid reset token'),
-  password: passwordSchema,
-  confirmPassword: z.string()
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
-});
+export const passwordResetConfirmSchema = z
+  .object({
+    resetToken: z.string().min(20, 'Invalid reset token').max(500, 'Invalid reset token'),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 export type PasswordResetConfirmData = z.infer<typeof passwordResetConfirmSchema>;
 
 /**
  * Change Password Schema (for logged-in users)
  */
-export const changePasswordSchema = z.object({
-  currentPassword: z.string()
-    .min(1, 'Current password is required')
-    .max(128, 'Password is too long'),
-  newPassword: passwordSchema,
-  confirmPassword: z.string()
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
-}).refine(data => data.currentPassword !== data.newPassword, {
-  message: 'New password must be different from current password',
-  path: ['newPassword']
-});
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, 'Current password is required')
+      .max(128, 'Password is too long'),
+    newPassword: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: 'New password must be different from current password',
+    path: ['newPassword'],
+  });
 
 export type ChangePasswordData = z.infer<typeof changePasswordSchema>;
 
@@ -116,10 +122,11 @@ export type ChangePasswordData = z.infer<typeof changePasswordSchema>;
  * 2FA Setup Schema
  */
 export const twoFactorSetupSchema = z.object({
-  password: z.string()
+  password: z
+    .string()
     .min(1, 'Password is required for 2FA setup')
     .max(128, 'Password is too long'),
-  backupEmail: emailSchema.optional()
+  backupEmail: emailSchema.optional(),
 });
 
 export type TwoFactorSetupData = z.infer<typeof twoFactorSetupSchema>;
@@ -128,10 +135,11 @@ export type TwoFactorSetupData = z.infer<typeof twoFactorSetupSchema>;
  * 2FA Verification Schema
  */
 export const twoFactorVerifySchema = z.object({
-  code: z.string()
+  code: z
+    .string()
     .length(6, '2FA code must be exactly 6 digits')
     .regex(/^\d{6}$/, '2FA code must contain only numbers'),
-  trustDevice: z.boolean().optional().default(false)
+  trustDevice: z.boolean().optional().default(false),
 });
 
 export type TwoFactorVerifyData = z.infer<typeof twoFactorVerifySchema>;
@@ -140,12 +148,14 @@ export type TwoFactorVerifyData = z.infer<typeof twoFactorVerifySchema>;
  * 2FA Disable Schema
  */
 export const twoFactorDisableSchema = z.object({
-  password: z.string()
+  password: z
+    .string()
     .min(1, 'Password is required to disable 2FA')
     .max(128, 'Password is too long'),
-  code: z.string()
+  code: z
+    .string()
     .length(6, '2FA code must be exactly 6 digits')
-    .regex(/^\d{6}$/, '2FA code must contain only numbers')
+    .regex(/^\d{6}$/, '2FA code must contain only numbers'),
 });
 
 export type TwoFactorDisableData = z.infer<typeof twoFactorDisableSchema>;
@@ -154,23 +164,20 @@ export type TwoFactorDisableData = z.infer<typeof twoFactorDisableSchema>;
  * Profile Update Schema
  */
 export const profileUpdateSchema = z.object({
-  name: z.string()
+  name: z
+    .string()
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name is too long')
     .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
     .trim(),
   email: emailSchema,
-  phone: z.string()
+  phone: z
+    .string()
     .regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number (E.164 format)')
     .optional()
     .or(z.literal('')),
-  bio: z.string()
-    .max(500, 'Bio is too long (max 500 characters)')
-    .optional(),
-  avatarUrl: z.string()
-    .url('Please enter a valid URL')
-    .optional()
-    .or(z.literal(''))
+  bio: z.string().max(500, 'Bio is too long (max 500 characters)').optional(),
+  avatarUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
 });
 
 export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
@@ -179,9 +186,10 @@ export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
  * Email Verification Schema
  */
 export const emailVerificationSchema = z.object({
-  code: z.string()
+  code: z
+    .string()
     .length(6, 'Verification code must be 6 digits')
-    .regex(/^\d{6}$/, 'Verification code must contain only numbers')
+    .regex(/^\d{6}$/, 'Verification code must contain only numbers'),
 });
 
 export type EmailVerificationData = z.infer<typeof emailVerificationSchema>;
@@ -202,7 +210,7 @@ export function validateSchema<T extends z.ZodTypeAny>(
 
   // Format errors for easier display
   const errors: Record<string, string[]> = {};
-  result.error.issues.forEach(err => {
+  result.error.issues.forEach((err) => {
     const path = err.path.join('.');
     if (!errors[path]) {
       errors[path] = [];
@@ -269,12 +277,47 @@ export function calculatePasswordStrength(password: string): {
  * In production, this should be loaded from a larger database
  */
 const COMMON_PASSWORDS = new Set([
-  'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', '1234567',
-  'letmein', 'trustno1', 'dragon', 'baseball', 'iloveyou', 'master', 'sunshine',
-  'ashley', 'bailey', 'passw0rd', 'shadow', '123123', '654321', 'superman',
-  'qazwsx', 'michael', 'Football', 'password1', '!@#$%^&*', 'password123',
-  'welcome', 'admin', 'adminpassword', 'root', 'toor', 'pass', 'test',
-  'guest', '123456789', '12345', '1234', '123', 'Password1', 'Password123'
+  'password',
+  '123456',
+  '12345678',
+  'qwerty',
+  'abc123',
+  'monkey',
+  '1234567',
+  'letmein',
+  'trustno1',
+  'dragon',
+  'baseball',
+  'iloveyou',
+  'master',
+  'sunshine',
+  'ashley',
+  'bailey',
+  'passw0rd',
+  'shadow',
+  '123123',
+  '654321',
+  'superman',
+  'qazwsx',
+  'michael',
+  'Football',
+  'password1',
+  '!@#$%^&*',
+  'password123',
+  'welcome',
+  'admin',
+  'adminpassword',
+  'root',
+  'toor',
+  'pass',
+  'test',
+  'guest',
+  '123456789',
+  '12345',
+  '1234',
+  '123',
+  'Password1',
+  'Password123',
 ]);
 
 /**
@@ -297,7 +340,7 @@ export function validatePassword(password: string): {
   // Check against schema
   const result = passwordSchema.safeParse(password);
   if (!result.success) {
-    result.error.issues.forEach(err => {
+    result.error.issues.forEach((err) => {
       errors.push(err.message);
     });
   }
@@ -313,6 +356,6 @@ export function validatePassword(password: string): {
   return {
     valid: errors.length === 0,
     errors,
-    strength
+    strength,
   };
 }

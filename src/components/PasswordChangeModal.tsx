@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, Lock, Eye, EyeOff, Check, AlertCircle, Shield, Info } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { changePassword } from '@/api/authService';
 import {
   validatePassword,
@@ -219,11 +219,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 tabIndex={-1}
               >
-                {showCurrentPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+                {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -250,11 +246,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 tabIndex={-1}
               >
-                {showNewPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+                {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
 
@@ -288,7 +280,10 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                   <div className="space-y-1">
                     {/* Errors */}
                     {validation.errors.map((error, index) => (
-                      <div key={`error-${index}`} className="flex items-start gap-2 text-xs text-red-600">
+                      <div
+                        key={`error-${index}`}
+                        className="flex items-start gap-2 text-xs text-red-600"
+                      >
                         <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                         <span>{error}</span>
                       </div>
@@ -296,7 +291,10 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 
                     {/* Warnings */}
                     {validation.warnings.map((warning, index) => (
-                      <div key={`warning-${index}`} className="flex items-start gap-2 text-xs text-amber-600">
+                      <div
+                        key={`warning-${index}`}
+                        className="flex items-start gap-2 text-xs text-amber-600"
+                      >
                         <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                         <span>{warning}</span>
                       </div>
@@ -365,11 +363,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 tabIndex={-1}
               >
-                {showConfirmPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
 

@@ -1,13 +1,13 @@
 /**
  * VENDOR MODALS
- * 
+ *
  * Modal components for vendor operations:
  * - CreateVendorModal: Create new vendor with complete info
  * - VendorDetailsModal: View comprehensive vendor details
  * - EditVendorModal: Edit vendor information
  * - EvaluateVendorModal: Evaluate vendor performance
  * - BlacklistVendorModal: Blacklist vendor with reason
- * 
+ *
  * Created: October 2025
  */
 
@@ -26,7 +26,7 @@ import {
   Award,
   Ban,
   AlertTriangle,
-  Star
+  Star,
 } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
@@ -41,13 +41,13 @@ import {
   CreateVendorInput,
   UpdateVendorInput,
   CreateEvaluationInput,
-  CreateBlacklistInput
+  CreateBlacklistInput,
 } from '@/types/vendor';
 import {
   createVendor,
   updateVendor,
   createVendorEvaluation,
-  blacklistVendor
+  blacklistVendor,
 } from '@/api/vendorService';
 
 // ============================================================================
@@ -63,7 +63,7 @@ interface CreateVendorModalProps {
 export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
@@ -80,7 +80,7 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
     country: 'Indonesia',
     taxId: '',
     businessType: 'pt',
-    paymentTerm: 'net_30'
+    paymentTerm: 'net_30',
   });
 
   const [loading, setLoading] = useState(false);
@@ -133,7 +133,9 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
               <label>Category*</label>
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value as VendorCategory })}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value as VendorCategory })
+                }
                 required
               >
                 <option value="materials">Materials</option>
@@ -283,7 +285,9 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
               <Input
                 type="text"
                 value={formData.businessLicenseNumber || ''}
-                onChange={(e) => setFormData({ ...formData, businessLicenseNumber: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, businessLicenseNumber: e.target.value })
+                }
               />
             </div>
           </div>
@@ -297,7 +301,9 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
               <label>Payment Term*</label>
               <select
                 value={formData.paymentTerm}
-                onChange={(e) => setFormData({ ...formData, paymentTerm: e.target.value as PaymentTerm })}
+                onChange={(e) =>
+                  setFormData({ ...formData, paymentTerm: e.target.value as PaymentTerm })
+                }
                 required
               >
                 <option value="cod">Cash on Delivery</option>
@@ -382,7 +388,7 @@ export const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({
   onClose,
   vendor,
   onEdit,
-  onDelete
+  onDelete,
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Vendor: ${vendor.vendorName}`} size="xl">
@@ -415,9 +421,19 @@ export const VendorDetailsModal: React.FC<VendorDetailsModalProps> = ({
         </div>
 
         <div className="modal-actions">
-          <Button onClick={onClose} className="btn-secondary">Close</Button>
-          {onEdit && <Button onClick={onEdit} className="btn-primary">Edit</Button>}
-          {onDelete && <Button onClick={onDelete} className="btn-danger">Delete</Button>}
+          <Button onClick={onClose} className="btn-secondary">
+            Close
+          </Button>
+          {onEdit && (
+            <Button onClick={onEdit} className="btn-primary">
+              Edit
+            </Button>
+          )}
+          {onDelete && (
+            <Button onClick={onDelete} className="btn-danger">
+              Delete
+            </Button>
+          )}
         </div>
       </div>
     </Modal>
@@ -439,7 +455,7 @@ export const EvaluateVendorModal: React.FC<EvaluateVendorModalProps> = ({
   isOpen,
   onClose,
   vendor,
-  onSuccess
+  onSuccess,
 }) => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
@@ -451,7 +467,7 @@ export const EvaluateVendorModal: React.FC<EvaluateVendorModalProps> = ({
     price: 75,
     communication: 75,
     documentation: 75,
-    compliance: 75
+    compliance: 75,
   });
 
   const [strengths, setStrengths] = useState('');
@@ -473,7 +489,7 @@ export const EvaluateVendorModal: React.FC<EvaluateVendorModalProps> = ({
         scores,
         strengths,
         weaknesses,
-        recommendations
+        recommendations,
       };
 
       await createVendorEvaluation(input, currentUser.uid, currentUser.email);
@@ -571,14 +587,16 @@ export const BlacklistVendorModal: React.FC<BlacklistVendorModalProps> = ({
   isOpen,
   onClose,
   vendor,
-  onSuccess
+  onSuccess,
 }) => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
 
   const [reason, setReason] = useState('');
-  const [category, setCategory] = useState<'quality' | 'fraud' | 'non_compliance' | 'financial' | 'ethical' | 'other'>('quality');
+  const [category, setCategory] = useState<
+    'quality' | 'fraud' | 'non_compliance' | 'financial' | 'ethical' | 'other'
+  >('quality');
   const [severity, setSeverity] = useState<'warning' | 'temporary' | 'permanent'>('temporary');
   const [effectiveFrom, setEffectiveFrom] = useState(new Date().toISOString().split('T')[0]);
   const [effectiveUntil, setEffectiveUntil] = useState('');
@@ -597,7 +615,7 @@ export const BlacklistVendorModal: React.FC<BlacklistVendorModalProps> = ({
         category,
         severity,
         effectiveFrom,
-        effectiveUntil: effectiveUntil || undefined
+        effectiveUntil: effectiveUntil || undefined,
       };
 
       await blacklistVendor(input, currentUser.uid, currentUser.email);

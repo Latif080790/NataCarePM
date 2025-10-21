@@ -62,6 +62,7 @@ NataCarePM follows a **modular, layered architecture** with clear separation of 
 ## 🧱 Architecture Principles
 
 ### **1. Separation of Concerns**
+
 - **Views** handle UI layout and user interactions
 - **Components** are reusable UI building blocks
 - **Contexts** manage global application state
@@ -70,24 +71,28 @@ NataCarePM follows a **modular, layered architecture** with clear separation of 
 - **Types** ensure type safety across layers
 
 ### **2. Single Responsibility**
+
 - Each file/function has one clear purpose
 - Components focus on rendering
 - Services focus on data operations
 - Hooks focus on logic reuse
 
 ### **3. DRY (Don't Repeat Yourself)**
+
 - Reusable components in `components/`
 - Shared logic in custom hooks
 - Common types in `types/`
 - Utility functions in `utils/`
 
 ### **4. Type Safety First**
+
 - TypeScript strict mode enabled
 - All functions have explicit types
 - Interfaces for complex objects
 - No `any` types (except rare cases)
 
 ### **5. Scalability**
+
 - Modular design allows easy feature addition
 - Clear boundaries between modules
 - API layer abstracts backend details
@@ -246,6 +251,7 @@ NataCarePM/
 **Purpose:** Main application pages/screens
 
 **Characteristics:**
+
 - One view per route/page
 - Combines multiple components
 - Handles page-level state
@@ -253,12 +259,13 @@ NataCarePM/
 - Manages data fetching
 
 **Example:**
+
 ```typescript
 // views/DashboardView.tsx
 export const DashboardView: React.FC = () => {
   const { user } = useAuth();
   const { projects } = useProjectData();
-  
+
   return (
     <SafeViewWrapper>
       <h1>Dashboard</h1>
@@ -278,6 +285,7 @@ export const DashboardView: React.FC = () => {
 **Purpose:** Reusable UI building blocks
 
 **Characteristics:**
+
 - Pure, presentational components
 - Receive data via props
 - No direct API calls
@@ -285,6 +293,7 @@ export const DashboardView: React.FC = () => {
 - Type-safe props
 
 **Example:**
+
 ```typescript
 // components/Card.tsx
 interface CardProps {
@@ -312,6 +321,7 @@ export const Card: React.FC<CardProps> = ({ title, children, className }) => {
 **Purpose:** Global state management
 
 **Characteristics:**
+
 - Provides global state
 - Wraps App component
 - Uses React Context API
@@ -319,6 +329,7 @@ export const Card: React.FC<CardProps> = ({ title, children, className }) => {
 - Single source of truth
 
 **Example:**
+
 ```typescript
 // contexts/AuthContext.tsx
 interface AuthContextType {
@@ -333,9 +344,9 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Implementation...
-  
+
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
@@ -359,6 +370,7 @@ export const useAuth = () => {
 **Purpose:** Reusable logic and side effects
 
 **Characteristics:**
+
 - Custom React hooks
 - Encapsulate reusable logic
 - Handle side effects
@@ -366,13 +378,14 @@ export const useAuth = () => {
 - Follow React hooks rules
 
 **Example:**
+
 ```typescript
 // hooks/useProjectData.ts
 export const useProjectData = (projectId?: string) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const fetchProjects = async () => {
       setLoading(true);
@@ -385,10 +398,10 @@ export const useProjectData = (projectId?: string) => {
         setLoading(false);
       }
     };
-    
+
     fetchProjects();
   }, [projectId]);
-  
+
   return { projects, loading, error };
 };
 ```
@@ -402,6 +415,7 @@ export const useProjectData = (projectId?: string) => {
 **Purpose:** Backend communication and data operations
 
 **Characteristics:**
+
 - All Firebase/backend calls
 - CRUD operations
 - Data transformation
@@ -409,6 +423,7 @@ export const useProjectData = (projectId?: string) => {
 - Type-safe responses
 
 **Example:**
+
 ```typescript
 // api/projectService.ts
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
@@ -417,48 +432,51 @@ import { Project, APIResponse } from '../types/types';
 
 class ProjectService {
   private collectionName = 'projects';
-  
+
   async getProjects(): Promise<APIResponse<Project[]>> {
     try {
       const querySnapshot = await getDocs(collection(db, this.collectionName));
-      const projects = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Project));
-      
+      const projects = querySnapshot.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          }) as Project
+      );
+
       return {
         success: true,
         data: projects,
-        message: 'Projects fetched successfully'
+        message: 'Projects fetched successfully',
       };
     } catch (error) {
       return {
         success: false,
         data: [],
-        error: { message: error.message, code: 'FETCH_ERROR' }
+        error: { message: error.message, code: 'FETCH_ERROR' },
       };
     }
   }
-  
+
   async createProject(project: Omit<Project, 'id'>): Promise<APIResponse<Project>> {
     try {
       const docRef = await addDoc(collection(db, this.collectionName), project);
       const newProject = { id: docRef.id, ...project };
-      
+
       return {
         success: true,
         data: newProject,
-        message: 'Project created successfully'
+        message: 'Project created successfully',
       };
     } catch (error) {
       return {
         success: false,
         data: null,
-        error: { message: error.message, code: 'CREATE_ERROR' }
+        error: { message: error.message, code: 'CREATE_ERROR' },
       };
     }
   }
-  
+
   // Additional methods: updateProject, deleteProject, getProjectById...
 }
 
@@ -483,25 +501,25 @@ interface MyComponentProps {
   onAction?: () => void;
 }
 
-export const MyComponent: React.FC<MyComponentProps> = ({ 
-  title, 
-  count, 
-  onAction 
+export const MyComponent: React.FC<MyComponentProps> = ({
+  title,
+  count,
+  onAction
 }) => {
   // State
   const [isActive, setIsActive] = React.useState(false);
-  
+
   // Effects
   React.useEffect(() => {
     // Side effects here
   }, [count]);
-  
+
   // Handlers
   const handleClick = () => {
     setIsActive(!isActive);
     onAction?.();
   };
-  
+
   // Render
   return (
     <div className="my-component">
@@ -540,7 +558,7 @@ async function fetchData(): Promise<APIResponse<DataType>> {
     return {
       success: true,
       data: data,
-      message: 'Operation successful'
+      message: 'Operation successful',
     };
   } catch (error) {
     return {
@@ -548,8 +566,8 @@ async function fetchData(): Promise<APIResponse<DataType>> {
       data: null,
       error: {
         message: error.message,
-        code: 'OPERATION_FAILED'
-      }
+        code: 'OPERATION_FAILED',
+      },
     };
   }
 }
@@ -564,15 +582,15 @@ export class ErrorBoundary extends React.Component<
   { hasError: boolean; error: Error | null }
 > {
   state = { hasError: false, error: null };
-  
+
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-  
+
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
   }
-  
+
   render() {
     if (this.state.hasError) {
       return <div>Something went wrong. Please refresh.</div>;
@@ -595,7 +613,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       return initialValue;
     }
   });
-  
+
   const setValue = (value: T | ((val: T) => T)) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
@@ -605,7 +623,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       console.error('Error saving to localStorage:', error);
     }
   };
-  
+
   return [storedValue, setValue] as const;
 }
 ```
@@ -615,6 +633,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 ## 📛 Naming Conventions
 
 ### **Files**
+
 ```
 Components:     PascalCase.tsx    (Button.tsx, UserCard.tsx)
 Views:          PascalCase.tsx    (DashboardView.tsx)
@@ -626,6 +645,7 @@ Constants:      camelCase.ts      (constants.ts)
 ```
 
 ### **Variables & Functions**
+
 ```typescript
 // Variables: camelCase
 const userName = 'John';
@@ -650,11 +670,15 @@ export const DashboardView = () => {};
 ```
 
 ### **CSS Classes**
+
 ```css
 /* kebab-case */
-.project-card {}
-.user-profile-header {}
-.btn-primary {}
+.project-card {
+}
+.user-profile-header {
+}
+.btn-primary {
+}
 ```
 
 ---
@@ -662,14 +686,18 @@ export const DashboardView = () => {};
 ## 🔄 State Management
 
 ### **Local State** (useState)
+
 For component-specific state:
+
 ```typescript
 const [isOpen, setIsOpen] = useState(false);
 const [formData, setFormData] = useState({ name: '', email: '' });
 ```
 
 ### **Global State** (Context API)
+
 For app-wide state:
+
 ```typescript
 // In Context
 const [user, setUser] = useState<User | null>(null);
@@ -679,13 +707,17 @@ const { user, setUser } = useAuth();
 ```
 
 ### **Server State** (Custom Hooks)
+
 For data from backend:
+
 ```typescript
 const { projects, loading, error } = useProjectData();
 ```
 
 ### **URL State** (React Router)
+
 For routing state:
+
 ```typescript
 const { projectId } = useParams();
 const navigate = useNavigate();
@@ -696,25 +728,26 @@ const navigate = useNavigate();
 ## 🔌 API Design
 
 ### **Service Structure**
+
 Each service is a class with methods for CRUD operations:
 
 ```typescript
 class FeatureService {
   private collectionName = 'features';
-  
+
   // CREATE
   async create(data: CreateDTO): Promise<APIResponse<Entity>> {}
-  
+
   // READ
   async getAll(): Promise<APIResponse<Entity[]>> {}
   async getById(id: string): Promise<APIResponse<Entity>> {}
-  
+
   // UPDATE
   async update(id: string, data: UpdateDTO): Promise<APIResponse<Entity>> {}
-  
+
   // DELETE
   async delete(id: string): Promise<APIResponse<void>> {}
-  
+
   // CUSTOM OPERATIONS
   async customOperation(params: any): Promise<APIResponse<any>> {}
 }
@@ -723,7 +756,9 @@ export const featureService = new FeatureService();
 ```
 
 ### **Error Handling**
+
 All service methods return standardized APIResponse:
+
 - `success: true` → Operation successful
 - `success: false` → Operation failed, check `error` field
 
@@ -732,6 +767,7 @@ All service methods return standardized APIResponse:
 ## 📐 Type System
 
 ### **Core Types** (`types/types.ts`)
+
 ```typescript
 export interface User {
   id: string;
@@ -756,6 +792,7 @@ export type ProjectStatus = 'planning' | 'active' | 'completed' | 'on_hold';
 ```
 
 ### **Module-Specific Types**
+
 - `types/accounting.ts` - Accounting module types
 - `types/logistics.ts` - Logistics module types
 - etc.
@@ -765,6 +802,7 @@ export type ProjectStatus = 'planning' | 'active' | 'completed' | 'on_hold';
 ## ✅ Best Practices
 
 ### **1. Component Design**
+
 - ✅ Small, focused components
 - ✅ Props explicitly typed
 - ✅ Use destructuring for props
@@ -772,24 +810,28 @@ export type ProjectStatus = 'planning' | 'active' | 'completed' | 'on_hold';
 - ❌ Don't mix UI and business logic
 
 ### **2. State Management**
+
 - ✅ Use local state when possible
 - ✅ Use context for global state
 - ✅ Custom hooks for data fetching
 - ❌ Don't overuse context
 
 ### **3. API Calls**
+
 - ✅ All API calls in service layer
 - ✅ Handle errors consistently
 - ✅ Return standardized responses
 - ❌ No direct Firebase calls in components
 
 ### **4. Type Safety**
+
 - ✅ Explicit types for all functions
 - ✅ Interfaces for complex objects
 - ✅ Use TypeScript strict mode
 - ❌ Avoid `any` type
 
 ### **5. Code Organization**
+
 - ✅ One component per file
 - ✅ Group related files
 - ✅ Clear folder structure
@@ -800,6 +842,7 @@ export type ProjectStatus = 'planning' | 'active' | 'completed' | 'on_hold';
 ## 🎓 Learning Path
 
 For new developers:
+
 1. Study project structure
 2. Review type definitions in `types/`
 3. Examine existing components

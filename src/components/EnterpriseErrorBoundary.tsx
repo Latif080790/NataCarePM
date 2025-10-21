@@ -23,18 +23,18 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
     super(props);
     this.state = {
       hasError: false,
-      errorId: ''
+      errorId: '',
     };
   }
 
   static getDerivedStateFromError(error: Error): State {
     // Generate unique error ID for tracking
     const errorId = `ERR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     return {
       hasError: true,
       error,
-      errorId
+      errorId,
     };
   }
 
@@ -53,10 +53,10 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
 
     // Log to console for development
     console.error('🚨 ENTERPRISE ERROR BOUNDARY TRIGGERED:', errorReport);
-    
+
     // 📊 Log error to monitoring service
     this.logToMonitoringService(error, errorInfo);
-    
+
     // In production, send to error tracking service
     if (process.env.NODE_ENV === 'production') {
       this.sendErrorReport(errorReport);
@@ -64,7 +64,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
 
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
   }
 
@@ -88,7 +88,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
       await fetch('/api/errors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(errorReport)
+        body: JSON.stringify(errorReport),
       });
     } catch (e) {
       console.error('Failed to send error report:', e);
@@ -100,7 +100,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: undefined,
       errorInfo: undefined,
-      errorId: ''
+      errorId: '',
     });
   };
 
@@ -124,8 +124,11 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-800 flex items-center justify-center p-8 relative overflow-hidden">
           {/* Animated background */}
           <div className="absolute top-20 left-20 w-96 h-96 bg-red-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          
+          <div
+            className="absolute bottom-20 right-20 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: '1s' }}
+          ></div>
+
           <div className="relative z-10 max-w-2xl mx-auto text-center">
             {/* Error Icon */}
             <div className="mb-8">
@@ -133,7 +136,9 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="w-10 h-10" />
               </div>
               <h1 className="text-4xl font-bold text-white mb-2">System Error Detected</h1>
-              <p className="text-lg text-white/70">Enterprise platform encountered an unexpected issue</p>
+              <p className="text-lg text-white/70">
+                Enterprise platform encountered an unexpected issue
+              </p>
             </div>
 
             {/* Error Details Card */}
@@ -142,7 +147,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                 <Shield className="w-6 h-6 text-red-400" />
                 <h2 className="text-xl font-semibold text-white">Error Report</h2>
               </div>
-              
+
               <div className="space-y-4 text-sm">
                 <div>
                   <label className="text-white/70 font-medium">Error ID:</label>
@@ -150,14 +155,14 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                     {this.state.errorId}
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="text-white/70 font-medium">Error Message:</label>
                   <div className="mt-1 p-3 bg-white/10 rounded-lg text-white">
                     {this.state.error?.message || 'Unknown error occurred'}
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="text-white/70 font-medium">Timestamp:</label>
                   <div className="mt-1 p-3 bg-white/10 rounded-lg text-white">
@@ -189,7 +194,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                 <RefreshCcw className="w-5 h-5" />
                 Try Again
               </Button>
-              
+
               <Button
                 onClick={this.handleReload}
                 className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
@@ -197,7 +202,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                 <RefreshCcw className="w-5 h-5" />
                 Reload Page
               </Button>
-              
+
               <Button
                 onClick={this.handleGoHome}
                 className="w-full py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white font-semibold rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
@@ -213,12 +218,12 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                 <AlertCircle className="w-5 h-5 text-blue-400" />
                 <h3 className="text-lg font-semibold text-white">Need Enterprise Support?</h3>
               </div>
-              
+
               <p className="text-white/70 text-sm mb-4">
-                Our enterprise support team is available 24/7 to assist with critical issues.
-                Please provide the Error ID above when contacting support.
+                Our enterprise support team is available 24/7 to assist with critical issues. Please
+                provide the Error ID above when contacting support.
               </p>
-              
+
               <div className="flex items-center justify-center gap-6 text-sm">
                 <a
                   href="mailto:support@natacara.dev"
@@ -227,7 +232,7 @@ class EnterpriseErrorBoundary extends Component<Props, State> {
                   <Mail className="w-4 h-4" />
                   support@natacara.dev
                 </a>
-                
+
                 <div className="flex items-center gap-2 text-white/60">
                   <Shield className="w-4 h-4" />
                   24/7 Enterprise Support

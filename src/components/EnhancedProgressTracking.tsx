@@ -4,8 +4,8 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { LineChart } from './LineChart';
 import { GaugeChart } from './GaugeChart';
-import { 
-  TrendingUp, 
+import {
+  TrendingUp,
   TrendingDown,
   Target,
   Clock,
@@ -19,7 +19,7 @@ import {
   Award,
   Zap,
   Download,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { KPIService } from '@/api/kpiService';
 import { KPIMetrics, Task, RabItem, EVMMetrics } from '@/types';
@@ -43,12 +43,16 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
   budgetAtCompletion,
   evmMetrics,
   historicalKPIData = [],
-  onKPIUpdate
+  onKPIUpdate,
 }) => {
   const [kpiMetrics, setKpiMetrics] = useState<KPIMetrics | null>(null);
-  const [kpiRatings, setKpiRatings] = useState<{ [key: string]: 'Excellent' | 'Good' | 'Fair' | 'Poor' }>({});
+  const [kpiRatings, setKpiRatings] = useState<{
+    [key: string]: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+  }>({});
   const [recommendations, setRecommendations] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'financial' | 'schedule' | 'quality' | 'resources' | 'risks'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'financial' | 'schedule' | 'quality' | 'resources' | 'risks'
+  >('overview');
   const [selectedTimeframe, setSelectedTimeframe] = useState('1m');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,14 +68,14 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
         defects: Math.floor(Math.random() * 5),
         totalDeliverables: 20,
         reworkHours: Math.floor(Math.random() * 40),
-        totalHours: 800
+        totalHours: 800,
       };
 
       const resourceData = {
         allocatedHours: 1000,
         actualHours: 850,
         teamSize: 8,
-        productivity: 95 + Math.random() * 20
+        productivity: 95 + Math.random() * 20,
       };
 
       const riskData = {
@@ -79,7 +83,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
         highRisks: 3,
         mitigatedRisks: 8,
         contingencyUsed: budgetAtCompletion * 0.15,
-        contingencyTotal: budgetAtCompletion * 0.20
+        contingencyTotal: budgetAtCompletion * 0.2,
       };
 
       const metrics = KPIService.calculateKPIMetrics({
@@ -90,7 +94,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
         evmMetrics,
         qualityData,
         resourceData,
-        riskData
+        riskData,
       });
 
       setKpiMetrics(metrics);
@@ -99,7 +103,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
       // Calculate ratings and recommendations
       const ratings = KPIService.calculateKPIRatings(metrics);
       const recs = KPIService.generateKPIRecommendations(metrics, ratings);
-      
+
       setKpiRatings(ratings);
       setRecommendations(recs);
     } catch (error) {
@@ -117,25 +121,33 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const getRatingColor = (rating: 'Excellent' | 'Good' | 'Fair' | 'Poor') => {
     switch (rating) {
-      case 'Excellent': return 'text-green-600 bg-green-100';
-      case 'Good': return 'text-blue-600 bg-blue-100';
-      case 'Fair': return 'text-yellow-600 bg-yellow-100';
-      case 'Poor': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'Excellent':
+        return 'text-green-600 bg-green-100';
+      case 'Good':
+        return 'text-blue-600 bg-blue-100';
+      case 'Fair':
+        return 'text-yellow-600 bg-yellow-100';
+      case 'Poor':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
   };
 
   const getTrendIcon = (trend: 'Improving' | 'Stable' | 'Declining') => {
     switch (trend) {
-      case 'Improving': return <TrendingUp className="w-4 h-4 text-green-600" />;
-      case 'Stable': return <Activity className="w-4 h-4 text-blue-600" />;
-      case 'Declining': return <TrendingDown className="w-4 h-4 text-red-600" />;
+      case 'Improving':
+        return <TrendingUp className="w-4 h-4 text-green-600" />;
+      case 'Stable':
+        return <Activity className="w-4 h-4 text-blue-600" />;
+      case 'Declining':
+        return <TrendingDown className="w-4 h-4 text-red-600" />;
     }
   };
 
@@ -145,12 +157,12 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
     return {
       planned: historicalKPIData.map((data, index) => ({
         day: index + 1,
-        cost: data.metrics.overallHealthScore
+        cost: data.metrics.overallHealthScore,
       })),
       actual: historicalKPIData.map((data, index) => ({
         day: index + 1,
-        cost: data.metrics.taskCompletionRate
-      }))
+        cost: data.metrics.taskCompletionRate,
+      })),
     };
   };
 
@@ -181,9 +193,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
             </div>
             <div className="flex items-center gap-2">
               {getTrendIcon(kpiMetrics.performanceTrend)}
-              <span className="text-sm text-gray-600">
-                Trend: {kpiMetrics.performanceTrend}
-              </span>
+              <span className="text-sm text-gray-600">Trend: {kpiMetrics.performanceTrend}</span>
             </div>
           </div>
 
@@ -199,11 +209,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <option value="6m">6 Months</option>
             </select>
 
-            <Button
-              onClick={calculateKPIMetrics}
-              disabled={isLoading}
-              variant="outline"
-            >
+            <Button onClick={calculateKPIMetrics} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -225,7 +231,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
             { id: 'schedule', label: 'Schedule', icon: Clock },
             { id: 'quality', label: 'Quality', icon: CheckCircle },
             { id: 'resources', label: 'Resources', icon: Users },
-            { id: 'risks', label: 'Risks', icon: Shield }
+            { id: 'risks', label: 'Risks', icon: Shield },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -251,19 +257,21 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Overall Health Score</h3>
               <div className="h-48">
-                <GaugeChart 
-                  value={kpiMetrics.overallHealthScore} 
-                  max={100} 
-                  thresholds={[60, 80, 90]} 
+                <GaugeChart
+                  value={kpiMetrics.overallHealthScore}
+                  max={100}
+                  thresholds={[60, 80, 90]}
                 />
               </div>
               <div className="text-center mt-4">
                 <div className="text-2xl font-bold text-gray-900">
                   {kpiMetrics.overallHealthScore}/100
                 </div>
-                <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  getRatingColor(kpiRatings.overallHealth || 'Fair')
-                }`}>
+                <div
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRatingColor(
+                    kpiRatings.overallHealth || 'Fair'
+                  )}`}
+                >
                   {kpiRatings.overallHealth || 'Fair'}
                 </div>
               </div>
@@ -280,9 +288,11 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                   <div className="text-xl font-bold text-gray-900">
                     {formatPercentage(kpiMetrics.budgetUtilization)}
                   </div>
-                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    getRatingColor(kpiRatings.budgetUtilization || 'Good')
-                  }`}>
+                  <div
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRatingColor(
+                      kpiRatings.budgetUtilization || 'Good'
+                    )}`}
+                  >
                     {kpiRatings.budgetUtilization || 'Good'}
                   </div>
                 </Card>
@@ -295,9 +305,11 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                   <div className="text-xl font-bold text-gray-900">
                     {formatPercentage(kpiMetrics.taskCompletionRate)}
                   </div>
-                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    getRatingColor(kpiRatings.taskCompletion || 'Good')
-                  }`}>
+                  <div
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRatingColor(
+                      kpiRatings.taskCompletion || 'Good'
+                    )}`}
+                  >
                     {kpiRatings.taskCompletion || 'Good'}
                   </div>
                 </Card>
@@ -310,9 +322,11 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                   <div className="text-xl font-bold text-gray-900">
                     {formatPercentage(kpiMetrics.qualityScore)}
                   </div>
-                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    getRatingColor(kpiRatings.qualityScore || 'Good')
-                  }`}>
+                  <div
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRatingColor(
+                      kpiRatings.qualityScore || 'Good'
+                    )}`}
+                  >
                     {kpiRatings.qualityScore || 'Good'}
                   </div>
                 </Card>
@@ -325,9 +339,11 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                   <div className="text-xl font-bold text-gray-900">
                     {formatPercentage(kpiMetrics.resourceUtilization)}
                   </div>
-                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    getRatingColor(kpiRatings.resourceUtilization || 'Good')
-                  }`}>
+                  <div
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRatingColor(
+                      kpiRatings.resourceUtilization || 'Good'
+                    )}`}
+                  >
                     {kpiRatings.resourceUtilization || 'Good'}
                   </div>
                 </Card>
@@ -352,7 +368,8 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <p className="text-sm text-gray-700">
-                      Excellent task completion rate: {formatPercentage(kpiMetrics.taskCompletionRate)}
+                      Excellent task completion rate:{' '}
+                      {formatPercentage(kpiMetrics.taskCompletionRate)}
                     </p>
                   </div>
                 )}
@@ -367,17 +384,13 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                 {Math.abs(kpiMetrics.costVariancePercentage) < 5 && (
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <DollarSign className="w-5 h-5 text-green-600" />
-                    <p className="text-sm text-gray-700">
-                      Budget on track with minimal variance
-                    </p>
+                    <p className="text-sm text-gray-700">Budget on track with minimal variance</p>
                   </div>
                 )}
                 {kpiMetrics.resourceUtilization > 85 && kpiMetrics.resourceUtilization < 105 && (
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <Zap className="w-5 h-5 text-green-600" />
-                    <p className="text-sm text-gray-700">
-                      Optimal resource utilization achieved
-                    </p>
+                    <p className="text-sm text-gray-700">Optimal resource utilization achieved</p>
                   </div>
                 )}
               </div>
@@ -410,7 +423,8 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                 {formatPercentage(kpiMetrics.budgetUtilization)}
               </div>
               <p className="text-sm text-gray-600">
-                {formatCurrency(Object.values(actualCosts).reduce((a, b) => a + b, 0))} of {formatCurrency(budgetAtCompletion)}
+                {formatCurrency(Object.values(actualCosts).reduce((a, b) => a + b, 0))} of{' '}
+                {formatCurrency(budgetAtCompletion)}
               </p>
             </Card>
 
@@ -419,10 +433,13 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                 <h3 className="font-medium text-gray-900">Cost Variance</h3>
                 <TrendingUp className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-2xl font-bold ${
-                kpiMetrics.costVariancePercentage >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {kpiMetrics.costVariancePercentage >= 0 ? '+' : ''}{formatPercentage(kpiMetrics.costVariancePercentage)}
+              <div
+                className={`text-2xl font-bold ${
+                  kpiMetrics.costVariancePercentage >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {kpiMetrics.costVariancePercentage >= 0 ? '+' : ''}
+                {formatPercentage(kpiMetrics.costVariancePercentage)}
               </div>
               <p className="text-sm text-gray-600">
                 {kpiMetrics.costVariancePercentage >= 0 ? 'Under budget' : 'Over budget'}
@@ -437,9 +454,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-green-600">
                 {formatPercentage(kpiMetrics.returnOnInvestment)}
               </div>
-              <p className="text-sm text-gray-600">
-                Expected return on investment
-              </p>
+              <p className="text-sm text-gray-600">Expected return on investment</p>
             </Card>
           </div>
         </div>
@@ -457,7 +472,8 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                 {formatPercentage(kpiMetrics.taskCompletionRate)}
               </div>
               <p className="text-sm text-gray-600">
-                {tasks.filter(t => t.status === 'done' || t.status === 'completed').length} of {tasks.length} tasks completed
+                {tasks.filter((t) => t.status === 'done' || t.status === 'completed').length} of{' '}
+                {tasks.length} tasks completed
               </p>
             </Card>
 
@@ -466,13 +482,18 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
                 <h3 className="font-medium text-gray-900">Schedule Variance</h3>
                 <Clock className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-2xl font-bold ${
-                kpiMetrics.scheduleVariancePercentage >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {kpiMetrics.scheduleVariancePercentage >= 0 ? '+' : ''}{formatPercentage(kpiMetrics.scheduleVariancePercentage)}
+              <div
+                className={`text-2xl font-bold ${
+                  kpiMetrics.scheduleVariancePercentage >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {kpiMetrics.scheduleVariancePercentage >= 0 ? '+' : ''}
+                {formatPercentage(kpiMetrics.scheduleVariancePercentage)}
               </div>
               <p className="text-sm text-gray-600">
-                {kpiMetrics.scheduleVariancePercentage >= 0 ? 'Ahead of schedule' : 'Behind schedule'}
+                {kpiMetrics.scheduleVariancePercentage >= 0
+                  ? 'Ahead of schedule'
+                  : 'Behind schedule'}
               </p>
             </Card>
 
@@ -484,9 +505,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-green-600">
                 {formatPercentage(kpiMetrics.milestoneAdherence)}
               </div>
-              <p className="text-sm text-gray-600">
-                Critical milestones on track
-              </p>
+              <p className="text-sm text-gray-600">Critical milestones on track</p>
             </Card>
           </div>
         </div>
@@ -503,9 +522,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-green-600">
                 {formatPercentage(kpiMetrics.qualityScore)}
               </div>
-              <p className="text-sm text-gray-600">
-                Overall quality rating
-              </p>
+              <p className="text-sm text-gray-600">Overall quality rating</p>
             </Card>
 
             <Card className="p-4">
@@ -516,9 +533,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-red-600">
                 {formatPercentage(kpiMetrics.defectRate)}
               </div>
-              <p className="text-sm text-gray-600">
-                Defects per deliverable
-              </p>
+              <p className="text-sm text-gray-600">Defects per deliverable</p>
             </Card>
 
             <Card className="p-4">
@@ -529,9 +544,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-yellow-600">
                 {formatPercentage(kpiMetrics.reworkPercentage)}
               </div>
-              <p className="text-sm text-gray-600">
-                Time spent on rework
-              </p>
+              <p className="text-sm text-gray-600">Time spent on rework</p>
             </Card>
           </div>
         </div>
@@ -548,9 +561,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-blue-600">
                 {formatPercentage(kpiMetrics.resourceUtilization)}
               </div>
-              <p className="text-sm text-gray-600">
-                Team capacity utilization
-              </p>
+              <p className="text-sm text-gray-600">Team capacity utilization</p>
             </Card>
 
             <Card className="p-4">
@@ -561,9 +572,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-green-600">
                 {formatPercentage(kpiMetrics.productivityIndex)}
               </div>
-              <p className="text-sm text-gray-600">
-                Team productivity level
-              </p>
+              <p className="text-sm text-gray-600">Team productivity level</p>
             </Card>
 
             <Card className="p-4">
@@ -574,9 +583,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-green-600">
                 {formatPercentage(kpiMetrics.teamEfficiency)}
               </div>
-              <p className="text-sm text-gray-600">
-                Overall team efficiency
-              </p>
+              <p className="text-sm text-gray-600">Overall team efficiency</p>
             </Card>
           </div>
         </div>
@@ -593,9 +600,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-yellow-600">
                 {formatPercentage(kpiMetrics.riskExposure)}
               </div>
-              <p className="text-sm text-gray-600">
-                High-risk items exposure
-              </p>
+              <p className="text-sm text-gray-600">High-risk items exposure</p>
             </Card>
 
             <Card className="p-4">
@@ -606,9 +611,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-blue-600">
                 {kpiMetrics.issueResolutionTime.toFixed(0)} days
               </div>
-              <p className="text-sm text-gray-600">
-                Average resolution time
-              </p>
+              <p className="text-sm text-gray-600">Average resolution time</p>
             </Card>
 
             <Card className="p-4">
@@ -619,9 +622,7 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
               <div className="text-2xl font-bold text-orange-600">
                 {formatPercentage(kpiMetrics.contingencyUtilization)}
               </div>
-              <p className="text-sm text-gray-600">
-                Contingency reserves used
-              </p>
+              <p className="text-sm text-gray-600">Contingency reserves used</p>
             </Card>
           </div>
         </div>

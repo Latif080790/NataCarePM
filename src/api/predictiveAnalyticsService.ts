@@ -1,14 +1,23 @@
 /**
  * Predictive Analytics Service
  * NataCarePM - Phase 4.2: AI & Analytics
- * 
+ *
  * ML-powered forecasting for cost, schedule, risk, and quality prediction
  * using TensorFlow.js time series models and statistical analysis
  */
 
 import * as tf from '@tensorflow/tfjs';
 import { Matrix } from 'ml-matrix';
-import { collection, getDocs, query, where, Timestamp, addDoc, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  Timestamp,
+  addDoc,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type {
   CostForecast,
@@ -99,31 +108,39 @@ class TimeSeriesForecaster {
     const model = tf.sequential();
 
     // LSTM layers
-    model.add(tf.layers.lstm({
-      inputShape: [config.sequenceLength, config.inputDim],
-      units: config.lstmUnits,
-      returnSequences: true,
-    }));
+    model.add(
+      tf.layers.lstm({
+        inputShape: [config.sequenceLength, config.inputDim],
+        units: config.lstmUnits,
+        returnSequences: true,
+      })
+    );
 
     model.add(tf.layers.dropout({ rate: 0.2 }));
 
-    model.add(tf.layers.lstm({
-      units: config.lstmUnits / 2,
-      returnSequences: false,
-    }));
+    model.add(
+      tf.layers.lstm({
+        units: config.lstmUnits / 2,
+        returnSequences: false,
+      })
+    );
 
     model.add(tf.layers.dropout({ rate: 0.2 }));
 
     // Dense layers
-    model.add(tf.layers.dense({
-      units: config.denseUnits,
-      activation: 'relu',
-    }));
+    model.add(
+      tf.layers.dense({
+        units: config.denseUnits,
+        activation: 'relu',
+      })
+    );
 
-    model.add(tf.layers.dense({
-      units: config.outputDim,
-      activation: 'linear',
-    }));
+    model.add(
+      tf.layers.dense({
+        units: config.outputDim,
+        activation: 'linear',
+      })
+    );
 
     // Compile
     model.compile({
@@ -178,11 +195,15 @@ class TimeSeriesForecaster {
     const { xs, ys } = this.prepareTimeSeriesData(data, config.sequenceLength);
 
     if (xs.length === 0) {
-      throw new Error('Insufficient data for training. Need at least ' + (config.sequenceLength + 1) + ' data points.');
+      throw new Error(
+        'Insufficient data for training. Need at least ' +
+          (config.sequenceLength + 1) +
+          ' data points.'
+      );
     }
 
     const xsTensor = tf.tensor3d(xs);
-    const ysTensor = tf.tensor2d(ys.map(y => [y]));
+    const ysTensor = tf.tensor2d(ys.map((y) => [y]));
 
     // Train
     await model.fit(xsTensor, ysTensor, {
@@ -193,7 +214,9 @@ class TimeSeriesForecaster {
       callbacks: {
         onEpochEnd: (epoch, logs) => {
           if (epoch % 10 === 0) {
-            console.log(`Epoch ${epoch}: loss = ${logs?.loss.toFixed(4)}, mae = ${logs?.mae?.toFixed(4)}`);
+            console.log(
+              `Epoch ${epoch}: loss = ${logs?.loss.toFixed(4)}, mae = ${logs?.mae?.toFixed(4)}`
+            );
           }
         },
       },
@@ -225,12 +248,12 @@ class TimeSeriesForecaster {
 
     for (let i = 0; i < forecastHorizon; i++) {
       // Prepare input
-      const input = currentSequence.map(val => [val]);
+      const input = currentSequence.map((val) => [val]);
       const inputTensor = tf.tensor3d([input]);
 
       // Predict
       const prediction = this.model.predict(inputTensor) as tf.Tensor;
-      const predValue = (await prediction.array() as number[][])[0][0];
+      const predValue = ((await prediction.array()) as number[][])[0][0];
 
       predictions.push(predValue);
 
@@ -257,7 +280,7 @@ class TimeSeriesForecaster {
    */
   private calculateStdDev(data: number[]): number {
     const mean = data.reduce((sum, val) => sum + val, 0) / data.length;
-    const squaredDiffs = data.map(val => Math.pow(val - mean, 2));
+    const squaredDiffs = data.map((val) => Math.pow(val - mean, 2));
     const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / data.length;
     return Math.sqrt(variance);
   }
@@ -317,10 +340,7 @@ class CostForecastingService {
   /**
    * Generate Cost Forecast
    */
-  async generateForecast(
-    projectId: string,
-    config: ForecastConfig
-  ): Promise<CostForecast> {
+  async generateForecast(projectId: string, config: ForecastConfig): Promise<CostForecast> {
     const startTime = Date.now();
 
     // Fetch historical cost data
@@ -331,7 +351,7 @@ class CostForecastingService {
     }
 
     // Extract cost values
-    const costValues = historicalData.map(d => d.value);
+    const costValues = historicalData.map((d) => d.value);
 
     // Train model
     await this.forecaster.train(costValues, MODEL_CONFIGS.COST_LSTM);
@@ -348,7 +368,8 @@ class CostForecastingService {
       const date = new Date();
       date.setDate(date.getDate() + idx + 1);
 
-      const cumulativeCost = costValues.reduce((sum, val) => sum + val, 0) + 
+      const cumulativeCost =
+        costValues.reduce((sum, val) => sum + val, 0) +
         predictions.slice(0, idx + 1).reduce((sum, val) => sum + val, 0);
 
       return {
@@ -363,9 +384,9 @@ class CostForecastingService {
         variance: pred - (costValues[costValues.length - 1] || 0),
         contributors: {
           labor: pred * 0.35,
-          materials: pred * 0.30,
-          equipment: pred * 0.20,
-          overhead: pred * 0.10,
+          materials: pred * 0.3,
+          equipment: pred * 0.2,
+          overhead: pred * 0.1,
           contingency: pred * 0.05,
         },
       };
@@ -383,7 +404,7 @@ class CostForecastingService {
         severity: 'high',
         category: 'threshold',
         message: 'Projected cost overrun exceeds 10%',
-        description: `The forecast indicates a cost overrun of ${(projectedOverrun / currentCost * 100).toFixed(1)}%`,
+        description: `The forecast indicates a cost overrun of ${((projectedOverrun / currentCost) * 100).toFixed(1)}%`,
         affectedMetrics: ['total_cost', 'budget_variance'],
         recommendedAction: 'Review budget allocations and identify cost reduction opportunities',
         detectedAt: new Date(),
@@ -403,7 +424,12 @@ class CostForecastingService {
       projectedOverrun,
       projectedOverrunPercentage: (projectedOverrun / currentCost) * 100,
       confidenceScore: 0.85,
-      riskLevel: projectedOverrun > currentCost * 0.15 ? 'high' : projectedOverrun > currentCost * 0.05 ? 'medium' : 'low',
+      riskLevel:
+        projectedOverrun > currentCost * 0.15
+          ? 'high'
+          : projectedOverrun > currentCost * 0.05
+            ? 'medium'
+            : 'low',
       contributors: [],
       assumptions: [
         'Historical cost patterns continue',
@@ -493,10 +519,7 @@ class ScheduleForecastingService {
   /**
    * Generate Schedule Forecast
    */
-  async generateForecast(
-    projectId: string,
-    config: ForecastConfig
-  ): Promise<ScheduleForecast> {
+  async generateForecast(projectId: string, config: ForecastConfig): Promise<ScheduleForecast> {
     const startTime = Date.now();
 
     // Fetch historical progress data
@@ -507,7 +530,7 @@ class ScheduleForecastingService {
     }
 
     // Extract progress values
-    const progressValues = historicalData.map(d => d.value);
+    const progressValues = historicalData.map((d) => d.value);
 
     // Train model
     await this.forecaster.train(progressValues, MODEL_CONFIGS.SCHEDULE_LSTM);
@@ -539,7 +562,7 @@ class ScheduleForecastingService {
       baselineCompletionDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Placeholder
       delayDays: 0,
       onTimeProbability: 0.75,
-      confidenceScore: 0.80,
+      confidenceScore: 0.8,
       criticalPath: [],
       delayFactors: [],
       milestones: [],
@@ -568,7 +591,8 @@ class ScheduleForecastingService {
 
     if (project.dailyReports) {
       for (const report of project.dailyReports) {
-        const totalProgress = report.workProgress?.reduce((sum, wp) => sum + wp.completedVolume, 0) || 0;
+        const totalProgress =
+          report.workProgress?.reduce((sum, wp) => sum + wp.completedVolume, 0) || 0;
         progressData.push({
           timestamp: new Date(report.date),
           value: totalProgress,
@@ -586,7 +610,7 @@ class ScheduleForecastingService {
   private calculateDaysToCompletion(currentProgress: number, predictions: number[]): number {
     const targetProgress = 100;
     let cumulativeProgress = currentProgress;
-    
+
     for (let i = 0; i < predictions.length; i++) {
       cumulativeProgress += predictions[i];
       if (cumulativeProgress >= targetProgress) {
@@ -627,10 +651,7 @@ class RiskForecastingService {
   /**
    * Generate Risk Forecast
    */
-  async generateForecast(
-    projectId: string,
-    config: ForecastConfig
-  ): Promise<RiskForecast> {
+  async generateForecast(projectId: string, config: ForecastConfig): Promise<RiskForecast> {
     const startTime = Date.now();
 
     // Analyze historical risks and project data
@@ -773,7 +794,10 @@ class PredictiveAnalyticsService {
             forecasts.cost = await this.costForecaster.generateForecast(request.projectId, config);
             break;
           case 'schedule':
-            forecasts.schedule = await this.scheduleForecaster.generateForecast(request.projectId, config);
+            forecasts.schedule = await this.scheduleForecaster.generateForecast(
+              request.projectId,
+              config
+            );
             break;
           case 'risk':
             forecasts.risk = await this.riskForecaster.generateForecast(request.projectId, config);
@@ -825,7 +849,7 @@ class PredictiveAnalyticsService {
     const costSnapshot = await getDocs(costQuery);
     if (!costSnapshot.empty) {
       const latestCost = costSnapshot.docs
-        .map(doc => ({ ...doc.data(), forecastDate: doc.data().forecastDate?.toDate() }))
+        .map((doc) => ({ ...doc.data(), forecastDate: doc.data().forecastDate?.toDate() }))
         .sort((a: any, b: any) => b.forecastDate.getTime() - a.forecastDate.getTime())[0];
       forecasts.cost = latestCost as CostForecast;
     }
@@ -838,7 +862,7 @@ class PredictiveAnalyticsService {
     const scheduleSnapshot = await getDocs(scheduleQuery);
     if (!scheduleSnapshot.empty) {
       const latestSchedule = scheduleSnapshot.docs
-        .map(doc => ({ ...doc.data(), forecastDate: doc.data().forecastDate?.toDate() }))
+        .map((doc) => ({ ...doc.data(), forecastDate: doc.data().forecastDate?.toDate() }))
         .sort((a: any, b: any) => b.forecastDate.getTime() - a.forecastDate.getTime())[0];
       forecasts.schedule = latestSchedule as ScheduleForecast;
     }

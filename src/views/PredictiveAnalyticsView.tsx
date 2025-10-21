@@ -1,7 +1,7 @@
 /**
  * Predictive Analytics View
  * NataCarePM - Phase 4: AI & Analytics
- * 
+ *
  * Main UI for predictive analytics including cost forecasting,
  * schedule prediction, risk analysis, and quality forecasting
  */
@@ -26,10 +26,7 @@ import {
 } from 'lucide-react';
 import { usePredictiveAnalytics } from '@/contexts/PredictiveAnalyticsContext';
 import { useProject } from '@/contexts/ProjectContext';
-import type {
-  GenerateForecastRequest,
-  ForecastType,
-} from '@/types/predictive-analytics.types';
+import type { GenerateForecastRequest, ForecastType } from '@/types/predictive-analytics.types';
 
 // ============================================================================
 // Main Component
@@ -87,10 +84,14 @@ const PredictiveAnalyticsView: React.FC = () => {
   // Utility functions
   const getRiskLevelColor = (level: string) => {
     switch (level) {
-      case 'critical': return 'text-red-600 bg-red-100 dark:bg-red-900/20';
-      case 'high': return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
-      default: return 'text-green-600 bg-green-100 dark:bg-green-900/20';
+      case 'critical':
+        return 'text-red-600 bg-red-100 dark:bg-red-900/20';
+      case 'high':
+        return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
+      default:
+        return 'text-green-600 bg-green-100 dark:bg-green-900/20';
     }
   };
 
@@ -118,7 +119,9 @@ const PredictiveAnalyticsView: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <Activity className="w-8 h-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Predictive Analytics</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Predictive Analytics
+              </h1>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               AI-powered forecasting for cost, schedule, risk, and quality
@@ -251,7 +254,9 @@ const PredictiveAnalyticsView: React.FC = () => {
                         Risk Level
                       </span>
                     </div>
-                    <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getRiskLevelColor(latestCostForecast.riskLevel)}`}>
+                    <span
+                      className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getRiskLevelColor(latestCostForecast.riskLevel)}`}
+                    >
                       {latestCostForecast.riskLevel.toUpperCase()}
                     </span>
                   </div>
@@ -316,8 +321,11 @@ const PredictiveAnalyticsView: React.FC = () => {
                               {formatCurrency(pred.cumulativeCost)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                              <span className={pred.variance > 0 ? 'text-red-600' : 'text-green-600'}>
-                                {pred.variance > 0 ? '+' : ''}{formatCurrency(pred.variance)}
+                              <span
+                                className={pred.variance > 0 ? 'text-red-600' : 'text-green-600'}
+                              >
+                                {pred.variance > 0 ? '+' : ''}
+                                {formatCurrency(pred.variance)}
                               </span>
                             </td>
                           </tr>

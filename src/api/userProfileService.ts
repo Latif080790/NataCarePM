@@ -13,13 +13,8 @@ import {
   where,
   getDocs,
 } from 'firebase/firestore';
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-} from 'firebase/storage';
-import { db, storage, auth } from '../../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { db, storage, auth } from '@/firebaseConfig';
 import {
   optimizeImageForUpload,
   validateImageFile,
@@ -41,9 +36,7 @@ import type {
 /**
  * Get user profile by ID
  */
-export const getUserProfile = async (
-  userId: string
-): Promise<APIResponse<UserProfile>> => {
+export const getUserProfile = async (userId: string): Promise<APIResponse<UserProfile>> => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
 
@@ -440,9 +433,7 @@ export const searchUsers = async (
 /**
  * Get multiple user profiles by IDs
  */
-export const getUserProfiles = async (
-  userIds: string[]
-): Promise<APIResponse<UserProfile[]>> => {
+export const getUserProfiles = async (userIds: string[]): Promise<APIResponse<UserProfile[]>> => {
   try {
     const profiles: UserProfile[] = [];
 

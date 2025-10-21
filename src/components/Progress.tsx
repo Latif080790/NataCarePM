@@ -1,8 +1,5 @@
 import React from 'react';
 
-
-
-
 interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number; // 0 to 100
 }

@@ -1,6 +1,6 @@
 /**
  * MobileDrawer Component
- * 
+ *
  * Slide-in navigation drawer for mobile devices
  * Features:
  * - Smooth slide animation from left
@@ -11,15 +11,37 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  BarChart3, Users, FileText, DollarSign, Shield, CheckSquare,
-  TrendingUp, Truck, FileArchive, History, Monitor, Calendar,
-  Activity, User, Settings, LogOut, ChevronDown, ChevronRight,
-  X, Bell, Brain
+import {
+  BarChart3,
+  Users,
+  FileText,
+  DollarSign,
+  Shield,
+  CheckSquare,
+  TrendingUp,
+  Truck,
+  FileArchive,
+  History,
+  Monitor,
+  Calendar,
+  Activity,
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
+  ChevronRight,
+  X,
+  Bell,
+  Brain,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { navLinksConfig, hasPermission } from '@/constants';
-import { detectSwipe, triggerHapticFeedback, disableBodyScroll, enableBodyScroll } from '@/constants/responsive';
+import {
+  detectSwipe,
+  triggerHapticFeedback,
+  disableBodyScroll,
+  enableBodyScroll,
+} from '@/constants/responsive';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -65,7 +87,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       profile: User,
       user_management: Users,
       master_data: Settings,
-      audit_trail: History
+      audit_trail: History,
     };
     return iconMap[viewId] || Activity;
   };
@@ -79,10 +101,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
 
   // Toggle group expansion
   const toggleGroup = (groupId: string) => {
-    setExpandedGroups(prev =>
-      prev.includes(groupId)
-        ? prev.filter(g => g !== groupId)
-        : [...prev, groupId]
+    setExpandedGroups((prev) =>
+      prev.includes(groupId) ? prev.filter((g) => g !== groupId) : [...prev, groupId]
     );
   };
 
@@ -188,7 +208,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         {/* Navigation Menu */}
         <nav className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch px-3 py-4">
           {navLinksConfig.map((group, groupIndex) => {
-            const filteredChildren = (group.children || []).filter((item: any) => 
+            const filteredChildren = (group.children || []).filter((item: any) =>
               hasPermission(currentUser, item.requiredPermission)
             );
 
@@ -226,9 +246,10 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                           className={`
                             w-full flex items-center space-x-3 px-3 py-3 rounded-xl
                             transition-all duration-200 touch-target-md
-                            ${isActive
-                              ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white'
-                              : 'text-slate-300 hover:bg-slate-700/30 hover:text-white border border-transparent'
+                            ${
+                              isActive
+                                ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white'
+                                : 'text-slate-300 hover:bg-slate-700/30 hover:text-white border border-transparent'
                             }
                           `}
                           aria-current={isActive ? 'page' : undefined}
@@ -237,12 +258,12 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                             size={18}
                             className={isActive ? 'text-orange-400' : 'text-slate-500'}
                           />
-                          <span className={`text-sm flex-1 text-left ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                          <span
+                            className={`text-sm flex-1 text-left ${isActive ? 'font-semibold' : 'font-medium'}`}
+                          >
                             {item.name}
                           </span>
-                          {isActive && (
-                            <div className="w-2 h-2 rounded-full bg-orange-400" />
-                          )}
+                          {isActive && <div className="w-2 h-2 rounded-full bg-orange-400" />}
                         </button>
                       );
                     })}

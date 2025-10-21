@@ -2,29 +2,29 @@
 // This script simulates navigation through all views to test for errors
 
 const testViews = [
-    'dashboard',           // Enterprise Advanced Dashboard
-    'enhanced_dashboard',  // Enhanced Dashboard with real data
-    'rab_ahsp',           // RAB & AHSP Management
-    'jadwal',             // Gantt Chart Schedule
-    'tasks',              // Task Management
-    'task_list',          // Task List View
-    'kanban',             // Kanban Board
-    'kanban_board',       // Alternative Kanban
-    'dependencies',       // Dependency Graph
-    'notifications',      // Notification Center
-    'laporan_harian',     // Daily Reports
-    'progres',            // Progress Tracking
-    'absensi',            // Attendance Management
-    'biaya_proyek',       // Project Finance
-    'arus_kas',           // Cash Flow
-    'strategic_cost',     // Strategic Cost Analysis
-    'logistik',           // Logistics & Purchase Orders
-    'dokumen',            // Document Management
-    'laporan',            // Reports
-    'user_management',    // User Management
-    'master_data',        // Master Data
-    'audit_trail',        // Audit Trail
-    'profile'             // User Profile
+  'dashboard', // Enterprise Advanced Dashboard
+  'enhanced_dashboard', // Enhanced Dashboard with real data
+  'rab_ahsp', // RAB & AHSP Management
+  'jadwal', // Gantt Chart Schedule
+  'tasks', // Task Management
+  'task_list', // Task List View
+  'kanban', // Kanban Board
+  'kanban_board', // Alternative Kanban
+  'dependencies', // Dependency Graph
+  'notifications', // Notification Center
+  'laporan_harian', // Daily Reports
+  'progres', // Progress Tracking
+  'absensi', // Attendance Management
+  'biaya_proyek', // Project Finance
+  'arus_kas', // Cash Flow
+  'strategic_cost', // Strategic Cost Analysis
+  'logistik', // Logistics & Purchase Orders
+  'dokumen', // Document Management
+  'laporan', // Reports
+  'user_management', // User Management
+  'master_data', // Master Data
+  'audit_trail', // Audit Trail
+  'profile', // User Profile
 ];
 
 console.log('🚀 Starting Comprehensive Feature Test for NataCarePM');
@@ -32,7 +32,7 @@ console.log(`📊 Testing ${testViews.length} views for errors...`);
 
 // Log test results
 testViews.forEach((view, index) => {
-    console.log(`${index + 1}. ${view.toUpperCase().replace(/_/g, ' ')} - Ready for testing`);
+  console.log(`${index + 1}. ${view.toUpperCase().replace(/_/g, ' ')} - Ready for testing`);
 });
 
 console.log('✅ All views are registered and ready for manual testing');

@@ -3,17 +3,18 @@
 ## 1. Firebase Integration Enhancement
 
 ### A. Real-time Authentication
+
 ```typescript
 // File: hooks/useFirebaseAuth.ts
 import { useState, useEffect } from 'react';
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   updateProfile as firebaseUpdateProfile,
-  User as FirebaseUser 
+  User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
@@ -40,7 +41,7 @@ export const useFirebaseAuth = () => {
               roleId: userData.roleId || 'viewer',
               avatarUrl: userData.avatarUrl || firebaseUser.photoURL || '',
               isOnline: true,
-              lastSeen: new Date()
+              lastSeen: new Date(),
             });
           }
         } else {
@@ -75,7 +76,7 @@ export const useFirebaseAuth = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
 
@@ -87,12 +88,12 @@ export const useFirebaseAuth = () => {
         avatarUrl: `https://i.pravatar.cc/150?u=${firebaseUser.uid}`,
         createdAt: new Date(),
         isOnline: true,
-        lastSeen: new Date()
+        lastSeen: new Date(),
       });
 
       // Update Firebase Auth profile
       await firebaseUpdateProfile(firebaseUser, { displayName: name });
-      
+
       return true;
     } catch (err: any) {
       setError(err.message);
@@ -105,15 +106,15 @@ export const useFirebaseAuth = () => {
   const signOut = async () => {
     try {
       setLoading(true);
-      
+
       // Update online status
       if (user) {
         await updateDoc(doc(db, 'users', user.uid), {
           isOnline: false,
-          lastSeen: new Date()
+          lastSeen: new Date(),
         });
       }
-      
+
       await firebaseSignOut(auth);
       return true;
     } catch (err: any) {
@@ -141,24 +142,25 @@ export const useFirebaseAuth = () => {
     signIn,
     signUp,
     signOut,
-    resetPassword
+    resetPassword,
   };
 };
 ```
 
 ### B. Real-time Data Hooks
+
 ```typescript
 // File: hooks/useRealtimeData.ts
 import { useState, useEffect } from 'react';
-import { 
-  collection, 
-  doc, 
-  onSnapshot, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  where,
   orderBy,
   QuerySnapshot,
-  DocumentSnapshot 
+  DocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { Project, Task, User, Notification } from '../types';
@@ -175,9 +177,9 @@ export const useRealtimeProject = (projectId: string) => {
     }
 
     const projectRef = doc(db, 'projects', projectId);
-    
+
     const unsubscribe = onSnapshot(
-      projectRef, 
+      projectRef,
       (doc: DocumentSnapshot) => {
         try {
           if (doc.exists()) {
@@ -225,9 +227,9 @@ export const useRealtimeTasks = (projectId: string) => {
       tasksQuery,
       (snapshot: QuerySnapshot) => {
         try {
-          const tasksData = snapshot.docs.map(doc => ({
+          const tasksData = snapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
           })) as Task[];
           setTasks(tasksData);
         } catch (err) {
@@ -269,13 +271,13 @@ export const useRealtimeNotifications = (userId: string) => {
 
     const unsubscribe = onSnapshot(notificationsQuery, (snapshot: QuerySnapshot) => {
       try {
-        const notificationsData = snapshot.docs.map(doc => ({
+        const notificationsData = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         })) as Notification[];
-        
+
         setNotifications(notificationsData);
-        setUnreadCount(notificationsData.filter(n => !n.read).length);
+        setUnreadCount(notificationsData.filter((n) => !n.read).length);
       } catch (err) {
         console.error('Notifications snapshot error:', err);
       } finally {
@@ -293,6 +295,7 @@ export const useRealtimeNotifications = (userId: string) => {
 ## 2. Security Enhancement
 
 ### A. Enhanced Authentication Context
+
 ```typescript
 // File: contexts/EnhancedAuthContext.tsx
 import React, { createContext, useContext, ReactNode } from 'react';
@@ -331,13 +334,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 ```
 
 ### B. Role-Based Access Control
+
 ```typescript
 // File: utils/rbac.ts
 import { User } from '../types';
 
-export type Permission = 
+export type Permission =
   | 'project.create'
-  | 'project.edit' 
+  | 'project.edit'
   | 'project.delete'
   | 'project.view'
   | 'task.create'
@@ -354,38 +358,55 @@ export type Role = 'admin' | 'manager' | 'supervisor' | 'worker' | 'viewer';
 
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   admin: [
-    'project.create', 'project.edit', 'project.delete', 'project.view',
-    'task.create', 'task.edit', 'task.delete', 'task.view',
-    'user.manage', 'report.view', 'report.export',
-    'finance.view', 'finance.edit'
+    'project.create',
+    'project.edit',
+    'project.delete',
+    'project.view',
+    'task.create',
+    'task.edit',
+    'task.delete',
+    'task.view',
+    'user.manage',
+    'report.view',
+    'report.export',
+    'finance.view',
+    'finance.edit',
   ],
   manager: [
-    'project.create', 'project.edit', 'project.view',
-    'task.create', 'task.edit', 'task.delete', 'task.view',
-    'report.view', 'report.export', 'finance.view', 'finance.edit'
+    'project.create',
+    'project.edit',
+    'project.view',
+    'task.create',
+    'task.edit',
+    'task.delete',
+    'task.view',
+    'report.view',
+    'report.export',
+    'finance.view',
+    'finance.edit',
   ],
   supervisor: [
-    'project.view', 'task.create', 'task.edit', 'task.view',
-    'report.view', 'finance.view'
+    'project.view',
+    'task.create',
+    'task.edit',
+    'task.view',
+    'report.view',
+    'finance.view',
   ],
-  worker: [
-    'project.view', 'task.view', 'task.edit'
-  ],
-  viewer: [
-    'project.view', 'task.view', 'report.view'
-  ]
+  worker: ['project.view', 'task.view', 'task.edit'],
+  viewer: ['project.view', 'task.view', 'report.view'],
 };
 
 export const hasPermission = (user: User | null, permission: Permission): boolean => {
   if (!user || !user.roleId) return false;
-  
+
   const userRole = user.roleId as Role;
   return ROLE_PERMISSIONS[userRole]?.includes(permission) || false;
 };
 
 export const usePermissions = (user: User | null) => {
   const checkPermission = (permission: Permission) => hasPermission(user, permission);
-  
+
   return {
     can: checkPermission,
     canCreateProject: () => checkPermission('project.create'),
@@ -400,7 +421,7 @@ export const usePermissions = (user: User | null) => {
     canViewReports: () => checkPermission('report.view'),
     canExportReports: () => checkPermission('report.export'),
     canViewFinance: () => checkPermission('finance.view'),
-    canEditFinance: () => checkPermission('finance.edit')
+    canEditFinance: () => checkPermission('finance.edit'),
   };
 };
 ```
@@ -408,6 +429,7 @@ export const usePermissions = (user: User | null) => {
 ## 3. Performance Optimization
 
 ### A. Component Lazy Loading
+
 ```typescript
 // File: components/LazyComponents.tsx
 import { lazy, Suspense } from 'react';
@@ -438,6 +460,7 @@ export const withLazyLoading = <P extends object>(
 ```
 
 ### B. Optimized Vite Configuration
+
 ```typescript
 // File: vite.config.ts
 import path from 'path';
@@ -447,7 +470,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
-  
+
   return {
     server: {
       port: 3000,
@@ -458,12 +481,12 @@ export default defineConfig(({ mode }) => {
         // Enable Fast Refresh
         fastRefresh: true,
         // Optimize JSX runtime
-        jsxRuntime: 'automatic'
+        jsxRuntime: 'automatic',
       }),
       VitePWA({
         registerType: 'autoUpdate',
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         },
         manifest: {
           name: 'NataCarePM',
@@ -476,20 +499,20 @@ export default defineConfig(({ mode }) => {
             {
               src: 'icon-192.png',
               sizes: '192x192',
-              type: 'image/png'
+              type: 'image/png',
             },
             {
               src: 'icon-512.png',
               sizes: '512x512',
-              type: 'image/png'
-            }
-          ]
-        }
-      })
+              type: 'image/png',
+            },
+          ],
+        },
+      }),
     ],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
     resolve: {
       alias: {
@@ -499,8 +522,8 @@ export default defineConfig(({ mode }) => {
         '@hooks': path.resolve(__dirname, './hooks'),
         '@contexts': path.resolve(__dirname, './contexts'),
         '@api': path.resolve(__dirname, './api'),
-        '@types': path.resolve(__dirname, './types')
-      }
+        '@types': path.resolve(__dirname, './types'),
+      },
     },
     build: {
       target: 'esnext',
@@ -513,16 +536,16 @@ export default defineConfig(({ mode }) => {
             ui: ['lucide-react'],
             firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
             charts: ['recharts'],
-            utils: ['date-fns', 'lodash']
-          }
-        }
+            utils: ['date-fns', 'lodash'],
+          },
+        },
       },
       terserOptions: {
         compress: {
           drop_console: true,
-          drop_debugger: true
-        }
-      }
+          drop_debugger: true,
+        },
+      },
     },
     optimizeDeps: {
       include: [
@@ -531,9 +554,9 @@ export default defineConfig(({ mode }) => {
         'firebase/app',
         'firebase/firestore',
         'firebase/auth',
-        'firebase/storage'
-      ]
-    }
+        'firebase/storage',
+      ],
+    },
   };
 });
 ```
@@ -541,6 +564,7 @@ export default defineConfig(({ mode }) => {
 ## 4. Testing Infrastructure
 
 ### A. Jest Configuration
+
 ```json
 // File: jest.config.js
 module.exports = {
@@ -574,6 +598,7 @@ module.exports = {
 ```
 
 ### B. Test Setup
+
 ```typescript
 // File: src/setupTests.ts
 import '@testing-library/jest-dom';
@@ -586,7 +611,7 @@ configure({ testIdAttribute: 'data-testid' });
 jest.mock('./firebaseConfig', () => ({
   auth: {},
   db: {},
-  storage: {}
+  storage: {},
 }));
 
 // Mock environment variables
@@ -601,6 +626,7 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 ```
 
 ### C. Component Tests
+
 ```typescript
 // File: __tests__/components/StatCard.test.tsx
 import { render, screen } from '@testing-library/react';
@@ -618,7 +644,7 @@ describe('StatCard Component', () => {
 
   it('renders title and value correctly', () => {
     render(<StatCard {...defaultProps} />);
-    
+
     expect(screen.getByText('Test Title')).toBeInTheDocument();
     expect(screen.getByText('$1,000')).toBeInTheDocument();
     expect(screen.getByText('Test description')).toBeInTheDocument();
@@ -626,20 +652,20 @@ describe('StatCard Component', () => {
 
   it('displays trend when provided', () => {
     render(<StatCard {...defaultProps} />);
-    
+
     expect(screen.getByText('+5%')).toBeInTheDocument();
   });
 
   it('renders icon component', () => {
     render(<StatCard {...defaultProps} />);
-    
+
     const iconElement = document.querySelector('svg');
     expect(iconElement).toBeInTheDocument();
   });
 
   it('applies correct CSS classes', () => {
     render(<StatCard {...defaultProps} />);
-    
+
     const cardElement = screen.getByRole('article');
     expect(cardElement).toHaveClass('bg-white', 'p-6', 'rounded-lg', 'shadow-sm');
   });
@@ -649,24 +675,28 @@ describe('StatCard Component', () => {
 ## 5. Implementation Steps
 
 ### Minggu 1-2: Backend Integration
+
 1. ✅ Implement `useFirebaseAuth` hook
-2. ✅ Create `useRealtimeData` hooks  
+2. ✅ Create `useRealtimeData` hooks
 3. ✅ Update AuthContext to use real Firebase
 4. ✅ Test authentication flows
 
 ### Minggu 3-4: Security & RBAC
+
 1. ✅ Implement role-based permissions
 2. ✅ Add security middleware
 3. ✅ Update UI components with permission checks
 4. ✅ Test authorization scenarios
 
 ### Minggu 5-6: Performance & Testing
+
 1. ✅ Configure lazy loading
 2. ✅ Optimize Vite build configuration
 3. ✅ Set up Jest testing framework
 4. ✅ Write component tests
 
 ### Production Deployment Checklist:
+
 - [ ] Environment variables configured
 - [ ] Firebase security rules implemented
 - [ ] SSL certificate installed

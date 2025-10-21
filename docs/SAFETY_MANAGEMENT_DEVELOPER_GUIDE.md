@@ -49,22 +49,26 @@ The Safety Management System follows a modern React architecture with clear sepa
 ### Design Patterns
 
 **1. Context Pattern**
+
 - Global state management using React Context API
 - Provides safety data and actions throughout component tree
 - Prevents prop drilling
 
 **2. Service Pattern**
+
 - Business logic isolated in `safetyService.ts`
 - Handles all Firebase interactions
 - Implements OSHA calculations
 - Provides clean API for components
 
 **3. Repository Pattern**
+
 - Firebase collections act as repositories
 - Abstracted through service layer
 - Easy to swap data sources
 
 **4. Observer Pattern**
+
 - React hooks for state subscriptions
 - Real-time updates from Firebase
 - Efficient re-rendering
@@ -75,13 +79,13 @@ The Safety Management System follows a modern React architecture with clear sepa
 
 ### Core Technologies
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| React | 18.x | UI framework |
-| TypeScript | 5.x | Type safety |
-| Firebase | 10.x | Backend & database |
-| Tailwind CSS | 3.x | Styling |
-| Lucide React | Latest | Icons |
+| Technology   | Version | Purpose            |
+| ------------ | ------- | ------------------ |
+| React        | 18.x    | UI framework       |
+| TypeScript   | 5.x     | Type safety        |
+| Firebase     | 10.x    | Backend & database |
+| Tailwind CSS | 3.x     | Styling            |
+| Lucide React | Latest  | Icons              |
 
 ### Development Dependencies
 
@@ -106,6 +110,7 @@ The Safety Management System follows a modern React architecture with clear sepa
 ### Firebase Configuration
 
 **Required Firebase Services:**
+
 - Firestore Database
 - Authentication (for user tracking)
 - Storage (for incident photos/documents)
@@ -153,6 +158,7 @@ NataCarePM/
 **Location:** `contexts/SafetyContext.tsx`
 
 **Responsibilities:**
+
 - Manages all safety-related state
 - Provides 40+ action methods
 - Handles loading and error states
@@ -174,17 +180,17 @@ function App() {
 
 // In any component
 function MyComponent() {
-  const { 
-    incidents, 
-    fetchIncidents, 
+  const {
+    incidents,
+    fetchIncidents,
     createIncident,
-    getCriticalIncidents 
+    getCriticalIncidents
   } = useSafety();
-  
+
   useEffect(() => {
     fetchIncidents('project-123');
   }, []);
-  
+
   return <div>{/* Use incidents */}</div>;
 }
 ```
@@ -233,28 +239,28 @@ interface SafetyContextState {
   incidents: SafetyIncident[];
   incidentsLoading: boolean;
   incidentsError: string | null;
-  
+
   // Training
   training: SafetyTraining[];
   trainingLoading: boolean;
   trainingError: string | null;
-  
+
   // PPE
   ppeInventory: PPEInventory[];
   ppeAssignments: PPEAssignment[];
   ppeLoading: boolean;
   ppeError: string | null;
-  
+
   // Audits
   audits: SafetyAudit[];
   auditsLoading: boolean;
   auditsError: string | null;
-  
+
   // Metrics
   metrics: SafetyMetrics | null;
   metricsLoading: boolean;
   metricsError: string | null;
-  
+
   // Dashboard
   dashboardSummary: SafetyDashboardSummary | null;
   dashboardLoading: boolean;
@@ -265,6 +271,7 @@ interface SafetyContextState {
 ### Performance Optimizations
 
 **1. useCallback for Actions**
+
 ```typescript
 const fetchIncidents = useCallback(async (projectId: string) => {
   setIncidentsLoading(true);
@@ -281,21 +288,21 @@ const fetchIncidents = useCallback(async (projectId: string) => {
 ```
 
 **2. useMemo for Derived Data**
+
 ```typescript
 const getCriticalIncidents = useCallback((): SafetyIncident[] => {
-  return incidents.filter(i => 
-    i.severity === 'fatal' || i.severity === 'critical'
-  );
+  return incidents.filter((i) => i.severity === 'fatal' || i.severity === 'critical');
 }, [incidents]);
 ```
 
 **3. Immutable Updates**
+
 ```typescript
 const updateIncident = useCallback(async (id: string, updates: Partial<SafetyIncident>) => {
   await safetyService.updateIncident(id, updates);
-  setIncidents(prev => prev.map(incident => 
-    incident.id === id ? { ...incident, ...updates } : incident
-  ));
+  setIncidents((prev) =>
+    prev.map((incident) => (incident.id === id ? { ...incident, ...updates } : incident))
+  );
 }, []);
 ```
 
@@ -320,7 +327,7 @@ const firebaseConfig = {
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -331,14 +338,14 @@ export const storage = getStorage(app);
 
 ### Firestore Collections
 
-| Collection | Document ID | Purpose |
-|------------|-------------|---------|
-| `safetyIncidents` | Auto-generated | Store incident records |
-| `safetyTraining` | Auto-generated | Training sessions |
-| `ppeInventory` | Auto-generated | PPE stock items |
-| `ppeAssignments` | Auto-generated | PPE assignments to workers |
-| `safetyAudits` | Auto-generated | Audit records |
-| `projects` | Project ID | Store work hours for metrics |
+| Collection        | Document ID    | Purpose                      |
+| ----------------- | -------------- | ---------------------------- |
+| `safetyIncidents` | Auto-generated | Store incident records       |
+| `safetyTraining`  | Auto-generated | Training sessions            |
+| `ppeInventory`    | Auto-generated | PPE stock items              |
+| `ppeAssignments`  | Auto-generated | PPE assignments to workers   |
+| `safetyAudits`    | Auto-generated | Audit records                |
+| `projects`        | Project ID     | Store work hours for metrics |
 
 ### Data Conversion
 
@@ -370,7 +377,13 @@ const convertTimestamps = (doc: DocumentData): SafetyIncident => {
 // Enums
 export type IncidentSeverity = 'fatal' | 'critical' | 'major' | 'minor' | 'near_miss';
 export type IncidentStatus = 'draft' | 'reported' | 'investigating' | 'resolved' | 'closed';
-export type IncidentType = 'injury' | 'illness' | 'near_miss' | 'property_damage' | 'environmental' | 'security';
+export type IncidentType =
+  | 'injury'
+  | 'illness'
+  | 'near_miss'
+  | 'property_damage'
+  | 'environmental'
+  | 'security';
 
 // Main Entities
 export interface SafetyIncident {
@@ -418,6 +431,7 @@ const calculateTRIR = (recordableIncidents: number, totalWorkHours: number): num
 ```
 
 **Industry Benchmarks:**
+
 - Excellent: < 2.0
 - Average: 2.0 - 4.0
 - Poor: > 4.0
@@ -448,7 +462,7 @@ const calculateDART = (dartCases: number, totalWorkHours: number): number => {
 const generateIncidentNumber = async (): Promise<string> => {
   const year = new Date().getFullYear();
   const incidentsRef = collection(db, 'safetyIncidents');
-  
+
   const q = query(
     incidentsRef,
     where('incidentNumber', '>=', `INC-${year}-000`),
@@ -456,16 +470,16 @@ const generateIncidentNumber = async (): Promise<string> => {
     orderBy('incidentNumber', 'desc'),
     limit(1)
   );
-  
+
   const snapshot = await getDocs(q);
-  
+
   let nextNumber = 1;
   if (!snapshot.empty) {
     const lastNumber = snapshot.docs[0].data().incidentNumber;
     const lastSequence = parseInt(lastNumber.split('-')[2]);
     nextNumber = lastSequence + 1;
   }
-  
+
   return `INC-${year}-${String(nextNumber).padStart(3, '0')}`;
 };
 ```
@@ -477,18 +491,20 @@ const generateIncidentNumber = async (): Promise<string> => {
 ### Adding New Incident Type
 
 **Step 1: Update Types** (`types/safety.types.ts`)
+
 ```typescript
-export type IncidentType = 
-  | 'injury' 
-  | 'illness' 
-  | 'near_miss' 
-  | 'property_damage' 
-  | 'environmental' 
+export type IncidentType =
+  | 'injury'
+  | 'illness'
+  | 'near_miss'
+  | 'property_damage'
+  | 'environmental'
   | 'security'
   | 'cybersecurity'; // ← New type
 ```
 
 **Step 2: Update UI** (`views/IncidentManagementView.tsx`)
+
 ```typescript
 const incidentTypes = [
   { value: 'injury', label: 'Injury' },
@@ -514,7 +530,7 @@ describe('safetyService', () => {
       new Date('2024-01-01'),
       new Date('2024-12-31')
     );
-    
+
     // 2 recordable incidents, 100,000 work hours
     // TRIR = (2 * 200,000) / 100,000 = 4.0
     expect(metrics.rates.totalRecordableIncidentRate).toBe(4.0);
@@ -530,9 +546,9 @@ describe('safetyService', () => {
 
 ```typescript
 const criticalIncidents = useMemo(() => {
-  return incidents.filter(i => 
-    i.severity === 'fatal' || i.severity === 'critical'
-  ).sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime());
+  return incidents
+    .filter((i) => i.severity === 'fatal' || i.severity === 'critical')
+    .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime());
 }, [incidents]);
 ```
 
@@ -550,15 +566,15 @@ const getIncidentsPaginated = async (
     orderBy('occurredAt', 'desc'),
     limit(pageSize)
   );
-  
+
   if (lastDoc) {
     q = query(q, startAfter(lastDoc));
   }
-  
+
   const snapshot = await getDocs(q);
   return {
-    incidents: snapshot.docs.map(doc => convertTimestamps(doc.data())),
-    lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
+    incidents: snapshot.docs.map((doc) => convertTimestamps(doc.data())),
+    lastDoc: snapshot.docs[snapshot.docs.length - 1] || null,
   };
 };
 ```
@@ -603,9 +619,9 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /safetyIncidents/{incidentId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && 
+      allow create: if request.auth != null &&
                     request.resource.data.reportedBy == request.auth.uid;
-      allow update, delete: if request.auth != null && 
+      allow update, delete: if request.auth != null &&
                              resource.data.reportedBy == request.auth.uid;
     }
   }
@@ -619,6 +635,7 @@ service cloud.firestore {
 ### Common Issues
 
 **Issue: Firebase timestamp conversion errors**
+
 ```typescript
 // Solution: Always check for null timestamps
 const convertTimestamps = (doc: DocumentData): SafetyIncident => {
@@ -631,6 +648,7 @@ const convertTimestamps = (doc: DocumentData): SafetyIncident => {
 ```
 
 **Issue: Incident number conflicts**
+
 ```typescript
 // Solution: Use Firestore transactions
 const generateIncidentNumber = async (): Promise<string> => {
@@ -642,6 +660,7 @@ const generateIncidentNumber = async (): Promise<string> => {
 ```
 
 **Issue: Large dataset performance**
+
 ```typescript
 // Solution: Implement pagination and virtual scrolling
 // Use react-window for large lists
@@ -655,6 +674,7 @@ const generateIncidentNumber = async (): Promise<string> => {
 ### Quick Reference
 
 **Key Files:**
+
 - `types/safety.types.ts` - Type definitions
 - `api/safetyService.ts` - API service layer
 - `contexts/SafetyContext.tsx` - State management
@@ -662,11 +682,13 @@ const generateIncidentNumber = async (): Promise<string> => {
 - `views/IncidentManagementView.tsx` - Incident management
 
 **OSHA Formulas:**
+
 - TRIR = (Recordable Incidents × 200,000) / Total Work Hours
 - LTIFR = (Lost Time Injuries × 200,000) / Total Work Hours
 - DART = (DART Cases × 200,000) / Total Work Hours
 
 **Contact:**
+
 - Technical Lead: [Your Name]
 - Safety Compliance Officer: [Name]
 - Documentation: See `docs/` folder

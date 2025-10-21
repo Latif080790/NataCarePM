@@ -36,46 +36,46 @@ class SendGridEmailService {
   private apiKey: string;
   private fromEmail: string;
   private fromName: string;
-  
+
   constructor(apiKey: string, fromEmail: string, fromName: string) {
     this.apiKey = apiKey;
     this.fromEmail = fromEmail;
     this.fromName = fromName;
   }
-  
+
   async send(options: EmailOptions): Promise<EmailResult> {
     try {
       const sgMail = await import('@sendgrid/mail');
       sgMail.default.setApiKey(this.apiKey);
-      
+
       const msg: any = {
         to: options.to,
         from: options.from || {
           email: this.fromEmail,
-          name: this.fromName
+          name: this.fromName,
         },
         subject: options.subject,
         text: options.text || this.stripHtml(options.html),
         html: options.html,
         replyTo: options.replyTo,
-        attachments: options.attachments
+        attachments: options.attachments,
       };
-      
+
       const response = await sgMail.default.send(msg);
-      
+
       return {
         success: true,
-        messageId: response[0].headers['x-message-id'] as string
+        messageId: response[0].headers['x-message-id'] as string,
       };
     } catch (error) {
       console.error('SendGrid email error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown email error'
+        error: error instanceof Error ? error.message : 'Unknown email error',
       };
     }
   }
-  
+
   private stripHtml(html: string): string {
     return html.replace(/<[^>]*>/g, '');
   }
@@ -91,7 +91,7 @@ export class EmailTemplateBuilder {
   static buildFromNotification(notification: Notification): string {
     const priorityColor = this.getPriorityColor(notification.priority);
     const iconEmoji = this.getTypeIcon(notification.type);
-    
+
     return `
 <!DOCTYPE html>
 <html>
@@ -193,20 +193,32 @@ export class EmailTemplateBuilder {
       ${notification.message}
     </div>
     
-    ${notification.actions && notification.actions.length > 0 ? `
+    ${
+      notification.actions && notification.actions.length > 0
+        ? `
       <div class="actions">
-        ${notification.actions.map(action => `
+        ${notification.actions
+          .map(
+            (action) => `
           <a href="${action.url || '#'}" class="button">${action.label}</a>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
-    ${notification.data ? `
+    ${
+      notification.data
+        ? `
       <div class="metadata">
         <strong>Additional Information:</strong><br>
         ${this.formatData(notification.data)}
       </div>
-    ` : ''}
+    `
+        : ''
+    }
   </div>
   
   <div class="footer">
@@ -217,17 +229,22 @@ export class EmailTemplateBuilder {
 </html>
     `.trim();
   }
-  
+
   private static getPriorityColor(priority: string): string {
     switch (priority) {
-      case 'urgent': return '#dc2626';
-      case 'high': return '#ea580c';
-      case 'medium': return '#ca8a04';
-      case 'low': return '#16a34a';
-      default: return '#6b7280';
+      case 'urgent':
+        return '#dc2626';
+      case 'high':
+        return '#ea580c';
+      case 'medium':
+        return '#ca8a04';
+      case 'low':
+        return '#16a34a';
+      default:
+        return '#6b7280';
     }
   }
-  
+
   private static getTypeIcon(type: string): string {
     const icons: Record<string, string> = {
       project_update: '📊',
@@ -239,11 +256,11 @@ export class EmailTemplateBuilder {
       approval_required: '✋',
       message_received: '💬',
       system_alert: '⚠️',
-      payment_due: '💳'
+      payment_due: '💳',
     };
     return icons[type] || '📬';
   }
-  
+
   private static formatData(data: Record<string, unknown>): string {
     return Object.entries(data)
       .map(([key, value]) => `<div><strong>${key}:</strong> ${value}</div>`)
@@ -257,11 +274,11 @@ export class EmailTemplateBuilder {
 export class EmailService {
   private sendGridService: SendGridEmailService | null = null;
   private config = getNotificationConfig();
-  
+
   constructor() {
     this.initialize();
   }
-  
+
   private initialize(): void {
     if (this.config.email.provider === 'sendgrid' && this.config.email.sendgrid) {
       this.sendGridService = new SendGridEmailService(
@@ -271,7 +288,7 @@ export class EmailService {
       );
     }
   }
-  
+
   /**
    * Send email notification
    */
@@ -279,29 +296,29 @@ export class EmailService {
     if (!notification.recipientEmail) {
       return {
         success: false,
-        error: 'Recipient email not provided'
+        error: 'Recipient email not provided',
       };
     }
-    
+
     if (!this.sendGridService) {
       console.warn('Email service not configured - skipping email notification');
       return {
         success: false,
-        error: 'Email service not configured'
+        error: 'Email service not configured',
       };
     }
-    
+
     const html = EmailTemplateBuilder.buildFromNotification(notification);
-    
+
     const options: EmailOptions = {
       to: notification.recipientEmail,
       subject: notification.title,
-      html
+      html,
     };
-    
+
     return this.sendGridService.send(options);
   }
-  
+
   /**
    * Send custom email
    */
@@ -309,13 +326,13 @@ export class EmailService {
     if (!this.sendGridService) {
       return {
         success: false,
-        error: 'Email service not configured'
+        error: 'Email service not configured',
       };
     }
-    
+
     return this.sendGridService.send(options);
   }
-  
+
   /**
    * Check if email service is configured
    */

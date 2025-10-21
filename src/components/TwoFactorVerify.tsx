@@ -10,21 +10,21 @@ interface TwoFactorVerifyProps {
 
 /**
  * Two-Factor Authentication Verification Component
- * 
+ *
  * Used during login to verify 2FA code from authenticator app or backup code.
- * 
+ *
  * Features:
  * - 6-digit TOTP code input with auto-focus
  * - Backup code fallback option
  * - Rate limiting feedback (attempts remaining)
  * - Auto-clear on error
  * - Keyboard navigation support
- * 
+ *
  * @example
  * ```tsx
- * <TwoFactorVerify 
+ * <TwoFactorVerify
  *   userId={user.uid}
- *   onSuccess={() => completeLogin()} 
+ *   onSuccess={() => completeLogin()}
  *   onCancel={() => logout()}
  *   showBackupCodeOption={true}
  * />
@@ -34,7 +34,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
   userId,
   onSuccess,
   onCancel,
-  showBackupCodeOption = true
+  showBackupCodeOption = true,
 }) => {
   const [code, setCode] = useState('');
   const [useBackupCode, setUseBackupCode] = useState(false);
@@ -55,7 +55,9 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
 
   const handleVerify = async () => {
     if (!code || (useBackupCode && code.length !== 8) || (!useBackupCode && code.length !== 6)) {
-      setError(`Please enter a valid ${useBackupCode ? '8-character backup code' : '6-digit code'}`);
+      setError(
+        `Please enter a valid ${useBackupCode ? '8-character backup code' : '6-digit code'}`
+      );
       return;
     }
 
@@ -77,10 +79,10 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Invalid code';
       setError(errorMessage);
-      
+
       // Decrement attempts counter
-      setAttempts(prev => Math.max(0, prev - 1));
-      
+      setAttempts((prev) => Math.max(0, prev - 1));
+
       // Clear input on error
       setCode('');
       inputRef.current?.focus();
@@ -97,7 +99,10 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
   const handleInputChange = (value: string) => {
     if (useBackupCode) {
       // Backup code: 8 alphanumeric characters
-      const sanitized = value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      const sanitized = value
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '')
+        .slice(0, 8);
       setCode(sanitized);
     } else {
       // TOTP: 6 digits only
@@ -126,8 +131,8 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
         <div className="modal-header">
           <h2>🔐 Two-Factor Authentication</h2>
           <p className="modal-subtitle">
-            {useBackupCode 
-              ? 'Enter one of your backup codes' 
+            {useBackupCode
+              ? 'Enter one of your backup codes'
               : 'Enter the code from your authenticator app'}
           </p>
         </div>
@@ -150,9 +155,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
               spellCheck={false}
             />
             <div className="input-hint">
-              {useBackupCode 
-                ? 'Enter 8-character backup code' 
-                : 'Enter 6-digit code from your app'}
+              {useBackupCode ? 'Enter 8-character backup code' : 'Enter 6-digit code from your app'}
             </div>
           </div>
 
@@ -168,7 +171,9 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
           {attempts < 3 && attempts > 0 && (
             <div className="attempts-warning">
               <span className="warning-icon">⚠️</span>
-              <span>{attempts} attempt{attempts !== 1 ? 's' : ''} remaining</span>
+              <span>
+                {attempts} attempt{attempts !== 1 ? 's' : ''} remaining
+              </span>
             </div>
           )}
 
@@ -183,14 +188,14 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
           {/* Backup Code Toggle */}
           {showBackupCodeOption && (
             <div className="backup-toggle">
-              <button 
+              <button
                 type="button"
                 className="toggle-link"
                 onClick={toggleBackupCode}
                 disabled={loading}
               >
-                {useBackupCode 
-                  ? '← Use authenticator app instead' 
+                {useBackupCode
+                  ? '← Use authenticator app instead'
                   : "Can't access your app? Use backup code →"}
               </button>
             </div>
@@ -227,9 +232,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
             className="btn-verify"
             onClick={handleVerify}
             disabled={
-              loading || 
-              attempts === 0 || 
-              (useBackupCode ? code.length !== 8 : code.length !== 6)
+              loading || attempts === 0 || (useBackupCode ? code.length !== 8 : code.length !== 6)
             }
           >
             {loading ? (
@@ -243,11 +246,7 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
           </button>
 
           {onCancel && (
-            <button
-              className="btn-cancel"
-              onClick={onCancel}
-              disabled={loading}
-            >
+            <button className="btn-cancel" onClick={onCancel} disabled={loading}>
               Cancel
             </button>
           )}

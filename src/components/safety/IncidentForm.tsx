@@ -1,5 +1,15 @@
 import React, { useState, useCallback } from 'react';
-import { X, Upload, Plus, Trash2, AlertTriangle, Calendar, MapPin, User, FileText } from 'lucide-react';
+import {
+  X,
+  Upload,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  Calendar,
+  MapPin,
+  User,
+  FileText,
+} from 'lucide-react';
 import type { SafetyIncident } from '@/types/safety.types';
 
 type InjuredPerson = SafetyIncident['injuredPersons'][0];
@@ -9,7 +19,9 @@ type CorrectiveAction = SafetyIncident['correctiveActions'][0];
 interface IncidentFormProps {
   projectId: string;
   initialData?: Partial<SafetyIncident>;
-  onSubmit: (incident: Omit<SafetyIncident, 'id' | 'incidentNumber' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onSubmit: (
+    incident: Omit<SafetyIncident, 'id' | 'incidentNumber' | 'createdAt' | 'updatedAt'>
+  ) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
@@ -19,7 +31,7 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
   initialData,
   onSubmit,
   onCancel,
-  isSubmitting = false
+  isSubmitting = false,
 }) => {
   // Form state
   const [formData, setFormData] = useState({
@@ -29,10 +41,10 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
     title: initialData?.title || '',
     description: initialData?.description || '',
     location: initialData?.location || '',
-    occurredAt: initialData?.occurredAt 
-      ? initialData.occurredAt.toISOString().slice(0, 16) 
+    occurredAt: initialData?.occurredAt
+      ? initialData.occurredAt.toISOString().slice(0, 16)
       : new Date().toISOString().slice(0, 16),
-    reportedAt: initialData?.reportedAt 
+    reportedAt: initialData?.reportedAt
       ? initialData.reportedAt.toISOString().slice(0, 16)
       : new Date().toISOString().slice(0, 16),
     reportedBy: initialData?.reportedBy || '',
@@ -43,9 +55,13 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
     productivityCosts: initialData?.productivityCosts || 0,
   });
 
-  const [injuredPersons, setInjuredPersons] = useState<InjuredPerson[]>(initialData?.injuredPersons || []);
+  const [injuredPersons, setInjuredPersons] = useState<InjuredPerson[]>(
+    initialData?.injuredPersons || []
+  );
   const [witnesses, setWitnesses] = useState<Witness[]>(initialData?.witnesses || []);
-  const [correctiveActions, setCorrectiveActions] = useState<CorrectiveAction[]>(initialData?.correctiveActions || []);
+  const [correctiveActions, setCorrectiveActions] = useState<CorrectiveAction[]>(
+    initialData?.correctiveActions || []
+  );
   const [photos, setPhotos] = useState<string[]>(initialData?.photos || []);
   const [documents, setDocuments] = useState<string[]>(initialData?.documents || []);
 
@@ -73,19 +89,19 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
       injuryType: '',
       injurySeverity: 'minor',
       medicalTreatment: 'none',
-      daysLost: 0
+      daysLost: 0,
     };
-    setInjuredPersons(prev => [...prev, newPerson]);
+    setInjuredPersons((prev) => [...prev, newPerson]);
   }, []);
 
   const updateInjuredPerson = useCallback((id: string, updates: Partial<InjuredPerson>) => {
-    setInjuredPersons(prev => prev.map(person => 
-      person.id === id ? { ...person, ...updates } : person
-    ));
+    setInjuredPersons((prev) =>
+      prev.map((person) => (person.id === id ? { ...person, ...updates } : person))
+    );
   }, []);
 
   const removeInjuredPerson = useCallback((id: string) => {
-    setInjuredPersons(prev => prev.filter(person => person.id !== id));
+    setInjuredPersons((prev) => prev.filter((person) => person.id !== id));
   }, []);
 
   // Add witness
@@ -94,19 +110,19 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
       id: `witness-${Date.now()}`,
       name: '',
       role: '',
-      statement: ''
+      statement: '',
     };
-    setWitnesses(prev => [...prev, newWitness]);
+    setWitnesses((prev) => [...prev, newWitness]);
   }, []);
 
   const updateWitness = useCallback((id: string, updates: Partial<Witness>) => {
-    setWitnesses(prev => prev.map(witness => 
-      witness.id === id ? { ...witness, ...updates } : witness
-    ));
+    setWitnesses((prev) =>
+      prev.map((witness) => (witness.id === id ? { ...witness, ...updates } : witness))
+    );
   }, []);
 
   const removeWitness = useCallback((id: string) => {
-    setWitnesses(prev => prev.filter(witness => witness.id !== id));
+    setWitnesses((prev) => prev.filter((witness) => witness.id !== id));
   }, []);
 
   // Add corrective action
@@ -116,55 +132,71 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
       action: '',
       responsibility: '',
       targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      status: 'pending'
+      status: 'pending',
     };
-    setCorrectiveActions(prev => [...prev, newAction]);
+    setCorrectiveActions((prev) => [...prev, newAction]);
   }, []);
 
   const updateCorrectiveAction = useCallback((id: string, updates: Partial<CorrectiveAction>) => {
-    setCorrectiveActions(prev => prev.map(action => 
-      action.id === id ? { ...action, ...updates } : action
-    ));
+    setCorrectiveActions((prev) =>
+      prev.map((action) => (action.id === id ? { ...action, ...updates } : action))
+    );
   }, []);
 
   const removeCorrectiveAction = useCallback((id: string) => {
-    setCorrectiveActions(prev => prev.filter(action => action.id !== id));
+    setCorrectiveActions((prev) => prev.filter((action) => action.id !== id));
   }, []);
 
   // Handle form submission
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+      if (!validateForm()) {
+        return;
+      }
 
-    const incidentData: Omit<SafetyIncident, 'id' | 'incidentNumber' | 'createdAt' | 'updatedAt'> = {
-      projectId,
-      type: formData.type,
-      severity: formData.severity,
-      status: formData.status,
-      title: formData.title,
-      description: formData.description,
-      location: formData.location,
-      occurredAt: new Date(formData.occurredAt),
-      reportedAt: new Date(formData.reportedAt),
-      reportedBy: formData.reportedBy,
+      const incidentData: Omit<
+        SafetyIncident,
+        'id' | 'incidentNumber' | 'createdAt' | 'updatedAt'
+      > = {
+        projectId,
+        type: formData.type,
+        severity: formData.severity,
+        status: formData.status,
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        occurredAt: new Date(formData.occurredAt),
+        reportedAt: new Date(formData.reportedAt),
+        reportedBy: formData.reportedBy,
+        injuredPersons,
+        witnesses,
+        correctiveActions,
+        photos,
+        documents,
+        authoritiesNotified: false,
+        oshaRecordable: formData.oshaRecordable,
+        oshaClassification: formData.oshaClassification || undefined,
+        medicalCosts: formData.medicalCosts || undefined,
+        propertyCosts: formData.propertyCosts || undefined,
+        productivityCosts: formData.productivityCosts || undefined,
+      };
+
+      await onSubmit(incidentData);
+    },
+    [
+      formData,
       injuredPersons,
       witnesses,
       correctiveActions,
       photos,
       documents,
-      authoritiesNotified: false,
-      oshaRecordable: formData.oshaRecordable,
-      oshaClassification: formData.oshaClassification || undefined,
-      medicalCosts: formData.medicalCosts || undefined,
-      propertyCosts: formData.propertyCosts || undefined,
-      productivityCosts: formData.productivityCosts || undefined,
-    };
-
-    await onSubmit(incidentData);
-  }, [formData, injuredPersons, witnesses, correctiveActions, photos, documents, projectId, validateForm, onSubmit]);
+      projectId,
+      validateForm,
+      onSubmit,
+    ]
+  );
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -193,12 +225,16 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto">
-          
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto"
+        >
           {/* Basic Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Information</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Basic Information
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Type */}
               <div>
@@ -207,7 +243,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, type: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
@@ -231,7 +269,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 </label>
                 <select
                   value={formData.severity}
-                  onChange={(e) => setFormData(prev => ({ ...prev, severity: e.target.value as any }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, severity: e.target.value as any }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
@@ -252,7 +292,7 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white ${
                   errors.title ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
@@ -269,7 +309,7 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={4}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white ${
                   errors.description ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
@@ -277,7 +317,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 placeholder="Provide detailed information about what happened..."
                 required
               />
-              {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+              {errors.description && (
+                <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+              )}
             </div>
 
             {/* Location and Date/Time */}
@@ -290,7 +332,7 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 <input
                   type="text"
                   value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white ${
                     errors.location ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
@@ -308,7 +350,7 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 <input
                   type="datetime-local"
                   value={formData.occurredAt}
-                  onChange={(e) => setFormData(prev => ({ ...prev, occurredAt: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, occurredAt: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
                   required
                 />
@@ -324,21 +366,25 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
               <input
                 type="text"
                 value={formData.reportedBy}
-                onChange={(e) => setFormData(prev => ({ ...prev, reportedBy: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, reportedBy: e.target.value }))}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white ${
                   errors.reportedBy ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="Name of person reporting this incident"
                 required
               />
-              {errors.reportedBy && <p className="mt-1 text-sm text-red-600">{errors.reportedBy}</p>}
+              {errors.reportedBy && (
+                <p className="mt-1 text-sm text-red-600">{errors.reportedBy}</p>
+              )}
             </div>
           </div>
 
           {/* Injured Persons */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Injured Persons</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Injured Persons
+              </h3>
               <button
                 type="button"
                 onClick={addInjuredPerson}
@@ -350,7 +396,10 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
             </div>
 
             {injuredPersons.map((person) => (
-              <div key={person.id} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
+              <div
+                key={person.id}
+                className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-gray-900 dark:text-white">Injured Person</h4>
                   <button
@@ -386,7 +435,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                   />
                   <select
                     value={person.injurySeverity}
-                    onChange={(e) => updateInjuredPerson(person.id, { injurySeverity: e.target.value as any })}
+                    onChange={(e) =>
+                      updateInjuredPerson(person.id, { injurySeverity: e.target.value as any })
+                    }
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   >
                     <option value="fatal">Fatal</option>
@@ -397,7 +448,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                   <input
                     type="number"
                     value={person.daysLost || 0}
-                    onChange={(e) => updateInjuredPerson(person.id, { daysLost: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      updateInjuredPerson(person.id, { daysLost: parseInt(e.target.value) || 0 })
+                    }
                     placeholder="Days Lost"
                     min="0"
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -405,7 +458,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                   <input
                     type="text"
                     value={person.medicalTreatment || ''}
-                    onChange={(e) => updateInjuredPerson(person.id, { medicalTreatment: e.target.value })}
+                    onChange={(e) =>
+                      updateInjuredPerson(person.id, { medicalTreatment: e.target.value })
+                    }
                     placeholder="Medical Treatment"
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   />
@@ -417,7 +472,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
           {/* Corrective Actions */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Corrective Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Corrective Actions
+              </h3>
               <button
                 type="button"
                 onClick={addCorrectiveAction}
@@ -429,7 +486,10 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
             </div>
 
             {correctiveActions.map((action) => (
-              <div key={action.id} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
+              <div
+                key={action.id}
+                className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-gray-900 dark:text-white">Corrective Action</h4>
                   <button
@@ -453,19 +513,25 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                   <input
                     type="text"
                     value={action.responsibility}
-                    onChange={(e) => updateCorrectiveAction(action.id, { responsibility: e.target.value })}
+                    onChange={(e) =>
+                      updateCorrectiveAction(action.id, { responsibility: e.target.value })
+                    }
                     placeholder="Responsible Person"
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   />
                   <input
                     type="date"
                     value={action.targetDate.toISOString().slice(0, 10)}
-                    onChange={(e) => updateCorrectiveAction(action.id, { targetDate: new Date(e.target.value) })}
+                    onChange={(e) =>
+                      updateCorrectiveAction(action.id, { targetDate: new Date(e.target.value) })
+                    }
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   />
                   <select
                     value={action.status}
-                    onChange={(e) => updateCorrectiveAction(action.id, { status: e.target.value as any })}
+                    onChange={(e) =>
+                      updateCorrectiveAction(action.id, { status: e.target.value as any })
+                    }
                     className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   >
                     <option value="pending">Pending</option>
@@ -479,17 +545,24 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
 
           {/* OSHA Classification */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">OSHA Information</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              OSHA Information
+            </h3>
+
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="oshaRecordable"
                 checked={formData.oshaRecordable}
-                onChange={(e) => setFormData(prev => ({ ...prev, oshaRecordable: e.target.checked }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, oshaRecordable: e.target.checked }))
+                }
                 className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
               />
-              <label htmlFor="oshaRecordable" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="oshaRecordable"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 This is an OSHA Recordable Incident
               </label>
             </div>
@@ -502,7 +575,9 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 <input
                   type="text"
                   value={formData.oshaClassification}
-                  onChange={(e) => setFormData(prev => ({ ...prev, oshaClassification: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, oshaClassification: e.target.value }))
+                  }
                   placeholder="e.g., OSHA 1904.7(b)(5)"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
                 />
@@ -512,8 +587,10 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
 
           {/* Cost Information */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cost Impact (Optional)</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Cost Impact (Optional)
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -522,7 +599,12 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 <input
                   type="number"
                   value={formData.medicalCosts || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, medicalCosts: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      medicalCosts: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                   min="0"
                   step="0.01"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -535,7 +617,12 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 <input
                   type="number"
                   value={formData.propertyCosts || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, propertyCosts: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      propertyCosts: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                   min="0"
                   step="0.01"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
@@ -548,7 +635,12 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
                 <input
                   type="number"
                   value={formData.productivityCosts || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, productivityCosts: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      productivityCosts: parseFloat(e.target.value) || 0,
+                    }))
+                  }
                   min="0"
                   step="0.01"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"

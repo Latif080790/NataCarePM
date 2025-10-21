@@ -8,74 +8,72 @@ import { z } from 'zod';
 /**
  * Project Status Enum
  */
-export const ProjectStatus = z.enum([
-  'draft',
-  'active',
-  'on-hold',
-  'completed',
-  'cancelled'
-]);
+export const ProjectStatus = z.enum(['draft', 'active', 'on-hold', 'completed', 'cancelled']);
 
 /**
  * Project Priority Enum
  */
-export const ProjectPriority = z.enum([
-  'low',
-  'medium',
-  'high',
-  'critical'
-]);
+export const ProjectPriority = z.enum(['low', 'medium', 'high', 'critical']);
 
 /**
  * Create/Update Project Schema
  */
-export const projectSchema = z.object({
-  name: z.string()
-    .min(3, 'Project name must be at least 3 characters')
-    .max(200, 'Project name is too long')
-    .trim(),
-  description: z.string()
-    .min(10, 'Project description must be at least 10 characters')
-    .max(5000, 'Project description is too long (max 5000 characters)')
-    .trim(),
-  status: ProjectStatus.default('draft'),
-  priority: ProjectPriority.default('medium'),
-  startDate: z.coerce.date({
-    message: 'Start date is required'
-  }),
-  endDate: z.coerce.date({
-    message: 'End date is required'
-  }),
-  budget: z.number({
-    message: 'Budget is required'
+export const projectSchema = z
+  .object({
+    name: z
+      .string()
+      .min(3, 'Project name must be at least 3 characters')
+      .max(200, 'Project name is too long')
+      .trim(),
+    description: z
+      .string()
+      .min(10, 'Project description must be at least 10 characters')
+      .max(5000, 'Project description is too long (max 5000 characters)')
+      .trim(),
+    status: ProjectStatus.default('draft'),
+    priority: ProjectPriority.default('medium'),
+    startDate: z.coerce.date({
+      message: 'Start date is required',
+    }),
+    endDate: z.coerce.date({
+      message: 'End date is required',
+    }),
+    budget: z
+      .number({
+        message: 'Budget is required',
+      })
+      .positive('Budget must be greater than 0')
+      .max(1000000000000, 'Budget is too large'),
+    currency: z
+      .string()
+      .length(3, 'Currency must be a 3-letter ISO code (e.g., USD, EUR, IDR)')
+      .toUpperCase()
+      .default('IDR'),
+    clientName: z
+      .string()
+      .min(2, 'Client name is too short')
+      .max(200, 'Client name is too long')
+      .trim()
+      .optional(),
+    clientEmail: z
+      .string()
+      .email('Please enter a valid email address')
+      .optional()
+      .or(z.literal('')),
+    location: z
+      .string()
+      .min(2, 'Location is too short')
+      .max(300, 'Location is too long')
+      .trim()
+      .optional(),
+    tags: z.array(z.string().trim()).max(20, 'Maximum 20 tags allowed').optional(),
+    managerId: z.string().min(1, 'Project manager is required'),
+    teamMemberIds: z.array(z.string()).min(1, 'At least one team member is required').optional(),
   })
-    .positive('Budget must be greater than 0')
-    .max(1000000000000, 'Budget is too large'),
-  currency: z.string()
-    .length(3, 'Currency must be a 3-letter ISO code (e.g., USD, EUR, IDR)')
-    .toUpperCase()
-    .default('IDR'),
-  clientName: z.string()
-    .min(2, 'Client name is too short')
-    .max(200, 'Client name is too long')
-    .trim()
-    .optional(),
-  clientEmail: z.string()
-    .email('Please enter a valid email address')
-    .optional()
-    .or(z.literal('')),
-  location: z.string()
-    .min(2, 'Location is too short')
-    .max(300, 'Location is too long')
-    .trim()
-    .optional(),
-  tags: z.array(z.string().trim()).max(20, 'Maximum 20 tags allowed').optional(),
-  managerId: z.string().min(1, 'Project manager is required'),
-  teamMemberIds: z.array(z.string()).min(1, 'At least one team member is required').optional()
-}).refine(data => data.endDate > data.startDate, {
-  message: 'End date must be after start date',
-  path: ['endDate']
-});
+  .refine((data) => data.endDate > data.startDate, {
+    message: 'End date must be after start date',
+    path: ['endDate'],
+  });
 
 export type ProjectFormData = z.infer<typeof projectSchema>;
 
@@ -88,52 +86,49 @@ export const TaskStatus = z.enum([
   'in-progress',
   'review',
   'completed',
-  'blocked'
+  'blocked',
 ]);
 
 /**
  * Task Priority Enum
  */
-export const TaskPriority = z.enum([
-  'low',
-  'medium',
-  'high',
-  'urgent'
-]);
+export const TaskPriority = z.enum(['low', 'medium', 'high', 'urgent']);
 
 /**
  * Create/Update Task Schema
  */
 export const taskSchema = z.object({
-  title: z.string()
+  title: z
+    .string()
     .min(3, 'Task title must be at least 3 characters')
     .max(200, 'Task title is too long')
     .trim(),
-  description: z.string()
-    .max(5000, 'Description is too long (max 5000 characters)')
-    .optional(),
+  description: z.string().max(5000, 'Description is too long (max 5000 characters)').optional(),
   status: TaskStatus.default('todo'),
   priority: TaskPriority.default('medium'),
   projectId: z.string().min(1, 'Project ID is required'),
   assignedTo: z.string().min(1, 'Assignee is required'),
   dueDate: z.coerce.date({
-    message: 'Due date is required'
+    message: 'Due date is required',
   }),
-  estimatedHours: z.number()
+  estimatedHours: z
+    .number()
     .positive('Estimated hours must be greater than 0')
     .max(10000, 'Estimated hours is too large')
     .optional(),
-  actualHours: z.number()
+  actualHours: z
+    .number()
     .nonnegative('Actual hours cannot be negative')
     .max(10000, 'Actual hours is too large')
     .optional(),
   tags: z.array(z.string().trim()).max(10, 'Maximum 10 tags allowed').optional(),
   parentTaskId: z.string().optional(),
   dependsOn: z.array(z.string()).optional(),
-  completionPercentage: z.number()
+  completionPercentage: z
+    .number()
     .min(0, 'Completion percentage must be between 0 and 100')
     .max(100, 'Completion percentage must be between 0 and 100')
-    .default(0)
+    .default(0),
 });
 
 export type TaskFormData = z.infer<typeof taskSchema>;
@@ -142,20 +137,19 @@ export type TaskFormData = z.infer<typeof taskSchema>;
  * Milestone Schema
  */
 export const milestoneSchema = z.object({
-  name: z.string()
+  name: z
+    .string()
     .min(3, 'Milestone name must be at least 3 characters')
     .max(200, 'Milestone name is too long')
     .trim(),
-  description: z.string()
-    .max(2000, 'Description is too long (max 2000 characters)')
-    .optional(),
+  description: z.string().max(2000, 'Description is too long (max 2000 characters)').optional(),
   projectId: z.string().min(1, 'Project ID is required'),
   dueDate: z.coerce.date({
-    message: 'Due date is required'
+    message: 'Due date is required',
   }),
   status: z.enum(['pending', 'in-progress', 'completed', 'delayed']).default('pending'),
   isKeyMilestone: z.boolean().default(false),
-  deliverables: z.array(z.string().trim()).optional()
+  deliverables: z.array(z.string().trim()).optional(),
 });
 
 export type MilestoneFormData = z.infer<typeof milestoneSchema>;
@@ -164,29 +158,26 @@ export type MilestoneFormData = z.infer<typeof milestoneSchema>;
  * WBS (Work Breakdown Structure) Item Schema
  */
 export const wbsItemSchema = z.object({
-  code: z.string()
+  code: z
+    .string()
     .regex(/^\d+(\.\d+)*$/, 'WBS code must be in format: 1.2.3')
     .trim(),
-  name: z.string()
+  name: z
+    .string()
     .min(3, 'WBS item name must be at least 3 characters')
     .max(200, 'WBS item name is too long')
     .trim(),
-  description: z.string()
-    .max(2000, 'Description is too long')
-    .optional(),
+  description: z.string().max(2000, 'Description is too long').optional(),
   projectId: z.string().min(1, 'Project ID is required'),
   parentId: z.string().optional(),
-  level: z.number()
+  level: z
+    .number()
     .int('Level must be an integer')
     .min(1, 'Level must be at least 1')
     .max(10, 'Maximum nesting level is 10'),
-  budget: z.number()
-    .nonnegative('Budget cannot be negative')
-    .optional(),
-  estimatedHours: z.number()
-    .nonnegative('Estimated hours cannot be negative')
-    .optional(),
-  assignedTo: z.string().optional()
+  budget: z.number().nonnegative('Budget cannot be negative').optional(),
+  estimatedHours: z.number().nonnegative('Estimated hours cannot be negative').optional(),
+  assignedTo: z.string().optional(),
 });
 
 export type WBSItemFormData = z.infer<typeof wbsItemSchema>;
@@ -198,18 +189,20 @@ export const timeLogSchema = z.object({
   taskId: z.string().min(1, 'Task ID is required'),
   userId: z.string().min(1, 'User ID is required'),
   date: z.coerce.date({
-    message: 'Date is required'
+    message: 'Date is required',
   }),
-  hours: z.number({
-    message: 'Hours are required'
-  })
+  hours: z
+    .number({
+      message: 'Hours are required',
+    })
     .positive('Hours must be greater than 0')
     .max(24, 'Hours cannot exceed 24 in a day'),
-  description: z.string()
+  description: z
+    .string()
     .min(5, 'Please provide a brief description of work done')
     .max(1000, 'Description is too long')
     .trim(),
-  isBillable: z.boolean().default(true)
+  isBillable: z.boolean().default(true),
 });
 
 export type TimeLogFormData = z.infer<typeof timeLogSchema>;
@@ -224,7 +217,7 @@ export const projectFilterSchema = z.object({
   search: z.string().max(200).optional(),
   startDateFrom: z.coerce.date().optional(),
   startDateTo: z.coerce.date().optional(),
-  tags: z.array(z.string()).optional()
+  tags: z.array(z.string()).optional(),
 });
 
 export type ProjectFilterData = z.infer<typeof projectFilterSchema>;
@@ -241,7 +234,7 @@ export const taskFilterSchema = z.object({
   dueDateFrom: z.coerce.date().optional(),
   dueDateTo: z.coerce.date().optional(),
   tags: z.array(z.string()).optional(),
-  onlyOverdue: z.boolean().optional()
+  onlyOverdue: z.boolean().optional(),
 });
 
 export type TaskFilterData = z.infer<typeof taskFilterSchema>;
@@ -251,16 +244,15 @@ export type TaskFilterData = z.infer<typeof taskFilterSchema>;
  */
 export const bulkTaskUpdateSchema = z.object({
   taskIds: z.array(z.string()).min(1, 'At least one task must be selected'),
-  updates: z.object({
-    status: TaskStatus.optional(),
-    priority: TaskPriority.optional(),
-    assignedTo: z.string().optional(),
-    dueDate: z.coerce.date().optional(),
-    tags: z.array(z.string()).optional()
-  }).refine(
-    data => Object.keys(data).length > 0,
-    'At least one field must be updated'
-  )
+  updates: z
+    .object({
+      status: TaskStatus.optional(),
+      priority: TaskPriority.optional(),
+      assignedTo: z.string().optional(),
+      dueDate: z.coerce.date().optional(),
+      tags: z.array(z.string()).optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, 'At least one field must be updated'),
 });
 
 export type BulkTaskUpdateData = z.infer<typeof bulkTaskUpdateSchema>;
@@ -270,7 +262,8 @@ export type BulkTaskUpdateData = z.infer<typeof bulkTaskUpdateSchema>;
  */
 export const projectCloneSchema = z.object({
   sourceProjectId: z.string().min(1, 'Source project ID is required'),
-  newName: z.string()
+  newName: z
+    .string()
     .min(3, 'New project name must be at least 3 characters')
     .max(200, 'New project name is too long')
     .trim(),
@@ -278,8 +271,8 @@ export const projectCloneSchema = z.object({
   cloneDocuments: z.boolean().default(false),
   cloneTeam: z.boolean().default(true),
   startDate: z.coerce.date({
-    message: 'New start date is required'
-  })
+    message: 'New start date is required',
+  }),
 });
 
 export type ProjectCloneData = z.infer<typeof projectCloneSchema>;

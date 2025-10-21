@@ -1,6 +1,6 @@
 /**
  * VENDOR MANAGEMENT SERVICE
- * 
+ *
  * Comprehensive vendor management including:
  * - CRUD operations
  * - Performance tracking
@@ -8,7 +8,7 @@
  * - Blacklist management
  * - Document management
  * - Analytics & reporting
- * 
+ *
  * Created: October 2025
  */
 
@@ -24,7 +24,7 @@ import {
   where,
   orderBy,
   limit,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {
@@ -42,7 +42,7 @@ import {
   CreateEvaluationInput,
   CreateBlacklistInput,
   VendorSummary,
-  PerformanceRating
+  PerformanceRating,
 } from '@/types/vendor';
 
 // ============================================================================
@@ -64,7 +64,7 @@ const DOCUMENTS_COLLECTION = 'vendor_documents';
 async function generateVendorCode(): Promise<string> {
   const today = new Date();
   const dateStr = today.toISOString().split('T')[0].replace(/-/g, '');
-  
+
   // Get count of vendors created today
   const q = query(
     collection(db, VENDORS_COLLECTION),
@@ -72,16 +72,16 @@ async function generateVendorCode(): Promise<string> {
     orderBy('createdAt', 'desc'),
     limit(1)
   );
-  
+
   const snapshot = await getDocs(q);
   let sequence = 1;
-  
+
   if (!snapshot.empty) {
     const lastCode = snapshot.docs[0].data().vendorCode;
     const lastSequence = parseInt(lastCode.split('-')[2]);
     sequence = lastSequence + 1;
   }
-  
+
   return `VEN-${dateStr}-${sequence.toString().padStart(3, '0')}`;
 }
 
@@ -99,19 +99,19 @@ export async function createVendor(
 ): Promise<Vendor> {
   try {
     const vendorCode = await generateVendorCode();
-    
+
     // Initialize contacts with IDs
     const contacts: VendorContact[] = (input.contacts || []).map((contact, index) => ({
       ...contact,
-      id: `contact_${Date.now()}_${index}`
+      id: `contact_${Date.now()}_${index}`,
     }));
-    
+
     // Initialize bank accounts with IDs
     const bankAccounts: VendorBankAccount[] = (input.bankAccounts || []).map((account, index) => ({
       ...account,
-      id: `bank_${Date.now()}_${index}`
+      id: `bank_${Date.now()}_${index}`,
     }));
-    
+
     // Initialize performance metrics
     const performance: VendorPerformance = {
       vendorId: '',
@@ -134,9 +134,9 @@ export async function createVendor(
       averageEvaluationScore: 0,
       latestRating: 'not_rated',
       performanceScore: 0,
-      riskLevel: 'low'
+      riskLevel: 'low',
     };
-    
+
     const newVendor: Omit<Vendor, 'id'> = {
       vendorCode,
       vendorName: input.vendorName,
@@ -176,23 +176,23 @@ export async function createVendor(
       createdBy: userId,
       createdAt: new Date().toISOString(),
       notes: input.notes,
-      tags: input.tags || []
+      tags: input.tags || [],
     };
-    
+
     const docRef = await addDoc(collection(db, VENDORS_COLLECTION), newVendor);
-    
+
     // Update performance with vendorId
     await updateDoc(doc(db, VENDORS_COLLECTION, docRef.id), {
-      'performance.vendorId': docRef.id
+      'performance.vendorId': docRef.id,
     });
-    
+
     return {
       id: docRef.id,
       ...newVendor,
       performance: {
         ...performance,
-        vendorId: docRef.id
-      }
+        vendorId: docRef.id,
+      },
     };
   } catch (error) {
     console.error('Error creating vendor:', error);
@@ -207,14 +207,14 @@ export async function getVendorById(vendorId: string): Promise<Vendor | null> {
   try {
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     const docSnap = await getDoc(docRef);
-    
+
     if (!docSnap.exists()) {
       return null;
     }
-    
+
     return {
       id: docSnap.id,
-      ...docSnap.data()
+      ...docSnap.data(),
     } as Vendor;
   } catch (error) {
     console.error('Error getting vendor:', error);
@@ -228,53 +228,55 @@ export async function getVendorById(vendorId: string): Promise<Vendor | null> {
 export async function getVendors(filters?: VendorFilters): Promise<Vendor[]> {
   try {
     let q = query(collection(db, VENDORS_COLLECTION), orderBy('createdAt', 'desc'));
-    
+
     // Apply filters
     if (filters?.status && filters.status.length > 0) {
       q = query(q, where('status', 'in', filters.status));
     }
-    
+
     if (filters?.category && filters.category.length > 0) {
       q = query(q, where('category', 'in', filters.category));
     }
-    
+
     if (filters?.isBlacklisted !== undefined) {
       q = query(q, where('isBlacklisted', '==', filters.isBlacklisted));
     }
-    
+
     const snapshot = await getDocs(q);
-    let vendors = snapshot.docs.map(doc => ({
+    let vendors = snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     })) as Vendor[];
-    
+
     // Client-side filtering for complex criteria
     if (filters?.rating && filters.rating.length > 0) {
-      vendors = vendors.filter(v => filters.rating!.includes(v.overallRating));
+      vendors = vendors.filter((v) => filters.rating!.includes(v.overallRating));
     }
-    
+
     if (filters?.tags && filters.tags.length > 0) {
-      vendors = vendors.filter(v => 
-        filters.tags!.some(tag => v.tags.includes(tag))
+      vendors = vendors.filter((v) => filters.tags!.some((tag) => v.tags.includes(tag)));
+    }
+
+    if (filters?.city && filters.city.length > 0) {
+      vendors = vendors.filter((v) => filters.city!.includes(v.city));
+    }
+
+    if (filters?.province && filters.province.length > 0) {
+      vendors = vendors.filter((v) => filters.province!.includes(v.province));
+    }
+
+    if (filters?.minPerformanceScore !== undefined) {
+      vendors = vendors.filter(
+        (v) => v.performance.performanceScore >= filters.minPerformanceScore!
       );
     }
-    
-    if (filters?.city && filters.city.length > 0) {
-      vendors = vendors.filter(v => filters.city!.includes(v.city));
-    }
-    
-    if (filters?.province && filters.province.length > 0) {
-      vendors = vendors.filter(v => filters.province!.includes(v.province));
-    }
-    
-    if (filters?.minPerformanceScore !== undefined) {
-      vendors = vendors.filter(v => v.performance.performanceScore >= filters.minPerformanceScore!);
-    }
-    
+
     if (filters?.maxPerformanceScore !== undefined) {
-      vendors = vendors.filter(v => v.performance.performanceScore <= filters.maxPerformanceScore!);
+      vendors = vendors.filter(
+        (v) => v.performance.performanceScore <= filters.maxPerformanceScore!
+      );
     }
-    
+
     return vendors;
   } catch (error) {
     console.error('Error getting vendors:', error);
@@ -292,11 +294,11 @@ export async function updateVendor(
 ): Promise<void> {
   try {
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
-    
+
     await updateDoc(docRef, {
       ...input,
       updatedBy: userId,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error updating vendor:', error);
@@ -310,16 +312,21 @@ export async function updateVendor(
 export async function deleteVendor(vendorId: string, userId: string): Promise<void> {
   try {
     // Check if vendor has active POs
-    const activePOs = await getVendorPurchaseOrders(vendorId, ['Menunggu Persetujuan', 'Disetujui', 'PO Dibuat', 'Dipesan']);
+    const activePOs = await getVendorPurchaseOrders(vendorId, [
+      'Menunggu Persetujuan',
+      'Disetujui',
+      'PO Dibuat',
+      'Dipesan',
+    ]);
     if (activePOs.length > 0) {
       throw new Error(`Cannot delete vendor with ${activePOs.length} active purchase order(s)`);
     }
-    
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       status: 'inactive',
       updatedBy: userId,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error deleting vendor:', error);
@@ -336,7 +343,7 @@ export async function approveVendor(vendorId: string, userId: string): Promise<v
     await updateDoc(docRef, {
       status: 'active',
       updatedBy: userId,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error approving vendor:', error);
@@ -360,16 +367,16 @@ export async function addVendorContact(
     if (!vendor) {
       throw new Error('Vendor not found');
     }
-    
+
     const newContact: VendorContact = {
       ...contact,
-      id: `contact_${Date.now()}`
+      id: `contact_${Date.now()}`,
     };
-    
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       contacts: [...vendor.contacts, newContact],
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error adding vendor contact:', error);
@@ -390,15 +397,13 @@ export async function updateVendorContact(
     if (!vendor) {
       throw new Error('Vendor not found');
     }
-    
-    const contacts = vendor.contacts.map(c => 
-      c.id === contactId ? { ...c, ...updates } : c
-    );
-    
+
+    const contacts = vendor.contacts.map((c) => (c.id === contactId ? { ...c, ...updates } : c));
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       contacts,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error updating vendor contact:', error);
@@ -409,22 +414,19 @@ export async function updateVendorContact(
 /**
  * Remove vendor contact
  */
-export async function removeVendorContact(
-  vendorId: string,
-  contactId: string
-): Promise<void> {
+export async function removeVendorContact(vendorId: string, contactId: string): Promise<void> {
   try {
     const vendor = await getVendorById(vendorId);
     if (!vendor) {
       throw new Error('Vendor not found');
     }
-    
-    const contacts = vendor.contacts.filter(c => c.id !== contactId);
-    
+
+    const contacts = vendor.contacts.filter((c) => c.id !== contactId);
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       contacts,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error removing vendor contact:', error);
@@ -448,16 +450,16 @@ export async function addVendorBankAccount(
     if (!vendor) {
       throw new Error('Vendor not found');
     }
-    
+
     const newAccount: VendorBankAccount = {
       ...bankAccount,
-      id: `bank_${Date.now()}`
+      id: `bank_${Date.now()}`,
     };
-    
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       bankAccounts: [...vendor.bankAccounts, newAccount],
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error adding bank account:', error);
@@ -482,33 +484,34 @@ export async function updateVendorPerformance(
     if (!vendor) {
       throw new Error('Vendor not found');
     }
-    
+
     const performance = {
       ...vendor.performance,
-      ...updates
+      ...updates,
     };
-    
+
     // Recalculate rates
     if (performance.totalPOs > 0) {
-      performance.onTimeDeliveryRate = 
-        (performance.onTimeDeliveries / (performance.onTimeDeliveries + performance.lateDeliveries)) * 100;
+      performance.onTimeDeliveryRate =
+        (performance.onTimeDeliveries /
+          (performance.onTimeDeliveries + performance.lateDeliveries)) *
+        100;
     }
-    
+
     if (performance.totalGRs > 0) {
-      performance.qualityAcceptanceRate = 
-        (performance.acceptedGRs / performance.totalGRs) * 100;
+      performance.qualityAcceptanceRate = (performance.acceptedGRs / performance.totalGRs) * 100;
     }
-    
+
     // Calculate overall performance score (weighted)
     performance.performanceScore = calculatePerformanceScore(performance);
-    
+
     // Determine risk level
     performance.riskLevel = determineRiskLevel(performance);
-    
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       performance,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error updating vendor performance:', error);
@@ -521,17 +524,17 @@ export async function updateVendorPerformance(
  */
 function calculatePerformanceScore(performance: VendorPerformance): number {
   const weights = {
-    onTimeDelivery: 0.30,
-    qualityAcceptance: 0.30,
+    onTimeDelivery: 0.3,
+    qualityAcceptance: 0.3,
     evaluation: 0.25,
-    financial: 0.15
+    financial: 0.15,
   };
-  
+
   const onTimeScore = performance.onTimeDeliveryRate || 0;
   const qualityScore = performance.qualityAcceptanceRate || 0;
   const evalScore = performance.averageEvaluationScore || 0;
   const financialScore = 100 - Math.min(performance.averagePaymentDelay * 2, 50); // Penalty for delays
-  
+
   return (
     onTimeScore * weights.onTimeDelivery +
     qualityScore * weights.qualityAcceptance +
@@ -564,22 +567,22 @@ export async function createVendorEvaluation(
   try {
     // Calculate average score
     const scores = input.scores;
-    const averageScore = (
-      scores.quality +
-      scores.delivery +
-      scores.price +
-      scores.communication +
-      scores.documentation +
-      scores.compliance
-    ) / 6;
-    
+    const averageScore =
+      (scores.quality +
+        scores.delivery +
+        scores.price +
+        scores.communication +
+        scores.documentation +
+        scores.compliance) /
+      6;
+
     // Determine rating
     let rating: PerformanceRating;
     if (averageScore >= 90) rating = 'excellent';
     else if (averageScore >= 75) rating = 'good';
     else if (averageScore >= 60) rating = 'satisfactory';
     else rating = 'poor';
-    
+
     const evaluation: Omit<VendorEvaluation, 'id'> = {
       vendorId: input.vendorId,
       projectId: input.projectId,
@@ -593,17 +596,17 @@ export async function createVendorEvaluation(
       weaknesses: input.weaknesses,
       recommendations: input.recommendations,
       poId: input.poId,
-      grId: input.grId
+      grId: input.grId,
     };
-    
+
     const docRef = await addDoc(collection(db, EVALUATIONS_COLLECTION), evaluation);
-    
+
     // Update vendor's overall rating and performance
     await updateVendorAfterEvaluation(input.vendorId, averageScore, rating);
-    
+
     return {
       id: docRef.id,
-      ...evaluation
+      ...evaluation,
     };
   } catch (error) {
     console.error('Error creating vendor evaluation:', error);
@@ -621,21 +624,21 @@ async function updateVendorAfterEvaluation(
 ): Promise<void> {
   const vendor = await getVendorById(vendorId);
   if (!vendor) return;
-  
+
   const totalEvals = vendor.performance.totalEvaluations + 1;
   const currentAvg = vendor.performance.averageEvaluationScore || 0;
-  const newAvg = ((currentAvg * vendor.performance.totalEvaluations) + newScore) / totalEvals;
-  
+  const newAvg = (currentAvg * vendor.performance.totalEvaluations + newScore) / totalEvals;
+
   await updateVendorPerformance(vendorId, {
     totalEvaluations: totalEvals,
     averageEvaluationScore: newAvg,
     latestRating: newRating,
-    lastEvaluationDate: new Date().toISOString()
+    lastEvaluationDate: new Date().toISOString(),
   });
-  
+
   await updateDoc(doc(db, VENDORS_COLLECTION, vendorId), {
     overallRating: newRating,
-    lastEvaluationDate: new Date().toISOString()
+    lastEvaluationDate: new Date().toISOString(),
   });
 }
 
@@ -649,11 +652,11 @@ export async function getVendorEvaluations(vendorId: string): Promise<VendorEval
       where('vendorId', '==', vendorId),
       orderBy('evaluationDate', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     })) as VendorEvaluation[];
   } catch (error) {
     console.error('Error getting vendor evaluations:', error);
@@ -686,24 +689,24 @@ export async function blacklistVendor(
       effectiveFrom: input.effectiveFrom,
       effectiveUntil: input.effectiveUntil,
       isActive: true,
-      attachments: input.attachments || []
+      attachments: input.attachments || [],
     };
-    
+
     const docRef = await addDoc(collection(db, BLACKLIST_COLLECTION), blacklist);
-    
+
     // Update vendor status
     const vendor = await getVendorById(input.vendorId);
     if (vendor) {
       await updateDoc(doc(db, VENDORS_COLLECTION, input.vendorId), {
         isBlacklisted: true,
         status: 'blacklisted',
-        blacklistRecords: [...vendor.blacklistRecords, { id: docRef.id, ...blacklist }]
+        blacklistRecords: [...vendor.blacklistRecords, { id: docRef.id, ...blacklist }],
       });
     }
-    
+
     return {
       id: docRef.id,
-      ...blacklist
+      ...blacklist,
     };
   } catch (error) {
     console.error('Error blacklisting vendor:', error);
@@ -726,21 +729,21 @@ export async function removeFromBlacklist(
       isActive: false,
       reviewedBy: userId,
       reviewedAt: new Date().toISOString(),
-      reviewNotes
+      reviewNotes,
     });
-    
+
     // Check if vendor has other active blacklists
     const vendor = await getVendorById(vendorId);
     if (!vendor) return;
-    
+
     const hasOtherActiveBlacklists = vendor.blacklistRecords.some(
-      bl => bl.id !== blacklistId && bl.isActive
+      (bl) => bl.id !== blacklistId && bl.isActive
     );
-    
+
     if (!hasOtherActiveBlacklists) {
       await updateDoc(doc(db, VENDORS_COLLECTION, vendorId), {
         isBlacklisted: false,
-        status: 'active'
+        status: 'active',
       });
     }
   } catch (error) {
@@ -759,13 +762,13 @@ export async function removeFromBlacklist(
 export async function getVendorSummary(): Promise<VendorSummary> {
   try {
     const vendors = await getVendors();
-    
+
     const summary: VendorSummary = {
       totalVendors: vendors.length,
-      activeVendors: vendors.filter(v => v.status === 'active').length,
-      blacklistedVendors: vendors.filter(v => v.isBlacklisted).length,
-      underReviewVendors: vendors.filter(v => v.status === 'under_review').length,
-      
+      activeVendors: vendors.filter((v) => v.status === 'active').length,
+      blacklistedVendors: vendors.filter((v) => v.isBlacklisted).length,
+      underReviewVendors: vendors.filter((v) => v.status === 'under_review').length,
+
       byCategory: {
         materials: 0,
         equipment: 0,
@@ -774,57 +777,62 @@ export async function getVendorSummary(): Promise<VendorSummary> {
         labor: 0,
         rental: 0,
         consultant: 0,
-        other: 0
+        other: 0,
       },
-      
+
       byRating: {
         excellent: 0,
         good: 0,
         satisfactory: 0,
         poor: 0,
-        not_rated: 0
+        not_rated: 0,
       },
-      
+
       totalPOValue: 0,
       averagePerformanceScore: 0,
       averageOnTimeDeliveryRate: 0,
       averageQualityAcceptanceRate: 0,
-      
+
       topVendors: [],
       recentEvaluations: 0,
-      pendingApprovals: vendors.filter(v => v.status === 'pending_approval').length
+      pendingApprovals: vendors.filter((v) => v.status === 'pending_approval').length,
     };
-    
+
     // Calculate category and rating distributions
-    vendors.forEach(v => {
+    vendors.forEach((v) => {
       summary.byCategory[v.category]++;
       summary.byRating[v.overallRating]++;
       summary.totalPOValue += v.performance.totalPOValue;
     });
-    
+
     // Calculate averages
-    const activeVendorsWithPerf = vendors.filter(v => v.status === 'active' && v.performance.totalPOs > 0);
+    const activeVendorsWithPerf = vendors.filter(
+      (v) => v.status === 'active' && v.performance.totalPOs > 0
+    );
     if (activeVendorsWithPerf.length > 0) {
-      summary.averagePerformanceScore = 
-        activeVendorsWithPerf.reduce((sum, v) => sum + v.performance.performanceScore, 0) / activeVendorsWithPerf.length;
-      summary.averageOnTimeDeliveryRate = 
-        activeVendorsWithPerf.reduce((sum, v) => sum + v.performance.onTimeDeliveryRate, 0) / activeVendorsWithPerf.length;
-      summary.averageQualityAcceptanceRate = 
-        activeVendorsWithPerf.reduce((sum, v) => sum + v.performance.qualityAcceptanceRate, 0) / activeVendorsWithPerf.length;
+      summary.averagePerformanceScore =
+        activeVendorsWithPerf.reduce((sum, v) => sum + v.performance.performanceScore, 0) /
+        activeVendorsWithPerf.length;
+      summary.averageOnTimeDeliveryRate =
+        activeVendorsWithPerf.reduce((sum, v) => sum + v.performance.onTimeDeliveryRate, 0) /
+        activeVendorsWithPerf.length;
+      summary.averageQualityAcceptanceRate =
+        activeVendorsWithPerf.reduce((sum, v) => sum + v.performance.qualityAcceptanceRate, 0) /
+        activeVendorsWithPerf.length;
     }
-    
+
     // Top vendors by performance
     summary.topVendors = vendors
-      .filter(v => v.status === 'active')
+      .filter((v) => v.status === 'active')
       .sort((a, b) => b.performance.performanceScore - a.performance.performanceScore)
       .slice(0, 5)
-      .map(v => ({
+      .map((v) => ({
         vendorId: v.id,
         vendorName: v.vendorName,
         performanceScore: v.performance.performanceScore,
-        totalPOValue: v.performance.totalPOValue
+        totalPOValue: v.performance.totalPOValue,
       }));
-    
+
     return summary;
   } catch (error) {
     console.error('Error getting vendor summary:', error);
@@ -839,12 +847,13 @@ export async function searchVendors(searchTerm: string): Promise<Vendor[]> {
   try {
     const vendors = await getVendors();
     const term = searchTerm.toLowerCase();
-    
-    return vendors.filter(v =>
-      v.vendorName.toLowerCase().includes(term) ||
-      v.vendorCode.toLowerCase().includes(term) ||
-      v.legalName.toLowerCase().includes(term) ||
-      v.taxId.toLowerCase().includes(term)
+
+    return vendors.filter(
+      (v) =>
+        v.vendorName.toLowerCase().includes(term) ||
+        v.vendorCode.toLowerCase().includes(term) ||
+        v.legalName.toLowerCase().includes(term) ||
+        v.taxId.toLowerCase().includes(term)
     );
   } catch (error) {
     console.error('Error searching vendors:', error);
@@ -861,35 +870,43 @@ export async function searchVendors(searchTerm: string): Promise<Vendor[]> {
  */
 export async function getVendorPurchaseOrders(
   vendorId: string,
-  statusFilter?: Array<'Menunggu Persetujuan' | 'Disetujui' | 'Ditolak' | 'PO Dibuat' | 'Dipesan' | 'Diterima Sebagian' | 'Diterima Penuh'>
+  statusFilter?: Array<
+    | 'Menunggu Persetujuan'
+    | 'Disetujui'
+    | 'Ditolak'
+    | 'PO Dibuat'
+    | 'Dipesan'
+    | 'Diterima Sebagian'
+    | 'Diterima Penuh'
+  >
 ): Promise<any[]> {
   try {
     // Query all projects' purchase orders that have this vendorId
     const projectsSnapshot = await getDocs(collection(db, 'projects'));
     const allPOs: any[] = [];
-    
+
     for (const projectDoc of projectsSnapshot.docs) {
       const projectId = projectDoc.id;
-      
+
       // Query POs for this project with vendorId
-      let poQuery = query(
+      const poQuery = query(
         collection(db, `projects/${projectId}/purchaseOrders`),
         where('vendorId', '==', vendorId)
       );
-      
+
       const poSnapshot = await getDocs(poQuery);
-      
-      poSnapshot.forEach(doc => {
+
+      poSnapshot.forEach((doc) => {
         const poData = doc.data();
         const po = { id: doc.id, projectId, ...poData };
-        
+
         // Filter by status if provided
         if (!statusFilter || statusFilter.includes(poData.status as any)) {
           allPOs.push(po);
         }
       });
     }
-    
+
     return allPOs;
   } catch (error) {
     console.error('Error getting vendor purchase orders:', error);
@@ -910,26 +927,24 @@ export async function getVendorStatistics(vendorId: string): Promise<{
 }> {
   try {
     const allPOs = await getVendorPurchaseOrders(vendorId);
-    
-    const activePOs = allPOs.filter(po => 
+
+    const activePOs = allPOs.filter((po) =>
       ['Menunggu Persetujuan', 'Disetujui', 'PO Dibuat', 'Dipesan'].includes(po.status)
     );
-    
-    const completedPOs = allPOs.filter(po => 
-      ['Diterima Penuh'].includes(po.status)
-    );
-    
+
+    const completedPOs = allPOs.filter((po) => ['Diterima Penuh'].includes(po.status));
+
     const totalValue = allPOs.reduce((sum, po) => sum + (po.totalAmount || 0), 0);
     const pendingValue = activePOs.reduce((sum, po) => sum + (po.totalAmount || 0), 0);
     const averagePOValue = allPOs.length > 0 ? totalValue / allPOs.length : 0;
-    
+
     return {
       totalPOs: allPOs.length,
       activePOs: activePOs.length,
       completedPOs: completedPOs.length,
       totalValue,
       averagePOValue,
-      pendingValue
+      pendingValue,
     };
   } catch (error) {
     console.error('Error getting vendor statistics:', error);
@@ -939,7 +954,7 @@ export async function getVendorStatistics(vendorId: string): Promise<{
       completedPOs: 0,
       totalValue: 0,
       averagePOValue: 0,
-      pendingValue: 0
+      pendingValue: 0,
     };
   }
 }
@@ -955,23 +970,23 @@ export async function linkPOToVendor(
   try {
     const poRef = doc(db, `projects/${projectId}/purchaseOrders`, poId);
     const poDoc = await getDoc(poRef);
-    
+
     if (!poDoc.exists()) {
       throw new Error('Purchase Order not found');
     }
-    
+
     // Get vendor name
     const vendorDoc = await getDoc(doc(db, VENDORS_COLLECTION, vendorId));
     if (!vendorDoc.exists()) {
       throw new Error('Vendor not found');
     }
-    
+
     const vendorData = vendorDoc.data();
-    
+
     await updateDoc(poRef, {
       vendorId,
       vendorName: vendorData.vendorName,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error linking PO to vendor:', error);

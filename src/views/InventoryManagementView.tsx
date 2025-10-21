@@ -16,7 +16,7 @@ import {
   XCircle,
   Filter,
   Download,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -26,7 +26,7 @@ import {
   getMaterials,
   getInventorySummary,
   getStockAlerts,
-  deleteMaterial
+  deleteMaterial,
 } from '@/api/inventoryService';
 import {
   InventoryMaterial,
@@ -34,31 +34,31 @@ import {
   StockAlert,
   MaterialCategory,
   MaterialStatus,
-  StockAlertType
+  StockAlertType,
 } from '@/types/inventory';
 import {
   MaterialModal,
   MaterialDetailsModal,
-  TransactionModal
+  TransactionModal,
 } from '@/components/InventoryModals';
 
 const InventoryManagementView: React.FC = () => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
-  
+
   // State
   const [materials, setMaterials] = useState<InventoryMaterial[]>([]);
   const [summary, setSummary] = useState<InventorySummary | null>(null);
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Filters
   const [selectedCategory, setSelectedCategory] = useState<MaterialCategory | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<MaterialStatus | 'all'>('all');
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out' | 'normal'>('all');
-  
+
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -66,19 +66,15 @@ const InventoryManagementView: React.FC = () => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showStockCountModal, setShowStockCountModal] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<InventoryMaterial | null>(null);
-  
+
   useEffect(() => {
     loadData();
   }, []);
-  
+
   const loadData = async () => {
     setLoading(true);
     try {
-      await Promise.all([
-        loadMaterials(),
-        loadSummary(),
-        loadAlerts()
-      ]);
+      await Promise.all([loadMaterials(), loadSummary(), loadAlerts()]);
     } catch (error) {
       console.error('Error loading data:', error);
       addToast('Error loading inventory data', 'error');
@@ -86,29 +82,29 @@ const InventoryManagementView: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const loadMaterials = async () => {
     try {
       const filters: any = {};
-      
+
       if (selectedCategory !== 'all') {
         filters.category = selectedCategory;
       }
-      
+
       if (selectedStatus !== 'all') {
         filters.status = selectedStatus;
       }
-      
+
       if (stockFilter === 'low') {
         filters.lowStock = true;
       } else if (stockFilter === 'out') {
         filters.outOfStock = true;
       }
-      
+
       if (searchQuery.length >= 3) {
         filters.search = searchQuery;
       }
-      
+
       const data = await getMaterials(filters);
       setMaterials(data);
     } catch (error) {
@@ -116,7 +112,7 @@ const InventoryManagementView: React.FC = () => {
       throw error;
     }
   };
-  
+
   const loadSummary = async () => {
     if (!currentProject?.id) {
       console.warn('No project selected');
@@ -131,7 +127,7 @@ const InventoryManagementView: React.FC = () => {
       throw error;
     }
   };
-  
+
   const loadAlerts = async () => {
     try {
       const data = await getStockAlerts(false); // Unresolved alerts only
@@ -141,24 +137,28 @@ const InventoryManagementView: React.FC = () => {
       throw error;
     }
   };
-  
+
   useEffect(() => {
     if (!loading) {
       loadMaterials();
     }
   }, [selectedCategory, selectedStatus, stockFilter]);
-  
+
   useEffect(() => {
     if (searchQuery.length >= 3 || searchQuery.length === 0) {
       loadMaterials();
     }
   }, [searchQuery]);
-  
+
   const handleDeleteMaterial = async (materialId: string) => {
-    if (!window.confirm('Are you sure you want to discontinue this material? It will be marked as inactive.')) {
+    if (
+      !window.confirm(
+        'Are you sure you want to discontinue this material? It will be marked as inactive.'
+      )
+    ) {
       return;
     }
-    
+
     try {
       await deleteMaterial(materialId);
       addToast('Material discontinued successfully', 'success');
@@ -169,7 +169,7 @@ const InventoryManagementView: React.FC = () => {
       addToast('Error discontinuing material', 'error');
     }
   };
-  
+
   const getCategoryLabel = (category: MaterialCategory): string => {
     const labels: Record<MaterialCategory, string> = {
       [MaterialCategory.RAW_MATERIAL]: 'Raw Material',
@@ -180,44 +180,45 @@ const InventoryManagementView: React.FC = () => {
       [MaterialCategory.CHEMICAL]: 'Chemical',
       [MaterialCategory.SAFETY_EQUIPMENT]: 'Safety Equipment',
       [MaterialCategory.OFFICE_SUPPLY]: 'Office Supply',
-      [MaterialCategory.OTHER]: 'Other'
+      [MaterialCategory.OTHER]: 'Other',
     };
     return labels[category];
   };
-  
+
   const getStatusBadgeClass = (status: MaterialStatus): string => {
     const classes: Record<MaterialStatus, string> = {
       [MaterialStatus.ACTIVE]: 'bg-green-100 text-green-800',
       [MaterialStatus.INACTIVE]: 'bg-gray-100 text-gray-800',
       [MaterialStatus.DISCONTINUED]: 'bg-orange-100 text-orange-800',
-      [MaterialStatus.OBSOLETE]: 'bg-red-100 text-red-800'
+      [MaterialStatus.OBSOLETE]: 'bg-red-100 text-red-800',
     };
     return classes[status];
   };
-  
+
   const getStockStatusColor = (material: InventoryMaterial): string => {
     if (material.currentStock === 0) return 'text-red-600';
     if (material.currentStock <= material.minimumStock) return 'text-orange-600';
     if (material.currentStock >= material.maximumStock) return 'text-blue-600';
     return 'text-green-600';
   };
-  
+
   const getStockStatusIcon = (material: InventoryMaterial) => {
     if (material.currentStock === 0) return <XCircle className="h-4 w-4" />;
-    if (material.currentStock <= material.minimumStock) return <AlertTriangle className="h-4 w-4" />;
+    if (material.currentStock <= material.minimumStock)
+      return <AlertTriangle className="h-4 w-4" />;
     if (material.currentStock >= material.maximumStock) return <TrendingUp className="h-4 w-4" />;
     return <CheckCircle className="h-4 w-4" />;
   };
-  
+
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(value);
   };
-  
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -225,7 +226,7 @@ const InventoryManagementView: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -237,7 +238,7 @@ const InventoryManagementView: React.FC = () => {
             <p className="text-sm text-gray-500">Materials catalog and stock management</p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {currentUser && hasPermission(currentUser, 'manage_logistics') && (
             <>
@@ -266,7 +267,7 @@ const InventoryManagementView: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Stock Alerts */}
       {alerts.length > 0 && (
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
@@ -277,22 +278,20 @@ const InventoryManagementView: React.FC = () => {
                 {alerts.length} stock alert{alerts.length !== 1 ? 's' : ''} require attention
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {alerts.slice(0, 3).map(alert => (
+                {alerts.slice(0, 3).map((alert) => (
                   <span key={alert.id} className="text-xs text-yellow-700">
                     {alert.materialName} - {alert.alertType.replace('_', ' ')}
                   </span>
                 ))}
                 {alerts.length > 3 && (
-                  <span className="text-xs text-yellow-700">
-                    and {alerts.length - 3} more...
-                  </span>
+                  <span className="text-xs text-yellow-700">and {alerts.length - 3} more...</span>
                 )}
               </div>
             </div>
           </div>
         </div>
       )}
-      
+
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -305,7 +304,7 @@ const InventoryManagementView: React.FC = () => {
               <Package className="h-8 w-8 text-blue-500" />
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -315,7 +314,7 @@ const InventoryManagementView: React.FC = () => {
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -325,7 +324,7 @@ const InventoryManagementView: React.FC = () => {
               <TrendingDown className="h-8 w-8 text-orange-500" />
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -335,7 +334,7 @@ const InventoryManagementView: React.FC = () => {
               <XCircle className="h-8 w-8 text-red-500" />
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -347,7 +346,7 @@ const InventoryManagementView: React.FC = () => {
               <DollarSign className="h-8 w-8 text-green-500" />
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -359,7 +358,7 @@ const InventoryManagementView: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -374,7 +373,7 @@ const InventoryManagementView: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
+
           {/* Category Filter */}
           <select
             value={selectedCategory}
@@ -382,11 +381,13 @@ const InventoryManagementView: React.FC = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Categories</option>
-            {Object.values(MaterialCategory).map(cat => (
-              <option key={cat} value={cat}>{getCategoryLabel(cat)}</option>
+            {Object.values(MaterialCategory).map((cat) => (
+              <option key={cat} value={cat}>
+                {getCategoryLabel(cat)}
+              </option>
             ))}
           </select>
-          
+
           {/* Status Filter */}
           <select
             value={selectedStatus}
@@ -399,7 +400,7 @@ const InventoryManagementView: React.FC = () => {
             <option value={MaterialStatus.DISCONTINUED}>Discontinued</option>
             <option value={MaterialStatus.OBSOLETE}>Obsolete</option>
           </select>
-          
+
           {/* Stock Filter */}
           <select
             value={stockFilter}
@@ -413,7 +414,7 @@ const InventoryManagementView: React.FC = () => {
           </select>
         </div>
       </div>
-      
+
       {/* Materials Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -457,7 +458,7 @@ const InventoryManagementView: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                materials.map(material => (
+                materials.map((material) => (
                   <tr key={material.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
@@ -471,9 +472,13 @@ const InventoryManagementView: React.FC = () => {
                       </button>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">{material.materialName}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {material.materialName}
+                      </div>
                       {material.description && (
-                        <div className="text-xs text-gray-500 truncate max-w-xs">{material.description}</div>
+                        <div className="text-xs text-gray-500 truncate max-w-xs">
+                          {material.description}
+                        </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -507,7 +512,9 @@ const InventoryManagementView: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusBadgeClass(material.status)}`}>
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded ${getStatusBadgeClass(material.status)}`}
+                      >
                         {material.status.replace('_', ' ')}
                       </span>
                     </td>
@@ -523,7 +530,7 @@ const InventoryManagementView: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </button>
-                        
+
                         {currentUser && hasPermission(currentUser, 'manage_logistics') && (
                           <>
                             <button
@@ -536,7 +543,7 @@ const InventoryManagementView: React.FC = () => {
                             >
                               <Edit2 className="h-4 w-4" />
                             </button>
-                            
+
                             <button
                               onClick={() => handleDeleteMaterial(material.id)}
                               className="text-red-600 hover:text-red-800"
@@ -555,7 +562,7 @@ const InventoryManagementView: React.FC = () => {
           </table>
         </div>
       </div>
-      
+
       {/* Modals */}
       {showCreateModal && (
         <MaterialModal
@@ -567,7 +574,7 @@ const InventoryManagementView: React.FC = () => {
           }}
         />
       )}
-      
+
       {showDetailsModal && selectedMaterial && (
         <MaterialDetailsModal
           isOpen={showDetailsModal}
@@ -583,7 +590,7 @@ const InventoryManagementView: React.FC = () => {
           onDelete={() => handleDeleteMaterial(selectedMaterial.id)}
         />
       )}
-      
+
       {showEditModal && selectedMaterial && (
         <MaterialModal
           isOpen={showEditModal}
@@ -598,7 +605,7 @@ const InventoryManagementView: React.FC = () => {
           material={selectedMaterial}
         />
       )}
-      
+
       {showTransactionModal && (
         <TransactionModal
           isOpen={showTransactionModal}
@@ -609,10 +616,8 @@ const InventoryManagementView: React.FC = () => {
           }}
         />
       )}
-      
-      {showStockCountModal && (
-        <div>Stock Count Modal - TODO</div>
-      )}
+
+      {showStockCountModal && <div>Stock Count Modal - TODO</div>}
     </div>
   );
 };

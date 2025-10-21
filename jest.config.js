@@ -11,10 +11,7 @@ export default {
       tsconfig: 'tsconfig.test.json',
     },
   },
-  testMatch: [
-    '<rootDir>/**/__tests__/**/*.(ts|tsx)',
-    '<rootDir>/**/*.(test|spec).(ts|tsx)'
-  ],
+  testMatch: ['<rootDir>/**/__tests__/**/*.(ts|tsx)', '<rootDir>/**/*.(test|spec).(ts|tsx)'],
   collectCoverageFrom: [
     'api/**/*.{ts,tsx}',
     'components/**/*.{ts,tsx}',

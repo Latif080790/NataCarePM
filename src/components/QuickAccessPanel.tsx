@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 
-import { Search, Clock, Star, Bookmark, ArrowRight, TrendingUp, Users, Calendar, FileText } from 'lucide-react';
+import {
+  Search,
+  Clock,
+  Star,
+  Bookmark,
+  ArrowRight,
+  TrendingUp,
+  Users,
+  Calendar,
+  FileText,
+} from 'lucide-react';
 import { Button } from './Button';
 import { Card } from './Card';
 
@@ -29,9 +39,11 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       title: 'Buat Tugas Baru',
       description: 'Tambah tugas baru ke project',
       icon: <Calendar className="w-5 h-5" />,
-      onClick: () => {/* TODO: Open create task modal */},
+      onClick: () => {
+        /* TODO: Open create task modal */
+      },
       category: 'shortcuts',
-      badge: 'Quick'
+      badge: 'Quick',
     },
     {
       id: 'dashboard',
@@ -39,7 +51,7 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Lihat ringkasan project dan KPI',
       icon: <TrendingUp className="w-5 h-5" />,
       onClick: () => onNavigate('dashboard'),
-      category: 'shortcuts'
+      category: 'shortcuts',
     },
     {
       id: 'team',
@@ -47,7 +59,7 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Kelola anggota tim dan roles',
       icon: <Users className="w-5 h-5" />,
       onClick: () => onNavigate('team'),
-      category: 'shortcuts'
+      category: 'shortcuts',
     },
     {
       id: 'reports',
@@ -55,9 +67,9 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Buat dan lihat laporan project',
       icon: <FileText className="w-5 h-5" />,
       onClick: () => onNavigate('report'),
-      category: 'shortcuts'
+      category: 'shortcuts',
     },
-    
+
     // Recent (example data)
     {
       id: 'recent-1',
@@ -65,7 +77,7 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Terakhir dilihat 2 jam lalu',
       icon: <Clock className="w-5 h-5" />,
       onClick: () => onNavigate('dashboard'),
-      category: 'recent'
+      category: 'recent',
     },
     {
       id: 'recent-2',
@@ -73,9 +85,9 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Terakhir dilihat kemarin',
       icon: <Users className="w-5 h-5" />,
       onClick: () => onNavigate('team'),
-      category: 'recent'
+      category: 'recent',
     },
-    
+
     // Favorites
     {
       id: 'fav-1',
@@ -83,7 +95,7 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Dashboard favorit Anda',
       icon: <Star className="w-5 h-5 text-precious-persimmon" />,
       onClick: () => onNavigate('dashboard'),
-      category: 'favorites'
+      category: 'favorites',
     },
     {
       id: 'fav-2',
@@ -91,16 +103,16 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
       description: 'Template laporan yang sering digunakan',
       icon: <Bookmark className="w-5 h-5 text-precious-persimmon" />,
       onClick: () => onNavigate('report'),
-      category: 'favorites'
-    }
+      category: 'favorites',
+    },
   ];
 
-  const filteredActions = quickActions.filter(action => action.category === activeTab);
+  const filteredActions = quickActions.filter((action) => action.category === activeTab);
 
   const tabs = [
     { id: 'shortcuts' as const, label: 'Quick Actions', icon: <ArrowRight className="w-4 h-4" /> },
     { id: 'recent' as const, label: 'Recent', icon: <Clock className="w-4 h-4" /> },
-    { id: 'favorites' as const, label: 'Favorites', icon: <Star className="w-4 h-4" /> }
+    { id: 'favorites' as const, label: 'Favorites', icon: <Star className="w-4 h-4" /> },
   ];
 
   return (
@@ -112,14 +124,15 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
             {tabs.map((tab) => (
               <Button
                 key={tab.id}
-                variant={activeTab === tab.id ? "default" : "ghost"}
+                variant={activeTab === tab.id ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setActiveTab(tab.id)}
                 className={`
                   flex items-center space-x-2 px-3 py-1.5 rounded-md transition-all duration-200
-                  ${activeTab === tab.id 
-                    ? 'bg-white shadow-sm text-night-black' 
-                    : 'text-palladium hover:text-night-black hover:bg-white/50'
+                  ${
+                    activeTab === tab.id
+                      ? 'bg-white shadow-sm text-night-black'
+                      : 'text-palladium hover:text-night-black hover:bg-white/50'
                   }
                 `}
               >

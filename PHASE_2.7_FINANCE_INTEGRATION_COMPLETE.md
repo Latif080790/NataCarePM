@@ -18,6 +18,7 @@ Integrate completed Finance & Accounting Module views into the main application 
 ### **1. App.tsx - Route Integration**
 
 **Added Finance Module Imports:**
+
 ```typescript
 // Finance & Accounting Module Views
 import ChartOfAccountsView from './views/ChartOfAccountsView';
@@ -27,16 +28,17 @@ import AccountsReceivableView from './views/AccountsReceivableView';
 ```
 
 **Added View Component Routing:**
+
 ```typescript
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   // ... existing views
-  
+
   // Finance & Accounting Module
   chart_of_accounts: ChartOfAccountsView,
   journal_entries: JournalEntriesView,
   accounts_payable: AccountsPayableView,
   accounts_receivable: AccountsReceivableView,
-  
+
   // ... other views
 };
 ```
@@ -48,27 +50,29 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
 ### **2. constants.ts - Navigation Menu Update**
 
 **Added Required Icons:**
+
 ```typescript
 import {
-    // ... existing icons
-    BookOpen,    // Chart of Accounts
-    BookText,    // Journal Entries
-    FileDown,    // Accounts Payable
-    FileUp,      // Accounts Receivable
-    Coins        // Reserved for future use
+  // ... existing icons
+  BookOpen, // Chart of Accounts
+  BookText, // Journal Entries
+  FileDown, // Accounts Payable
+  FileUp, // Accounts Receivable
+  Coins, // Reserved for future use
 } from 'lucide-react';
 ```
 
 **Updated Finance Navigation Group:**
+
 ```typescript
 {
-    id: 'keuangan-group', 
+    id: 'keuangan-group',
     name: 'Keuangan & Akuntansi',  // Updated from 'Keuangan'
     children: [
          { id: 'arus_kas', name: 'Arus Kas', icon: DollarSign, requiredPermission: 'view_finances' },
          { id: 'biaya_proyek', name: 'Biaya Proyek', icon: DollarSign, requiredPermission: 'view_finances' },
          { id: 'strategic_cost', name: 'Kontrol Biaya (EVM)', icon: ShieldCheck, requiredPermission: 'view_evm' },
-         
+
          // NEW: Finance & Accounting Module
          { id: 'chart_of_accounts', name: 'Chart of Accounts', icon: BookOpen, requiredPermission: 'view_finances' },
          { id: 'journal_entries', name: 'Jurnal Umum', icon: BookText, requiredPermission: 'view_finances' },
@@ -87,6 +91,7 @@ import {
 Users with `view_finances` permission can now access:
 
 ### **1. Chart of Accounts** (`/chart_of_accounts`)
+
 - ✅ Account hierarchy management
 - ✅ Account code structure (e.g., 1-1000, 2-2000)
 - ✅ Account types (Asset, Liability, Equity, Revenue, Expense)
@@ -95,6 +100,7 @@ Users with `view_finances` permission can now access:
 - ✅ CRUD operations
 
 ### **2. Journal Entries** (`/journal_entries`)
+
 - ✅ Double-entry bookkeeping
 - ✅ Entry creation with validation
 - ✅ Line-by-line debit/credit
@@ -104,6 +110,7 @@ Users with `view_finances` permission can now access:
 - ✅ Status filtering
 
 ### **3. Accounts Payable** (`/accounts_payable`)
+
 - ✅ Vendor invoice management
 - ✅ Aging reports (0-30, 31-60, 61-90, 90+ days)
 - ✅ Payment recording
@@ -112,6 +119,7 @@ Users with `view_finances` permission can now access:
 - ✅ Vendor filtering
 
 ### **4. Accounts Receivable** (`/accounts_receivable`)
+
 - ✅ Customer invoice management
 - ✅ Aging reports (0-30, 31-60, 61-90, 90+ days)
 - ✅ Payment tracking
@@ -123,27 +131,29 @@ Users with `view_finances` permission can now access:
 
 ## 📊 STATISTICS
 
-| Metric | Value |
-|--------|-------|
-| **Files Modified** | 2 |
-| **New Imports** | 4 views + 5 icons |
-| **New Routes** | 4 |
-| **New Menu Items** | 4 |
-| **Lines of Code Unlocked** | 5,200+ |
-| **TypeScript Errors** | 0 |
-| **Duration** | ~1 hour |
-| **ROI** | 5,200 lines / 1 hour = **HIGHEST** |
+| Metric                     | Value                              |
+| -------------------------- | ---------------------------------- |
+| **Files Modified**         | 2                                  |
+| **New Imports**            | 4 views + 5 icons                  |
+| **New Routes**             | 4                                  |
+| **New Menu Items**         | 4                                  |
+| **Lines of Code Unlocked** | 5,200+                             |
+| **TypeScript Errors**      | 0                                  |
+| **Duration**               | ~1 hour                            |
+| **ROI**                    | 5,200 lines / 1 hour = **HIGHEST** |
 
 ---
 
 ## 🔒 PERMISSIONS
 
 All Finance Module views require:
+
 ```typescript
-requiredPermission: 'view_finances'
+requiredPermission: 'view_finances';
 ```
 
 **Roles with Access:**
+
 - ✅ Admin
 - ✅ Project Manager
 - ✅ Finance
@@ -168,6 +178,7 @@ requiredPermission: 'view_finances'
 ## 🎯 BUSINESS IMPACT
 
 ### **Immediate Benefits:**
+
 1. ✅ **Accounting Team Can Start Working**
    - No more waiting for UI access
    - Can input Chart of Accounts
@@ -186,6 +197,7 @@ requiredPermission: 'view_finances'
    - Financial controls in place
 
 ### **Enabled Next Steps:**
+
 - ✅ WBS Module can link to Chart of Accounts
 - ✅ Goods Receipt can post inventory journals
 - ✅ Integration Layer can auto-create AP invoices from PO
@@ -196,6 +208,7 @@ requiredPermission: 'view_finances'
 ## 📝 TECHNICAL NOTES
 
 ### **Architecture:**
+
 ```
 User clicks menu → App.tsx routing → View component loads
                       ↓
@@ -205,6 +218,7 @@ User clicks menu → App.tsx routing → View component loads
 ```
 
 ### **Navigation Flow:**
+
 ```
 Sidebar (constants.ts navLinksConfig)
     ↓
@@ -218,6 +232,7 @@ Component renders with data from Firebase
 ```
 
 ### **Permission Flow:**
+
 ```
 Sidebar checks: hasPermission(currentUser, 'view_finances')
     ↓
@@ -232,6 +247,7 @@ If FALSE: Hide menu item
 Now that Finance Module is accessible, proceed with:
 
 **PRIORITY 2: Build WBS Management Module (5 days)**
+
 - Create WBS types & interfaces
 - Build WBS service (CRUD, hierarchy)
 - Create WBS Management View UI
@@ -240,6 +256,7 @@ Now that Finance Module is accessible, proceed with:
 - Enable budget allocation by WBS
 
 **Rationale:**
+
 - WBS is the foundation for cost structure
 - Enables proper cost tracking by work package
 - Required for Integration Automation Layer (Priority 7)
@@ -277,4 +294,3 @@ Now let's move on to **Priority 2: Build WBS Management Module** to establish th
 **Completed by:** AI Assistant  
 **Verified:** All files compile without errors  
 **Ready for:** Production deployment & WBS Module development
-

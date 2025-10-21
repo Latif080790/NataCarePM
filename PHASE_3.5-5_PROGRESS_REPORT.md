@@ -80,12 +80,15 @@
 ### Phase 3.5 Week 1: Safety Management System (40%)
 
 #### Completed Components
+
 - [x] Type definitions (safety.types.ts)
 - [x] Safety service (safetyService.ts)
 
 #### In Progress
+
 - [ ] Safety Context (contexts/SafetyContext.tsx)
 - [ ] Safety Views (6 views)
 
 #### Pending
+
 - [ ] Safety Dashboard (metrics

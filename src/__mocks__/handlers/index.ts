@@ -4,12 +4,12 @@
  */
 
 import { http, HttpResponse } from 'msw';
-import { 
-  createMockUser, 
-  createMockProject, 
+import {
+  createMockUser,
+  createMockProject,
   createMockTask,
   createMockDocument,
-  createMockPurchaseOrder 
+  createMockPurchaseOrder,
 } from '../testDataFactory';
 
 const API_BASE = process.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -24,12 +24,12 @@ export const handlers = [
     return HttpResponse.json([
       createMockUser({ id: '1', name: 'User 1' }),
       createMockUser({ id: '2', name: 'User 2' }),
-      createMockUser({ id: '3', name: 'User 3' })
+      createMockUser({ id: '3', name: 'User 3' }),
     ]);
   }),
 
   http.post(`${API_BASE}/users`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     return HttpResponse.json(createMockUser(body), { status: 201 });
   }),
 
@@ -42,17 +42,17 @@ export const handlers = [
     return HttpResponse.json([
       createMockProject({ id: '1', name: 'Project Alpha' }),
       createMockProject({ id: '2', name: 'Project Beta' }),
-      createMockProject({ id: '3', name: 'Project Gamma' })
+      createMockProject({ id: '3', name: 'Project Gamma' }),
     ]);
   }),
 
   http.post(`${API_BASE}/projects`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     return HttpResponse.json(createMockProject(body), { status: 201 });
   }),
 
   http.put(`${API_BASE}/projects/:id`, async ({ params, request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     return HttpResponse.json(createMockProject({ id: params.id as string, ...body }));
   }),
 
@@ -69,12 +69,12 @@ export const handlers = [
     return HttpResponse.json([
       createMockTask({ id: '1', projectId: params.projectId as string, title: 'Task 1' }),
       createMockTask({ id: '2', projectId: params.projectId as string, title: 'Task 2' }),
-      createMockTask({ id: '3', projectId: params.projectId as string, title: 'Task 3' })
+      createMockTask({ id: '3', projectId: params.projectId as string, title: 'Task 3' }),
     ]);
   }),
 
   http.post(`${API_BASE}/tasks`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     return HttpResponse.json(createMockTask(body), { status: 201 });
   }),
 
@@ -87,12 +87,12 @@ export const handlers = [
     return HttpResponse.json([
       createMockDocument({ id: '1', projectId: params.projectId as string }),
       createMockDocument({ id: '2', projectId: params.projectId as string }),
-      createMockDocument({ id: '3', projectId: params.projectId as string })
+      createMockDocument({ id: '3', projectId: params.projectId as string }),
     ]);
   }),
 
   http.post(`${API_BASE}/documents`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     return HttpResponse.json(createMockDocument(body), { status: 201 });
   }),
 
@@ -105,12 +105,12 @@ export const handlers = [
     return HttpResponse.json([
       createMockPurchaseOrder({ id: '1', poNumber: 'PO-001' }),
       createMockPurchaseOrder({ id: '2', poNumber: 'PO-002' }),
-      createMockPurchaseOrder({ id: '3', poNumber: 'PO-003' })
+      createMockPurchaseOrder({ id: '3', poNumber: 'PO-003' }),
     ]);
   }),
 
   http.post(`${API_BASE}/purchase-orders`, async ({ request }) => {
-    const body = await request.json() as any;
+    const body = (await request.json()) as any;
     return HttpResponse.json(createMockPurchaseOrder(body), { status: 201 });
   }),
 
@@ -124,7 +124,7 @@ export const handlers = [
   }),
 
   http.get(`${API_BASE}/error/timeout`, async () => {
-    await new Promise(resolve => setTimeout(resolve, 30000));
+    await new Promise((resolve) => setTimeout(resolve, 30000));
     return HttpResponse.json({});
-  })
+  }),
 ];

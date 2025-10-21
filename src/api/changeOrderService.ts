@@ -39,17 +39,19 @@ class ChangeOrderService {
       where('projectId', '==', projectId),
       orderBy('createdAt', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
     const count = snapshot.size + 1;
-    
+
     return `CO-${year}-${String(count).padStart(3, '0')}`;
   }
 
   /**
    * Create change order
    */
-  async createChangeOrder(changeOrder: Omit<ChangeOrder, 'id' | 'changeNumber' | 'createdAt' | 'updatedAt'>): Promise<ChangeOrder> {
+  async createChangeOrder(
+    changeOrder: Omit<ChangeOrder, 'id' | 'changeNumber' | 'createdAt' | 'updatedAt'>
+  ): Promise<ChangeOrder> {
     try {
       const now = new Date();
       const changeNumber = await this.generateChangeNumber(changeOrder.projectId);
@@ -62,7 +64,7 @@ class ChangeOrderService {
         requiredBy: changeOrder.requiredBy ? Timestamp.fromDate(changeOrder.requiredBy) : null,
         createdAt: Timestamp.fromDate(now),
         updatedAt: Timestamp.fromDate(now),
-        approvalWorkflow: changeOrder.approvalWorkflow.map(step => ({
+        approvalWorkflow: changeOrder.approvalWorkflow.map((step) => ({
           ...step,
           requiredBy: step.requiredBy ? Timestamp.fromDate(step.requiredBy) : null,
         })),
@@ -109,10 +111,11 @@ class ChangeOrderService {
         implementationStartDate: data.implementationStartDate?.toDate(),
         implementationEndDate: data.implementationEndDate?.toDate(),
         implementedDate: data.implementedDate?.toDate(),
-        approvalHistory: data.approvalHistory?.map((a: any) => ({
-          ...a,
-          timestamp: a.timestamp?.toDate(),
-        })) || [],
+        approvalHistory:
+          data.approvalHistory?.map((a: any) => ({
+            ...a,
+            timestamp: a.timestamp?.toDate(),
+          })) || [],
       } as ChangeOrder;
     } catch (error) {
       console.error('[ChangeOrderService] Error getting change order:', error);
@@ -123,9 +126,12 @@ class ChangeOrderService {
   /**
    * Get change orders with filters
    */
-  async getChangeOrders(projectId: string, filters?: ChangeOrderFilterOptions): Promise<ChangeOrder[]> {
+  async getChangeOrders(
+    projectId: string,
+    filters?: ChangeOrderFilterOptions
+  ): Promise<ChangeOrder[]> {
     try {
-      let constraints: any[] = [where('projectId', '==', projectId)];
+      const constraints: any[] = [where('projectId', '==', projectId)];
 
       if (filters?.status && filters.status.length > 0) {
         constraints.push(where('status', 'in', filters.status));
@@ -140,7 +146,7 @@ class ChangeOrderService {
       const q = query(collection(db, CHANGE_ORDERS_COLLECTION), ...constraints);
       const querySnapshot = await getDocs(q);
 
-      return querySnapshot.docs.map(doc => {
+      return querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -163,7 +169,7 @@ class ChangeOrderService {
   async updateChangeOrder(changeOrderId: string, updates: Partial<ChangeOrder>): Promise<void> {
     try {
       const docRef = doc(db, CHANGE_ORDERS_COLLECTION, changeOrderId);
-      
+
       const updateData: any = {
         ...updates,
         updatedAt: Timestamp.fromDate(new Date()),
@@ -258,17 +264,15 @@ class ChangeOrderService {
         totalScheduleImpact: changeOrders.reduce((sum, co) => sum + co.scheduleImpact, 0),
         approvalRate: 0,
         averageApprovalTime: 0,
-        pendingApprovals: changeOrders.filter(co => 
+        pendingApprovals: changeOrders.filter((co) =>
           ['submitted', 'under_review', 'pending_approval'].includes(co.status)
         ).length,
         overdueApprovals: 0,
       };
 
       // Calculate approval rate
-      const decided = changeOrders.filter(co => 
-        ['approved', 'rejected'].includes(co.status)
-      );
-      const approved = changeOrders.filter(co => co.status === 'approved');
+      const decided = changeOrders.filter((co) => ['approved', 'rejected'].includes(co.status));
+      const approved = changeOrders.filter((co) => co.status === 'approved');
       summary.approvalRate = decided.length > 0 ? (approved.length / decided.length) * 100 : 0;
 
       return summary;

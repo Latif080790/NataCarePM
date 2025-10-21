@@ -4,7 +4,7 @@
  * Handles transient failures gracefully
  */
 
-import { monitoringService } from '../monitoringService';
+// import { monitoringService } from '../monitoringService'; // File does not exist, import commented out
 
 /**
  * Retry configuration options
@@ -23,13 +23,14 @@ export interface RetryOptions {
 /**
  * Default retry configuration
  */
-const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, 'shouldRetry' | 'onRetry' | 'onFailure'>> = {
-  maxAttempts: 3,
-  initialDelay: 1000, // 1 second
-  maxDelay: 30000, // 30 seconds
-  backoff: 'exponential',
-  timeout: 60000, // 60 seconds total timeout
-};
+const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, 'shouldRetry' | 'onRetry' | 'onFailure'>> =
+  {
+    maxAttempts: 3,
+    initialDelay: 1000, // 1 second
+    maxDelay: 30000, // 30 seconds
+    backoff: 'exponential',
+    timeout: 60000, // 60 seconds total timeout
+  };
 
 /**
  * Errors that should NOT be retried
@@ -45,7 +46,7 @@ const NON_RETRYABLE_ERRORS = [
   'unimplemented',
   'validation-error',
   'VALIDATION_FAILED',
-  'INVALID_INPUT'
+  'INVALID_INPUT',
 ];
 
 /**
@@ -53,12 +54,12 @@ const NON_RETRYABLE_ERRORS = [
  */
 const shouldRetryError = (error: Error): boolean => {
   const errorMessage = error.message.toLowerCase();
-  
+
   // Don't retry validation errors
-  if (NON_RETRYABLE_ERRORS.some(msg => errorMessage.includes(msg))) {
+  if (NON_RETRYABLE_ERRORS.some((msg) => errorMessage.includes(msg))) {
     return false;
   }
-  
+
   // Retry network errors
   if (
     errorMessage.includes('network') ||
@@ -71,7 +72,7 @@ const shouldRetryError = (error: Error): boolean => {
   ) {
     return true;
   }
-  
+
   return false;
 };
 
@@ -85,16 +86,16 @@ const calculateDelay = (
   backoff: 'linear' | 'exponential' | 'fibonacci'
 ): number => {
   let delay: number;
-  
+
   switch (backoff) {
     case 'linear':
       delay = initialDelay * attempt;
       break;
-      
+
     case 'exponential':
       delay = initialDelay * Math.pow(2, attempt - 1);
       break;
-      
+
     case 'fibonacci':
       // Fibonacci sequence for delays
       const fib = (n: number): number => {
@@ -103,15 +104,15 @@ const calculateDelay = (
       };
       delay = initialDelay * fib(attempt);
       break;
-      
+
     default:
       delay = initialDelay * Math.pow(2, attempt - 1);
   }
-  
+
   // Add jitter to prevent thundering herd
   const jitter = Math.random() * 0.3 * delay;
   delay = delay + jitter;
-  
+
   return Math.min(delay, maxDelay);
 };
 
@@ -119,12 +120,12 @@ const calculateDelay = (
  * Delay utility
  */
 const delay = (ms: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 /**
  * Execute operation with retry mechanism
- * 
+ *
  * @example
  * const result = await withRetry(
  *   async () => {
@@ -146,9 +147,9 @@ export const withRetry = async <T>(
 ): Promise<T> => {
   const config = { ...DEFAULT_RETRY_OPTIONS, ...options };
   const startTime = Date.now();
-  
+
   let lastError: Error | null = null;
-  
+
   for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
     try {
       // Check total timeout
@@ -156,23 +157,22 @@ export const withRetry = async <T>(
       if (elapsed > config.timeout) {
         throw new Error(`Operation timeout after ${elapsed}ms`);
       }
-      
+
       // Execute operation
       return await operation();
-      
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      
+
       // Check if we should retry
-      const shouldRetry = options.shouldRetry 
+      const shouldRetry = options.shouldRetry
         ? options.shouldRetry(lastError, attempt)
         : shouldRetryError(lastError);
-      
+
       // Don't retry if it's the last attempt or error is not retryable
       if (attempt >= config.maxAttempts || !shouldRetry) {
         break;
       }
-      
+
       // Calculate delay for next attempt
       const nextDelay = calculateDelay(
         attempt,
@@ -180,16 +180,16 @@ export const withRetry = async <T>(
         config.maxDelay,
         config.backoff
       );
-      
+
       // Log retry attempt
       console.warn(
         `⚠️ Operation failed (attempt ${attempt}/${config.maxAttempts}), retrying in ${nextDelay}ms:`,
         lastError.message
       );
-      
+
       // Call onRetry callback
       options.onRetry?.(attempt, lastError, nextDelay);
-      
+
       // Log to monitoring
       monitoringService.logPerformanceMetric({
         metricName: 'retry_attempt',
@@ -199,47 +199,44 @@ export const withRetry = async <T>(
         context: {
           error: lastError.message,
           nextDelay,
-          backoff: config.backoff
-        }
+          backoff: config.backoff,
+        },
       });
-      
+
       // Wait before retrying
       await delay(nextDelay);
     }
   }
-  
+
   // All attempts failed
-  console.error(
-    `❌ Operation failed after ${config.maxAttempts} attempts:`,
-    lastError
-  );
-  
+  console.error(`❌ Operation failed after ${config.maxAttempts} attempts:`, lastError);
+
   // Call onFailure callback
   options.onFailure?.(lastError!, config.maxAttempts);
-  
+
   // Log final failure
   monitoringService.logError({
     message: `Operation failed after ${config.maxAttempts} retry attempts`,
     stack: lastError?.stack,
     severity: 'high',
     component: 'RetryWrapper',
-    action: 'retry_exhausted'
+    action: 'retry_exhausted',
   });
-  
+
   throw lastError;
 };
 
 /**
  * Execute multiple operations with retry
  * Returns partial results even if some operations fail
- * 
+ *
  * @example
  * const results = await retryBatch([
  *   () => getDoc(doc1Ref),
  *   () => getDoc(doc2Ref),
  *   () => getDoc(doc3Ref)
  * ], { maxAttempts: 2 });
- * 
+ *
  * results.successful.forEach(result => console.log('Success:', result));
  * results.failed.forEach(error => console.error('Failed:', error));
  */
@@ -252,26 +249,24 @@ export const retryBatch = async <T>(
   successCount: number;
   failureCount: number;
 }> => {
-  const results = await Promise.allSettled(
-    operations.map(op => withRetry(op, options))
-  );
-  
+  const results = await Promise.allSettled(operations.map((op) => withRetry(op, options)));
+
   const successful: T[] = [];
   const failed: Error[] = [];
-  
-  results.forEach(result => {
+
+  results.forEach((result) => {
     if (result.status === 'fulfilled') {
       successful.push(result.value);
     } else {
       failed.push(result.reason);
     }
   });
-  
+
   return {
     successful,
     failed,
     successCount: successful.length,
-    failureCount: failed.length
+    failureCount: failed.length,
   };
 };
 
@@ -283,7 +278,7 @@ export class CircuitBreaker<T> {
   private failureCount = 0;
   private lastFailureTime: number | null = null;
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
-  
+
   constructor(
     private readonly operation: () => Promise<T>,
     private readonly options: {
@@ -296,10 +291,10 @@ export class CircuitBreaker<T> {
       failureThreshold: 5,
       resetTimeout: 60000, // 1 minute
       monitorInterval: 10000, // 10 seconds
-      ...options
+      ...options,
     };
   }
-  
+
   /**
    * Execute operation with circuit breaker protection
    */
@@ -313,58 +308,57 @@ export class CircuitBreaker<T> {
       this.state = 'HALF_OPEN';
       this.failureCount = 0;
     }
-    
+
     // Circuit is open, reject immediately
     if (this.state === 'OPEN') {
       throw new Error(
         `Circuit breaker is OPEN. Service unavailable. ` +
-        `Will retry after ${this.options.resetTimeout! / 1000}s`
+          `Will retry after ${this.options.resetTimeout! / 1000}s`
       );
     }
-    
+
     try {
       const result = await this.operation();
-      
+
       // Success, reset failure count
       if (this.state === 'HALF_OPEN') {
         this.state = 'CLOSED';
       }
       this.failureCount = 0;
-      
+
       return result;
-      
     } catch (error) {
       this.failureCount++;
       this.lastFailureTime = Date.now();
-      
+
       // Open circuit if threshold reached
       if (this.failureCount >= this.options.failureThreshold!) {
         this.state = 'OPEN';
-        
+
         console.error(
           `🔴 Circuit breaker OPENED after ${this.failureCount} failures. ` +
-          `Will reset in ${this.options.resetTimeout! / 1000}s`
+            `Will reset in ${this.options.resetTimeout! / 1000}s`
         );
-        
+
         monitoringService.logError({
           message: 'Circuit breaker opened due to repeated failures',
           severity: 'critical',
           component: 'CircuitBreaker',
-          action: 'circuit_opened'
+          action: 'circuit_opened',
         });
       }
-      
+
       throw error;
     }
   }
-  
+
   /**
    * Get current circuit state
    */
   getState(): string {
     return this.state;
   }
-  
+
   /**
    * Manually reset circuit breaker
    */
@@ -373,7 +367,7 @@ export class CircuitBreaker<T> {
     this.failureCount = 0;
     this.lastFailureTime = null;
   }
-  
+
   /**
    * Get failure statistics
    */
@@ -385,7 +379,7 @@ export class CircuitBreaker<T> {
     return {
       state: this.state,
       failureCount: this.failureCount,
-      lastFailureTime: this.lastFailureTime
+      lastFailureTime: this.lastFailureTime,
     };
   }
 }
@@ -402,49 +396,46 @@ export class RetryQueue {
     attempts: number;
     maxAttempts: number;
   }> = [];
-  
+
   private isProcessing = false;
   private isOnline = navigator.onLine;
-  
+
   constructor() {
     // Monitor online status
     window.addEventListener('online', () => {
       this.isOnline = true;
       this.processQueue();
     });
-    
+
     window.addEventListener('offline', () => {
       this.isOnline = false;
     });
   }
-  
+
   /**
    * Add operation to queue
    */
-  enqueue(
-    operation: () => Promise<any>,
-    maxAttempts = 3
-  ): string {
+  enqueue(operation: () => Promise<any>, maxAttempts = 3): string {
     const id = `retry_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     this.queue.push({
       id,
       operation,
       timestamp: Date.now(),
       attempts: 0,
-      maxAttempts
+      maxAttempts,
     });
-    
+
     console.log(`📝 Operation queued: ${id} (${this.queue.length} in queue)`);
-    
+
     // Try to process immediately if online
     if (this.isOnline) {
       this.processQueue();
     }
-    
+
     return id;
   }
-  
+
   /**
    * Process queued operations
    */
@@ -452,22 +443,21 @@ export class RetryQueue {
     if (this.isProcessing || !this.isOnline || this.queue.length === 0) {
       return;
     }
-    
+
     this.isProcessing = true;
-    
+
     console.log(`🔄 Processing ${this.queue.length} queued operations`);
-    
+
     const operations = [...this.queue];
     this.queue = [];
-    
+
     for (const item of operations) {
       try {
         await item.operation();
         console.log(`✅ Queued operation completed: ${item.id}`);
-        
       } catch (error) {
         item.attempts++;
-        
+
         if (item.attempts < item.maxAttempts) {
           // Re-queue for retry
           this.queue.push(item);
@@ -481,25 +471,25 @@ export class RetryQueue {
             `❌ Queued operation failed permanently after ${item.attempts} attempts: ${item.id}`,
             error
           );
-          
+
           monitoringService.logError({
             message: `Queued operation failed permanently: ${item.id}`,
             severity: 'high',
             component: 'RetryQueue',
-            action: 'queue_exhausted'
+            action: 'queue_exhausted',
           });
         }
       }
     }
-    
+
     this.isProcessing = false;
-    
+
     // Process remaining items if any
     if (this.queue.length > 0 && this.isOnline) {
       setTimeout(() => this.processQueue(), 5000);
     }
   }
-  
+
   /**
    * Get queue statistics
    */
@@ -509,18 +499,17 @@ export class RetryQueue {
     isOnline: boolean;
     oldestItem: number | null;
   } {
-    const oldestItem = this.queue.length > 0
-      ? Math.min(...this.queue.map(item => item.timestamp))
-      : null;
-    
+    const oldestItem =
+      this.queue.length > 0 ? Math.min(...this.queue.map((item) => item.timestamp)) : null;
+
     return {
       queueLength: this.queue.length,
       isProcessing: this.isProcessing,
       isOnline: this.isOnline,
-      oldestItem
+      oldestItem,
     };
   }
-  
+
   /**
    * Clear queue
    */

@@ -16,10 +16,7 @@ interface AIInsightsPanelProps {
   onRefresh?: () => void;
 }
 
-export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ 
-  projectData,
-  onRefresh 
-}) => {
+export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ projectData, onRefresh }) => {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +34,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
         description: 'Current progress is 7% behind planned schedule. Risk of missing Q4 deadline.',
         confidence: 87,
         impact: 'high',
-        action: 'Increase resources or adjust timeline'
+        action: 'Increase resources or adjust timeline',
       },
       {
         type: 'opportunity',
@@ -45,7 +42,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
         description: 'Analysis shows potential 12% cost savings in material procurement.',
         confidence: 92,
         impact: 'medium',
-        action: 'Review supplier contracts'
+        action: 'Review supplier contracts',
       },
       {
         type: 'prediction',
@@ -53,16 +50,17 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
         description: 'Based on current velocity, project completion predicted for August 28, 2025.',
         confidence: 85,
         impact: 'medium',
-        action: 'Monitor progress weekly'
+        action: 'Monitor progress weekly',
       },
       {
         type: 'recommendation',
         title: 'Resource Allocation',
-        description: 'AI suggests reassigning 2 team members from infrastructure to finishing work.',
+        description:
+          'AI suggests reassigning 2 team members from infrastructure to finishing work.',
         confidence: 78,
         impact: 'medium',
-        action: 'Review team allocation'
-      }
+        action: 'Review team allocation',
+      },
     ];
 
     setInsights(mockInsights);
@@ -113,7 +111,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
     const colors = {
       high: 'bg-red-100 text-red-700 border-red-300',
       medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-      low: 'bg-blue-100 text-blue-700 border-blue-300'
+      low: 'bg-blue-100 text-blue-700 border-blue-300',
     };
     return colors[impact as keyof typeof colors] || colors.low;
   };
@@ -127,10 +125,12 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
           </div>
           <div>
             <h3 className="text-lg font-bold text-slate-800">AI-Powered Insights</h3>
-            <p className="text-xs text-slate-600 font-medium">Predictive analytics & recommendations</p>
+            <p className="text-xs text-slate-600 font-medium">
+              Predictive analytics & recommendations
+            </p>
           </div>
         </div>
-        
+
         <button
           onClick={handleRefresh}
           disabled={isLoading}
@@ -147,28 +147,27 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
             className={`glass border rounded-xl p-4 bg-gradient-to-br ${getTypeColor(insight.type)} transition-all hover:scale-[1.01] hover:shadow-md`}
           >
             <div className="flex items-start space-x-3">
-              <div className="mt-1">
-                {getTypeIcon(insight.type)}
-              </div>
-              
+              <div className="mt-1">{getTypeIcon(insight.type)}</div>
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-bold text-slate-800">{insight.title}</h4>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-xs px-2 py-1 rounded-full border font-semibold ${getImpactBadge(insight.impact)}`}>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full border font-semibold ${getImpactBadge(insight.impact)}`}
+                    >
                       {insight.impact.toUpperCase()}
                     </span>
                   </div>
                 </div>
-                
-                <p className="text-xs text-slate-700 mb-3 leading-relaxed">
-                  {insight.description}
-                </p>
-                
+
+                <p className="text-xs text-slate-700 mb-3 leading-relaxed">{insight.description}</p>
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div className="text-xs text-slate-600 font-medium">
-                      Confidence: <span className="font-bold text-slate-800">{insight.confidence}%</span>
+                      Confidence:{' '}
+                      <span className="font-bold text-slate-800">{insight.confidence}%</span>
                     </div>
                     <div className="h-2 w-20 bg-slate-200 rounded-full overflow-hidden">
                       <div
@@ -177,7 +176,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
                       ></div>
                     </div>
                   </div>
-                  
+
                   {insight.action && (
                     <button className="text-xs text-purple-600 hover:text-purple-700 font-bold transition-colors">
                       {insight.action} →

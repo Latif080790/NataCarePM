@@ -20,7 +20,7 @@ export default [
       'mockData.ts',
     ],
   },
-  
+
   // JavaScript files
   {
     files: ['**/*.{js,jsx}'],
@@ -55,11 +55,11 @@ export default [
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
-      'complexity': ['warn', 15],
+      complexity: ['warn', 15],
     },
   },
-  
-  // TypeScript files  
+
+  // TypeScript files
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -95,48 +95,51 @@ export default [
     rules: {
       // Disable conflicting base rules
       'no-unused-vars': 'off',
-      
+
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['warn', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_' 
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
-      
+
       // General rules
       'no-console': 'warn',
       'no-debugger': 'error',
       'prefer-const': 'error',
-      'complexity': ['warn', 15],
+      complexity: ['warn', 15],
     },
   },
-  
+
   // Test files - more relaxed rules
   {
     files: ['**/*.test.{js,jsx,ts,tsx}', '**/*.spec.{js,jsx,ts,tsx}'],
     rules: {
       'no-console': 'off',
-      'complexity': 'off',
+      complexity: 'off',
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
-  
+
   // Configuration and setup files
   {
     files: [
-      'vite.config.ts', 
-      'jest.config.js', 
+      'vite.config.ts',
+      'jest.config.js',
       'eslint.config.js',
       'setup*.js',
       'create*.js',
       'firebase*.js',
       'get-*.js',
       'update*.js',
-      'test-*.js'
+      'test-*.js',
     ],
     rules: {
       'no-console': 'off',
-      'complexity': 'off',
+      complexity: 'off',
     },
   },
 ];

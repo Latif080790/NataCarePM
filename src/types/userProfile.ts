@@ -20,7 +20,7 @@ export interface UserProfile {
   location?: string;
   timezone?: string;
   language: 'id' | 'en';
-  
+
   // Security settings
   twoFactorEnabled: boolean;
   twoFactorMethod: '2FA_SMS' | '2FA_TOTP' | '2FA_EMAIL' | null;
@@ -28,15 +28,15 @@ export interface UserProfile {
   backupCodesRemaining: number;
   lastPasswordChange?: Date;
   passwordChangedCount: number;
-  
+
   // Session settings
   sessionTimeout: number; // in hours
   maxConcurrentSessions: number;
   rememberDeviceDuration: number; // in days
-  
+
   // Notification preferences
   notificationPreferences: NotificationPreferences;
-  
+
   // Account metadata
   createdAt: Date;
   updatedAt: Date;
@@ -44,7 +44,7 @@ export interface UserProfile {
   lastActivityAt?: Date;
   accountStatus: 'active' | 'suspended' | 'locked' | 'deleted';
   emailVerified: boolean;
-  
+
   // Additional metadata
   metadata?: Record<string, any>;
 }
@@ -55,28 +55,28 @@ export interface NotificationPreferences {
   taskDueSoon: NotificationSetting;
   projectMilestones: NotificationSetting;
   mentionsInComments: NotificationSetting;
-  
+
   // Financial & Approvals
   poRequiresApproval: NotificationSetting;
   paymentDue: NotificationSetting;
   budgetThreshold: NotificationSetting;
   invoiceReceived: NotificationSetting;
-  
+
   // Documents & Collaboration
   documentShared: NotificationSetting;
   documentVersionUploaded: NotificationSetting;
   commentOnDocument: NotificationSetting;
-  
+
   // Security & Account (forced to instant)
   newDeviceLogin: 'instant';
   passwordChanged: 'instant';
   twoFactorToggled: 'instant';
   suspiciousActivity: 'instant';
-  
+
   // System Notifications
   systemMaintenance: 'instant';
   newFeatures: NotificationSetting;
-  
+
   // Digest options
   dailyDigest: boolean;
   dailyDigestTime: string; // HH:mm format
@@ -95,67 +95,96 @@ export interface ActivityLog {
   userId: string;
   userName: string;
   userEmail: string;
-  
+
   // Action details
   action: ActivityAction;
   actionCategory: ActivityCategory;
   resource: string; // e.g., 'project', 'task', 'document'
   resourceId?: string;
   resourceName?: string;
-  
+
   // Request metadata
   ipAddress: string;
   userAgent: string;
   device: DeviceInfo;
   location?: GeoLocation;
-  
+
   // Timing
   timestamp: Date;
   duration?: number; // for timed actions (in ms)
-  
+
   // Additional data
   metadata?: Record<string, any>;
-  
+
   // Security flags
   suspicious: boolean;
   suspiciousReasons?: string[];
-  
+
   // Status
   status: 'success' | 'failure' | 'pending';
   errorMessage?: string;
 }
 
-export type ActivityAction = 
+export type ActivityAction =
   // Authentication
-  | 'LOGIN' | 'LOGOUT' | 'LOGIN_FAILED' | 'PASSWORD_RESET'
-  | 'PASSWORD_CHANGED' | '2FA_ENABLED' | '2FA_DISABLED'
-  | 'SESSION_EXPIRED' | 'DEVICE_TRUSTED' | 'DEVICE_REVOKED'
-  
-  // CRUD Operations
-  | 'CREATE' | 'READ' | 'UPDATE' | 'DELETE'
-  
-  // Project Management
-  | 'PROJECT_CREATED' | 'PROJECT_UPDATED' | 'PROJECT_DELETED'
-  | 'TASK_CREATED' | 'TASK_UPDATED' | 'TASK_COMPLETED'
-  
-  // Financial
-  | 'PO_CREATED' | 'PO_APPROVED' | 'PO_REJECTED'
-  | 'PAYMENT_MADE' | 'INVOICE_CREATED'
-  
-  // Documents
-  | 'DOCUMENT_UPLOADED' | 'DOCUMENT_DOWNLOADED' | 'DOCUMENT_SHARED'
-  | 'DOCUMENT_DELETED'
-  
-  // Security
-  | 'PERMISSION_CHANGED' | 'ROLE_CHANGED' | 'ACCESS_DENIED'
-  | 'SUSPICIOUS_ACTIVITY_DETECTED'
-  
-  // System
-  | 'EXPORT_DATA' | 'IMPORT_DATA' | 'SETTINGS_CHANGED';
+  | 'LOGIN'
+  | 'LOGOUT'
+  | 'LOGIN_FAILED'
+  | 'PASSWORD_RESET'
+  | 'PASSWORD_CHANGED'
+  | '2FA_ENABLED'
+  | '2FA_DISABLED'
+  | 'SESSION_EXPIRED'
+  | 'DEVICE_TRUSTED'
+  | 'DEVICE_REVOKED'
 
-export type ActivityCategory = 
-  | 'authentication' | 'security' | 'project' | 'task' 
-  | 'financial' | 'document' | 'user_management' | 'system';
+  // CRUD Operations
+  | 'CREATE'
+  | 'READ'
+  | 'UPDATE'
+  | 'DELETE'
+
+  // Project Management
+  | 'PROJECT_CREATED'
+  | 'PROJECT_UPDATED'
+  | 'PROJECT_DELETED'
+  | 'TASK_CREATED'
+  | 'TASK_UPDATED'
+  | 'TASK_COMPLETED'
+
+  // Financial
+  | 'PO_CREATED'
+  | 'PO_APPROVED'
+  | 'PO_REJECTED'
+  | 'PAYMENT_MADE'
+  | 'INVOICE_CREATED'
+
+  // Documents
+  | 'DOCUMENT_UPLOADED'
+  | 'DOCUMENT_DOWNLOADED'
+  | 'DOCUMENT_SHARED'
+  | 'DOCUMENT_DELETED'
+
+  // Security
+  | 'PERMISSION_CHANGED'
+  | 'ROLE_CHANGED'
+  | 'ACCESS_DENIED'
+  | 'SUSPICIOUS_ACTIVITY_DETECTED'
+
+  // System
+  | 'EXPORT_DATA'
+  | 'IMPORT_DATA'
+  | 'SETTINGS_CHANGED';
+
+export type ActivityCategory =
+  | 'authentication'
+  | 'security'
+  | 'project'
+  | 'task'
+  | 'financial'
+  | 'document'
+  | 'user_management'
+  | 'system';
 
 export interface DeviceInfo {
   deviceType: 'desktop' | 'mobile' | 'tablet' | 'unknown';
@@ -184,31 +213,31 @@ export interface GeoLocation {
 export interface UserSession {
   id: string;
   userId: string;
-  
+
   // Device identification
   deviceId: string; // Fingerprint-based unique ID
   deviceFingerprint: string; // Hashed fingerprint
   deviceName: string; // User-assigned name or auto-generated
-  
+
   // Device details
   device: DeviceInfo;
   ipAddress: string;
   location?: GeoLocation;
-  
+
   // Session timing
   createdAt: Date;
   lastActivity: Date;
   expiresAt: Date;
-  
+
   // Session status
   active: boolean;
   loggedOutAt?: Date;
   logoutReason?: 'user' | 'timeout' | 'admin' | 'security' | 'expired';
-  
+
   // Flags
   isCurrentDevice: boolean;
   trusted: boolean;
-  
+
   // Metadata
   metadata?: Record<string, any>;
 }
@@ -230,37 +259,37 @@ export interface SessionSummary {
 export interface TrustedDevice {
   id: string;
   userId: string;
-  
+
   // Device identification
   deviceFingerprint: string; // Hashed fingerprint
   deviceId: string;
   deviceName: string; // User-friendly name
-  
+
   // Device details
   device: DeviceInfo;
   ipAddress: string;
   location?: GeoLocation;
-  
+
   // Trust status
   trusted: boolean;
   blocked: boolean;
   requiresApproval: boolean;
   approvalMethod?: 'auto' | 'email' | 'sms' | 'manual';
-  
+
   // Timing
   firstSeen: Date;
   lastSeen: Date;
   lastUsedAt?: Date;
-  
+
   // Usage statistics
   loginCount: number;
   failedLoginCount: number;
-  
+
   // Security
   suspicious: boolean;
   suspiciousReasons?: string[];
   markedAsLost: boolean;
-  
+
   // Metadata
   metadata?: Record<string, any>;
 }
@@ -435,10 +464,9 @@ export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = 
-  Pick<T, Exclude<keyof T, Keys>> 
-  & {
-    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
+export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
   }[Keys];
 
 // ========================================

@@ -1,6 +1,7 @@
 # Fase 4: Enterprise DevOps & Monitoring - Implementation Complete
 
 ## 🎯 Objektif Fase 4 (Bulan 5-6)
+
 Membangun infrastruktur DevOps enterprise-grade dengan monitoring komprehensif, observability terdistribusi, dan automation pipeline yang mendukung continuous delivery di lingkungan multi-cloud.
 
 ---
@@ -10,6 +11,7 @@ Membangun infrastruktur DevOps enterprise-grade dengan monitoring komprehensif, 
 ### 1.1 **GitOps with ArgoCD & Tekton**
 
 #### Enterprise GitOps Workflow
+
 ```yaml
 # .tekton/pipeline/enterprise-pipeline.yaml
 apiVersion: tekton.dev/v1beta1
@@ -19,424 +21,424 @@ metadata:
   namespace: natacare-devops
   labels:
     app.kubernetes.io/name: natacare-pipeline
-    app.kubernetes.io/version: "2.0"
-    security.level: "enterprise"
+    app.kubernetes.io/version: '2.0'
+    security.level: 'enterprise'
 spec:
   description: |
     Enterprise-grade CI/CD pipeline for NataCarePM with security scanning,
     compliance validation, performance testing, and multi-environment deployment
   params:
-  - name: git-url
-    type: string
-    description: Git repository URL
-  - name: git-revision
-    type: string
-    description: Git revision to build
-    default: main
-  - name: image-registry
-    type: string
-    description: Container registry URL
-    default: "registry.natacare.com"
-  - name: deployment-environment
-    type: string
-    description: Target deployment environment
-    default: "staging"
-  - name: security-scan-enabled
-    type: string
-    description: Enable security scanning
-    default: "true"
-  - name: performance-test-enabled
-    type: string
-    description: Enable performance testing
-    default: "true"
-  - name: compliance-check-enabled
-    type: string
-    description: Enable compliance validation
-    default: "true"
+    - name: git-url
+      type: string
+      description: Git repository URL
+    - name: git-revision
+      type: string
+      description: Git revision to build
+      default: main
+    - name: image-registry
+      type: string
+      description: Container registry URL
+      default: 'registry.natacare.com'
+    - name: deployment-environment
+      type: string
+      description: Target deployment environment
+      default: 'staging'
+    - name: security-scan-enabled
+      type: string
+      description: Enable security scanning
+      default: 'true'
+    - name: performance-test-enabled
+      type: string
+      description: Enable performance testing
+      default: 'true'
+    - name: compliance-check-enabled
+      type: string
+      description: Enable compliance validation
+      default: 'true'
 
   workspaces:
-  - name: shared-data
-    description: Shared workspace for pipeline steps
-  - name: docker-config
-    description: Docker configuration for registry access
-  - name: security-configs
-    description: Security scanning configurations
-  - name: compliance-configs
-    description: Compliance validation configurations
+    - name: shared-data
+      description: Shared workspace for pipeline steps
+    - name: docker-config
+      description: Docker configuration for registry access
+    - name: security-configs
+      description: Security scanning configurations
+    - name: compliance-configs
+      description: Compliance validation configurations
 
   tasks:
-  # 1. Source Code Analysis & Security
-  - name: source-checkout
-    taskRef:
-      name: git-clone
-      kind: ClusterTask
-    workspaces:
-    - name: output
-      workspace: shared-data
-    params:
-    - name: url
-      value: $(params.git-url)
-    - name: revision
-      value: $(params.git-revision)
-    - name: depth
-      value: "1"
-    - name: sslVerify
-      value: "true"
+    # 1. Source Code Analysis & Security
+    - name: source-checkout
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: shared-data
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+        - name: depth
+          value: '1'
+        - name: sslVerify
+          value: 'true'
 
-  - name: source-security-scan
-    taskRef:
-      name: security-source-scan
-    runAfter: ["source-checkout"]
-    when:
-    - input: "$(params.security-scan-enabled)"
-      operator: in
-      values: ["true"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    - name: security-config
-      workspace: security-configs
-    params:
-    - name: scan-type
-      value: "comprehensive"
-    - name: severity-threshold
-      value: "MEDIUM"
+    - name: source-security-scan
+      taskRef:
+        name: security-source-scan
+      runAfter: ['source-checkout']
+      when:
+        - input: '$(params.security-scan-enabled)'
+          operator: in
+          values: ['true']
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: security-config
+          workspace: security-configs
+      params:
+        - name: scan-type
+          value: 'comprehensive'
+        - name: severity-threshold
+          value: 'MEDIUM'
 
-  - name: dependency-vulnerability-scan
-    taskRef:
-      name: dependency-check
-    runAfter: ["source-checkout"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: scan-language
-      value: "typescript,javascript"
-    - name: exclude-paths
-      value: "node_modules,dist,build"
+    - name: dependency-vulnerability-scan
+      taskRef:
+        name: dependency-check
+      runAfter: ['source-checkout']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: scan-language
+          value: 'typescript,javascript'
+        - name: exclude-paths
+          value: 'node_modules,dist,build'
 
-  - name: license-compliance-check
-    taskRef:
-      name: license-scanner
-    runAfter: ["source-checkout"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    - name: compliance-config
-      workspace: compliance-configs
+    - name: license-compliance-check
+      taskRef:
+        name: license-scanner
+      runAfter: ['source-checkout']
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: compliance-config
+          workspace: compliance-configs
 
-  # 2. Code Quality & Testing
-  - name: code-quality-analysis
-    taskRef:
-      name: sonarqube-enterprise-scan
-    runAfter: ["source-checkout"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: sonar-host-url
-      value: "https://sonar.natacare.com"
-    - name: sonar-project-key
-      value: "natacare-pm-enterprise"
-    - name: quality-gate-wait
-      value: "true"
-    - name: coverage-threshold
-      value: "80"
+    # 2. Code Quality & Testing
+    - name: code-quality-analysis
+      taskRef:
+        name: sonarqube-enterprise-scan
+      runAfter: ['source-checkout']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: sonar-host-url
+          value: 'https://sonar.natacare.com'
+        - name: sonar-project-key
+          value: 'natacare-pm-enterprise'
+        - name: quality-gate-wait
+          value: 'true'
+        - name: coverage-threshold
+          value: '80'
 
-  - name: unit-tests
-    taskRef:
-      name: npm-test
-    runAfter: ["source-checkout"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: test-command
-      value: "npm run test:unit:coverage"
-    - name: coverage-report
-      value: "true"
+    - name: unit-tests
+      taskRef:
+        name: npm-test
+      runAfter: ['source-checkout']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: test-command
+          value: 'npm run test:unit:coverage'
+        - name: coverage-report
+          value: 'true'
 
-  - name: integration-tests
-    taskRef:
-      name: integration-test
-    runAfter: ["unit-tests"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: test-environment
-      value: "test-isolated"
-    - name: database-setup
-      value: "true"
-    - name: external-services-mock
-      value: "true"
+    - name: integration-tests
+      taskRef:
+        name: integration-test
+      runAfter: ['unit-tests']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: test-environment
+          value: 'test-isolated'
+        - name: database-setup
+          value: 'true'
+        - name: external-services-mock
+          value: 'true'
 
-  - name: e2e-tests
-    taskRef:
-      name: playwright-e2e-test
-    runAfter: ["integration-tests"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: browser-matrix
-      value: "chromium,firefox,webkit"
-    - name: parallel-workers
-      value: "4"
-    - name: video-recording
-      value: "on-failure"
+    - name: e2e-tests
+      taskRef:
+        name: playwright-e2e-test
+      runAfter: ['integration-tests']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: browser-matrix
+          value: 'chromium,firefox,webkit'
+        - name: parallel-workers
+          value: '4'
+        - name: video-recording
+          value: 'on-failure'
 
-  # 3. Container Build & Security
-  - name: container-build
-    taskRef:
-      name: buildah-enterprise
-    runAfter: ["code-quality-analysis", "e2e-tests"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    - name: dockerconfig
-      workspace: docker-config
-    params:
-    - name: IMAGE
-      value: "$(params.image-registry)/natacare-pm:$(params.git-revision)"
-    - name: DOCKERFILE
-      value: "./Dockerfile.enterprise"
-    - name: CONTEXT
-      value: "."
-    - name: BUILD_ARGS
-      value: |
-        NODE_ENV=production
-        BUILD_VERSION=$(params.git-revision)
-        BUILD_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-        SECURITY_SCANNER=enabled
+    # 3. Container Build & Security
+    - name: container-build
+      taskRef:
+        name: buildah-enterprise
+      runAfter: ['code-quality-analysis', 'e2e-tests']
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: dockerconfig
+          workspace: docker-config
+      params:
+        - name: IMAGE
+          value: '$(params.image-registry)/natacare-pm:$(params.git-revision)'
+        - name: DOCKERFILE
+          value: './Dockerfile.enterprise'
+        - name: CONTEXT
+          value: '.'
+        - name: BUILD_ARGS
+          value: |
+            NODE_ENV=production
+            BUILD_VERSION=$(params.git-revision)
+            BUILD_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            SECURITY_SCANNER=enabled
 
-  - name: container-security-scan
-    taskRef:
-      name: trivy-enterprise-scan
-    runAfter: ["container-build"]
-    when:
-    - input: "$(params.security-scan-enabled)"
-      operator: in
-      values: ["true"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: IMAGE
-      value: "$(params.image-registry)/natacare-pm:$(params.git-revision)"
-    - name: SEVERITY
-      value: "HIGH,CRITICAL"
-    - name: EXIT_CODE
-      value: "1"
-    - name: POLICY_FILE
-      value: "./security/trivy-policy.yaml"
+    - name: container-security-scan
+      taskRef:
+        name: trivy-enterprise-scan
+      runAfter: ['container-build']
+      when:
+        - input: '$(params.security-scan-enabled)'
+          operator: in
+          values: ['true']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: IMAGE
+          value: '$(params.image-registry)/natacare-pm:$(params.git-revision)'
+        - name: SEVERITY
+          value: 'HIGH,CRITICAL'
+        - name: EXIT_CODE
+          value: '1'
+        - name: POLICY_FILE
+          value: './security/trivy-policy.yaml'
 
-  - name: container-compliance-scan
-    taskRef:
-      name: conftest-policy-check
-    runAfter: ["container-build"]
-    when:
-    - input: "$(params.compliance-check-enabled)"
-      operator: in
-      values: ["true"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    - name: compliance-config
-      workspace: compliance-configs
-    params:
-    - name: IMAGE
-      value: "$(params.image-registry)/natacare-pm:$(params.git-revision)"
-    - name: POLICY_PATH
-      value: "./compliance/opa-policies"
+    - name: container-compliance-scan
+      taskRef:
+        name: conftest-policy-check
+      runAfter: ['container-build']
+      when:
+        - input: '$(params.compliance-check-enabled)'
+          operator: in
+          values: ['true']
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: compliance-config
+          workspace: compliance-configs
+      params:
+        - name: IMAGE
+          value: '$(params.image-registry)/natacare-pm:$(params.git-revision)'
+        - name: POLICY_PATH
+          value: './compliance/opa-policies'
 
-  # 4. Performance & Load Testing
-  - name: performance-baseline-test
-    taskRef:
-      name: k6-performance-test
-    runAfter: ["container-security-scan"]
-    when:
-    - input: "$(params.performance-test-enabled)"
-      operator: in
-      values: ["true"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: TEST_SCRIPT
-      value: "./performance/baseline-test.js"
-    - name: TARGET_ENV
-      value: "$(params.deployment-environment)"
-    - name: VIRTUAL_USERS
-      value: "100"
-    - name: DURATION
-      value: "5m"
-    - name: THRESHOLD_P95
-      value: "2000ms"
+    # 4. Performance & Load Testing
+    - name: performance-baseline-test
+      taskRef:
+        name: k6-performance-test
+      runAfter: ['container-security-scan']
+      when:
+        - input: '$(params.performance-test-enabled)'
+          operator: in
+          values: ['true']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: TEST_SCRIPT
+          value: './performance/baseline-test.js'
+        - name: TARGET_ENV
+          value: '$(params.deployment-environment)'
+        - name: VIRTUAL_USERS
+          value: '100'
+        - name: DURATION
+          value: '5m'
+        - name: THRESHOLD_P95
+          value: '2000ms'
 
-  - name: load-test
-    taskRef:
-      name: artillery-load-test
-    runAfter: ["performance-baseline-test"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: CONFIG_FILE
-      value: "./performance/load-test-config.yml"
-    - name: TARGET_ENVIRONMENT
-      value: "$(params.deployment-environment)"
-    - name: REPORT_FORMAT
-      value: "json,html"
+    - name: load-test
+      taskRef:
+        name: artillery-load-test
+      runAfter: ['performance-baseline-test']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: CONFIG_FILE
+          value: './performance/load-test-config.yml'
+        - name: TARGET_ENVIRONMENT
+          value: '$(params.deployment-environment)'
+        - name: REPORT_FORMAT
+          value: 'json,html'
 
-  # 5. Infrastructure as Code Validation
-  - name: terraform-validate
-    taskRef:
-      name: terraform-enterprise-validate
-    runAfter: ["source-checkout"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: TERRAFORM_VERSION
-      value: "1.6.0"
-    - name: WORKSPACE_PATH
-      value: "./infrastructure"
-    - name: VALIDATION_LEVEL
-      value: "strict"
+    # 5. Infrastructure as Code Validation
+    - name: terraform-validate
+      taskRef:
+        name: terraform-enterprise-validate
+      runAfter: ['source-checkout']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: TERRAFORM_VERSION
+          value: '1.6.0'
+        - name: WORKSPACE_PATH
+          value: './infrastructure'
+        - name: VALIDATION_LEVEL
+          value: 'strict'
 
-  - name: kubernetes-manifest-validation
-    taskRef:
-      name: kubeval-validate
-    runAfter: ["terraform-validate"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: MANIFEST_PATH
-      value: "./k8s"
-    - name: KUBERNETES_VERSION
-      value: "1.28.0"
-    - name: STRICT_MODE
-      value: "true"
+    - name: kubernetes-manifest-validation
+      taskRef:
+        name: kubeval-validate
+      runAfter: ['terraform-validate']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: MANIFEST_PATH
+          value: './k8s'
+        - name: KUBERNETES_VERSION
+          value: '1.28.0'
+        - name: STRICT_MODE
+          value: 'true'
 
-  # 6. Deployment & Verification
-  - name: deploy-to-environment
-    taskRef:
-      name: argocd-sync-deploy
-    runAfter: ["load-test", "kubernetes-manifest-validation"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: APPLICATION_NAME
-      value: "natacare-$(params.deployment-environment)"
-    - name: ARGOCD_SERVER
-      value: "argocd.natacare.com"
-    - name: IMAGE_TAG
-      value: "$(params.git-revision)"
-    - name: SYNC_POLICY
-      value: "automated"
-    - name: PRUNE
-      value: "true"
+    # 6. Deployment & Verification
+    - name: deploy-to-environment
+      taskRef:
+        name: argocd-sync-deploy
+      runAfter: ['load-test', 'kubernetes-manifest-validation']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: APPLICATION_NAME
+          value: 'natacare-$(params.deployment-environment)'
+        - name: ARGOCD_SERVER
+          value: 'argocd.natacare.com'
+        - name: IMAGE_TAG
+          value: '$(params.git-revision)'
+        - name: SYNC_POLICY
+          value: 'automated'
+        - name: PRUNE
+          value: 'true'
 
-  - name: deployment-verification
-    taskRef:
-      name: deployment-health-check
-    runAfter: ["deploy-to-environment"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: ENVIRONMENT
-      value: "$(params.deployment-environment)"
-    - name: HEALTH_ENDPOINTS
-      value: "/health,/metrics,/ready"
-    - name: TIMEOUT
-      value: "300s"
-    - name: RETRY_INTERVAL
-      value: "10s"
+    - name: deployment-verification
+      taskRef:
+        name: deployment-health-check
+      runAfter: ['deploy-to-environment']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: ENVIRONMENT
+          value: '$(params.deployment-environment)'
+        - name: HEALTH_ENDPOINTS
+          value: '/health,/metrics,/ready'
+        - name: TIMEOUT
+          value: '300s'
+        - name: RETRY_INTERVAL
+          value: '10s'
 
-  - name: smoke-tests
-    taskRef:
-      name: smoke-test-suite
-    runAfter: ["deployment-verification"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: ENVIRONMENT
-      value: "$(params.deployment-environment)"
-    - name: TEST_SUITE
-      value: "critical-path"
-    - name: PARALLEL_EXECUTION
-      value: "true"
+    - name: smoke-tests
+      taskRef:
+        name: smoke-test-suite
+      runAfter: ['deployment-verification']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: ENVIRONMENT
+          value: '$(params.deployment-environment)'
+        - name: TEST_SUITE
+          value: 'critical-path'
+        - name: PARALLEL_EXECUTION
+          value: 'true'
 
-  # 7. Security & Compliance Post-Deployment
-  - name: runtime-security-scan
-    taskRef:
-      name: falco-runtime-scan
-    runAfter: ["smoke-tests"]
-    when:
-    - input: "$(params.security-scan-enabled)"
-      operator: in
-      values: ["true"]
-    params:
-    - name: NAMESPACE
-      value: "natacare-$(params.deployment-environment)"
-    - name: SCAN_DURATION
-      value: "300s"
-    - name: POLICY_FILE
-      value: "./security/falco-rules.yaml"
+    # 7. Security & Compliance Post-Deployment
+    - name: runtime-security-scan
+      taskRef:
+        name: falco-runtime-scan
+      runAfter: ['smoke-tests']
+      when:
+        - input: '$(params.security-scan-enabled)'
+          operator: in
+          values: ['true']
+      params:
+        - name: NAMESPACE
+          value: 'natacare-$(params.deployment-environment)'
+        - name: SCAN_DURATION
+          value: '300s'
+        - name: POLICY_FILE
+          value: './security/falco-rules.yaml'
 
-  - name: compliance-validation
-    taskRef:
-      name: opa-gatekeeper-validate
-    runAfter: ["runtime-security-scan"]
-    when:
-    - input: "$(params.compliance-check-enabled)"
-      operator: in
-      values: ["true"]
-    params:
-    - name: NAMESPACE
-      value: "natacare-$(params.deployment-environment)"
-    - name: POLICY_BUNDLE
-      value: "./compliance/gatekeeper-policies"
+    - name: compliance-validation
+      taskRef:
+        name: opa-gatekeeper-validate
+      runAfter: ['runtime-security-scan']
+      when:
+        - input: '$(params.compliance-check-enabled)'
+          operator: in
+          values: ['true']
+      params:
+        - name: NAMESPACE
+          value: 'natacare-$(params.deployment-environment)'
+        - name: POLICY_BUNDLE
+          value: './compliance/gatekeeper-policies'
 
-  # 8. Notification & Reporting
-  - name: pipeline-notification
-    taskRef:
-      name: notification-service
-    runAfter: ["compliance-validation"]
-    workspaces:
-    - name: source
-      workspace: shared-data
-    params:
-    - name: NOTIFICATION_TYPE
-      value: "pipeline-completion"
-    - name: ENVIRONMENT
-      value: "$(params.deployment-environment)"
-    - name: STATUS
-      value: "$(tasks.status)"
-    - name: SLACK_CHANNEL
-      value: "#natacare-deployments"
-    - name: EMAIL_RECIPIENTS
-      value: "devops@natacare.com,security@natacare.com"
+    # 8. Notification & Reporting
+    - name: pipeline-notification
+      taskRef:
+        name: notification-service
+      runAfter: ['compliance-validation']
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: NOTIFICATION_TYPE
+          value: 'pipeline-completion'
+        - name: ENVIRONMENT
+          value: '$(params.deployment-environment)'
+        - name: STATUS
+          value: '$(tasks.status)'
+        - name: SLACK_CHANNEL
+          value: '#natacare-deployments'
+        - name: EMAIL_RECIPIENTS
+          value: 'devops@natacare.com,security@natacare.com'
 
   finally:
-  - name: cleanup-workspace
-    taskRef:
-      name: workspace-cleanup
-    workspaces:
-    - name: shared-data
-      workspace: shared-data
-    params:
-    - name: CLEANUP_LEVEL
-      value: "aggressive"
-    - name: PRESERVE_ARTIFACTS
-      value: "true"
-    - name: RETENTION_DAYS
-      value: "30"
+    - name: cleanup-workspace
+      taskRef:
+        name: workspace-cleanup
+      workspaces:
+        - name: shared-data
+          workspace: shared-data
+      params:
+        - name: CLEANUP_LEVEL
+          value: 'aggressive'
+        - name: PRESERVE_ARTIFACTS
+          value: 'true'
+        - name: RETENTION_DAYS
+          value: '30'
 
 ---
 # Enterprise ArgoCD Application Configuration
@@ -457,22 +459,22 @@ spec:
     path: environments/production
     helm:
       valueFiles:
-      - values.yaml
-      - values-production.yaml
-      - secrets/production-secrets.yaml
+        - values.yaml
+        - values-production.yaml
+        - secrets/production-secrets.yaml
       parameters:
-      - name: image.tag
-        value: "v2.1.0"
-      - name: resources.requests.memory
-        value: "2Gi"
-      - name: resources.requests.cpu
-        value: "1000m"
-      - name: autoscaling.enabled
-        value: "true"
-      - name: autoscaling.minReplicas
-        value: "3"
-      - name: autoscaling.maxReplicas
-        value: "50"
+        - name: image.tag
+          value: 'v2.1.0'
+        - name: resources.requests.memory
+          value: '2Gi'
+        - name: resources.requests.cpu
+          value: '1000m'
+        - name: autoscaling.enabled
+          value: 'true'
+        - name: autoscaling.minReplicas
+          value: '3'
+        - name: autoscaling.maxReplicas
+          value: '50'
   destination:
     server: https://kubernetes.default.svc
     namespace: natacare-production
@@ -482,10 +484,10 @@ spec:
       selfHeal: true
       allowEmpty: false
     syncOptions:
-    - CreateNamespace=true
-    - PrunePropagationPolicy=foreground
-    - PruneLast=true
-    - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
     retry:
       limit: 5
       backoff:
@@ -494,20 +496,21 @@ spec:
         maxDuration: 3m
   revisionHistoryLimit: 10
   ignoreDifferences:
-  - group: apps
-    kind: Deployment
-    jsonPointers:
-    - /spec/replicas
-  - group: ""
-    kind: Secret
-    name: ssl-certificates
-    jsonPointers:
-    - /data
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: ''
+      kind: Secret
+      name: ssl-certificates
+      jsonPointers:
+        - /data
 ```
 
 ### 1.2 **Advanced Security Pipeline Tasks**
 
 #### Comprehensive Security Scanning
+
 ```yaml
 # .tekton/tasks/security-source-scan.yaml
 apiVersion: tekton.dev/v1beta1
@@ -523,298 +526,298 @@ spec:
     Comprehensive security scanning for source code including SAST, secrets detection,
     vulnerability scanning, and policy validation
   params:
-  - name: scan-type
-    type: string
-    description: Type of security scan to perform
-    default: "comprehensive"
-  - name: severity-threshold
-    type: string
-    description: Minimum severity level to report
-    default: "MEDIUM"
-  - name: exclude-paths
-    type: string
-    description: Paths to exclude from scanning
-    default: "node_modules,dist,build,.git"
+    - name: scan-type
+      type: string
+      description: Type of security scan to perform
+      default: 'comprehensive'
+    - name: severity-threshold
+      type: string
+      description: Minimum severity level to report
+      default: 'MEDIUM'
+    - name: exclude-paths
+      type: string
+      description: Paths to exclude from scanning
+      default: 'node_modules,dist,build,.git'
 
   workspaces:
-  - name: source
-    description: Source code workspace
-  - name: security-config
-    description: Security scanning configurations
+    - name: source
+      description: Source code workspace
+    - name: security-config
+      description: Security scanning configurations
 
   steps:
-  # 1. SAST Scanning with SemGrep
-  - name: sast-semgrep-scan
-    image: returntocorp/semgrep:latest
-    workingDir: $(workspaces.source.path)
-    script: |
-      #!/bin/bash
-      set -e
-      
-      echo "🔍 Starting SAST scan with SemGrep..."
-      
-      # Configure SemGrep with enterprise rules
-      semgrep --config=auto \
-        --config=$(workspaces.security-config.path)/semgrep-rules \
-        --json \
-        --output=/tmp/semgrep-results.json \
-        --exclude="$(params.exclude-paths)" \
-        --severity=$(params.severity-threshold) \
-        --timeout=300 \
-        .
-      
-      # Process results
-      python3 /scripts/process-semgrep-results.py \
-        --input=/tmp/semgrep-results.json \
-        --output=/tmp/sast-report.json \
-        --threshold=$(params.severity-threshold)
-      
-      echo "✅ SAST scan completed"
-    volumeMounts:
-    - name: security-scripts
-      mountPath: /scripts
+    # 1. SAST Scanning with SemGrep
+    - name: sast-semgrep-scan
+      image: returntocorp/semgrep:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
 
-  # 2. Secrets Detection with TruffleHog
-  - name: secrets-detection
-    image: trufflesecurity/trufflehog:latest
-    workingDir: $(workspaces.source.path)
-    script: |
-      #!/bin/bash
-      set -e
-      
-      echo "🔍 Starting secrets detection scan..."
-      
-      trufflehog filesystem . \
-        --config=$(workspaces.security-config.path)/trufflehog-config.yaml \
-        --json \
-        --output=/tmp/secrets-results.json \
-        --exclude-paths=$(workspaces.security-config.path)/secrets-exclude-patterns.txt \
-        --max-depth=50 \
-        --concurrency=4
-      
-      # Validate no high-severity secrets found
-      python3 /scripts/validate-secrets-scan.py \
-        --input=/tmp/secrets-results.json \
-        --threshold=HIGH
-      
-      echo "✅ Secrets detection completed"
+        echo "🔍 Starting SAST scan with SemGrep..."
 
-  # 3. Dependency Vulnerability Scanning
-  - name: dependency-scan
-    image: aquasec/trivy:latest
-    workingDir: $(workspaces.source.path)
-    script: |
-      #!/bin/bash
-      set -e
-      
-      echo "🔍 Starting dependency vulnerability scan..."
-      
-      # Scan package.json dependencies
-      trivy fs . \
-        --format json \
-        --output /tmp/dependency-results.json \
-        --severity HIGH,CRITICAL \
-        --exit-code 0 \
-        --cache-dir /tmp/trivy-cache \
-        --timeout 10m
-      
-      # Generate compliance report
-      python3 /scripts/generate-dependency-report.py \
-        --input=/tmp/dependency-results.json \
-        --output=/tmp/dependency-report.json \
-        --format=compliance
-      
-      echo "✅ Dependency scan completed"
+        # Configure SemGrep with enterprise rules
+        semgrep --config=auto \
+          --config=$(workspaces.security-config.path)/semgrep-rules \
+          --json \
+          --output=/tmp/semgrep-results.json \
+          --exclude="$(params.exclude-paths)" \
+          --severity=$(params.severity-threshold) \
+          --timeout=300 \
+          .
 
-  # 4. Infrastructure as Code Security
-  - name: iac-security-scan
-    image: bridgecrew/checkov:latest
-    workingDir: $(workspaces.source.path)
-    script: |
-      #!/bin/bash
-      set -e
-      
-      echo "🔍 Starting Infrastructure as Code security scan..."
-      
-      checkov --directory . \
-        --framework terraform,kubernetes,dockerfile \
-        --output json \
-        --output-file /tmp/iac-results.json \
-        --config-file $(workspaces.security-config.path)/checkov-config.yaml \
-        --skip-check CKV_K8S_15,CKV_K8S_16 \
-        --compact \
-        --quiet
-      
-      # Process IaC scan results
-      python3 /scripts/process-iac-results.py \
-        --input=/tmp/iac-results.json \
-        --output=/tmp/iac-report.json \
-        --severity=$(params.severity-threshold)
-      
-      echo "✅ IaC security scan completed"
+        # Process results
+        python3 /scripts/process-semgrep-results.py \
+          --input=/tmp/semgrep-results.json \
+          --output=/tmp/sast-report.json \
+          --threshold=$(params.severity-threshold)
 
-  # 5. License Compliance Check
-  - name: license-compliance
-    image: fossa/fossa-cli:latest
-    workingDir: $(workspaces.source.path)
-    script: |
-      #!/bin/bash
-      set -e
-      
-      echo "🔍 Starting license compliance check..."
-      
-      # Initialize FOSSA project
-      fossa init
-      
-      # Analyze dependencies for license compliance
-      fossa analyze \
-        --config $(workspaces.security-config.path)/fossa-config.yaml \
-        --output /tmp/license-results.json
-      
-      # Check for license policy violations
-      fossa test \
-        --config $(workspaces.security-config.path)/fossa-config.yaml \
-        --timeout 300
-      
-      echo "✅ License compliance check completed"
+        echo "✅ SAST scan completed"
+      volumeMounts:
+        - name: security-scripts
+          mountPath: /scripts
 
-  # 6. Security Report Aggregation
-  - name: aggregate-security-reports
-    image: python:3.11-slim
-    workingDir: $(workspaces.source.path)
-    script: |
-      #!/usr/bin/env python3
-      import json
-      import os
-      from datetime import datetime
-      
-      print("📊 Aggregating security scan results...")
-      
-      # Load all scan results
-      reports = {}
-      report_files = [
-          ('/tmp/sast-report.json', 'sast'),
-          ('/tmp/secrets-results.json', 'secrets'),
-          ('/tmp/dependency-report.json', 'dependencies'),
-          ('/tmp/iac-report.json', 'infrastructure'),
-          ('/tmp/license-results.json', 'licenses')
-      ]
-      
-      for file_path, report_type in report_files:
-          if os.path.exists(file_path):
-              with open(file_path, 'r') as f:
-                  reports[report_type] = json.load(f)
-      
-      # Create consolidated security report
-      consolidated_report = {
-          'scan_timestamp': datetime.utcnow().isoformat(),
-          'scan_type': '$(params.scan-type)',
-          'severity_threshold': '$(params.severity-threshold)',
-          'reports': reports,
-          'summary': {
-              'total_issues': sum(len(report.get('findings', [])) for report in reports.values()),
-              'critical_issues': 0,
-              'high_issues': 0,
-              'medium_issues': 0,
-              'low_issues': 0
-          }
-      }
-      
-      # Count issues by severity
-      for report in reports.values():
-          for finding in report.get('findings', []):
-              severity = finding.get('severity', 'UNKNOWN').upper()
-              if severity == 'CRITICAL':
-                  consolidated_report['summary']['critical_issues'] += 1
-              elif severity == 'HIGH':
-                  consolidated_report['summary']['high_issues'] += 1
-              elif severity == 'MEDIUM':
-                  consolidated_report['summary']['medium_issues'] += 1
-              elif severity == 'LOW':
-                  consolidated_report['summary']['low_issues'] += 1
-      
-      # Save consolidated report
-      with open('/tmp/security-consolidated-report.json', 'w') as f:
-          json.dump(consolidated_report, f, indent=2)
-      
-      # Determine pipeline status based on findings
-      critical_threshold = 0
-      high_threshold = 5
-      
-      if consolidated_report['summary']['critical_issues'] > critical_threshold:
-          print(f"❌ PIPELINE BLOCKED: {consolidated_report['summary']['critical_issues']} critical security issues found")
-          exit(1)
-      elif consolidated_report['summary']['high_issues'] > high_threshold:
-          print(f"⚠️  WARNING: {consolidated_report['summary']['high_issues']} high severity security issues found")
-          # Continue but notify security team
-      
-      print("✅ Security scan aggregation completed")
-      print(f"Summary: {consolidated_report['summary']}")
+    # 2. Secrets Detection with TruffleHog
+    - name: secrets-detection
+      image: trufflesecurity/trufflehog:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
 
-  # 7. Security Notification
-  - name: security-notification
-    image: curlimages/curl:latest
-    script: |
-      #!/bin/sh
-      set -e
-      
-      echo "📬 Sending security scan notification..."
-      
-      # Send security report to monitoring system
-      curl -X POST "https://monitoring.natacare.com/api/security-reports" \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer $MONITORING_API_TOKEN" \
-        -d @/tmp/security-consolidated-report.json
-      
-      # Send Slack notification if critical issues found
-      if [ -f "/tmp/critical-issues-detected" ]; then
-        curl -X POST "https://hooks.slack.com/services/$SLACK_WEBHOOK_PATH" \
+        echo "🔍 Starting secrets detection scan..."
+
+        trufflehog filesystem . \
+          --config=$(workspaces.security-config.path)/trufflehog-config.yaml \
+          --json \
+          --output=/tmp/secrets-results.json \
+          --exclude-paths=$(workspaces.security-config.path)/secrets-exclude-patterns.txt \
+          --max-depth=50 \
+          --concurrency=4
+
+        # Validate no high-severity secrets found
+        python3 /scripts/validate-secrets-scan.py \
+          --input=/tmp/secrets-results.json \
+          --threshold=HIGH
+
+        echo "✅ Secrets detection completed"
+
+    # 3. Dependency Vulnerability Scanning
+    - name: dependency-scan
+      image: aquasec/trivy:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "🔍 Starting dependency vulnerability scan..."
+
+        # Scan package.json dependencies
+        trivy fs . \
+          --format json \
+          --output /tmp/dependency-results.json \
+          --severity HIGH,CRITICAL \
+          --exit-code 0 \
+          --cache-dir /tmp/trivy-cache \
+          --timeout 10m
+
+        # Generate compliance report
+        python3 /scripts/generate-dependency-report.py \
+          --input=/tmp/dependency-results.json \
+          --output=/tmp/dependency-report.json \
+          --format=compliance
+
+        echo "✅ Dependency scan completed"
+
+    # 4. Infrastructure as Code Security
+    - name: iac-security-scan
+      image: bridgecrew/checkov:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "🔍 Starting Infrastructure as Code security scan..."
+
+        checkov --directory . \
+          --framework terraform,kubernetes,dockerfile \
+          --output json \
+          --output-file /tmp/iac-results.json \
+          --config-file $(workspaces.security-config.path)/checkov-config.yaml \
+          --skip-check CKV_K8S_15,CKV_K8S_16 \
+          --compact \
+          --quiet
+
+        # Process IaC scan results
+        python3 /scripts/process-iac-results.py \
+          --input=/tmp/iac-results.json \
+          --output=/tmp/iac-report.json \
+          --severity=$(params.severity-threshold)
+
+        echo "✅ IaC security scan completed"
+
+    # 5. License Compliance Check
+    - name: license-compliance
+      image: fossa/fossa-cli:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "🔍 Starting license compliance check..."
+
+        # Initialize FOSSA project
+        fossa init
+
+        # Analyze dependencies for license compliance
+        fossa analyze \
+          --config $(workspaces.security-config.path)/fossa-config.yaml \
+          --output /tmp/license-results.json
+
+        # Check for license policy violations
+        fossa test \
+          --config $(workspaces.security-config.path)/fossa-config.yaml \
+          --timeout 300
+
+        echo "✅ License compliance check completed"
+
+    # 6. Security Report Aggregation
+    - name: aggregate-security-reports
+      image: python:3.11-slim
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env python3
+        import json
+        import os
+        from datetime import datetime
+
+        print("📊 Aggregating security scan results...")
+
+        # Load all scan results
+        reports = {}
+        report_files = [
+            ('/tmp/sast-report.json', 'sast'),
+            ('/tmp/secrets-results.json', 'secrets'),
+            ('/tmp/dependency-report.json', 'dependencies'),
+            ('/tmp/iac-report.json', 'infrastructure'),
+            ('/tmp/license-results.json', 'licenses')
+        ]
+
+        for file_path, report_type in report_files:
+            if os.path.exists(file_path):
+                with open(file_path, 'r') as f:
+                    reports[report_type] = json.load(f)
+
+        # Create consolidated security report
+        consolidated_report = {
+            'scan_timestamp': datetime.utcnow().isoformat(),
+            'scan_type': '$(params.scan-type)',
+            'severity_threshold': '$(params.severity-threshold)',
+            'reports': reports,
+            'summary': {
+                'total_issues': sum(len(report.get('findings', [])) for report in reports.values()),
+                'critical_issues': 0,
+                'high_issues': 0,
+                'medium_issues': 0,
+                'low_issues': 0
+            }
+        }
+
+        # Count issues by severity
+        for report in reports.values():
+            for finding in report.get('findings', []):
+                severity = finding.get('severity', 'UNKNOWN').upper()
+                if severity == 'CRITICAL':
+                    consolidated_report['summary']['critical_issues'] += 1
+                elif severity == 'HIGH':
+                    consolidated_report['summary']['high_issues'] += 1
+                elif severity == 'MEDIUM':
+                    consolidated_report['summary']['medium_issues'] += 1
+                elif severity == 'LOW':
+                    consolidated_report['summary']['low_issues'] += 1
+
+        # Save consolidated report
+        with open('/tmp/security-consolidated-report.json', 'w') as f:
+            json.dump(consolidated_report, f, indent=2)
+
+        # Determine pipeline status based on findings
+        critical_threshold = 0
+        high_threshold = 5
+
+        if consolidated_report['summary']['critical_issues'] > critical_threshold:
+            print(f"❌ PIPELINE BLOCKED: {consolidated_report['summary']['critical_issues']} critical security issues found")
+            exit(1)
+        elif consolidated_report['summary']['high_issues'] > high_threshold:
+            print(f"⚠️  WARNING: {consolidated_report['summary']['high_issues']} high severity security issues found")
+            # Continue but notify security team
+
+        print("✅ Security scan aggregation completed")
+        print(f"Summary: {consolidated_report['summary']}")
+
+    # 7. Security Notification
+    - name: security-notification
+      image: curlimages/curl:latest
+      script: |
+        #!/bin/sh
+        set -e
+
+        echo "📬 Sending security scan notification..."
+
+        # Send security report to monitoring system
+        curl -X POST "https://monitoring.natacare.com/api/security-reports" \
           -H "Content-Type: application/json" \
-          -d '{
-            "text": "🚨 CRITICAL SECURITY ISSUES DETECTED",
-            "attachments": [{
-              "color": "danger",
-              "title": "Security Scan Results",
-              "text": "Critical security vulnerabilities found in NataCarePM pipeline. Deployment blocked.",
-              "fields": [{
-                "title": "Pipeline",
-                "value": "$(context.pipelineRun.name)",
-                "short": true
-              }, {
-                "title": "Git Revision",
-                "value": "$(params.git-revision)",
-                "short": true
+          -H "Authorization: Bearer $MONITORING_API_TOKEN" \
+          -d @/tmp/security-consolidated-report.json
+
+        # Send Slack notification if critical issues found
+        if [ -f "/tmp/critical-issues-detected" ]; then
+          curl -X POST "https://hooks.slack.com/services/$SLACK_WEBHOOK_PATH" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "text": "🚨 CRITICAL SECURITY ISSUES DETECTED",
+              "attachments": [{
+                "color": "danger",
+                "title": "Security Scan Results",
+                "text": "Critical security vulnerabilities found in NataCarePM pipeline. Deployment blocked.",
+                "fields": [{
+                  "title": "Pipeline",
+                  "value": "$(context.pipelineRun.name)",
+                  "short": true
+                }, {
+                  "title": "Git Revision",
+                  "value": "$(params.git-revision)",
+                  "short": true
+                }]
               }]
-            }]
-          }'
-      fi
-      
-      echo "✅ Security notification sent"
-    env:
-    - name: MONITORING_API_TOKEN
-      valueFrom:
-        secretKeyRef:
-          name: monitoring-credentials
-          key: api-token
-    - name: SLACK_WEBHOOK_PATH
-      valueFrom:
-        secretKeyRef:
-          name: slack-credentials
-          key: webhook-path
+            }'
+        fi
+
+        echo "✅ Security notification sent"
+      env:
+        - name: MONITORING_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: monitoring-credentials
+              key: api-token
+        - name: SLACK_WEBHOOK_PATH
+          valueFrom:
+            secretKeyRef:
+              name: slack-credentials
+              key: webhook-path
 
   volumes:
-  - name: security-scripts
-    configMap:
-      name: security-scanning-scripts
-      defaultMode: 0755
+    - name: security-scripts
+      configMap:
+        name: security-scanning-scripts
+        defaultMode: 0755
 
   results:
-  - name: security-status
-    description: Overall security scan status
-  - name: critical-issues-count
-    description: Number of critical security issues found
-  - name: report-location
-    description: Location of the consolidated security report
+    - name: security-status
+      description: Overall security scan status
+    - name: critical-issues-count
+      description: Number of critical security issues found
+    - name: report-location
+      description: Location of the consolidated security report
 ```
 
 ---
@@ -824,6 +827,7 @@ spec:
 ### 2.1 **Prometheus & Grafana Enterprise**
 
 #### Advanced Monitoring Configuration
+
 ```yaml
 # monitoring/prometheus/prometheus-enterprise.yaml
 apiVersion: v1
@@ -841,10 +845,10 @@ data:
         cluster: 'natacare-production'
         environment: 'enterprise'
         region: 'us-east-1'
-    
+
     rule_files:
     - "/etc/prometheus/rules/*.yml"
-    
+
     alerting:
       alertmanagers:
       - static_configs:
@@ -855,7 +859,7 @@ data:
           ca_file: /etc/ssl/ca/ca.crt
           cert_file: /etc/ssl/certs/prometheus.crt
           key_file: /etc/ssl/private/prometheus.key
-    
+
     scrape_configs:
     # Kubernetes API Server
     - job_name: 'kubernetes-apiservers'
@@ -877,7 +881,7 @@ data:
       - source_labels: [__name__]
         regex: 'apiserver_request_duration_seconds_.*'
         action: keep
-    
+
     # Kubernetes Nodes
     - job_name: 'kubernetes-nodes'
       kubernetes_sd_configs:
@@ -896,7 +900,7 @@ data:
         regex: (.+)
         target_label: __metrics_path__
         replacement: /api/v1/nodes/$(1)/proxy/metrics
-    
+
     # Kubernetes Pods
     - job_name: 'kubernetes-pods'
       kubernetes_sd_configs:
@@ -926,7 +930,7 @@ data:
       - source_labels: [__name__]
         regex: 'go_.*'
         action: drop
-    
+
     # NataCarePM Application Services
     - job_name: 'natacare-auth-service'
       kubernetes_sd_configs:
@@ -945,7 +949,7 @@ data:
       - source_labels: [__name__]
         regex: 'http_requests_total|http_request_duration_seconds|auth_tokens_issued_total|auth_failures_total'
         action: keep
-    
+
     - job_name: 'natacare-project-service'
       kubernetes_sd_configs:
       - role: endpoints
@@ -963,7 +967,7 @@ data:
       - source_labels: [__name__]
         regex: 'project_.*|task_.*|milestone_.*|resource_.*'
         action: keep
-    
+
     # Database Monitoring
     - job_name: 'postgresql-exporter'
       static_configs:
@@ -976,13 +980,13 @@ data:
         target_label: instance
       - target_label: __address__
         replacement: postgresql-exporter.natacare-production.svc.cluster.local:9187
-    
+
     # Redis Monitoring
     - job_name: 'redis-exporter'
       static_configs:
       - targets:
         - redis-exporter.natacare-production.svc.cluster.local:9121
-    
+
     # Kong API Gateway
     - job_name: 'kong-enterprise'
       static_configs:
@@ -994,7 +998,7 @@ data:
         ca_file: /etc/ssl/ca/ca.crt
         cert_file: /etc/ssl/certs/prometheus.crt
         key_file: /etc/ssl/private/prometheus.key
-    
+
     # External Service Monitoring
     - job_name: 'blackbox-probes'
       metrics_path: /probe
@@ -1012,7 +1016,7 @@ data:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter.natacare-monitoring.svc.cluster.local:9115
-    
+
     # Business Metrics
     - job_name: 'business-metrics'
       kubernetes_sd_configs:
@@ -1273,6 +1277,7 @@ data:
 ### 2.2 **Distributed Tracing dengan Jaeger**
 
 #### Enterprise Jaeger Configuration
+
 ```yaml
 # monitoring/jaeger/jaeger-enterprise.yaml
 apiVersion: jaegertracing.io/v1
@@ -1292,24 +1297,24 @@ spec:
         size: 100Gi
       resources:
         requests:
-          memory: "2Gi"
-          cpu: "1"
+          memory: '2Gi'
+          cpu: '1'
         limits:
-          memory: "4Gi"
-          cpu: "2"
+          memory: '4Gi'
+          cpu: '2'
       esIndexCleaner:
         enabled: true
         numberOfDays: 30
-        schedule: "55 23 * * *"
+        schedule: '55 23 * * *'
   collector:
     replicas: 3
     resources:
       requests:
-        memory: "1Gi"
-        cpu: "500m"
+        memory: '1Gi'
+        cpu: '500m'
       limits:
-        memory: "2Gi"
-        cpu: "1"
+        memory: '2Gi'
+        cpu: '1'
     config: |
       receivers:
         otlp:
@@ -1359,31 +1364,31 @@ spec:
     replicas: 2
     resources:
       requests:
-        memory: "512Mi"
-        cpu: "250m"
+        memory: '512Mi'
+        cpu: '250m'
       limits:
-        memory: "1Gi"
-        cpu: "500m"
+        memory: '1Gi'
+        cpu: '500m'
   agent:
     strategy: DaemonSet
     resources:
       requests:
-        memory: "128Mi"
-        cpu: "100m"
+        memory: '128Mi'
+        cpu: '100m'
       limits:
-        memory: "256Mi"
-        cpu: "200m"
+        memory: '256Mi'
+        cpu: '200m'
   ui:
     options:
       dependencies:
         menuEnabled: true
       tracking:
-        gaID: "UA-XXXXXXXX-X"
+        gaID: 'UA-XXXXXXXX-X'
       menu:
-      - label: "Documentation"
-        url: "https://docs.natacare.com/tracing"
-      - label: "Support"
-        url: "https://support.natacare.com"
+        - label: 'Documentation'
+          url: 'https://docs.natacare.com/tracing'
+        - label: 'Support'
+          url: 'https://support.natacare.com'
 
 ---
 # OpenTelemetry Collector Configuration
@@ -1408,7 +1413,7 @@ data:
             scrape_interval: 30s
             static_configs:
             - targets: ['0.0.0.0:8888']
-    
+
     processors:
       batch:
         timeout: 1s
@@ -1432,7 +1437,7 @@ data:
         exclude:
           match_type: regexp
           span_names: ["GET /health.*", "GET /metrics.*"]
-    
+
     exporters:
       jaeger:
         endpoint: jaeger-collector.natacare-monitoring.svc.cluster.local:14250
@@ -1448,7 +1453,7 @@ data:
           environment: "production"
       logging:
         loglevel: info
-    
+
     service:
       pipelines:
         traces:

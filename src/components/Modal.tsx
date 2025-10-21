@@ -1,5 +1,3 @@
-
-
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { X } from 'lucide-react';
 
@@ -21,19 +19,18 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
-    full: 'max-w-7xl'
+    full: 'max-w-7xl',
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
       {/* Enhanced Backdrop */}
-      <div 
-        className="absolute inset-0 bg-night-black/60 backdrop-blur-md"
-        onClick={onClose}
-      ></div>
-      
+      <div className="absolute inset-0 bg-night-black/60 backdrop-blur-md" onClick={onClose}></div>
+
       {/* Modal Container */}
-      <div className={`relative w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden animate-slideUp`}>
+      <div
+        className={`relative w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden animate-slideUp`}
+      >
         <Card className="glass border-violet-essence/30 shadow-2xl backdrop-blur-xl">
           {/* Enhanced Header */}
           <CardHeader className="flex flex-row items-center justify-between sticky top-0 glass border-b border-violet-essence/20 z-10 backdrop-blur-xl">
@@ -48,7 +45,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
               <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </button>
           </CardHeader>
-          
+
           {/* Enhanced Content */}
           <CardContent className="overflow-y-auto max-h-[calc(90vh-120px)] custom-scrollbar">
             {children}

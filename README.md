@@ -17,13 +17,14 @@
 📦 **Logistics & Materials** - Material requests, PO, goods receipt, inventory  
 📄 **Document Intelligence** - OCR, version control, digital signatures, smart templates  
 🔒 **Security & Monitoring** - RBAC, audit trails, real-time monitoring  
-🤖 **AI Assistant** - Gemini-powered chatbot, predictive analytics  
+🤖 **AI Assistant** - Gemini-powered chatbot, predictive analytics
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js v18.0.0+
 - Firebase account
 - Gemini API key
@@ -54,15 +55,15 @@ npm run dev
 
 ## 📖 Documentation
 
-| Documentation | Description |
-|---------------|-------------|
-| **[📚 Documentation Hub](docs/README.md)** | Complete documentation index |
-| **[🚀 Setup Guide](docs/SETUP.md)** | Installation & configuration |
-| **[🏗️ Architecture Guide](docs/ARCHITECTURE.md)** | System design & patterns |
-| **[🚢 Deployment Guide](docs/DEPLOYMENT.md)** | Production deployment |
-| **[🔒 Security Guide](docs/SECURITY.md)** | Security best practices |
-| **[✅ Testing Guide](docs/TESTING.md)** | Testing strategies |
-| **[📋 Changelog](CHANGELOG.md)** | Version history |
+| Documentation                                     | Description                  |
+| ------------------------------------------------- | ---------------------------- |
+| **[📚 Documentation Hub](docs/README.md)**        | Complete documentation index |
+| **[🚀 Setup Guide](docs/SETUP.md)**               | Installation & configuration |
+| **[🏗️ Architecture Guide](docs/ARCHITECTURE.md)** | System design & patterns     |
+| **[🚢 Deployment Guide](docs/DEPLOYMENT.md)**     | Production deployment        |
+| **[🔒 Security Guide](docs/SECURITY.md)**         | Security best practices      |
+| **[✅ Testing Guide](docs/TESTING.md)**           | Testing strategies           |
+| **[📋 Changelog](CHANGELOG.md)**                  | Version history              |
 
 ---
 
@@ -113,6 +114,7 @@ NataCarePM/
 ## 🎯 Key Modules
 
 ### 📊 Project Management
+
 - Real-time dashboard with metrics
 - Task management & assignment
 - Gantt charts & timelines
@@ -121,6 +123,7 @@ NataCarePM/
 - KPI tracking & alerts
 
 ### 💰 Finance & Accounting
+
 - Chart of Accounts
 - Journal entries & transactions
 - Accounts Payable (AP)
@@ -130,6 +133,7 @@ NataCarePM/
 - Financial reporting
 
 ### 📦 Logistics & Materials
+
 - Material Request (MR)
 - Purchase Orders (PO)
 - Goods Receipt (GR)
@@ -138,6 +142,7 @@ NataCarePM/
 - Stock tracking
 
 ### 📄 Document Management
+
 - Intelligent document processing
 - OCR integration
 - Version control
@@ -146,6 +151,7 @@ NataCarePM/
 - Automated workflows
 
 ### 🔒 Security & Monitoring
+
 - Role-Based Access Control (RBAC)
 - Real-time system monitoring
 - Comprehensive audit trails
@@ -153,6 +159,7 @@ NataCarePM/
 - Performance metrics
 
 ### 🤖 AI Features
+
 - AI Assistant chatbot (Gemini-powered)
 - Document intelligence
 - Predictive cost analysis
@@ -172,7 +179,7 @@ NataCarePM/
 ✅ Session timeout (2 hours)  
 ✅ Strict TypeScript mode  
 ✅ RBAC implemented  
-✅ Complete audit trails  
+✅ Complete audit trails
 
 **🔒 Learn more about security:** → See [docs/SECURITY.md](docs/SECURITY.md)
 
@@ -197,14 +204,14 @@ npm run deploy:all
 
 ## 👥 User Roles
 
-| Role | Permissions |
-|------|-------------|
-| **Admin** | Full system access, user management |
-| **Project Manager** | Projects, tasks, budget control, reports |
-| **Finance Manager** | Financial transactions, AP/AR, approvals |
-| **Accountant** | Journal entries, reconciliation, reports |
-| **Logistics Manager** | Materials, PO, inventory, vendors |
-| **Team Member** | Tasks, time tracking, document access |
+| Role                  | Permissions                              |
+| --------------------- | ---------------------------------------- |
+| **Admin**             | Full system access, user management      |
+| **Project Manager**   | Projects, tasks, budget control, reports |
+| **Finance Manager**   | Financial transactions, AP/AR, approvals |
+| **Accountant**        | Journal entries, reconciliation, reports |
+| **Logistics Manager** | Materials, PO, inventory, vendors        |
+| **Team Member**       | Tasks, time tracking, document access    |
 
 ---
 
@@ -225,6 +232,7 @@ npm run deploy:all       # Deploy everything
 ## 📈 Roadmap
 
 ### ✅ Completed
+
 - ✅ Core project management
 - ✅ Finance & accounting modules
 - ✅ Logistics & materials management
@@ -233,11 +241,13 @@ npm run deploy:all       # Deploy everything
 - ✅ Monitoring & security
 
 ### 🚧 In Progress
+
 - 🚧 Mobile responsive optimization
 - 🚧 Advanced reporting module
 - 🚧 User profile enhancements
 
 ### 📋 Planned
+
 - 📋 Resource management
 - 📋 Risk management
 - 📋 Quality management
@@ -248,12 +258,14 @@ npm run deploy:all       # Deploy everything
 ## 📞 Support & Contributing
 
 ### Getting Help
+
 1. Check [Documentation Hub](docs/README.md)
 2. Review specific guides (Setup, Architecture, etc.)
 3. Search [GitHub Issues](https://github.com/your-org/NataCarePM/issues)
 4. Create new issue with detailed description
 
 ### Contributing
+
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit changes (`git commit -m 'Add amazing feature'`)

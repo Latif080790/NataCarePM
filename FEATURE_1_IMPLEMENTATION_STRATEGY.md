@@ -12,6 +12,7 @@
 Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/100 security score** dan **0 TypeScript errors**, berikut adalah **strategi implementasi terbaik** untuk Feature 1.
 
 **Key Decisions:**
+
 - ✅ **MVP First Approach** - Implement 4 core features first (Week 1-2)
 - ✅ **Progressive Enhancement** - Add advanced features later (Week 3-4)
 - ✅ **Security-First** - Prioritize 2FA and session management
@@ -25,9 +26,11 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ### **PHASE 1: MVP - CORE FEATURES (Week 1-2)** 🔴 HIGH PRIORITY
 
 #### **1.1 Profile Photo Upload** ⭐ QUICK WIN
+
 **Decision:** Implement first - immediate user satisfaction
 
 **Specifications:**
+
 ```typescript
 ✅ Max Size: 5MB (lebih generous untuk high-quality photos)
 ✅ Formats: JPG, PNG, WebP, HEIC (mobile compatibility)
@@ -38,6 +41,7 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ```
 
 **Why This Choice:**
+
 - Users see immediate value
 - Low complexity, high impact
 - No external dependencies needed
@@ -50,12 +54,14 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ---
 
 #### **1.2 Password Change** ⭐ SECURITY ESSENTIAL
+
 **Decision:** Implement second - security fundamental
 
 **Specifications:**
+
 ```typescript
 ✅ Min Length: 12 characters (enterprise standard)
-✅ Requirements: 
+✅ Requirements:
    - At least 1 uppercase
    - At least 1 lowercase
    - At least 1 number
@@ -67,6 +73,7 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ```
 
 **Why This Choice:**
+
 - 12 chars = industry standard (NIST guidelines)
 - Password history prevents common security issue
 - Email notification = security awareness
@@ -77,9 +84,11 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ---
 
 #### **1.3 Activity Log** ⭐ AUDIT TRAIL
+
 **Decision:** Implement third - compliance requirement
 
 **Specifications:**
+
 ```typescript
 ✅ Storage: Last 1000 activities per user (with pagination)
 ✅ Retention: 90 days (configurable per compliance requirements)
@@ -101,6 +110,7 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ```
 
 **Why This Choice:**
+
 - 1000 activities with pagination = performance + completeness
 - 90 days retention = GDPR compliant
 - Suspicious activity detection = proactive security
@@ -111,9 +121,11 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ---
 
 #### **1.4 Session Management** ⭐ SECURITY CRITICAL
+
 **Decision:** Implement fourth - prevent unauthorized access
 
 **Specifications:**
+
 ```typescript
 ✅ Session Timeout: 8 hours (working day coverage)
 ✅ Idle Timeout: 2 hours (current - keep for security)
@@ -136,6 +148,7 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ```
 
 **Why This Choice:**
+
 - 8 hour session = realistic for work day
 - 2 hour idle = security vs usability balance
 - 5 devices = covers laptop, desktop, tablet, 2 phones
@@ -149,16 +162,19 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ### **MVP DELIVERABLES (Week 1-2):**
 
 ✅ **Week 1:**
+
 - Day 1-2: Profile photo upload with cropping
 - Day 3-4: Password change with history & strength meter
 - Day 5: Activity log backend & basic UI
 
 ✅ **Week 2:**
+
 - Day 1-2: Activity log advanced (filters, export, alerts)
 - Day 3-4: Session management full implementation
 - Day 5: Integration testing & bug fixes
 
 **Expected Outcome:**
+
 - 4 core features fully functional
 - 80% user satisfaction impact
 - Security score: 95 → 97
@@ -169,16 +185,18 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ### **PHASE 2: ADVANCED FEATURES (Week 3-4)** 🟡 MEDIUM PRIORITY
 
 #### **2.1 Two-Factor Authentication (2FA)** 🛡️
+
 **Decision:** Implement after MVP - requires careful setup
 
 **Specifications:**
+
 ```typescript
 ✅ Primary Method: Authenticator App (TOTP)
    - Google Authenticator
    - Microsoft Authenticator
    - Authy
    - 1Password
-   
+
 ✅ Backup Method: Email-based OTP (fallback)
    - 6-digit code
    - Valid for 10 minutes
@@ -207,6 +225,7 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 ```
 
 **Why This Choice:**
+
 - Authenticator app = free, secure, offline
 - Email OTP = free backup method
 - SMS optional = cost control
@@ -214,6 +233,7 @@ Berdasarkan analisis sistem NataCarePM yang sudah production-ready dengan **95/1
 - Role-based requirement = security focus
 
 **SMS Gateway Recommendation:**
+
 ```
 IF Indonesia only:
   ✅ Use Wavecell Indonesia (~Rp 250/SMS)
@@ -234,9 +254,11 @@ ELSE:
 ---
 
 #### **2.2 Email Notification Preferences** 📧
+
 **Decision:** Implement after 2FA - requires email service
 
 **Specifications:**
+
 ```typescript
 ✅ Email Service: Firebase + SendGrid (recommended)
    - SendGrid Free Tier: 100 emails/day
@@ -249,24 +271,24 @@ ELSE:
       - Task due soon (24h before): [Instant | Off]
       - Project milestones: [Instant | Weekly | Off]
       - @Mentions in comments: [Instant | Off]
-   
+
    2. Financial & Approvals
       - PO requires approval: [Instant]
       - Payment due: [Daily | Off]
       - Budget threshold (90%): [Instant]
       - Invoice received: [Instant | Daily | Off]
-   
+
    3. Documents & Collaboration
       - Document shared with you: [Instant | Daily | Off]
       - Document version uploaded: [Daily | Off]
       - Comment on your document: [Instant | Off]
-   
+
    4. Security & Account
       - New device login: [Instant - FORCED]
       - Password changed: [Instant - FORCED]
       - 2FA enabled/disabled: [Instant - FORCED]
       - Suspicious activity: [Instant - FORCED]
-   
+
    5. System Notifications
       - System maintenance: [Instant - FORCED]
       - New features: [Weekly | Off]
@@ -284,6 +306,7 @@ ELSE:
 ```
 
 **Why This Choice:**
+
 - SendGrid = reliable, affordable, great deliverability
 - Granular control = user empowerment
 - Forced notifications for security = best practice
@@ -291,6 +314,7 @@ ELSE:
 - Per-category unsubscribe = flexibility
 
 **Email Service Setup:**
+
 ```typescript
 // Recommended: SendGrid with Firebase Cloud Functions
 ✅ Setup Steps:
@@ -308,9 +332,11 @@ ELSE:
 ---
 
 #### **2.3 Device Management** 📱
+
 **Decision:** Implement last - advanced security feature
 
 **Specifications:**
+
 ```typescript
 ✅ Device Fingerprinting: YES
    - Library: FingerprintJS (or @fingerprintjs/fingerprintjs)
@@ -349,6 +375,7 @@ ELSE:
 ```
 
 **Why This Choice:**
+
 - FingerprintJS = industry standard
 - Auto-trust default = better UX
 - Manual approval for sensitive roles = security
@@ -361,6 +388,7 @@ ELSE:
 ## 🎨 UI/UX DECISIONS - BEST PRACTICES
 
 ### **1. Design System**
+
 ```typescript
 ✅ Decision: Stick with Tailwind CSS (already using)
 ✅ Add: shadcn/ui components for consistency
@@ -378,6 +406,7 @@ ELSE:
 ---
 
 ### **2. Layout Structure**
+
 ```typescript
 ✅ Decision: Dedicated Settings Page (not modal)
 
@@ -404,6 +433,7 @@ Why:
 ---
 
 ### **3. Navigation Pattern**
+
 ```typescript
 ✅ Decision: Sidebar with Tab Content
 
@@ -427,6 +457,7 @@ Why:
 ---
 
 ### **4. Mobile Responsive**
+
 ```typescript
 ✅ Priority: Mobile First (then enhance for desktop)
 
@@ -445,6 +476,7 @@ Key Decisions:
 ---
 
 ### **5. Animations & Transitions**
+
 ```typescript
 ✅ Decision: Subtle animations (performance first)
 
@@ -468,6 +500,7 @@ Why:
 ## 🔧 TECHNICAL DECISIONS - ARCHITECTURE
 
 ### **1. Firebase Collections Structure**
+
 ```typescript
 ✅ Decision: Flat structure (better performance)
 
@@ -514,6 +547,7 @@ Why Flat Structure:
 ---
 
 ### **2. State Management**
+
 ```typescript
 ✅ Decision: React Context (no Redux needed yet)
 
@@ -535,6 +569,7 @@ Future: Consider Zustand if state becomes complex
 ---
 
 ### **3. Form Validation**
+
 ```typescript
 ✅ Decision: Zod (TypeScript-first schema validation)
 
@@ -559,6 +594,7 @@ const passwordSchema = z.string()
 ---
 
 ### **4. Image Processing**
+
 ```typescript
 ✅ Decision: Client-side (browser-image-compression)
 
@@ -583,6 +619,7 @@ Alternative for future: Cloud Functions if need:
 ---
 
 ### **5. Real-time Updates**
+
 ```typescript
 ✅ Decision: Firestore Listeners (onSnapshot)
 
@@ -606,6 +643,7 @@ Polling: Only for external APIs (email delivery status, etc.)
 ## 🔒 SECURITY BEST PRACTICES
 
 ### **1. Input Sanitization**
+
 ```typescript
 ✅ All user inputs sanitized (already have 12 functions)
 ✅ Add: Password sanitization (remove leading/trailing spaces)
@@ -616,6 +654,7 @@ Polling: Only for external APIs (email delivery status, etc.)
 ---
 
 ### **2. Rate Limiting**
+
 ```typescript
 ✅ Password change: 3 attempts per hour
 ✅ 2FA verify: 5 attempts per hour
@@ -629,6 +668,7 @@ Implementation: Firebase Security Rules + Firestore counters
 ---
 
 ### **3. Data Encryption**
+
 ```typescript
 ✅ Passwords: Firebase Auth (bcrypt automatically)
 ✅ 2FA secrets: AES-256 encrypted before storing
@@ -640,6 +680,7 @@ Implementation: Firebase Security Rules + Firestore counters
 ---
 
 ### **4. Firebase Security Rules**
+
 ```typescript
 ✅ activityLogs: User can only read their own logs
 ✅ sessions: User can only read/delete their own sessions
@@ -652,15 +693,15 @@ Implementation: Firebase Security Rules + Firestore counters
 
 ## 📊 IMPLEMENTATION PRIORITY MATRIX
 
-| Feature | Impact | Effort | Priority | Week |
-|---------|--------|--------|----------|------|
-| Profile Photo | High | Low | ⭐⭐⭐⭐⭐ | 1 |
-| Password Change | High | Low | ⭐⭐⭐⭐⭐ | 1 |
-| Activity Log | High | Medium | ⭐⭐⭐⭐⭐ | 1-2 |
-| Session Management | High | Medium | ⭐⭐⭐⭐⭐ | 2 |
-| Two-Factor Auth | Medium | High | ⭐⭐⭐⭐ | 3 |
-| Email Notifications | Medium | High | ⭐⭐⭐⭐ | 3-4 |
-| Device Management | Low | High | ⭐⭐⭐ | 4 |
+| Feature             | Impact | Effort | Priority   | Week |
+| ------------------- | ------ | ------ | ---------- | ---- |
+| Profile Photo       | High   | Low    | ⭐⭐⭐⭐⭐ | 1    |
+| Password Change     | High   | Low    | ⭐⭐⭐⭐⭐ | 1    |
+| Activity Log        | High   | Medium | ⭐⭐⭐⭐⭐ | 1-2  |
+| Session Management  | High   | Medium | ⭐⭐⭐⭐⭐ | 2    |
+| Two-Factor Auth     | Medium | High   | ⭐⭐⭐⭐   | 3    |
+| Email Notifications | Medium | High   | ⭐⭐⭐⭐   | 3-4  |
+| Device Management   | Low    | High   | ⭐⭐⭐     | 4    |
 
 ---
 
@@ -698,6 +739,7 @@ TOTAL FULL COST: ~$25-50/month (with email service)
 ## ✅ FINAL RECOMMENDATIONS
 
 ### **Week 1-2: MVP IMPLEMENTATION**
+
 ```
 ✅ Day 1-2:   Profile Photo Upload + Cropping
 ✅ Day 3-4:   Password Change + Strength Meter + History
@@ -713,6 +755,7 @@ Deliverable: 4 core features, production-ready
 ---
 
 ### **Week 3-4: ADVANCED FEATURES**
+
 ```
 ✅ Day 15-17: Two-Factor Authentication (Authenticator App)
 ✅ Day 18-19: Email Notification Preferences + SendGrid Setup
@@ -763,6 +806,7 @@ npm install react-hot-toast (if replacing current toast)
 ## 🎯 SUCCESS METRICS
 
 **After MVP (Week 2):**
+
 - ✅ 90% users upload profile photo
 - ✅ 80% users change password to stronger one
 - ✅ 100% activity logs captured
@@ -770,6 +814,7 @@ npm install react-hot-toast (if replacing current toast)
 - ✅ Security score: 95 → 97
 
 **After Full Implementation (Week 4):**
+
 - ✅ 60% users enable 2FA
 - ✅ 85% users customize notifications
 - ✅ 100% security alerts delivered
@@ -783,6 +828,7 @@ npm install react-hot-toast (if replacing current toast)
 **Best Strategy: MVP FIRST (Week 1-2), then Advanced (Week 3-4)**
 
 **Reasoning:**
+
 1. **Quick Wins**: Users see value immediately (photo, password)
 2. **Risk Mitigation**: Core security features deployed first
 3. **Cost Control**: No paid services needed for MVP
@@ -796,6 +842,7 @@ npm install react-hot-toast (if replacing current toast)
 ---
 
 **Apakah Anda setuju dengan strategi ini? Silakan:**
+
 1. ✅ **"Proceed with MVP"** - Mulai implementasi Week 1-2
 2. 🔄 **"Adjust [specific item]"** - Ada yang ingin diubah?
 3. ❓ **"Question about [topic]"** - Perlu klarifikasi?

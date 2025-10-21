@@ -12,7 +12,7 @@ import {
   limit as firestoreLimit,
   Timestamp,
   writeBatch,
-  increment
+  increment,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {
@@ -29,7 +29,7 @@ import {
   IntegrationStatistics,
   NotificationType,
   NotificationPriority,
-  NotificationChannel
+  NotificationChannel,
 } from '@/types/automation';
 // Note: notificationService import commented due to TypeScript module resolution issue
 // Using dynamic import at runtime instead
@@ -61,7 +61,7 @@ export const createAutomationRule = async (
     failureCount: 0,
     createdAt: Timestamp.now(),
     createdBy: { userId, userName },
-    updatedAt: Timestamp.now()
+    updatedAt: Timestamp.now(),
   };
 
   const docRef = await addDoc(collection(db, 'automationRules'), ruleData);
@@ -69,33 +69,33 @@ export const createAutomationRule = async (
 };
 
 export const getAutomationRules = async (activeOnly: boolean = true): Promise<AutomationRule[]> => {
-  let q = query(
-    collection(db, 'automationRules'),
-    orderBy('priority', 'desc')
-  );
+  let q = query(collection(db, 'automationRules'), orderBy('priority', 'desc'));
 
   if (activeOnly) {
     q = query(q, where('isActive', '==', true));
   }
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AutomationRule));
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AutomationRule
+  );
 };
 
 export const getAutomationRuleById = async (ruleId: string): Promise<AutomationRule | null> => {
   const docRef = doc(db, 'automationRules', ruleId);
   const docSnap = await getDoc(docRef);
-  
+
   if (!docSnap.exists()) {
     return null;
   }
-  
+
   return {
     id: docSnap.id,
-    ...docSnap.data()
+    ...docSnap.data(),
   } as AutomationRule;
 };
 
@@ -109,7 +109,7 @@ export const updateAutomationRule = async (
   await updateDoc(docRef, {
     ...updates,
     updatedAt: Timestamp.now(),
-    updatedBy: { userId, userName }
+    updatedBy: { userId, userName },
   });
 };
 
@@ -117,7 +117,7 @@ export const toggleAutomationRule = async (ruleId: string, isActive: boolean): P
   const docRef = doc(db, 'automationRules', ruleId);
   await updateDoc(docRef, {
     isActive,
-    updatedAt: Timestamp.now()
+    updatedAt: Timestamp.now(),
   });
 };
 
@@ -139,21 +139,19 @@ export const triggerAutomation = async (
 ): Promise<string[]> => {
   // Find matching rules
   const rules = await getAutomationRules(true);
-  const matchingRules = rules.filter(rule => {
+  const matchingRules = rules.filter((rule) => {
     if (rule.trigger !== trigger) return false;
-    
+
     // Check project filter
     if (rule.projectIds && rule.projectIds.length > 0 && projectId) {
       if (!rule.projectIds.includes(projectId)) return false;
     }
-    
+
     // Check conditions
     if (rule.triggerConditions && rule.triggerConditions.length > 0) {
-      return rule.triggerConditions.every(condition => 
-        evaluateCondition(condition, triggerData)
-      );
+      return rule.triggerConditions.every((condition) => evaluateCondition(condition, triggerData));
     }
-    
+
     return true;
   });
 
@@ -185,7 +183,7 @@ const evaluateCondition = (
   data: Record<string, any>
 ): boolean => {
   const fieldValue = getNestedValue(data, condition.field);
-  
+
   switch (condition.operator) {
     case 'equals':
       return fieldValue === condition.value;
@@ -218,7 +216,7 @@ export const executeAutomationRule = async (
   projectId?: string
 ): Promise<string> => {
   const startTime = Timestamp.now();
-  
+
   // Create execution record
   const executionData: Omit<AutomationExecution, 'id'> = {
     ruleId: rule.id,
@@ -236,7 +234,7 @@ export const executeAutomationRule = async (
     projectId,
     userId,
     userName,
-    createdAt: Timestamp.now()
+    createdAt: Timestamp.now(),
   };
 
   const executionRef = await addDoc(collection(db, 'automationExecutions'), executionData);
@@ -249,23 +247,28 @@ export const executeAutomationRule = async (
 
     for (const actionConfig of rule.actions) {
       const actionStartTime = Timestamp.now();
-      
+
       try {
-        const output = await executeAction(actionConfig.action, actionConfig.parameters || {}, triggerData, projectId);
-        
+        const output = await executeAction(
+          actionConfig.action,
+          actionConfig.parameters || {},
+          triggerData,
+          projectId
+        );
+
         results.push({
           action: actionConfig.action,
           status: 'success',
           startedAt: actionStartTime,
           completedAt: Timestamp.now(),
           duration: Timestamp.now().toMillis() - actionStartTime.toMillis(),
-          output
+          output,
         });
 
         executionData.actionsSuccess++;
       } catch (error: any) {
         allSuccess = false;
-        
+
         results.push({
           action: actionConfig.action,
           status: 'failed',
@@ -274,8 +277,8 @@ export const executeAutomationRule = async (
           duration: Timestamp.now().toMillis() - actionStartTime.toMillis(),
           error: {
             code: error.code || 'UNKNOWN_ERROR',
-            message: error.message
-          }
+            message: error.message,
+          },
         });
 
         executionData.actionsFailed++;
@@ -297,7 +300,7 @@ export const executeAutomationRule = async (
       actionsExecuted: executionData.actionsExecuted,
       actionsSuccess: executionData.actionsSuccess,
       actionsFailed: executionData.actionsFailed,
-      results
+      results,
     });
 
     // Update rule statistics
@@ -306,7 +309,7 @@ export const executeAutomationRule = async (
       executionCount: increment(1),
       successCount: increment(allSuccess ? 1 : 0),
       failureCount: increment(allSuccess ? 0 : 1),
-      lastExecutedAt: Timestamp.now()
+      lastExecutedAt: Timestamp.now(),
     });
 
     return executionId;
@@ -318,8 +321,8 @@ export const executeAutomationRule = async (
       error: {
         code: error.code || 'EXECUTION_ERROR',
         message: error.message,
-        stack: error.stack
-      }
+        stack: error.stack,
+      },
     });
 
     // Update rule statistics
@@ -327,7 +330,7 @@ export const executeAutomationRule = async (
     await updateDoc(ruleRef, {
       executionCount: increment(1),
       failureCount: increment(1),
-      lastExecutedAt: Timestamp.now()
+      lastExecutedAt: Timestamp.now(),
     });
 
     throw error;
@@ -347,98 +350,111 @@ const executeAction = async (
   switch (action) {
     case AutomationAction.CREATE_AP:
       return await createAPEntry(triggerData, projectId);
-    
+
     case AutomationAction.UPDATE_INVENTORY:
       return await updateInventoryFromGR(triggerData);
-    
+
     case AutomationAction.CALCULATE_EVM:
       return await calculateEVMMetrics(triggerData, projectId);
-    
+
     case AutomationAction.UPDATE_WBS_BUDGET:
       return await syncWBSBudget(triggerData, projectId);
-    
+
     case AutomationAction.UPDATE_VENDOR_PERFORMANCE:
       return await updateVendorPerformance(triggerData);
-    
+
     case AutomationAction.CREATE_REORDER_MR:
       return await createReorderMR(triggerData, projectId);
-    
+
     case AutomationAction.SEND_NOTIFICATION:
       return await sendAutomationNotification(parameters, triggerData);
-    
+
     case AutomationAction.SEND_ALERT:
       return await sendAutomationAlert(parameters, triggerData);
-    
+
     case AutomationAction.UPDATE_PROJECT_STATUS:
       return await updateProjectStatus(triggerData, projectId);
-    
+
     case AutomationAction.GENERATE_REPORT:
       return await generateAutomationReport(parameters, triggerData, projectId);
-    
+
     default:
       throw new Error(`Unknown action: ${action}`);
   }
 };
 
 // Action: Create AP Entry from PO
-const createAPEntry = async (triggerData: Record<string, any>, projectId?: string): Promise<any> => {
+const createAPEntry = async (
+  triggerData: Record<string, any>,
+  projectId?: string
+): Promise<any> => {
   // Placeholder - AP Service integration
   console.log('AP Entry creation triggered:', triggerData);
-  
+
   return {
     message: 'AP Entry creation scheduled',
-    poNumber: triggerData.purchaseOrder?.poNumber
+    poNumber: triggerData.purchaseOrder?.poNumber,
   };
 };
 
 // Action: Update Inventory from Goods Receipt
 const updateInventoryFromGR = async (triggerData: Record<string, any>): Promise<any> => {
   const { createTransaction } = await import('./inventoryService');
-  
+
   const grData = triggerData.goodsReceipt;
-  
-  return await createTransaction({
-    transactionType: 'goods_in' as any,
-    transactionDate: Timestamp.now(),
-    warehouseId: grData.warehouseId,
-    referenceNumber: grData.grNumber,
-    items: grData.items.map((item: any) => ({
-      materialId: item.materialId,
-      quantity: item.receivedQuantity,
-      unitCost: item.unitPrice
-    })),
-    notes: `Auto-created from GR ${grData.grNumber}`
-  }, triggerData.userId || 'system', triggerData.userName || 'System');
+
+  return await createTransaction(
+    {
+      transactionType: 'goods_in' as any,
+      transactionDate: Timestamp.now(),
+      warehouseId: grData.warehouseId,
+      referenceNumber: grData.grNumber,
+      items: grData.items.map((item: any) => ({
+        materialId: item.materialId,
+        quantity: item.receivedQuantity,
+        unitCost: item.unitPrice,
+      })),
+      notes: `Auto-created from GR ${grData.grNumber}`,
+    },
+    triggerData.userId || 'system',
+    triggerData.userName || 'System'
+  );
 };
 
 // Action: Calculate EVM Metrics
-const calculateEVMMetrics = async (triggerData: Record<string, any>, projectId?: string): Promise<any> => {
+const calculateEVMMetrics = async (
+  triggerData: Record<string, any>,
+  projectId?: string
+): Promise<any> => {
   if (!projectId) {
     throw new Error('Project ID required for EVM calculation');
   }
 
   // Placeholder for EVM calculation
   console.log('EVM calculation triggered for project:', projectId);
-  
+
   return {
     message: 'EVM calculation scheduled',
-    projectId
+    projectId,
   };
 };
 
 // Action: Sync WBS Budget
-const syncWBSBudget = async (triggerData: Record<string, any>, projectId?: string): Promise<any> => {
+const syncWBSBudget = async (
+  triggerData: Record<string, any>,
+  projectId?: string
+): Promise<any> => {
   if (!projectId) {
     throw new Error('Project ID required for WBS budget sync');
   }
 
   // Placeholder for WBS sync
   console.log('WBS budget sync triggered:', { projectId, rabId: triggerData.rabId });
-  
+
   return {
     message: 'WBS budget sync scheduled',
     projectId,
-    rabId: triggerData.rabId
+    rabId: triggerData.rabId,
   };
 };
 
@@ -446,45 +462,54 @@ const syncWBSBudget = async (triggerData: Record<string, any>, projectId?: strin
 const updateVendorPerformance = async (triggerData: Record<string, any>): Promise<any> => {
   // Placeholder for vendor evaluation
   console.log('Vendor performance update triggered:', triggerData.vendorId);
-  
+
   return {
     message: 'Vendor performance update scheduled',
-    vendorId: triggerData.vendorId
+    vendorId: triggerData.vendorId,
   };
 };
 
 // Action: Create Reorder Material Request
-const createReorderMR = async (triggerData: Record<string, any>, projectId?: string): Promise<any> => {
+const createReorderMR = async (
+  triggerData: Record<string, any>,
+  projectId?: string
+): Promise<any> => {
   const { createMaterialRequest } = await import('./materialRequestService');
-  
+
   const materialData = triggerData.material;
   const now = new Date();
-  const requiredDate = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
-  
+  const requiredDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
   const quantity = materialData.reorderQuantity || materialData.minimumStock || 1;
   const unitPrice = materialData.standardCost || 0;
-  
-  return await createMaterialRequest({
-    projectId: projectId || '',
-    requiredDate: requiredDate.toISOString().split('T')[0],
-    priority: 'medium',
-    purpose: `Automatic reorder triggered by low stock alert for ${materialData.materialName}`,
-    items: [{
-      materialCode: materialData.materialCode || materialData.id,
-      materialName: materialData.materialName,
-      quantity,
-      requestedQty: quantity,
-      unit: materialData.baseUom,
-      estimatedUnitPrice: unitPrice,
-      estimatedTotal: quantity * unitPrice,
-      estimatedTotalPrice: quantity * unitPrice,
-      reorderPoint: materialData.minimumStock || 0,
-      wbsCode: materialData.wbsCode || '',
-      justification: `Auto-reorder: Stock below minimum (${materialData.currentStock})`,
-      description: `Auto-reorder for ${materialData.materialName}`
-    }],
-    remarks: 'Auto-generated Material Request'
-  }, 'system', 'System');
+
+  return await createMaterialRequest(
+    {
+      projectId: projectId || '',
+      requiredDate: requiredDate.toISOString().split('T')[0],
+      priority: 'medium',
+      purpose: `Automatic reorder triggered by low stock alert for ${materialData.materialName}`,
+      items: [
+        {
+          materialCode: materialData.materialCode || materialData.id,
+          materialName: materialData.materialName,
+          quantity,
+          requestedQty: quantity,
+          unit: materialData.baseUom,
+          estimatedUnitPrice: unitPrice,
+          estimatedTotal: quantity * unitPrice,
+          estimatedTotalPrice: quantity * unitPrice,
+          reorderPoint: materialData.minimumStock || 0,
+          wbsCode: materialData.wbsCode || '',
+          justification: `Auto-reorder: Stock below minimum (${materialData.currentStock})`,
+          description: `Auto-reorder for ${materialData.materialName}`,
+        },
+      ],
+      remarks: 'Auto-generated Material Request',
+    },
+    'system',
+    'System'
+  );
 };
 
 // Action: Send Notification
@@ -506,7 +531,7 @@ const sendAutomationNotification = async (
       channels: parameters.channels || ['in_app'],
       relatedEntityType: parameters.entityType,
       relatedEntityId: parameters.entityId,
-      category: 'automation'
+      category: 'automation',
     });
   } catch (error) {
     console.error('Failed to send notification:', error);
@@ -530,7 +555,7 @@ const sendAutomationAlert = async (
       message: parameters.alertMessage || 'An important event has occurred',
       data: triggerData,
       channels: [NotificationChannel.IN_APP, NotificationChannel.EMAIL],
-      category: 'alert'
+      category: 'alert',
     });
   } catch (error) {
     console.error('Failed to send alert:', error);
@@ -539,14 +564,17 @@ const sendAutomationAlert = async (
 };
 
 // Action: Update Project Status
-const updateProjectStatus = async (triggerData: Record<string, any>, projectId?: string): Promise<any> => {
+const updateProjectStatus = async (
+  triggerData: Record<string, any>,
+  projectId?: string
+): Promise<any> => {
   if (!projectId) {
     throw new Error('Project ID required for status update');
   }
 
   const projectRef = doc(db, 'projects', projectId);
   const updates: Record<string, any> = {
-    updatedAt: Timestamp.now()
+    updatedAt: Timestamp.now(),
   };
 
   if (triggerData.status) {
@@ -554,7 +582,7 @@ const updateProjectStatus = async (triggerData: Record<string, any>, projectId?:
   }
 
   await updateDoc(projectRef, updates);
-  
+
   return { projectId, updates };
 };
 
@@ -569,7 +597,7 @@ const generateAutomationReport = async (
     reportType: parameters.reportType,
     generatedAt: Timestamp.now(),
     data: triggerData,
-    projectId
+    projectId,
   };
 };
 
@@ -596,11 +624,11 @@ export const createIntegrationEvent = async (
     createdAt: Timestamp.now(),
     createdBy: { userId, userName },
     projectId: input.projectId,
-    metadata: input.metadata
+    metadata: input.metadata,
   };
 
   const docRef = await addDoc(collection(db, 'integrationEvents'), eventData);
-  
+
   // Trigger automation asynchronously
   setTimeout(async () => {
     try {
@@ -613,12 +641,12 @@ export const createIntegrationEvent = async (
           userName,
           input.projectId
         );
-        
+
         // Update event with execution IDs
         await updateDoc(docRef, {
           isProcessed: true,
           processedAt: Timestamp.now(),
-          executionIds
+          executionIds,
         });
       }
     } catch (error: any) {
@@ -626,7 +654,7 @@ export const createIntegrationEvent = async (
       await updateDoc(docRef, {
         isProcessed: true,
         processedAt: Timestamp.now(),
-        processingErrors: [error.message]
+        processingErrors: [error.message],
       });
     }
   }, 0);
@@ -636,21 +664,21 @@ export const createIntegrationEvent = async (
 
 const mapEventToTrigger = (eventType: string): AutomationTrigger | null => {
   const mapping: Record<string, AutomationTrigger> = {
-    'po_approved': AutomationTrigger.PO_APPROVED,
-    'po_completed': AutomationTrigger.PO_COMPLETED,
-    'gr_completed': AutomationTrigger.GR_COMPLETED,
-    'gr_quality_failed': AutomationTrigger.GR_QUALITY_FAILED,
-    'mr_approved': AutomationTrigger.MR_APPROVED,
-    'mr_rejected': AutomationTrigger.MR_REJECTED,
-    'progress_updated': AutomationTrigger.PROGRESS_UPDATED,
-    'rab_updated': AutomationTrigger.RAB_UPDATED,
-    'wbs_budget_exceeded': AutomationTrigger.WBS_BUDGET_EXCEEDED,
-    'vendor_evaluated': AutomationTrigger.VENDOR_EVALUATED,
-    'vendor_blacklisted': AutomationTrigger.VENDOR_BLACKLISTED,
-    'invoice_approved': AutomationTrigger.INVOICE_APPROVED,
-    'stock_low': AutomationTrigger.STOCK_LOW,
-    'stock_out': AutomationTrigger.STOCK_OUT,
-    'item_expiring': AutomationTrigger.ITEM_EXPIRING
+    po_approved: AutomationTrigger.PO_APPROVED,
+    po_completed: AutomationTrigger.PO_COMPLETED,
+    gr_completed: AutomationTrigger.GR_COMPLETED,
+    gr_quality_failed: AutomationTrigger.GR_QUALITY_FAILED,
+    mr_approved: AutomationTrigger.MR_APPROVED,
+    mr_rejected: AutomationTrigger.MR_REJECTED,
+    progress_updated: AutomationTrigger.PROGRESS_UPDATED,
+    rab_updated: AutomationTrigger.RAB_UPDATED,
+    wbs_budget_exceeded: AutomationTrigger.WBS_BUDGET_EXCEEDED,
+    vendor_evaluated: AutomationTrigger.VENDOR_EVALUATED,
+    vendor_blacklisted: AutomationTrigger.VENDOR_BLACKLISTED,
+    invoice_approved: AutomationTrigger.INVOICE_APPROVED,
+    stock_low: AutomationTrigger.STOCK_LOW,
+    stock_out: AutomationTrigger.STOCK_OUT,
+    item_expiring: AutomationTrigger.ITEM_EXPIRING,
   };
 
   return mapping[eventType] || null;
@@ -687,23 +715,28 @@ export const getAutomationExecutions = async (
   }
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AutomationExecution));
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AutomationExecution
+  );
 };
 
-export const getAutomationExecutionById = async (executionId: string): Promise<AutomationExecution | null> => {
+export const getAutomationExecutionById = async (
+  executionId: string
+): Promise<AutomationExecution | null> => {
   const docRef = doc(db, 'automationExecutions', executionId);
   const docSnap = await getDoc(docRef);
-  
+
   if (!docSnap.exists()) {
     return null;
   }
-  
+
   return {
     id: docSnap.id,
-    ...docSnap.data()
+    ...docSnap.data(),
   } as AutomationExecution;
 };
 
@@ -727,16 +760,22 @@ export const getIntegrationStatistics = async (
   }
 
   const snapshot = await getDocs(q);
-  const executions = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AutomationExecution));
+  const executions = snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AutomationExecution
+  );
 
   // Calculate statistics
   const totalExecutions = executions.length;
-  const successfulExecutions = executions.filter(e => e.status === AutomationStatus.SUCCESS).length;
-  const failedExecutions = executions.filter(e => e.status === AutomationStatus.FAILED).length;
-  const averageDuration = executions.reduce((sum, e) => sum + (e.duration || 0), 0) / totalExecutions || 0;
+  const successfulExecutions = executions.filter(
+    (e) => e.status === AutomationStatus.SUCCESS
+  ).length;
+  const failedExecutions = executions.filter((e) => e.status === AutomationStatus.FAILED).length;
+  const averageDuration =
+    executions.reduce((sum, e) => sum + (e.duration || 0), 0) / totalExecutions || 0;
 
   // By trigger
   const executionsByTrigger: Record<string, any> = {};
@@ -745,7 +784,9 @@ export const getIntegrationStatistics = async (
 
   // Recent activity
   const recentExecutions = executions.slice(0, 10);
-  const recentFailures = executions.filter(e => e.status === AutomationStatus.FAILED).slice(0, 10);
+  const recentFailures = executions
+    .filter((e) => e.status === AutomationStatus.FAILED)
+    .slice(0, 10);
 
   return {
     totalExecutions,
@@ -760,7 +801,7 @@ export const getIntegrationStatistics = async (
     recentExecutions,
     recentFailures,
     periodStart: startDate,
-    periodEnd: endDate
+    periodEnd: endDate,
   };
 };
 
@@ -792,6 +833,6 @@ export const cancelExecution = async (executionId: string): Promise<void> => {
   const docRef = doc(db, 'automationExecutions', executionId);
   await updateDoc(docRef, {
     status: AutomationStatus.CANCELLED,
-    completedAt: Timestamp.now()
+    completedAt: Timestamp.now(),
   });
 };

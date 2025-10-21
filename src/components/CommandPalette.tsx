@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
-
 import { Modal } from './Modal';
 import { Input } from './FormControls';
 import { useHotkeys } from '@/hooks/useHotkeys';
@@ -16,8 +15,8 @@ export function CommandPalette({ onNavigate }: CommandPaletteProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const allCommands = useMemo(() => {
-    return navLinksConfig.flatMap(group =>
-      group.children.map(link => ({
+    return navLinksConfig.flatMap((group) =>
+      group.children.map((link) => ({
         id: link.id,
         name: link.name,
         group: group.name,
@@ -28,19 +27,16 @@ export function CommandPalette({ onNavigate }: CommandPaletteProps) {
 
   const filteredCommands = useMemo(() => {
     if (!searchTerm) return allCommands;
-    return allCommands.filter(command =>
+    return allCommands.filter((command) =>
       command.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, allCommands]);
 
   const togglePalette = useCallback(() => {
-    setIsOpen(prev => !prev);
+    setIsOpen((prev) => !prev);
   }, []);
 
-  const hotkeys = useMemo(
-    () => new Map([['cmd+k', togglePalette]]),
-    [togglePalette]
-  );
+  const hotkeys = useMemo(() => new Map([['cmd+k', togglePalette]]), [togglePalette]);
   useHotkeys(hotkeys);
 
   useEffect(() => {
@@ -48,7 +44,7 @@ export function CommandPalette({ onNavigate }: CommandPaletteProps) {
       setSearchTerm('');
     }
   }, [isOpen]);
-  
+
   const handleSelect = (viewId: string) => {
     onNavigate(viewId);
     setIsOpen(false);
@@ -70,7 +66,7 @@ export function CommandPalette({ onNavigate }: CommandPaletteProps) {
         </div>
         <div className="max-h-60 overflow-y-auto">
           {filteredCommands.length > 0 ? (
-            filteredCommands.map(command => (
+            filteredCommands.map((command) => (
               <button
                 key={command.id}
                 onClick={() => handleSelect(command.id)}

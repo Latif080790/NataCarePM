@@ -1,7 +1,7 @@
 /**
  * AI Resource Optimization View
  * NataCarePM - Phase 4: AI & Analytics
- * 
+ *
  * Main UI for AI-powered resource optimization,
  * ML-based scheduling, and intelligent recommendations
  */
@@ -58,7 +58,9 @@ const AIResourceOptimizationView: React.FC = () => {
 
   const { currentProject } = useProject();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'recommendations' | 'bottlenecks'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'recommendations' | 'bottlenecks'>(
+    'overview'
+  );
   const [optimizationDialogOpen, setOptimizationDialogOpen] = useState(false);
   const [optimizationGoal, setOptimizationGoal] = useState<OptimizationGoal>('balance_cost_time');
   const [budgetLimit, setBudgetLimit] = useState<string>('');
@@ -72,14 +74,16 @@ const AIResourceOptimizationView: React.FC = () => {
         console.error('Failed to initialize AI models:', err);
       }
     };
-    
+
     init();
   }, [initializeModels]);
 
   // Get latest optimization result
   const latestResult = optimizationResults[optimizationResults.length - 1];
-  const pendingRecommendations = recommendations.filter(r => r.status === 'pending');
-  const criticalBottlenecks = bottlenecks.filter(b => b.severity === 'high' || b.severity === 'critical');
+  const pendingRecommendations = recommendations.filter((r) => r.status === 'pending');
+  const criticalBottlenecks = bottlenecks.filter(
+    (b) => b.severity === 'high' || b.severity === 'critical'
+  );
 
   // Event Handlers
   const handleOptimizationRequest = async () => {
@@ -129,19 +133,27 @@ const AIResourceOptimizationView: React.FC = () => {
   // Get severity color
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-100 dark:bg-red-900/20 border-red-200 dark:border-red-800';
-      case 'high': return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
-      default: return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+      case 'critical':
+        return 'text-red-600 bg-red-100 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+      case 'high':
+        return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800';
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+      default:
+        return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-red-600 bg-red-100 dark:bg-red-900/20';
-      case 'high': return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
-      default: return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
+      case 'urgent':
+        return 'text-red-600 bg-red-100 dark:bg-red-900/20';
+      case 'high':
+        return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
+      default:
+        return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
     }
   };
 
@@ -165,7 +177,9 @@ const AIResourceOptimizationView: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <Brain className="w-8 h-8 text-purple-600" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Resource Optimization</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                AI Resource Optimization
+              </h1>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               ML-powered resource allocation and intelligent scheduling
@@ -253,9 +267,13 @@ const AIResourceOptimizationView: React.FC = () => {
               <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-purple-200 dark:border-purple-800 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Brain className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">ML Models</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    ML Models
+                  </span>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">{models.length}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {models.length}
+                </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Active & Ready</p>
               </div>
 
@@ -263,9 +281,13 @@ const AIResourceOptimizationView: React.FC = () => {
               <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-green-200 dark:border-green-800 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Optimizations</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Optimizations
+                  </span>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">{optimizationResults.length}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {optimizationResults.length}
+                </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Total Runs</p>
               </div>
 
@@ -273,9 +295,13 @@ const AIResourceOptimizationView: React.FC = () => {
               <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-blue-200 dark:border-blue-800 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Recommendations</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Recommendations
+                  </span>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">{pendingRecommendations.length}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {pendingRecommendations.length}
+                </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Pending Review</p>
               </div>
 
@@ -283,9 +309,13 @@ const AIResourceOptimizationView: React.FC = () => {
               <div className="bg-white dark:bg-gray-800 rounded-lg border-2 border-orange-200 dark:border-orange-800 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Bottlenecks</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Bottlenecks
+                  </span>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">{criticalBottlenecks.length}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {criticalBottlenecks.length}
+                </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">High/Critical</p>
               </div>
             </div>
@@ -294,12 +324,16 @@ const AIResourceOptimizationView: React.FC = () => {
             {latestResult && (
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Latest Optimization Result</h3>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    latestResult.status === 'success' 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
-                  }`}>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Latest Optimization Result
+                  </h3>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      latestResult.status === 'success'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                    }`}
+                  >
                     {latestResult.status.toUpperCase()}
                   </span>
                 </div>
@@ -307,13 +341,15 @@ const AIResourceOptimizationView: React.FC = () => {
                 {/* Confidence Score */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Confidence Score</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Confidence Score
+                    </span>
                     <span className="text-sm font-bold text-gray-900 dark:text-white">
                       {(latestResult.confidenceScore * 100).toFixed(1)}%
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-purple-600 h-2 rounded-full transition-all"
                       style={{ width: `${latestResult.confidenceScore * 100}%` }}
                     />
@@ -363,7 +399,9 @@ const AIResourceOptimizationView: React.FC = () => {
                           Warnings ({latestResult.warnings.length})
                         </h4>
                         {latestResult.warnings.slice(0, 3).map((warning, idx) => (
-                          <p key={idx} className="text-sm text-yellow-800 dark:text-yellow-300">• {warning.message}</p>
+                          <p key={idx} className="text-sm text-yellow-800 dark:text-yellow-300">
+                            • {warning.message}
+                          </p>
                         ))}
                       </div>
                     </div>
@@ -394,11 +432,16 @@ const AIResourceOptimizationView: React.FC = () => {
             ) : (
               <div className="space-y-3">
                 {pendingRecommendations.map((rec) => (
-                  <div key={rec.recommendationId} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                  <div
+                    key={rec.recommendationId}
+                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(rec.priority)}`}>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(rec.priority)}`}
+                          >
                             {rec.priority.toUpperCase()}
                           </span>
                           <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -409,14 +452,21 @@ const AIResourceOptimizationView: React.FC = () => {
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-1 text-green-600">
                             <DollarSign className="w-3 h-3" />
-                            <span>{rec.estimatedImpact.costChange >= 0 ? '+' : ''}{rec.estimatedImpact.costChange.toFixed(0)}</span>
+                            <span>
+                              {rec.estimatedImpact.costChange >= 0 ? '+' : ''}
+                              {rec.estimatedImpact.costChange.toFixed(0)}
+                            </span>
                           </div>
                           <div className="flex items-center gap-1 text-blue-600">
                             <Clock className="w-3 h-3" />
-                            <span>{rec.estimatedImpact.timeChange >= 0 ? '+' : ''}{rec.estimatedImpact.timeChange.toFixed(0)}h</span>
+                            <span>
+                              {rec.estimatedImpact.timeChange >= 0 ? '+' : ''}
+                              {rec.estimatedImpact.timeChange.toFixed(0)}h
+                            </span>
                           </div>
                           <div className="text-gray-600 dark:text-gray-400">
-                            {rec.affectedTasks.length} tasks • {rec.affectedResources.length} resources
+                            {rec.affectedTasks.length} tasks • {rec.affectedResources.length}{' '}
+                            resources
                           </div>
                         </div>
                       </div>
@@ -447,47 +497,77 @@ const AIResourceOptimizationView: React.FC = () => {
         {/* Bottlenecks Tab */}
         {activeTab === 'bottlenecks' && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Resource Bottlenecks</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Resource Bottlenecks
+            </h3>
 
             {bottlenecks.length === 0 ? (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-12 text-center">
                 <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h4 className="text-lg font-semibold text-green-900 dark:text-green-200 mb-2">No Bottlenecks Detected</h4>
-                <p className="text-green-700 dark:text-green-300">All resources are adequately allocated</p>
+                <h4 className="text-lg font-semibold text-green-900 dark:text-green-200 mb-2">
+                  No Bottlenecks Detected
+                </h4>
+                <p className="text-green-700 dark:text-green-300">
+                  All resources are adequately allocated
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
                 {bottlenecks.map((bottleneck) => (
-                  <div key={bottleneck.bottleneckId} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                  <div
+                    key={bottleneck.bottleneckId}
+                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{bottleneck.resourceName}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{bottleneck.resourceType.toUpperCase()}</p>
+                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                          {bottleneck.resourceName}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {bottleneck.resourceType.toUpperCase()}
+                        </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getSeverityColor(bottleneck.severity)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getSeverityColor(bottleneck.severity)}`}
+                      >
                         {bottleneck.severity.toUpperCase()}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Demand vs Capacity</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {bottleneck.demandVsCapacity.demand} / {bottleneck.demandVsCapacity.capacity}
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          Demand vs Capacity
                         </p>
-                        <p className="text-sm text-red-600">Shortfall: {bottleneck.demandVsCapacity.shortfallPercentage.toFixed(1)}%</p>
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                          {bottleneck.demandVsCapacity.demand} /{' '}
+                          {bottleneck.demandVsCapacity.capacity}
+                        </p>
+                        <p className="text-sm text-red-600">
+                          Shortfall: {bottleneck.demandVsCapacity.shortfallPercentage.toFixed(1)}%
+                        </p>
                       </div>
 
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Estimated Impact</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">Delay: {bottleneck.estimatedDelayDays} days</p>
-                        <p className="text-sm text-red-600">Cost: ${bottleneck.estimatedCostImpact.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          Estimated Impact
+                        </p>
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                          Delay: {bottleneck.estimatedDelayDays} days
+                        </p>
+                        <p className="text-sm text-red-600">
+                          Cost: ${bottleneck.estimatedCostImpact.toLocaleString()}
+                        </p>
                       </div>
 
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Affected</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white">{bottleneck.affectedProjects.length} projects</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{bottleneck.affectedTasks.length} tasks</p>
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                          {bottleneck.affectedProjects.length} projects
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {bottleneck.affectedTasks.length} tasks
+                        </p>
                       </div>
                     </div>
 
@@ -496,9 +576,13 @@ const AIResourceOptimizationView: React.FC = () => {
                         <div className="flex items-start gap-2">
                           <Target className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h5 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">Recommendations</h5>
+                            <h5 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">
+                              Recommendations
+                            </h5>
                             {bottleneck.recommendations.map((rec, idx) => (
-                              <p key={idx} className="text-sm text-blue-800 dark:text-blue-300">• {rec}</p>
+                              <p key={idx} className="text-sm text-blue-800 dark:text-blue-300">
+                                • {rec}
+                              </p>
                             ))}
                           </div>
                         </div>
@@ -518,7 +602,9 @@ const AIResourceOptimizationView: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Configure Resource Optimization</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Configure Resource Optimization
+                </h2>
                 <button
                   onClick={() => setOptimizationDialogOpen(false)}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"

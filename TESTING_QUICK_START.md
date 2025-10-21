@@ -29,6 +29,7 @@ npm run lint:check
 ## 📝 Writing Tests - Quick Examples
 
 ### Using Mock Factories
+
 ```typescript
 import { createMockUser, createMockProject } from '__mocks__/testDataFactory';
 
@@ -37,9 +38,9 @@ const user = createMockUser();
 const project = createMockProject();
 
 // With overrides
-const admin = createMockUser({ 
-  name: 'Admin', 
-  roleId: 'super-admin' 
+const admin = createMockUser({
+  name: 'Admin',
+  roleId: 'super-admin',
 });
 
 // Batch
@@ -48,6 +49,7 @@ const docs = createMockDocuments(20, 'project-id');
 ```
 
 ### Using MSW
+
 ```typescript
 import { setupMSW } from '__mocks__/server';
 
@@ -63,6 +65,7 @@ describe('My Tests', () => {
 ```
 
 ### Complete Test Example
+
 ```typescript
 import { createMockDocument } from '__mocks__/testDataFactory';
 
@@ -74,8 +77,8 @@ describe('DocumentService', () => {
         isEncrypted: true,
         encryptionLevel: 'end-to-end',
         algorithm: 'AES-256',
-        keyId: 'key-123'
-      }
+        keyId: 'key-123',
+      },
     });
 
     expect(doc.encryptionStatus.isEncrypted).toBe(true);
@@ -112,6 +115,7 @@ createMockFile(name, type, size)
 ## 📊 Coverage Thresholds
 
 **Current**: 60% minimum for:
+
 - Lines
 - Statements
 - Functions
@@ -122,6 +126,7 @@ createMockFile(name, type, size)
 ## 🔧 CI/CD Workflows
 
 ### On Pull Request
+
 - TypeScript check
 - Lint check
 - Tests with coverage
@@ -130,11 +135,13 @@ createMockFile(name, type, size)
 - Block merge if fails
 
 ### On Push to `develop`
+
 - All tests
 - Build
 - Deploy to staging
 
 ### On Push to `main`
+
 - All tests
 - Build
 - Deploy to production
@@ -184,18 +191,21 @@ __tests__/
 ## 🆘 Troubleshooting
 
 ### Tests fail to run
+
 ```bash
 npm ci  # Clean install
 npm test
 ```
 
 ### Coverage fails
+
 ```bash
 # Check threshold in jest.config.js
 npm run test:coverage
 ```
 
 ### MSW not working
+
 ```typescript
 // Add setupMSW() in test file
 import { setupMSW } from '__mocks__/server';

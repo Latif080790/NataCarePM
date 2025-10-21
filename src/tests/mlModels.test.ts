@@ -1,7 +1,7 @@
 /**
  * ML Models Unit Tests
  * NataCarePM - Phase 4: AI & Analytics
- * 
+ *
  * Comprehensive unit tests for machine learning models,
  * genetic algorithms, and predictive analytics
  */
@@ -22,14 +22,13 @@ import {
 // ============================================================================
 
 const mockTimeSeriesData = [
-  100, 105, 110, 108, 112, 115, 120, 118, 125, 130,
-  128, 135, 140, 138, 145, 150, 148, 155, 160, 158,
-  165, 170, 168, 175, 180, 178, 185, 190, 188, 195,
+  100, 105, 110, 108, 112, 115, 120, 118, 125, 130, 128, 135, 140, 138, 145, 150, 148, 155, 160,
+  158, 165, 170, 168, 175, 180, 178, 185, 190, 188, 195,
 ];
 
 const mockCostData = [
-  5000, 5200, 5400, 5100, 5600, 5800, 6000, 5900, 6200, 6500,
-  6300, 6800, 7000, 6900, 7200, 7500, 7300, 7800, 8000, 7900,
+  5000, 5200, 5400, 5100, 5600, 5800, 6000, 5900, 6200, 6500, 6300, 6800, 7000, 6900, 7200, 7500,
+  7300, 7800, 8000, 7900,
 ];
 
 // ============================================================================
@@ -147,7 +146,7 @@ describe('TimeSeriesForecaster', () => {
 
       expect(model).toBeDefined();
       expect(model.layers.length).toBeGreaterThan(0);
-      
+
       // Check input shape
       const inputShape = model.inputs[0].shape;
       expect(inputShape[1]).toBe(config.sequenceLength);
@@ -248,9 +247,9 @@ describe('TimeSeriesForecaster', () => {
     it('should throw error if model not trained', async () => {
       const forecaster = new TimeSeriesForecaster();
 
-      await expect(
-        forecaster.predict(mockTimeSeriesData, 5, 10)
-      ).rejects.toThrow('Model not trained');
+      await expect(forecaster.predict(mockTimeSeriesData, 5, 10)).rejects.toThrow(
+        'Model not trained'
+      );
     });
   });
 });
@@ -287,7 +286,7 @@ describe('MLModelManager', () => {
     it('should include dropout layers for regularization', async () => {
       const model = await modelManager.buildResourceAllocationModel();
 
-      const dropoutLayers = model.layers.filter(layer => layer.getClassName() === 'Dropout');
+      const dropoutLayers = model.layers.filter((layer) => layer.getClassName() === 'Dropout');
       expect(dropoutLayers.length).toBeGreaterThan(0);
 
       model.dispose();
@@ -301,7 +300,7 @@ describe('MLModelManager', () => {
       expect(model).toBeDefined();
 
       // Check for LSTM layers
-      const lstmLayers = model.layers.filter(layer => layer.getClassName() === 'LSTM');
+      const lstmLayers = model.layers.filter((layer) => layer.getClassName() === 'LSTM');
       expect(lstmLayers.length).toBeGreaterThan(0);
 
       model.dispose();
@@ -343,8 +342,20 @@ describe('GeneticAlgorithmOptimizer', () => {
   describe('optimize', () => {
     it('should run optimization and return best solution', async () => {
       const mockTasks = [
-        { id: 'task1', projectId: 'proj1', duration: 10, startDate: new Date(), endDate: new Date() },
-        { id: 'task2', projectId: 'proj1', duration: 15, startDate: new Date(), endDate: new Date() },
+        {
+          id: 'task1',
+          projectId: 'proj1',
+          duration: 10,
+          startDate: new Date(),
+          endDate: new Date(),
+        },
+        {
+          id: 'task2',
+          projectId: 'proj1',
+          duration: 15,
+          startDate: new Date(),
+          endDate: new Date(),
+        },
       ];
 
       const mockResources: any[] = [
@@ -369,12 +380,16 @@ describe('GeneticAlgorithmOptimizer', () => {
 
     it('should improve fitness over generations', async () => {
       const mockTasks = [
-        { id: 'task1', projectId: 'proj1', duration: 10, startDate: new Date(), endDate: new Date() },
+        {
+          id: 'task1',
+          projectId: 'proj1',
+          duration: 10,
+          startDate: new Date(),
+          endDate: new Date(),
+        },
       ];
 
-      const mockResources: any[] = [
-        { id: 'res1', type: 'human', name: 'Worker 1' },
-      ];
+      const mockResources: any[] = [{ id: 'res1', type: 'human', name: 'Worker 1' }];
 
       const result = await optimizer.optimize(mockTasks, mockResources, {});
 
@@ -538,6 +553,6 @@ describe('ML Model Persistence', () => {
 
 function calculateVariance(data: number[]): number {
   const mean = data.reduce((sum, val) => sum + val, 0) / data.length;
-  const squaredDiffs = data.map(val => Math.pow(val - mean, 2));
+  const squaredDiffs = data.map((val) => Math.pow(val - mean, 2));
   return squaredDiffs.reduce((sum, val) => sum + val, 0) / data.length;
 }

@@ -1,7 +1,7 @@
 /**
  * Offline Inspection List View
  * Phase 3.5: Mobile Offline Inspections
- * 
+ *
  * Displays list of offline inspections with sync status
  */
 
@@ -37,7 +37,9 @@ const OfflineInspectionListView: React.FC = () => {
   } = useOffline();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'synced' | 'conflict'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'synced' | 'conflict'>(
+    'all'
+  );
   const [syncing, setSyncing] = useState(false);
 
   // Filter inspections
@@ -64,7 +66,14 @@ const OfflineInspectionListView: React.FC = () => {
     }
 
     return filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  }, [offlineInspections, pendingInspections, syncedInspections, conflictedInspections, filterStatus, searchTerm]);
+  }, [
+    offlineInspections,
+    pendingInspections,
+    syncedInspections,
+    conflictedInspections,
+    filterStatus,
+    searchTerm,
+  ]);
 
   // Handle sync
   const handleSync = async () => {
@@ -82,7 +91,7 @@ const OfflineInspectionListView: React.FC = () => {
   };
 
   // Get status badge
-  const getStatusBadge = (inspection: typeof offlineInspections[0]) => {
+  const getStatusBadge = (inspection: (typeof offlineInspections)[0]) => {
     switch (inspection.syncStatus) {
       case 'synced':
         return (
@@ -175,11 +184,13 @@ const OfflineInspectionListView: React.FC = () => {
 
           {/* Network & Sync Status */}
           <div className="flex items-center gap-3 mb-4">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-              isOnline
-                ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-            }`}>
+            <div
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                isOnline
+                  ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                  : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+              }`}
+            >
               {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
               <span className="text-sm font-medium">{isOnline ? 'Online' : 'Offline'}</span>
             </div>
@@ -204,7 +215,9 @@ const OfflineInspectionListView: React.FC = () => {
                 disabled={syncing || syncStatus.inProgress}
                 className="ml-auto flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                <RefreshCw className={`w-4 h-4 ${syncing || syncStatus.inProgress ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${syncing || syncStatus.inProgress ? 'animate-spin' : ''}`}
+                />
                 {syncing || syncStatus.inProgress ? 'Syncing...' : 'Sync Now'}
               </button>
             )}
@@ -303,7 +316,8 @@ const OfflineInspectionListView: React.FC = () => {
                 {inspection.data.checklist.length > 0 && (
                   <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {inspection.data.checklist.length} checklist items
-                    {inspection.attachments.length > 0 && ` • ${inspection.attachments.length} attachments`}
+                    {inspection.attachments.length > 0 &&
+                      ` • ${inspection.attachments.length} attachments`}
                   </div>
                 )}
 
@@ -315,7 +329,8 @@ const OfflineInspectionListView: React.FC = () => {
 
                 {!inspection.offlineMetadata.createdOffline && (
                   <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                    Last modified offline: {format(inspection.offlineMetadata.lastModifiedOffline, 'MMM d, HH:mm')}
+                    Last modified offline:{' '}
+                    {format(inspection.offlineMetadata.lastModifiedOffline, 'MMM d, HH:mm')}
                   </div>
                 )}
               </div>

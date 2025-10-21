@@ -1,622 +1,680 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NataCarePM - Enhanced Dashboard Concept</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(230, 230, 230, 0.3);
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(230, 230, 230, 0.3);
+      }
+
+      .metric-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(230, 230, 230, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .progress-bar {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        transition: width 1s ease-in-out;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 200px;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 12px;
+        border: 2px dashed #cbd5e1;
+      }
+
+      .mini-chart {
+        height: 80px;
+        background: linear-gradient(45deg, #e2e8f0, #f1f5f9);
+        border-radius: 8px;
+      }
+
+      .donut-chart {
+        position: relative;
+        display: inline-block;
+      }
+
+      .fade-in {
+        animation: fadeInUp 0.6s ease-out forwards;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
-        
-        .metric-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(230, 230, 230, 0.3);
-            transition: all 0.3s ease;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .pulse-dot {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
         }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        50% {
+          opacity: 0.5;
         }
-        
-        .progress-bar {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            transition: width 1s ease-in-out;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 200px;
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border-radius: 12px;
-            border: 2px dashed #cbd5e1;
-        }
-        
-        .mini-chart {
-            height: 80px;
-            background: linear-gradient(45deg, #e2e8f0, #f1f5f9);
-            border-radius: 8px;
-        }
-        
-        .donut-chart {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .fade-in {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .pulse-dot {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-        }
-        
-        .widget-header {
-            position: relative;
-        }
-        
-        .widget-controls {
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .metric-card:hover .widget-controls {
-            opacity: 1;
-        }
-        
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-        
-        .safety-bar {
-            height: 120px;
-            display: flex;
-            align-items: end;
-            justify-content: space-around;
-            padding: 0 1rem;
-        }
-        
-        .bar {
-            width: 24px;
-            background: linear-gradient(to top, #ef4444, #f97316);
-            border-radius: 4px 4px 0 0;
-            transition: all 0.3s ease;
-        }
-        
-        .bar:hover {
-            filter: brightness(1.1);
-        }
+      }
+
+      .widget-header {
+        position: relative;
+      }
+
+      .widget-controls {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .metric-card:hover .widget-controls {
+        opacity: 1;
+      }
+
+      .progress-ring {
+        transform: rotate(-90deg);
+      }
+
+      .safety-bar {
+        height: 120px;
+        display: flex;
+        align-items: end;
+        justify-content: space-around;
+        padding: 0 1rem;
+      }
+
+      .bar {
+        width: 24px;
+        background: linear-gradient(to top, #ef4444, #f97316);
+        border-radius: 4px 4px 0 0;
+        transition: all 0.3s ease;
+      }
+
+      .bar:hover {
+        filter: brightness(1.1);
+      }
     </style>
-</head>
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-orange-50 min-h-screen">
-    
+  </head>
+  <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-orange-50 min-h-screen">
     <!-- Header -->
     <header class="bg-white/90 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-50">
-        <div class="px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                            NC
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-bold gradient-text">Dashboard</h1>
-                            <p class="text-sm text-gray-600">Enterprise Project Management</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <!-- Widget Controls -->
-                    <button class="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
-                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
-                        <span>Customise Widget</span>
-                    </button>
-                    
-                    <!-- Filter -->
-                    <button class="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                        <i data-lucide="filter" class="w-4 h-4"></i>
-                        <span>Filter</span>
-                    </button>
-                    
-                    <!-- Time Range -->
-                    <select class="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium border-0 focus:ring-2 focus:ring-orange-500">
-                        <option>Current Month</option>
-                        <option>Last Quarter</option>
-                        <option>Year to Date</option>
-                    </select>
-                </div>
+      <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white text-lg font-bold shadow-lg"
+              >
+                NC
+              </div>
+              <div>
+                <h1 class="text-xl font-bold gradient-text">Dashboard</h1>
+                <p class="text-sm text-gray-600">Enterprise Project Management</p>
+              </div>
             </div>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <!-- Widget Controls -->
+            <button
+              class="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors"
+            >
+              <i data-lucide="layout-grid" class="w-4 h-4"></i>
+              <span>Customise Widget</span>
+            </button>
+
+            <!-- Filter -->
+            <button
+              class="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            >
+              <i data-lucide="filter" class="w-4 h-4"></i>
+              <span>Filter</span>
+            </button>
+
+            <!-- Time Range -->
+            <select
+              class="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium border-0 focus:ring-2 focus:ring-orange-500"
+            >
+              <option>Current Month</option>
+              <option>Last Quarter</option>
+              <option>Year to Date</option>
+            </select>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Main Dashboard -->
     <main class="p-6">
-        
-        <!-- Top Row - Key Metrics -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            
-            <!-- Onsite Today -->
-            <div class="metric-card rounded-2xl p-6 fade-in">
-                <div class="widget-header flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-700">Onsite Today</h3>
-                    <div class="widget-controls flex items-center space-x-1">
-                        <button class="p-1 rounded hover:bg-gray-100">
-                            <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="text-center p-4 bg-orange-50 rounded-xl border border-orange-100">
-                        <div class="text-3xl font-bold text-orange-600 mb-1">32</div>
-                        <div class="text-xs text-orange-700 font-medium">Crew</div>
-                        <div class="text-xs text-orange-600 mt-1 flex items-center justify-center">
-                            <span class="bg-orange-200 px-2 py-0.5 rounded-full">+4</span>
-                        </div>
-                    </div>
-                    <div class="text-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="text-3xl font-bold text-slate-700 mb-1">08</div>
-                        <div class="text-xs text-slate-600 font-medium">Equipments</div>
-                        <div class="text-xs text-slate-600 mt-1 flex items-center justify-center">
-                            <span class="bg-slate-200 px-2 py-0.5 rounded-full">+2</span>
-                        </div>
-                    </div>
-                </div>
+      <!-- Top Row - Key Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Onsite Today -->
+        <div class="metric-card rounded-2xl p-6 fade-in">
+          <div class="widget-header flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-700">Onsite Today</h3>
+            <div class="widget-controls flex items-center space-x-1">
+              <button class="p-1 rounded hover:bg-gray-100">
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              </button>
             </div>
+          </div>
 
-            <!-- Upcoming -->
-            <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.1s">
-                <div class="widget-header flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-700">Upcoming</h3>
-                    <div class="widget-controls flex items-center space-x-1">
-                        <button class="p-1 rounded hover:bg-gray-100">
-                            <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-100">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-blue-700 font-medium">Next Milestone</span>
-                            <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">0 Days Left</span>
-                        </div>
-                        <div class="text-sm font-bold text-blue-900">
-                            <i data-lucide="target" class="w-4 h-4 inline mr-1"></i>
-                            Total Value
-                        </div>
-                        <div class="text-lg font-bold text-blue-800">$75,000</div>
-                    </div>
-                    
-                    <div class="p-3 bg-green-50 rounded-xl border border-green-100">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-green-700 font-medium">Next Checkpoint</span>
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">12 Days Left</span>
-                        </div>
-                        <div class="text-sm font-bold text-green-900">
-                            <i data-lucide="flag" class="w-4 h-4 inline mr-1"></i>
-                            Total Count
-                        </div>
-                        <div class="text-lg font-bold text-green-800">12</div>
-                    </div>
-                </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center p-4 bg-orange-50 rounded-xl border border-orange-100">
+              <div class="text-3xl font-bold text-orange-600 mb-1">32</div>
+              <div class="text-xs text-orange-700 font-medium">Crew</div>
+              <div class="text-xs text-orange-600 mt-1 flex items-center justify-center">
+                <span class="bg-orange-200 px-2 py-0.5 rounded-full">+4</span>
+              </div>
             </div>
-
-            <!-- Project Total Value -->
-            <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.2s">
-                <div class="widget-header flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-700">Project Total Value</h3>
-                    <div class="widget-controls flex items-center space-x-1">
-                        <button class="p-1 rounded hover:bg-gray-100">
-                            <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="text-3xl font-bold text-green-700 mb-2">$ 182,700</div>
-                </div>
-                
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Start Date</span>
-                        <span class="font-semibold text-gray-900">04 Jan 2020</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">End Date</span>
-                        <span class="font-semibold text-gray-900">10 Oct 2024</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Forecast End Date</span>
-                        <span class="font-semibold text-orange-600">18 May 2025</span>
-                    </div>
-                </div>
+            <div class="text-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div class="text-3xl font-bold text-slate-700 mb-1">08</div>
+              <div class="text-xs text-slate-600 font-medium">Equipments</div>
+              <div class="text-xs text-slate-600 mt-1 flex items-center justify-center">
+                <span class="bg-slate-200 px-2 py-0.5 rounded-full">+2</span>
+              </div>
             </div>
-
-            <!-- Working Hours -->
-            <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.3s">
-                <div class="widget-header flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-700">Working Hours</h3>
-                    <div class="widget-controls flex items-center space-x-1">
-                        <button class="p-1 rounded hover:bg-gray-100">
-                            <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Donut Chart -->
-                <div class="flex items-center justify-center mb-4">
-                    <div class="relative w-24 h-24">
-                        <svg class="w-24 h-24 progress-ring" viewBox="0 0 100 100">
-                            <!-- Background circle -->
-                            <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="10" fill="none"/>
-                            <!-- Regular hours (orange) -->
-                            <circle cx="50" cy="50" r="40" stroke="#f97316" stroke-width="10" fill="none"
-                                    stroke-dasharray="157" stroke-dashoffset="63" 
-                                    class="transition-all duration-1000"/>
-                            <!-- Overtime (gray) -->
-                            <circle cx="50" cy="50" r="40" stroke="#6b7280" stroke-width="10" fill="none"
-                                    stroke-dasharray="94" stroke-dashoffset="0" 
-                                    class="transition-all duration-1000"/>
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="text-center">
-                                <div class="text-lg font-bold text-gray-900">525.7</div>
-                                <div class="text-xs text-gray-500">Hours</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
-                            <span class="text-gray-600">Regular</span>
-                        </div>
-                        <span class="font-semibold text-gray-900">330.2 hrs</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
-                            <span class="text-gray-600">Overtime</span>
-                        </div>
-                        <span class="font-semibold text-gray-900">195.5 hrs</span>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
 
-        <!-- Middle Row - Project Stages & Safety -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-            
-            <!-- Project Stage (3 columns) -->
-            <div class="lg:col-span-3 metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.4s">
-                <div class="widget-header flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">Project Stage</h3>
-                    <div class="flex items-center space-x-2">
-                        <select class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg border-0 font-medium">
-                            <option>Current Month</option>
-                            <option>Last Quarter</option>
-                            <option>Year to Date</option>
-                        </select>
-                        <div class="widget-controls">
-                            <button class="p-1 rounded hover:bg-gray-100">
-                                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <!-- Upcoming -->
+        <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.1s">
+          <div class="widget-header flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-700">Upcoming</h3>
+            <div class="widget-controls flex items-center space-x-1">
+              <button class="p-1 rounded hover:bg-gray-100">
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              </button>
+            </div>
+          </div>
 
-                <!-- Timeline -->
-                <div class="relative mb-6">
-                    <!-- Timeline line -->
-                    <div class="absolute top-6 left-0 right-0 h-0.5 bg-gray-200"></div>
-                    
-                    <!-- Date markers -->
-                    <div class="flex justify-between text-xs text-gray-500 mb-4">
-                        <span>Jan 25</span>
-                        <span>Feb 25</span>
-                        <span>Mar 25</span>
-                        <span>Apr 25</span>
-                        <span>May 25</span>
-                        <span>Jun 25</span>
-                        <span>Jul 25</span>
-                        <span>Aug 25</span>
-                    </div>
-                </div>
-
-                <!-- Stages -->
-                <div class="space-y-4">
-                    <!-- Designing -->
-                    <div class="flex items-center space-x-4">
-                        <div class="w-24 text-sm font-medium text-gray-700">Designing</div>
-                        <div class="flex-1 relative">
-                            <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-600 rounded-full progress-fill" style="width: 100%"></div>
-                            </div>
-                            <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
-                        </div>
-                    </div>
-
-                    <!-- Engineering -->
-                    <div class="flex items-center space-x-4">
-                        <div class="w-24 text-sm font-medium text-gray-700">Engineering</div>
-                        <div class="flex-1 relative">
-                            <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-600 rounded-full progress-fill" style="width: 80%"></div>
-                            </div>
-                            <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
-                        </div>
-                    </div>
-
-                    <!-- Procurement -->
-                    <div class="flex items-center space-x-4">
-                        <div class="w-24 text-sm font-medium text-gray-700">Procurement</div>
-                        <div class="flex-1 relative">
-                            <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-600 rounded-full progress-fill" style="width: 90%"></div>
-                            </div>
-                            <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
-                        </div>
-                    </div>
-
-                    <!-- Construction -->
-                    <div class="flex items-center space-x-4">
-                        <div class="w-24 text-sm font-medium text-gray-700">Construction</div>
-                        <div class="flex-1 relative">
-                            <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-blue-600 rounded-full progress-fill" style="width: 60%"></div>
-                            </div>
-                            <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
-                        </div>
-                    </div>
-
-                    <!-- Commission -->
-                    <div class="flex items-center space-x-4">
-                        <div class="w-24 text-sm font-medium text-gray-700">Commission</div>
-                        <div class="flex-1 relative">
-                            <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gray-400 rounded-full progress-fill" style="width: 30%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Close Out -->
-                    <div class="flex items-center space-x-4">
-                        <div class="w-24 text-sm font-medium text-gray-700">Close Out</div>
-                        <div class="flex-1 relative">
-                            <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gray-400 rounded-full progress-fill" style="width: 10%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="space-y-4">
+            <div class="p-3 bg-blue-50 rounded-xl border border-blue-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-blue-700 font-medium">Next Milestone</span>
+                <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium"
+                  >0 Days Left</span
+                >
+              </div>
+              <div class="text-sm font-bold text-blue-900">
+                <i data-lucide="target" class="w-4 h-4 inline mr-1"></i>
+                Total Value
+              </div>
+              <div class="text-lg font-bold text-blue-800">$75,000</div>
             </div>
 
-            <!-- Safety Hazards (1 column) -->
-            <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.5s">
-                <div class="widget-header flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">Safety Hazards</h3>
-                    <div class="widget-controls">
-                        <button class="p-1 rounded hover:bg-gray-100">
-                            <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Chart -->
-                <div class="safety-bar mb-6">
-                    <div class="flex flex-col items-center">
-                        <div class="bar" style="height: 40px;" data-value="75"></div>
-                        <span class="text-xs text-gray-500 mt-2">Mar 25</span>
-                        <span class="text-xs font-medium text-gray-700">75</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="bar" style="height: 100px;" data-value="180"></div>
-                        <span class="text-xs text-gray-500 mt-2">Apr 25</span>
-                        <span class="text-xs font-medium text-gray-700">180</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <div class="bar" style="height: 60px;" data-value="100"></div>
-                        <span class="text-xs text-gray-500 mt-2">May 25</span>
-                        <span class="text-xs font-medium text-gray-700">100</span>
-                    </div>
-                </div>
-
-                <!-- Legend -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                            <span class="text-sm text-gray-700">Fall</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-900">45</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
-                            <span class="text-sm text-gray-700">Heavy Equipment</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-900">28</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                            <span class="text-sm text-gray-700">Electrical</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-900">15</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span class="text-sm text-gray-700">Infection</span>
-                        </div>
-                        <span class="text-sm font-medium text-gray-900">8</span>
-                    </div>
-                </div>
+            <div class="p-3 bg-green-50 rounded-xl border border-green-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-green-700 font-medium">Next Checkpoint</span>
+                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium"
+                  >12 Days Left</span
+                >
+              </div>
+              <div class="text-sm font-bold text-green-900">
+                <i data-lucide="flag" class="w-4 h-4 inline mr-1"></i>
+                Total Count
+              </div>
+              <div class="text-lg font-bold text-green-800">12</div>
             </div>
+          </div>
         </div>
 
-        <!-- Bottom Row - Cost Estimation -->
-        <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.6s">
-            <div class="widget-header flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-gray-800">Cost Estimation</h3>
-                <div class="flex items-center space-x-4">
-                    <!-- Legend -->
-                    <div class="flex items-center space-x-4 text-sm">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span class="text-gray-600">Planned Amount</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
-                            <span class="text-gray-600">Utilized Amount</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
-                            <span class="text-gray-600">Budget Forecasting</span>
-                        </div>
-                    </div>
-                    
-                    <select class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg border-0">
-                        <option>Main Categories</option>
-                        <option>Sub Categories</option>
-                        <option>Detailed View</option>
-                    </select>
-                    
-                    <div class="widget-controls">
-                        <button class="p-1 rounded hover:bg-gray-100">
-                            <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
+        <!-- Project Total Value -->
+        <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.2s">
+          <div class="widget-header flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-700">Project Total Value</h3>
+            <div class="widget-controls flex items-center space-x-1">
+              <button class="p-1 rounded hover:bg-gray-100">
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              </button>
             </div>
+          </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Summary Cards -->
-                <div class="space-y-4">
-                    <div class="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
-                        <div class="text-sm text-blue-700 font-medium mb-2">Actual Amount</div>
-                        <div class="text-2xl font-bold text-blue-900">$5,505,000</div>
-                        <div class="text-xs text-blue-600 mt-1">↑ 12% from last month</div>
-                    </div>
-                    
-                    <div class="p-4 bg-green-50 rounded-xl border-l-4 border-green-500">
-                        <div class="text-sm text-green-700 font-medium mb-2">Planned Amount</div>
-                        <div class="text-2xl font-bold text-green-900">$4,500,000</div>
-                        <div class="text-xs text-green-600 mt-1">On target</div>
-                    </div>
-                    
-                    <div class="p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
-                        <div class="text-sm text-orange-700 font-medium mb-2">Forecasted Utilization by EOP</div>
-                        <div class="text-2xl font-bold text-orange-900">$77,512,031</div>
-                        <div class="text-xs text-orange-600 mt-1">Projected total</div>
-                    </div>
-                </div>
+          <div class="mb-4">
+            <div class="text-3xl font-bold text-green-700 mb-2">$ 182,700</div>
+          </div>
 
-                <!-- Chart Area -->
-                <div class="lg:col-span-2">
-                    <div class="chart-container flex items-center justify-center">
-                        <div class="text-center">
-                            <i data-lucide="trending-up" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-                            <h4 class="text-lg font-semibold text-gray-600 mb-2">Interactive Cost Analysis</h4>
-                            <p class="text-sm text-gray-500 mb-4">Real-time budget tracking dengan forecasting AI</p>
-                            <div class="flex items-center justify-center space-x-4">
-                                <div class="h-2 w-20 bg-blue-300 rounded-full"></div>
-                                <div class="h-2 w-24 bg-orange-300 rounded-full"></div>
-                                <div class="h-2 w-16 bg-gray-300 rounded-full"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Start Date</span>
+              <span class="font-semibold text-gray-900">04 Jan 2020</span>
             </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">End Date</span>
+              <span class="font-semibold text-gray-900">10 Oct 2024</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Forecast End Date</span>
+              <span class="font-semibold text-orange-600">18 May 2025</span>
+            </div>
+          </div>
         </div>
 
+        <!-- Working Hours -->
+        <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.3s">
+          <div class="widget-header flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-gray-700">Working Hours</h3>
+            <div class="widget-controls flex items-center space-x-1">
+              <button class="p-1 rounded hover:bg-gray-100">
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Donut Chart -->
+          <div class="flex items-center justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <svg class="w-24 h-24 progress-ring" viewBox="0 0 100 100">
+                <!-- Background circle -->
+                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="10" fill="none" />
+                <!-- Regular hours (orange) -->
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#f97316"
+                  stroke-width="10"
+                  fill="none"
+                  stroke-dasharray="157"
+                  stroke-dashoffset="63"
+                  class="transition-all duration-1000"
+                />
+                <!-- Overtime (gray) -->
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#6b7280"
+                  stroke-width="10"
+                  fill="none"
+                  stroke-dasharray="94"
+                  stroke-dashoffset="0"
+                  class="transition-all duration-1000"
+                />
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                  <div class="text-lg font-bold text-gray-900">525.7</div>
+                  <div class="text-xs text-gray-500">Hours</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                <span class="text-gray-600">Regular</span>
+              </div>
+              <span class="font-semibold text-gray-900">330.2 hrs</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+                <span class="text-gray-600">Overtime</span>
+              </div>
+              <span class="font-semibold text-gray-900">195.5 hrs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle Row - Project Stages & Safety -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Project Stage (3 columns) -->
+        <div
+          class="lg:col-span-3 metric-card rounded-2xl p-6 fade-in"
+          style="animation-delay: 0.4s"
+        >
+          <div class="widget-header flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">Project Stage</h3>
+            <div class="flex items-center space-x-2">
+              <select
+                class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg border-0 font-medium"
+              >
+                <option>Current Month</option>
+                <option>Last Quarter</option>
+                <option>Year to Date</option>
+              </select>
+              <div class="widget-controls">
+                <button class="p-1 rounded hover:bg-gray-100">
+                  <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="relative mb-6">
+            <!-- Timeline line -->
+            <div class="absolute top-6 left-0 right-0 h-0.5 bg-gray-200"></div>
+
+            <!-- Date markers -->
+            <div class="flex justify-between text-xs text-gray-500 mb-4">
+              <span>Jan 25</span>
+              <span>Feb 25</span>
+              <span>Mar 25</span>
+              <span>Apr 25</span>
+              <span>May 25</span>
+              <span>Jun 25</span>
+              <span>Jul 25</span>
+              <span>Aug 25</span>
+            </div>
+          </div>
+
+          <!-- Stages -->
+          <div class="space-y-4">
+            <!-- Designing -->
+            <div class="flex items-center space-x-4">
+              <div class="w-24 text-sm font-medium text-gray-700">Designing</div>
+              <div class="flex-1 relative">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-blue-600 rounded-full progress-fill"
+                    style="width: 100%"
+                  ></div>
+                </div>
+                <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- Engineering -->
+            <div class="flex items-center space-x-4">
+              <div class="w-24 text-sm font-medium text-gray-700">Engineering</div>
+              <div class="flex-1 relative">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-blue-600 rounded-full progress-fill"
+                    style="width: 80%"
+                  ></div>
+                </div>
+                <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- Procurement -->
+            <div class="flex items-center space-x-4">
+              <div class="w-24 text-sm font-medium text-gray-700">Procurement</div>
+              <div class="flex-1 relative">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-blue-600 rounded-full progress-fill"
+                    style="width: 90%"
+                  ></div>
+                </div>
+                <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- Construction -->
+            <div class="flex items-center space-x-4">
+              <div class="w-24 text-sm font-medium text-gray-700">Construction</div>
+              <div class="flex-1 relative">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-blue-600 rounded-full progress-fill"
+                    style="width: 60%"
+                  ></div>
+                </div>
+                <div class="absolute left-0 top-0 w-2 h-4 bg-orange-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- Commission -->
+            <div class="flex items-center space-x-4">
+              <div class="w-24 text-sm font-medium text-gray-700">Commission</div>
+              <div class="flex-1 relative">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-gray-400 rounded-full progress-fill"
+                    style="width: 30%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Close Out -->
+            <div class="flex items-center space-x-4">
+              <div class="w-24 text-sm font-medium text-gray-700">Close Out</div>
+              <div class="flex-1 relative">
+                <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-gray-400 rounded-full progress-fill"
+                    style="width: 10%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety Hazards (1 column) -->
+        <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.5s">
+          <div class="widget-header flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">Safety Hazards</h3>
+            <div class="widget-controls">
+              <button class="p-1 rounded hover:bg-gray-100">
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart -->
+          <div class="safety-bar mb-6">
+            <div class="flex flex-col items-center">
+              <div class="bar" style="height: 40px" data-value="75"></div>
+              <span class="text-xs text-gray-500 mt-2">Mar 25</span>
+              <span class="text-xs font-medium text-gray-700">75</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bar" style="height: 100px" data-value="180"></div>
+              <span class="text-xs text-gray-500 mt-2">Apr 25</span>
+              <span class="text-xs font-medium text-gray-700">180</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="bar" style="height: 60px" data-value="100"></div>
+              <span class="text-xs text-gray-500 mt-2">May 25</span>
+              <span class="text-xs font-medium text-gray-700">100</span>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span class="text-sm text-gray-700">Fall</span>
+              </div>
+              <span class="text-sm font-medium text-gray-900">45</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                <span class="text-sm text-gray-700">Heavy Equipment</span>
+              </div>
+              <span class="text-sm font-medium text-gray-900">28</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <span class="text-sm text-gray-700">Electrical</span>
+              </div>
+              <span class="text-sm font-medium text-gray-900">15</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span class="text-sm text-gray-700">Infection</span>
+              </div>
+              <span class="text-sm font-medium text-gray-900">8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row - Cost Estimation -->
+      <div class="metric-card rounded-2xl p-6 fade-in" style="animation-delay: 0.6s">
+        <div class="widget-header flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-gray-800">Cost Estimation</h3>
+          <div class="flex items-center space-x-4">
+            <!-- Legend -->
+            <div class="flex items-center space-x-4 text-sm">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span class="text-gray-600">Planned Amount</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                <span class="text-gray-600">Utilized Amount</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                <span class="text-gray-600">Budget Forecasting</span>
+              </div>
+            </div>
+
+            <select class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg border-0">
+              <option>Main Categories</option>
+              <option>Sub Categories</option>
+              <option>Detailed View</option>
+            </select>
+
+            <div class="widget-controls">
+              <button class="p-1 rounded hover:bg-gray-100">
+                <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-400"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Summary Cards -->
+          <div class="space-y-4">
+            <div class="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+              <div class="text-sm text-blue-700 font-medium mb-2">Actual Amount</div>
+              <div class="text-2xl font-bold text-blue-900">$5,505,000</div>
+              <div class="text-xs text-blue-600 mt-1">↑ 12% from last month</div>
+            </div>
+
+            <div class="p-4 bg-green-50 rounded-xl border-l-4 border-green-500">
+              <div class="text-sm text-green-700 font-medium mb-2">Planned Amount</div>
+              <div class="text-2xl font-bold text-green-900">$4,500,000</div>
+              <div class="text-xs text-green-600 mt-1">On target</div>
+            </div>
+
+            <div class="p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
+              <div class="text-sm text-orange-700 font-medium mb-2">
+                Forecasted Utilization by EOP
+              </div>
+              <div class="text-2xl font-bold text-orange-900">$77,512,031</div>
+              <div class="text-xs text-orange-600 mt-1">Projected total</div>
+            </div>
+          </div>
+
+          <!-- Chart Area -->
+          <div class="lg:col-span-2">
+            <div class="chart-container flex items-center justify-center">
+              <div class="text-center">
+                <i data-lucide="trending-up" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                <h4 class="text-lg font-semibold text-gray-600 mb-2">Interactive Cost Analysis</h4>
+                <p class="text-sm text-gray-500 mb-4">
+                  Real-time budget tracking dengan forecasting AI
+                </p>
+                <div class="flex items-center justify-center space-x-4">
+                  <div class="h-2 w-20 bg-blue-300 rounded-full"></div>
+                  <div class="h-2 w-24 bg-orange-300 rounded-full"></div>
+                  <div class="h-2 w-16 bg-gray-300 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Scripts -->
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-        
-        // Animate progress bars on load
-        document.addEventListener('DOMContentLoaded', function() {
-            const progressBars = document.querySelectorAll('.progress-fill');
-            progressBars.forEach((bar, index) => {
-                setTimeout(() => {
-                    bar.style.width = bar.style.width;
-                }, index * 200);
-            });
-            
-            // Animate safety bars
-            const safetyBars = document.querySelectorAll('.bar');
-            safetyBars.forEach((bar, index) => {
-                setTimeout(() => {
-                    bar.style.height = bar.style.height;
-                }, index * 300 + 1000);
-            });
+      // Initialize Lucide icons
+      lucide.createIcons();
+
+      // Animate progress bars on load
+      document.addEventListener('DOMContentLoaded', function () {
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach((bar, index) => {
+          setTimeout(() => {
+            bar.style.width = bar.style.width;
+          }, index * 200);
         });
-        
-        // Add interactive effects
-        document.querySelectorAll('.metric-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-4px)';
-                this.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.1)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            });
+
+        // Animate safety bars
+        const safetyBars = document.querySelectorAll('.bar');
+        safetyBars.forEach((bar, index) => {
+          setTimeout(
+            () => {
+              bar.style.height = bar.style.height;
+            },
+            index * 300 + 1000
+          );
         });
-        
-        // Mock real-time updates
-        setInterval(() => {
-            const crewCount = document.querySelector('.text-orange-600:contains("32")');
-            if (crewCount && Math.random() > 0.7) {
-                const currentValue = parseInt(crewCount.textContent);
-                const newValue = currentValue + (Math.random() > 0.5 ? 1 : -1);
-                crewCount.textContent = Math.max(30, Math.min(35, newValue));
-            }
-        }, 30000);
-        
-        console.log('Enhanced Dashboard loaded successfully!');
+      });
+
+      // Add interactive effects
+      document.querySelectorAll('.metric-card').forEach((card) => {
+        card.addEventListener('mouseenter', function () {
+          this.style.transform = 'translateY(-4px)';
+          this.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.1)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = 'none';
+        });
+      });
+
+      // Mock real-time updates
+      setInterval(() => {
+        const crewCount = document.querySelector('.text-orange-600:contains("32")');
+        if (crewCount && Math.random() > 0.7) {
+          const currentValue = parseInt(crewCount.textContent);
+          const newValue = currentValue + (Math.random() > 0.5 ? 1 : -1);
+          crewCount.textContent = Math.max(30, Math.min(35, newValue));
+        }
+      }, 30000);
+
+      console.log('Enhanced Dashboard loaded successfully!');
     </script>
-</body>
+  </body>
 </html>

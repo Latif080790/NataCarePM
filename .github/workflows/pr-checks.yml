@@ -8,7 +8,7 @@ jobs:
   pr-quality-gate:
     name: PR Quality Gate
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,17 +50,17 @@ jobs:
             const fs = require('fs');
             const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json'));
             const comment = `## 📊 Test Coverage Report
-            
+
             | Metric | Coverage |
             |--------|----------|
             | Lines | ${coverage.total.lines.pct}% |
             | Statements | ${coverage.total.statements.pct}% |
             | Functions | ${coverage.total.functions.pct}% |
             | Branches | ${coverage.total.branches.pct}% |
-            
+
             ${coverage.total.lines.pct >= 60 ? '✅' : '❌'} Overall coverage: ${coverage.total.lines.pct >= 60 ? 'PASS' : 'FAIL'}
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

@@ -1,7 +1,7 @@
 /**
  * Safety Management Service
  * Phase 3.5: Quick Wins - Safety Management System
- * 
+ *
  * Comprehensive safety tracking including incidents, training,
  * PPE management, and safety audits with OSHA compliance
  */
@@ -41,8 +41,8 @@ import type {
  */
 const convertTimestamps = <T>(data: any): T => {
   const converted: any = { ...data };
-  
-  Object.keys(converted).forEach(key => {
+
+  Object.keys(converted).forEach((key) => {
     if (converted[key] instanceof Timestamp) {
       converted[key] = converted[key].toDate();
     } else if (Array.isArray(converted[key])) {
@@ -53,7 +53,7 @@ const convertTimestamps = <T>(data: any): T => {
       converted[key] = convertTimestamps(converted[key]);
     }
   });
-  
+
   return converted as T;
 };
 
@@ -69,11 +69,12 @@ const generateIncidentNumber = async (): Promise<string> => {
     where('incidentNumber', '<=', `INC-${year}-999`),
     orderBy('incidentNumber', 'desc')
   );
-  
+
   const snapshot = await getDocs(q);
-  const lastNumber = snapshot.empty ? 0 : 
-    parseInt(snapshot.docs[0].data().incidentNumber.split('-')[2]);
-  
+  const lastNumber = snapshot.empty
+    ? 0
+    : parseInt(snapshot.docs[0].data().incidentNumber.split('-')[2]);
+
   return `INC-${year}-${String(lastNumber + 1).padStart(3, '0')}`;
 };
 
@@ -82,7 +83,7 @@ const generateIncidentNumber = async (): Promise<string> => {
  */
 export const safetyService = {
   // ==================== Incidents ====================
-  
+
   /**
    * Get all incidents for a project
    */
@@ -94,12 +95,14 @@ export const safetyService = {
         where('projectId', '==', projectId),
         orderBy('occurredAt', 'desc')
       );
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => convertTimestamps<SafetyIncident>({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      return snapshot.docs.map((doc) =>
+        convertTimestamps<SafetyIncident>({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
     } catch (error) {
       console.error('[SafetyService] Error fetching incidents:', error);
       throw new Error('Failed to fetch safety incidents');
@@ -113,11 +116,11 @@ export const safetyService = {
     try {
       const incidentRef = doc(db, 'safetyIncidents', incidentId);
       const incidentDoc = await getDoc(incidentRef);
-      
+
       if (!incidentDoc.exists()) {
         return null;
       }
-      
+
       return convertTimestamps<SafetyIncident>({
         id: incidentDoc.id,
         ...incidentDoc.data(),
@@ -136,17 +139,17 @@ export const safetyService = {
   ): Promise<SafetyIncident> {
     try {
       const incidentNumber = await generateIncidentNumber();
-      
+
       const incidentData = {
         ...incident,
         incidentNumber,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      
+
       const incidentsRef = collection(db, 'safetyIncidents');
       const docRef = await addDoc(incidentsRef, incidentData);
-      
+
       return {
         id: docRef.id,
         ...incident,
@@ -163,10 +166,7 @@ export const safetyService = {
   /**
    * Update incident
    */
-  async updateIncident(
-    incidentId: string,
-    updates: Partial<SafetyIncident>
-  ): Promise<void> {
+  async updateIncident(incidentId: string, updates: Partial<SafetyIncident>): Promise<void> {
     try {
       const incidentRef = doc(db, 'safetyIncidents', incidentId);
       await updateDoc(incidentRef, {
@@ -205,12 +205,14 @@ export const safetyService = {
         where('projectId', '==', projectId),
         orderBy('scheduledDate', 'desc')
       );
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => convertTimestamps<SafetyTraining>({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      return snapshot.docs.map((doc) =>
+        convertTimestamps<SafetyTraining>({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
     } catch (error) {
       console.error('[SafetyService] Error fetching training:', error);
       throw new Error('Failed to fetch safety training');
@@ -228,19 +230,20 @@ export const safetyService = {
       const trainingRef = collection(db, 'safetyTraining');
       const q = query(trainingRef, orderBy('trainingNumber', 'desc'));
       const snapshot = await getDocs(q);
-      const lastNumber = snapshot.empty ? 0 : 
-        parseInt(snapshot.docs[0].data().trainingNumber.split('-')[2]);
+      const lastNumber = snapshot.empty
+        ? 0
+        : parseInt(snapshot.docs[0].data().trainingNumber.split('-')[2]);
       const trainingNumber = `TRN-${year}-${String(lastNumber + 1).padStart(3, '0')}`;
-      
+
       const trainingData = {
         ...training,
         trainingNumber,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      
+
       const docRef = await addDoc(trainingRef, trainingData);
-      
+
       return {
         id: docRef.id,
         ...training,
@@ -257,10 +260,7 @@ export const safetyService = {
   /**
    * Update training
    */
-  async updateTraining(
-    trainingId: string,
-    updates: Partial<SafetyTraining>
-  ): Promise<void> {
+  async updateTraining(trainingId: string, updates: Partial<SafetyTraining>): Promise<void> {
     try {
       const trainingRef = doc(db, 'safetyTraining', trainingId);
       await updateDoc(trainingRef, {
@@ -282,12 +282,14 @@ export const safetyService = {
     try {
       const ppeRef = collection(db, 'ppeInventory');
       const q = query(ppeRef, where('projectId', '==', projectId));
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => convertTimestamps<PPEInventory>({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      return snapshot.docs.map((doc) =>
+        convertTimestamps<PPEInventory>({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
     } catch (error) {
       console.error('[SafetyService] Error fetching PPE inventory:', error);
       throw new Error('Failed to fetch PPE inventory');
@@ -307,7 +309,7 @@ export const safetyService = {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      
+
       return {
         id: docRef.id,
         ...ppe,
@@ -323,10 +325,7 @@ export const safetyService = {
   /**
    * Update PPE item
    */
-  async updatePPEItem(
-    ppeId: string,
-    updates: Partial<PPEInventory>
-  ): Promise<void> {
+  async updatePPEItem(ppeId: string, updates: Partial<PPEInventory>): Promise<void> {
     try {
       const ppeRef = doc(db, 'ppeInventory', ppeId);
       await updateDoc(ppeRef, {
@@ -350,12 +349,14 @@ export const safetyService = {
         where('projectId', '==', projectId),
         orderBy('assignedDate', 'desc')
       );
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => convertTimestamps<PPEAssignment>({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      return snapshot.docs.map((doc) =>
+        convertTimestamps<PPEAssignment>({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
     } catch (error) {
       console.error('[SafetyService] Error fetching PPE assignments:', error);
       throw new Error('Failed to fetch PPE assignments');
@@ -375,7 +376,7 @@ export const safetyService = {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      
+
       return {
         id: docRef.id,
         ...assignment,
@@ -401,12 +402,14 @@ export const safetyService = {
         where('projectId', '==', projectId),
         orderBy('scheduledDate', 'desc')
       );
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => convertTimestamps<SafetyAudit>({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      return snapshot.docs.map((doc) =>
+        convertTimestamps<SafetyAudit>({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
     } catch (error) {
       console.error('[SafetyService] Error fetching audits:', error);
       throw new Error('Failed to fetch safety audits');
@@ -424,19 +427,20 @@ export const safetyService = {
       const auditsRef = collection(db, 'safetyAudits');
       const q = query(auditsRef, orderBy('auditNumber', 'desc'));
       const snapshot = await getDocs(q);
-      const lastNumber = snapshot.empty ? 0 :
-        parseInt(snapshot.docs[0].data().auditNumber.split('-')[2]);
+      const lastNumber = snapshot.empty
+        ? 0
+        : parseInt(snapshot.docs[0].data().auditNumber.split('-')[2]);
       const auditNumber = `AUD-${year}-${String(lastNumber + 1).padStart(3, '0')}`;
-      
+
       const auditData = {
         ...audit,
         auditNumber,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      
+
       const docRef = await addDoc(auditsRef, auditData);
-      
+
       return {
         id: docRef.id,
         ...audit,
@@ -453,10 +457,7 @@ export const safetyService = {
   /**
    * Update safety audit
    */
-  async updateAudit(
-    auditId: string,
-    updates: Partial<SafetyAudit>
-  ): Promise<void> {
+  async updateAudit(auditId: string, updates: Partial<SafetyAudit>): Promise<void> {
     try {
       const auditRef = doc(db, 'safetyAudits', auditId);
       await updateDoc(auditRef, {
@@ -482,12 +483,14 @@ export const safetyService = {
         where('projectId', '==', projectId),
         orderBy('observedAt', 'desc')
       );
-      
+
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => convertTimestamps<SafetyObservation>({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      return snapshot.docs.map((doc) =>
+        convertTimestamps<SafetyObservation>({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
     } catch (error) {
       console.error('[SafetyService] Error fetching observations:', error);
       throw new Error('Failed to fetch safety observations');
@@ -507,7 +510,7 @@ export const safetyService = {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      
+
       return {
         id: docRef.id,
         ...observation,
@@ -535,56 +538,63 @@ export const safetyService = {
       const training = await this.getTraining(projectId);
       const audits = await this.getAudits(projectId);
       const observations = await this.getObservations(projectId);
-      
+
       // Filter by period
-      const periodIncidents = incidents.filter(i =>
-        i.occurredAt >= periodStart && i.occurredAt <= periodEnd
+      const periodIncidents = incidents.filter(
+        (i) => i.occurredAt >= periodStart && i.occurredAt <= periodEnd
       );
-      const periodTraining = training.filter(t =>
-        t.scheduledDate >= periodStart && t.scheduledDate <= periodEnd
+      const periodTraining = training.filter(
+        (t) => t.scheduledDate >= periodStart && t.scheduledDate <= periodEnd
       );
-      const periodAudits = audits.filter(a =>
-        a.scheduledDate >= periodStart && a.scheduledDate <= periodEnd
+      const periodAudits = audits.filter(
+        (a) => a.scheduledDate >= periodStart && a.scheduledDate <= periodEnd
       );
-      const periodObservations = observations.filter(o =>
-        o.observedAt >= periodStart && o.observedAt <= periodEnd
+      const periodObservations = observations.filter(
+        (o) => o.observedAt >= periodStart && o.observedAt <= periodEnd
       );
-      
+
       // Calculate incident metrics
-      const bySeverity = periodIncidents.reduce((acc, inc) => {
-        acc[inc.severity] = (acc[inc.severity] || 0) + 1;
-        return acc;
-      }, {} as Record<IncidentSeverity, number>);
-      
+      const bySeverity = periodIncidents.reduce(
+        (acc, inc) => {
+          acc[inc.severity] = (acc[inc.severity] || 0) + 1;
+          return acc;
+        },
+        {} as Record<IncidentSeverity, number>
+      );
+
       const byType = periodIncidents.reduce((acc, inc) => {
         acc[inc.type] = (acc[inc.type] || 0) + 1;
         return acc;
       }, {} as any);
-      
-      const fatalCount = periodIncidents.filter(i => i.severity === 'fatal').length;
-      const lostTimeInjuries = periodIncidents.filter(i =>
-        i.injuredPersons.some(p => p.daysLost && p.daysLost > 0)
+
+      const fatalCount = periodIncidents.filter((i) => i.severity === 'fatal').length;
+      const lostTimeInjuries = periodIncidents.filter((i) =>
+        i.injuredPersons.some((p) => p.daysLost && p.daysLost > 0)
       ).length;
-      const totalDaysLost = periodIncidents.reduce((sum, i) =>
-        sum + i.injuredPersons.reduce((s, p) => s + (p.daysLost || 0), 0), 0
+      const totalDaysLost = periodIncidents.reduce(
+        (sum, i) => sum + i.injuredPersons.reduce((s, p) => s + (p.daysLost || 0), 0),
+        0
       );
-      
+
       // Assuming 200,000 work hours (standard OSHA denominator)
       const workHours = 200000; // This should be calculated from actual time tracking
-      const trir = (periodIncidents.filter(i => i.oshaRecordable).length / workHours) * 200000;
+      const trir = (periodIncidents.filter((i) => i.oshaRecordable).length / workHours) * 200000;
       const ltifr = (lostTimeInjuries / workHours) * 200000;
-      
+
       // Training metrics
       const totalAttendees = periodTraining.reduce((sum, t) => sum + t.attendees.length, 0);
-      const passedAttendees = periodTraining.reduce((sum, t) =>
-        sum + t.attendees.filter(a => a.passed).length, 0
+      const passedAttendees = periodTraining.reduce(
+        (sum, t) => sum + t.attendees.filter((a) => a.passed).length,
+        0
       );
-      
+
       // Audit metrics
-      const completedAudits = periodAudits.filter(a => a.status === 'completed');
-      const avgComplianceRate = completedAudits.length > 0 ?
-        completedAudits.reduce((sum, a) => sum + a.complianceRate, 0) / completedAudits.length : 0;
-      
+      const completedAudits = periodAudits.filter((a) => a.status === 'completed');
+      const avgComplianceRate =
+        completedAudits.length > 0
+          ? completedAudits.reduce((sum, a) => sum + a.complianceRate, 0) / completedAudits.length
+          : 0;
+
       return {
         projectId,
         period: { start: periodStart, end: periodEnd },
@@ -621,19 +631,21 @@ export const safetyService = {
           total: periodAudits.length,
           completed: completedAudits.length,
           averageComplianceRate: avgComplianceRate,
-          criticalFindings: completedAudits.reduce((sum, a) =>
-            sum + a.findings.filter(f => f.severity === 'critical').length, 0
+          criticalFindings: completedAudits.reduce(
+            (sum, a) => sum + a.findings.filter((f) => f.severity === 'critical').length,
+            0
           ),
-          openFindings: completedAudits.reduce((sum, a) =>
-            sum + a.findings.filter(f => f.status === 'open').length, 0
+          openFindings: completedAudits.reduce(
+            (sum, a) => sum + a.findings.filter((f) => f.status === 'open').length,
+            0
           ),
         },
         observations: {
           total: periodObservations.length,
-          safeBehaviors: periodObservations.filter(o => o.type === 'safe_behavior').length,
-          unsafeActs: periodObservations.filter(o => o.type === 'unsafe_act').length,
-          unsafeConditions: periodObservations.filter(o => o.type === 'unsafe_condition').length,
-          suggestions: periodObservations.filter(o => o.type === 'suggestion').length,
+          safeBehaviors: periodObservations.filter((o) => o.type === 'safe_behavior').length,
+          unsafeActs: periodObservations.filter((o) => o.type === 'unsafe_act').length,
+          unsafeConditions: periodObservations.filter((o) => o.type === 'unsafe_condition').length,
+          suggestions: periodObservations.filter((o) => o.type === 'suggestion').length,
         },
         workHours: {
           totalHours: workHours,
@@ -670,7 +682,7 @@ export const safetyService = {
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
       const yearStart = new Date(now.getFullYear(), 0, 1);
-      
+
       const [incidents, training, thisMonth, lastMonth, yearToDate] = await Promise.all([
         this.getIncidents(projectId),
         this.getTraining(projectId),
@@ -678,27 +690,34 @@ export const safetyService = {
         this.calculateMetrics(projectId, lastMonthStart, lastMonthEnd),
         this.calculateMetrics(projectId, yearStart, now),
       ]);
-      
-      const activeIncidents = incidents.filter(i =>
+
+      const activeIncidents = incidents.filter((i) =>
         ['reported', 'investigating', 'corrective_action'].includes(i.status)
       );
-      const criticalIncidents = incidents.filter(i => i.severity === 'critical' || i.severity === 'fatal');
-      
+      const criticalIncidents = incidents.filter(
+        (i) => i.severity === 'critical' || i.severity === 'fatal'
+      );
+
       const upcomingTraining = training
-        .filter(t => t.scheduledDate > now && t.status === 'scheduled')
+        .filter((t) => t.scheduledDate > now && t.status === 'scheduled')
         .slice(0, 5);
-      
-      const expiringCertifications = training
-        .flatMap(t => t.attendees
-          .filter(a => t.expiryDate && t.expiryDate > now && t.expiryDate < new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000))
-          .map(a => ({
+
+      const expiringCertifications = training.flatMap((t) =>
+        t.attendees
+          .filter(
+            (a) =>
+              t.expiryDate &&
+              t.expiryDate > now &&
+              t.expiryDate < new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+          )
+          .map((a) => ({
             userId: a.userId,
             userName: a.name,
             trainingType: t.type,
             expiryDate: t.expiryDate!,
           }))
-        );
-      
+      );
+
       return {
         projectId,
         currentStatus: {

@@ -1,6 +1,3 @@
 {
-    "recommendations": [
-        "tcchan.gemini-code",
-        "google.geminicodeassist"
-    ]
+  "recommendations": ["tcchan.gemini-code", "google.geminicodeassist"]
 }

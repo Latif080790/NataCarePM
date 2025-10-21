@@ -1,6 +1,6 @@
 /**
  * MATERIAL REQUEST SERVICE
- * 
+ *
  * Comprehensive service layer for Material Request (MR) operations including:
  * - MR CRUD operations
  * - Multi-level approval workflow (Site Manager → PM → Budget Check → Final Approval)
@@ -8,32 +8,32 @@
  * - Budget verification via WBS
  * - MR to PO conversion
  * - Real-time status tracking
- * 
+ *
  * Created: October 2025
  */
 
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
   deleteDoc,
-  query, 
-  where, 
+  query,
+  where,
   orderBy,
-  Timestamp 
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-import { 
-  MaterialRequest, 
-  MRItem, 
+import {
+  MaterialRequest,
+  MRItem,
   CreateMRInput,
   ApproveMRInput,
   ConvertMRtoPOInput,
   MRStatus,
-  MRPriority
+  MRPriority,
 } from '@/types/logistics';
 import { PurchaseOrder, POItem } from '@/types';
 
@@ -55,18 +55,18 @@ const PO_COLLECTION = 'purchaseOrders';
 async function generateMRNumber(projectId: string): Promise<string> {
   const today = new Date();
   const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-  
+
   // Get count of MRs created today for this project
   const q = query(
     collection(db, MR_COLLECTION),
     where('projectId', '==', projectId),
     where('requestedAt', '>=', today.toISOString().slice(0, 10))
   );
-  
+
   const snapshot = await getDocs(q);
   const sequence = snapshot.size + 1;
   const sequenceStr = sequence.toString().padStart(4, '0');
-  
+
   return `MR-${dateStr}-${sequenceStr}`;
 }
 
@@ -85,12 +85,12 @@ export async function createMaterialRequest(
   try {
     // Generate MR number
     const mrNumber = await generateMRNumber(input.projectId);
-    
+
     // Check inventory stock levels for each item
     const itemsWithStockCheck: MRItem[] = await Promise.all(
       input.items.map(async (item) => {
         const stockInfo = await checkInventoryStock(item.materialCode || '', input.projectId);
-        
+
         return {
           id: `mri_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           mrId: '', // Will be set after doc creation
@@ -99,10 +99,10 @@ export async function createMaterialRequest(
           description: item.description,
           specification: item.description, // Use description as spec
           quantity: item.quantity,
-          requestedQty: item.quantity,     // Alias
+          requestedQty: item.quantity, // Alias
           unit: item.unit,
           wbsElementId: item.wbsElementId,
-          wbsCode: item.wbsElementId,       // Alias
+          wbsCode: item.wbsElementId, // Alias
           estimatedUnitPrice: item.estimatedUnitPrice,
           estimatedTotalPrice: item.quantity * item.estimatedUnitPrice,
           estimatedTotal: item.quantity * item.estimatedUnitPrice, // Alias
@@ -111,19 +111,19 @@ export async function createMaterialRequest(
           stockStatus: stockInfo.stockStatus,
           justification: item.justification,
           urgencyReason: item.urgencyReason,
-          notes: item.urgencyReason,        // Use urgencyReason as notes
-          convertedToPO: false
+          notes: item.urgencyReason, // Use urgencyReason as notes
+          convertedToPO: false,
         };
       })
     );
-    
+
     // Calculate totals
     const totalItems = itemsWithStockCheck.length;
     const totalEstimatedValue = itemsWithStockCheck.reduce(
-      (sum, item) => sum + item.estimatedTotalPrice, 
+      (sum, item) => sum + item.estimatedTotalPrice,
       0
     );
-    
+
     // Create MR document
     const newMR: Omit<MaterialRequest, 'id'> = {
       mrNumber,
@@ -141,28 +141,27 @@ export async function createMaterialRequest(
       convertedToPO: false,
       poIds: [],
       attachments: [],
-      remarks: input.remarks
+      remarks: input.remarks,
     };
-    
+
     // Save to Firestore
     const docRef = await addDoc(collection(db, MR_COLLECTION), newMR);
-    
+
     // Update items with mrId
-    const updatedItems = itemsWithStockCheck.map(item => ({
+    const updatedItems = itemsWithStockCheck.map((item) => ({
       ...item,
-      mrId: docRef.id
+      mrId: docRef.id,
     }));
-    
-    await updateDoc(docRef, { 
-      items: updatedItems 
+
+    await updateDoc(docRef, {
+      items: updatedItems,
     });
-    
+
     return {
       id: docRef.id,
       ...newMR,
-      items: updatedItems
+      items: updatedItems,
     };
-    
   } catch (error) {
     console.error('Error creating material request:', error);
     throw error;
@@ -189,15 +188,15 @@ async function checkInventoryStock(
       return {
         currentStock: 0,
         reorderPoint: 0,
-        stockStatus: 'out_of_stock'
+        stockStatus: 'out_of_stock',
       };
     }
-    
+
     // TODO: Query actual inventory collection
     // For now, return mock data
     const currentStock = 0;
     const reorderPoint = 10;
-    
+
     let stockStatus: 'sufficient' | 'low' | 'out_of_stock';
     if (currentStock === 0) {
       stockStatus = 'out_of_stock';
@@ -206,15 +205,14 @@ async function checkInventoryStock(
     } else {
       stockStatus = 'sufficient';
     }
-    
+
     return { currentStock, reorderPoint, stockStatus };
-    
   } catch (error) {
     console.error('Error checking inventory stock:', error);
     return {
       currentStock: 0,
       reorderPoint: 0,
-      stockStatus: 'out_of_stock'
+      stockStatus: 'out_of_stock',
     };
   }
 }
@@ -230,16 +228,15 @@ export async function getMaterialRequestById(mrId: string): Promise<MaterialRequ
   try {
     const docRef = doc(db, MR_COLLECTION, mrId);
     const docSnap = await getDoc(docRef);
-    
+
     if (!docSnap.exists()) {
       return null;
     }
-    
+
     return {
       id: docSnap.id,
-      ...docSnap.data()
+      ...docSnap.data(),
     } as MaterialRequest;
-    
   } catch (error) {
     console.error('Error fetching material request:', error);
     throw error;
@@ -260,41 +257,40 @@ export async function getMaterialRequests(
   }
 ): Promise<MaterialRequest[]> {
   try {
-    let q = query(
+    const q = query(
       collection(db, MR_COLLECTION),
       where('projectId', '==', projectId),
       orderBy('requestedAt', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
-    let results = snapshot.docs.map(doc => ({
+    let results = snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     })) as MaterialRequest[];
-    
+
     // Apply filters
     if (filters?.status && filters.status.length > 0) {
-      results = results.filter(mr => filters.status!.includes(mr.status));
+      results = results.filter((mr) => filters.status!.includes(mr.status));
     }
-    
+
     if (filters?.priority && filters.priority.length > 0) {
-      results = results.filter(mr => filters.priority!.includes(mr.priority));
+      results = results.filter((mr) => filters.priority!.includes(mr.priority));
     }
-    
+
     if (filters?.requestedBy) {
-      results = results.filter(mr => mr.requestedBy === filters.requestedBy);
+      results = results.filter((mr) => mr.requestedBy === filters.requestedBy);
     }
-    
+
     if (filters?.dateFrom) {
-      results = results.filter(mr => mr.requestedAt >= filters.dateFrom!);
+      results = results.filter((mr) => mr.requestedAt >= filters.dateFrom!);
     }
-    
+
     if (filters?.dateTo) {
-      results = results.filter(mr => mr.requestedAt <= filters.dateTo!);
+      results = results.filter((mr) => mr.requestedAt <= filters.dateTo!);
     }
-    
+
     return results;
-    
   } catch (error) {
     console.error('Error fetching material requests:', error);
     throw error;
@@ -310,7 +306,7 @@ export async function getPendingApprovals(
 ): Promise<MaterialRequest[]> {
   try {
     let statusFilter: MRStatus;
-    
+
     switch (role) {
       case 'site_manager':
         statusFilter = 'site_manager_review';
@@ -324,19 +320,18 @@ export async function getPendingApprovals(
       default:
         return [];
     }
-    
+
     const q = query(
       collection(db, MR_COLLECTION),
       where('status', '==', statusFilter),
       orderBy('requestedAt', 'asc')
     );
-    
+
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     })) as MaterialRequest[];
-    
   } catch (error) {
     console.error('Error fetching pending approvals:', error);
     throw error;
@@ -359,17 +354,16 @@ export async function updateMaterialRequest(
     if (!mr) {
       throw new Error('Material Request not found');
     }
-    
+
     if (mr.status !== 'draft') {
       throw new Error('Can only update MR in draft status');
     }
-    
+
     const docRef = doc(db, MR_COLLECTION, mrId);
     await updateDoc(docRef, {
       ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
-    
   } catch (error) {
     console.error('Error updating material request:', error);
     throw error;
@@ -383,39 +377,35 @@ export async function updateMaterialRequest(
 /**
  * Submit MR for approval workflow
  */
-export async function submitMaterialRequest(
-  mrId: string,
-  userId: string
-): Promise<void> {
+export async function submitMaterialRequest(mrId: string, userId: string): Promise<void> {
   try {
     const mr = await getMaterialRequestById(mrId);
     if (!mr) {
       throw new Error('Material Request not found');
     }
-    
+
     if (mr.status !== 'draft') {
       throw new Error('Can only submit MR in draft status');
     }
-    
+
     // Validate MR has items
     if (mr.items.length === 0) {
       throw new Error('Cannot submit MR without items');
     }
-    
+
     // Start approval workflow - first go to Site Manager
     const docRef = doc(db, MR_COLLECTION, mrId);
     await updateDoc(docRef, {
       status: 'submitted',
       submittedAt: new Date().toISOString(),
-      submittedBy: userId
+      submittedBy: userId,
     });
-    
+
     // If no site manager required, go directly to PM review
     // For now, always start with site_manager_review
     await updateDoc(docRef, {
-      status: 'site_manager_review'
+      status: 'site_manager_review',
     });
-    
   } catch (error) {
     console.error('Error submitting material request:', error);
     throw error;
@@ -439,21 +429,21 @@ export async function approveMaterialRequest(
     if (!mr) {
       throw new Error('Material Request not found');
     }
-    
+
     const docRef = doc(db, MR_COLLECTION, input.mrId);
     const now = new Date().toISOString();
-    
+
     // Handle rejection
     if (!input.approved) {
       await updateDoc(docRef, {
         status: 'rejected',
         rejectedBy: approverId,
         rejectedAt: now,
-        rejectionReason: input.notes
+        rejectionReason: input.notes,
       });
       return;
     }
-    
+
     // Handle approval at each stage
     switch (input.approverRole) {
       case 'site_manager':
@@ -461,44 +451,43 @@ export async function approveMaterialRequest(
           siteManagerId: approverId,
           siteManagerApprovedAt: now,
           siteManagerNotes: input.notes,
-          status: 'pm_review' // Move to next stage
+          status: 'pm_review', // Move to next stage
         });
         break;
-        
+
       case 'pm':
         await updateDoc(docRef, {
           pmId: approverId,
           pmApprovedAt: now,
           pmNotes: input.notes,
-          status: 'budget_check' // Move to budget verification
+          status: 'budget_check', // Move to budget verification
         });
         break;
-        
+
       case 'budget_controller':
         // Check budget availability via WBS
         const budgetStatus = await checkBudgetAvailability(mr);
-        
+
         await updateDoc(docRef, {
           budgetCheckedBy: approverId,
           budgetCheckedAt: now,
           budgetStatus: budgetStatus.status,
           budgetNotes: `${input.notes}\n\nBudget Analysis: ${budgetStatus.message}`,
-          status: budgetStatus.status === 'sufficient' ? 'approved' : 'rejected'
+          status: budgetStatus.status === 'sufficient' ? 'approved' : 'rejected',
         });
         break;
-        
+
       case 'final_approver':
         await updateDoc(docRef, {
           finalApprovedBy: approverId,
           finalApprovedAt: now,
-          status: 'approved'
+          status: 'approved',
         });
         break;
-        
+
       default:
         throw new Error(`Invalid approver role: ${input.approverRole}`);
     }
-    
   } catch (error) {
     console.error('Error approving material request:', error);
     throw error;
@@ -512,9 +501,7 @@ export async function approveMaterialRequest(
 /**
  * Check budget availability for MR items via WBS
  */
-export async function checkBudgetAvailability(
-  mr: MaterialRequest
-): Promise<{
+export async function checkBudgetAvailability(mr: MaterialRequest): Promise<{
   status: 'sufficient' | 'insufficient' | 'needs_reallocation';
   message: string;
   details?: {
@@ -532,31 +519,31 @@ export async function checkBudgetAvailability(
   try {
     // Get WBS data from cost control service
     const { getWBSBudgetStatus } = await import('./costControlService');
-    
+
     // Group MR items by WBS code
     const wbsMap = new Map<string, number>();
-    mr.items.forEach(item => {
+    mr.items.forEach((item) => {
       if (item.wbsCode) {
         const current = wbsMap.get(item.wbsCode) || 0;
-        wbsMap.set(item.wbsCode, current + (item.requestedQty * item.estimatedUnitPrice));
+        wbsMap.set(item.wbsCode, current + item.requestedQty * item.estimatedUnitPrice);
       }
     });
-    
-    let totalRequired = mr.totalEstimatedValue;
+
+    const totalRequired = mr.totalEstimatedValue;
     let totalAvailable = 0;
     const wbsBreakdown = [];
     let allSufficient = true;
     let needsReallocation = false;
-    
+
     // Check each WBS element
     for (const [wbsCode, requiredAmount] of wbsMap.entries()) {
       try {
         const wbsStatus = await getWBSBudgetStatus(mr.projectId, wbsCode);
-        
+
         if (wbsStatus) {
           const available = wbsStatus.remainingBudget || 0;
           totalAvailable += available;
-          
+
           let status = 'sufficient';
           if (available < requiredAmount) {
             status = 'insufficient';
@@ -565,13 +552,13 @@ export async function checkBudgetAvailability(
             status = 'tight';
             needsReallocation = true;
           }
-          
+
           wbsBreakdown.push({
             wbsCode,
             wbsName: wbsStatus.wbsName || wbsCode,
             required: requiredAmount,
             available,
-            status
+            status,
           });
         } else {
           // WBS not found - assume insufficient
@@ -581,7 +568,7 @@ export async function checkBudgetAvailability(
             wbsName: wbsCode,
             required: requiredAmount,
             available: 0,
-            status: 'not_found'
+            status: 'not_found',
           });
         }
       } catch (error) {
@@ -589,11 +576,11 @@ export async function checkBudgetAvailability(
         allSufficient = false;
       }
     }
-    
+
     // Determine overall status
     let status: 'sufficient' | 'insufficient' | 'needs_reallocation';
     let message: string;
-    
+
     if (wbsBreakdown.length === 0) {
       // No WBS codes assigned - cannot check budget
       status = 'needs_reallocation';
@@ -611,22 +598,21 @@ export async function checkBudgetAvailability(
       status = 'insufficient';
       message = `Budget insufficient. Required: $${totalRequired.toFixed(2)}, Available: $${totalAvailable.toFixed(2)}`;
     }
-    
+
     return {
       status,
       message,
       details: {
         totalRequired,
         totalAvailable,
-        wbsBreakdown
-      }
+        wbsBreakdown,
+      },
     };
-    
   } catch (error) {
     console.error('Error checking budget:', error);
     return {
       status: 'insufficient',
-      message: 'Error checking budget availability. Please try again.'
+      message: 'Error checking budget availability. Please try again.',
     };
   }
 }
@@ -647,18 +633,18 @@ export async function convertMRtoPO(
     if (!mr) {
       throw new Error('Material Request not found');
     }
-    
+
     if (mr.status !== 'approved') {
       throw new Error('Can only convert approved MR to PO');
     }
-    
+
     // Create PO items from MR items
-    const poItems: POItem[] = input.itemMappings.map(mapping => {
-      const mrItem = mr.items.find(item => item.id === mapping.mrItemId);
+    const poItems: POItem[] = input.itemMappings.map((mapping) => {
+      const mrItem = mr.items.find((item) => item.id === mapping.mrItemId);
       if (!mrItem) {
         throw new Error(`MR item not found: ${mapping.mrItemId}`);
       }
-      
+
       return {
         id: `poi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         materialCode: mrItem.materialCode,
@@ -670,13 +656,13 @@ export async function convertMRtoPO(
         unitPrice: mapping.finalUnitPrice,
         totalPrice: mapping.finalQuantity * mapping.finalUnitPrice,
         receivedQuantity: 0,
-        status: 'pending'
+        status: 'pending',
       };
     });
-    
+
     // Calculate total
     const totalAmount = poItems.reduce((sum, item) => sum + item.totalPrice, 0);
-    
+
     // Create PO
     const newPO: Omit<PurchaseOrder, 'id'> = {
       prNumber: mr.mrNumber, // Link to MR
@@ -690,22 +676,20 @@ export async function convertMRtoPO(
       totalAmount,
       wbsElementId: mr.items[0]?.wbsElementId, // Use first item's WBS
       grnStatus: 'Belum Diterima',
-      notes: `Converted from Material Request: ${mr.mrNumber}\n${input.terms || ''}`
+      notes: `Converted from Material Request: ${mr.mrNumber}\n${input.terms || ''}`,
     };
-    
+
     // Save PO
     const poRef = await addDoc(collection(db, PO_COLLECTION), newPO);
-    
+
     // Update MR items as converted
-    const updatedItems = mr.items.map(item => ({
+    const updatedItems = mr.items.map((item) => ({
       ...item,
       convertedToPO: true,
       poId: poRef.id,
-      poItemId: poItems.find(poi => 
-        poi.materialCode === item.materialCode
-      )?.id
+      poItemId: poItems.find((poi) => poi.materialCode === item.materialCode)?.id,
     }));
-    
+
     // Update MR status
     const mrRef = doc(db, MR_COLLECTION, input.mrId);
     await updateDoc(mrRef, {
@@ -714,14 +698,13 @@ export async function convertMRtoPO(
       poIds: [...mr.poIds, poRef.id],
       items: updatedItems,
       convertedAt: new Date().toISOString(),
-      convertedBy: userId
+      convertedBy: userId,
     });
-    
+
     return {
       id: poRef.id,
-      ...newPO
+      ...newPO,
     };
-    
   } catch (error) {
     console.error('Error converting MR to PO:', error);
     throw error;
@@ -742,22 +725,22 @@ export function validateMaterialRequest(mr: Partial<MaterialRequest>): {
 } {
   const errors: string[] = [];
   const warnings: string[] = [];
-  
+
   // Check items
   if (!mr.items || mr.items.length === 0) {
     errors.push('MR must have at least one item');
   }
-  
+
   // Check required date
   if (mr.requiredDate) {
     const reqDate = new Date(mr.requiredDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (reqDate < today) {
       errors.push('Required date cannot be in the past');
     }
-    
+
     // Warn if very urgent (less than 3 days)
     const daysUntilRequired = Math.ceil(
       (reqDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
@@ -768,37 +751,37 @@ export function validateMaterialRequest(mr: Partial<MaterialRequest>): {
       );
     }
   }
-  
+
   // Check quantities
   mr.items?.forEach((item, index) => {
     if (item.quantity <= 0) {
       errors.push(`Item ${index + 1}: Quantity must be greater than 0`);
     }
-    
+
     if (!item.justification || item.justification.trim() === '') {
       warnings.push(`Item ${index + 1}: Justification is recommended`);
     }
-    
+
     // Check stock status
     if (item.stockStatus === 'sufficient' && mr.priority !== 'urgent') {
       warnings.push(
         `Item ${index + 1}: Stock is sufficient (${item.currentStock} ${item.unit}). ` +
-        `Consider using existing stock first.`
+          `Consider using existing stock first.`
       );
     }
   });
-  
+
   // Check budget allocation
   mr.items?.forEach((item, index) => {
     if (!item.wbsElementId) {
       warnings.push(`Item ${index + 1}: No WBS element assigned for budget tracking`);
     }
   });
-  
+
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
@@ -820,26 +803,28 @@ export async function getMRSummary(projectId: string): Promise<{
 }> {
   try {
     const mrs = await getMaterialRequests(projectId);
-    
+
     const totalMRs = mrs.length;
-    const pendingApproval = mrs.filter(mr => 
+    const pendingApproval = mrs.filter((mr) =>
       ['submitted', 'site_manager_review', 'pm_review', 'budget_check'].includes(mr.status)
     ).length;
-    const approved = mrs.filter(mr => mr.status === 'approved').length;
-    const rejected = mrs.filter(mr => mr.status === 'rejected').length;
-    const convertedToPO = mrs.filter(mr => mr.convertedToPO).length;
-    
+    const approved = mrs.filter((mr) => mr.status === 'approved').length;
+    const rejected = mrs.filter((mr) => mr.status === 'rejected').length;
+    const convertedToPO = mrs.filter((mr) => mr.convertedToPO).length;
+
     const totalEstimatedValue = mrs.reduce((sum, mr) => sum + mr.totalEstimatedValue, 0);
-    
+
     // Calculate average approval time
-    const approvedMRs = mrs.filter(mr => mr.finalApprovedAt);
-    const avgApprovalTime = approvedMRs.length > 0 ?
-      approvedMRs.reduce((sum, mr) => {
-        const requested = new Date(mr.requestedAt).getTime();
-        const approved = new Date(mr.finalApprovedAt!).getTime();
-        return sum + (approved - requested) / (1000 * 60 * 60); // Convert to hours
-      }, 0) / approvedMRs.length : 0;
-    
+    const approvedMRs = mrs.filter((mr) => mr.finalApprovedAt);
+    const avgApprovalTime =
+      approvedMRs.length > 0
+        ? approvedMRs.reduce((sum, mr) => {
+            const requested = new Date(mr.requestedAt).getTime();
+            const approved = new Date(mr.finalApprovedAt!).getTime();
+            return sum + (approved - requested) / (1000 * 60 * 60); // Convert to hours
+          }, 0) / approvedMRs.length
+        : 0;
+
     return {
       totalMRs,
       pendingApproval,
@@ -847,9 +832,8 @@ export async function getMRSummary(projectId: string): Promise<{
       rejected,
       convertedToPO,
       totalEstimatedValue,
-      avgApprovalTime
+      avgApprovalTime,
     };
-    
   } catch (error) {
     console.error('Error calculating MR summary:', error);
     throw error;
@@ -869,14 +853,13 @@ export async function deleteMaterialRequest(mrId: string): Promise<void> {
     if (!mr) {
       throw new Error('Material Request not found');
     }
-    
+
     if (mr.status !== 'draft') {
       throw new Error('Can only delete MR in draft status');
     }
-    
+
     const docRef = doc(db, MR_COLLECTION, mrId);
     await deleteDoc(docRef);
-    
   } catch (error) {
     console.error('Error deleting material request:', error);
     throw error;

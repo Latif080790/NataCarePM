@@ -1,6 +1,6 @@
 /**
  * HamburgerButton Component
- * 
+ *
  * Animated hamburger menu button for mobile navigation
  * Features smooth icon transformation animation
  */
@@ -13,10 +13,10 @@ interface HamburgerButtonProps {
   className?: string;
 }
 
-export const HamburgerButton: React.FC<HamburgerButtonProps> = ({ 
-  isOpen, 
-  onClick, 
-  className = '' 
+export const HamburgerButton: React.FC<HamburgerButtonProps> = ({
+  isOpen,
+  onClick,
+  className = '',
 }) => {
   return (
     <button

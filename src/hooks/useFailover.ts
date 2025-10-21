@@ -28,57 +28,57 @@ export function useFailover() {
     isHealthy: true,
     lastFailover: null,
     failoverHistory: getFailoverHistory(),
-    recentEvents: []
+    recentEvents: [],
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
-  
+
   useEffect(() => {
     // Subscribe to failover events
     const unsubscribe = failoverManager.subscribe((event: FailoverEvent) => {
       console.log('Failover event:', event);
-      
-      setStatus(prev => {
+
+      setStatus((prev) => {
         const newEvents = [...prev.recentEvents, event].slice(-10); // Keep last 10 events
-        
+
         return {
           ...prev,
           currentRegion: failoverManager.getCurrentRegionInfo(),
           failoverHistory: getFailoverHistory(),
           recentEvents: newEvents,
           isHealthy: event.type !== 'health_check_failed' && event.type !== 'health_warning',
-          lastFailover: event.type === 'failover_completed' ? new Date() : prev.lastFailover
+          lastFailover: event.type === 'failover_completed' ? new Date() : prev.lastFailover,
         };
       });
     });
-    
+
     // Initial health check
     checkHealth();
-    
+
     return () => {
       unsubscribe();
     };
   }, []);
-  
+
   /**
    * Check current health status
    */
   const checkHealth = async () => {
     try {
       const healthStatus = await failoverManager.getCurrentHealth();
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
-        isHealthy: healthStatus.healthy
+        isHealthy: healthStatus.healthy,
       }));
     } catch (error) {
       console.error('Health check failed:', error);
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
-        isHealthy: false
+        isHealthy: false,
       }));
     }
   };
-  
+
   /**
    * Perform manual failover
    */
@@ -94,22 +94,22 @@ export function useFailover() {
       setIsLoading(false);
     }
   };
-  
+
   /**
    * Clear recent events
    */
   const clearEvents = () => {
-    setStatus(prev => ({
+    setStatus((prev) => ({
       ...prev,
-      recentEvents: []
+      recentEvents: [],
     }));
   };
-  
+
   return {
     ...status,
     isLoading,
     checkHealth,
     manualFailover,
-    clearEvents
+    clearEvents,
   };
 }

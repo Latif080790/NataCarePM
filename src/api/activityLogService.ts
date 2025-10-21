@@ -3,28 +3,28 @@
  * Comprehensive user activity tracking and logging system
  */
 
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit as firestoreLimit, 
+import {
+  collection,
+  doc,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  limit as firestoreLimit,
   getDocs,
   serverTimestamp,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger';
-import type { 
+import type {
   UserActivityLog,
   UserActivityAction,
   ActivityCategory,
   ActivityLogFilter,
   ActivityLogResponse,
   DeviceInfo,
-  GeoLocation
+  GeoLocation,
 } from '@/types';
 
 // Collection name
@@ -35,7 +35,7 @@ const ACTIVITY_LOGS_COLLECTION = 'user_activity_logs';
  */
 const getDeviceInfo = (): DeviceInfo => {
   const ua = navigator.userAgent;
-  
+
   // Detect device type
   let deviceType: 'desktop' | 'mobile' | 'tablet' = 'desktop';
   if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) {
@@ -45,7 +45,7 @@ const getDeviceInfo = (): DeviceInfo => {
   // Detect OS
   let os = 'Unknown';
   let osVersion = '';
-  
+
   if (/Windows NT 10/i.test(ua)) {
     os = 'Windows';
     osVersion = '10';
@@ -77,7 +77,7 @@ const getDeviceInfo = (): DeviceInfo => {
   // Detect browser
   let browser = 'Unknown';
   let browserVersion = '';
-  
+
   if (/Edg\//i.test(ua)) {
     browser = 'Edge';
     const match = ua.match(/Edg\/([\d.]+)/);
@@ -111,7 +111,7 @@ const getDeviceInfo = (): DeviceInfo => {
     browserVersion,
     userAgent: ua,
     screenResolution,
-    isTrusted: true // Can be enhanced with device trust logic
+    isTrusted: true, // Can be enhanced with device trust logic
   };
 };
 
@@ -139,7 +139,7 @@ const getGeoLocation = async (ipAddress: string): Promise<GeoLocation | undefine
     // In production, use a geolocation service like ipstack, ipapi, or MaxMind
     // For now, return undefined
     return undefined;
-    
+
     // Example implementation:
     // const response = await fetch(`https://ipapi.co/${ipAddress}/json/`);
     // const data = await response.json();
@@ -170,12 +170,12 @@ const generateSessionId = (): string => {
  */
 const getSessionId = (): string => {
   let sessionId = sessionStorage.getItem('activitySessionId');
-  
+
   if (!sessionId) {
     sessionId = generateSessionId();
     sessionStorage.setItem('activitySessionId', sessionId);
   }
-  
+
   return sessionId;
 };
 
@@ -195,7 +195,12 @@ export const logUserActivity = async (params: {
   errorMessage?: string;
   errorCode?: string;
   metadata?: { [key: string]: any };
-  changes?: Array<{ field: string; oldValue: any; newValue: any; changeType: 'created' | 'updated' | 'deleted' }>;
+  changes?: Array<{
+    field: string;
+    oldValue: any;
+    newValue: any;
+    changeType: 'created' | 'updated' | 'deleted';
+  }>;
   securityRelevant?: boolean;
   riskLevel?: 'low' | 'medium' | 'high' | 'critical';
 }): Promise<void> => {
@@ -215,18 +220,18 @@ export const logUserActivity = async (params: {
       metadata,
       changes,
       securityRelevant = false,
-      riskLevel = 'low'
+      riskLevel = 'low',
     } = params;
 
     // Get device info
     const deviceInfo = getDeviceInfo();
-    
+
     // Get IP address
     const ipAddress = await getClientIP();
-    
+
     // Get geo location
     const location = await getGeoLocation(ipAddress);
-    
+
     // Get session ID
     const sessionId = getSessionId();
 
@@ -251,17 +256,16 @@ export const logUserActivity = async (params: {
       metadata,
       changes,
       securityRelevant,
-      riskLevel
+      riskLevel,
     };
 
     // Save to Firestore
     await addDoc(collection(db, ACTIVITY_LOGS_COLLECTION), {
       ...activityLog,
-      timestamp: serverTimestamp()
+      timestamp: serverTimestamp(),
     });
 
     logger.debug('Activity logged', { userId, action, category });
-
   } catch (error: any) {
     // Don't throw error - logging failure shouldn't break the app
     logger.error('Failed to log activity', error, { userId: params.userId, action: params.action });
@@ -271,9 +275,7 @@ export const logUserActivity = async (params: {
 /**
  * Get activity logs with filters
  */
-export const getActivityLogs = async (
-  filter: ActivityLogFilter
-): Promise<ActivityLogResponse> => {
+export const getActivityLogs = async (filter: ActivityLogFilter): Promise<ActivityLogResponse> => {
   try {
     const {
       userId,
@@ -289,7 +291,7 @@ export const getActivityLogs = async (
       limit: limitValue = 50,
       offset = 0,
       sortBy = 'timestamp',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = filter;
 
     logger.info('Fetching activity logs', { userId, limit: limitValue, offset });
@@ -354,7 +356,7 @@ export const getActivityLogs = async (
       logs.push({
         id: doc.id,
         ...data,
-        timestamp: data.timestamp?.toDate() || new Date()
+        timestamp: data.timestamp?.toDate() || new Date(),
       } as UserActivityLog);
     });
 
@@ -373,17 +375,16 @@ export const getActivityLogs = async (
       logs: paginatedLogs,
       totalCount: paginatedLogs.length,
       hasMore,
-      filters: filter
+      filters: filter,
     };
-
   } catch (error: any) {
     logger.error('Error fetching activity logs', error, { filter });
-    
+
     return {
       logs: [],
       totalCount: 0,
       hasMore: false,
-      filters: filter
+      filters: filter,
     };
   }
 };
@@ -399,7 +400,7 @@ export const getRecentActivity = async (
     userId,
     limit: limitValue,
     sortBy: 'timestamp',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
   });
 
   return result.logs;
@@ -421,7 +422,7 @@ export const getSecurityActivity = async (
     dateFrom,
     sortBy: 'timestamp',
     sortOrder: 'desc',
-    limit: 100
+    limit: 100,
   });
 
   return result.logs;
@@ -449,7 +450,7 @@ export const getActivitySummary = async (
       dateFrom,
       limit: 1000,
       sortBy: 'timestamp',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
     });
 
     const logs = result.logs;
@@ -460,7 +461,7 @@ export const getActivitySummary = async (
     let securityEvents = 0;
     let failedAttempts = 0;
 
-    logs.forEach(log => {
+    logs.forEach((log) => {
       // Count by category
       byCategory[log.category] = (byCategory[log.category] || 0) + 1;
 
@@ -483,18 +484,17 @@ export const getActivitySummary = async (
       byCategory,
       byAction,
       securityEvents,
-      failedAttempts
+      failedAttempts,
     };
-
   } catch (error: any) {
     logger.error('Error getting activity summary', error, { userId });
-    
+
     return {
       totalActivities: 0,
       byCategory: {},
       byAction: {},
       securityEvents: 0,
-      failedAttempts: 0
+      failedAttempts: 0,
     };
   }
 };
@@ -533,16 +533,15 @@ export const deleteOldActivityLogs = async (
 
     return {
       success: true,
-      deletedCount
+      deletedCount,
     };
-
   } catch (error: any) {
     logger.error('Error deleting old activity logs', error);
-    
+
     return {
       success: false,
       deletedCount: 0,
-      error: error.message || 'Failed to delete old activity logs'
+      error: error.message || 'Failed to delete old activity logs',
     };
   }
 };
@@ -553,5 +552,5 @@ export default {
   getRecentActivity,
   getSecurityActivity,
   getActivitySummary,
-  deleteOldActivityLogs
+  deleteOldActivityLogs,
 };

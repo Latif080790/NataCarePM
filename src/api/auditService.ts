@@ -7,14 +7,10 @@ import {
   where,
   orderBy,
   limit as firestoreLimit,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-import {
-  AuditLog,
-  CreateAuditLogInput,
-  AuditLogFilters
-} from '@/types/automation';
+import { AuditLog, CreateAuditLogInput, AuditLogFilters } from '@/types/automation';
 
 // ============================================================================
 // AUDIT LOG CREATION
@@ -45,7 +41,7 @@ export const createAuditLog = async (
     status: input.status,
     errorMessage: input.errorMessage,
     metadata: input.metadata,
-    timestamp: Timestamp.now()
+    timestamp: Timestamp.now(),
   };
 
   const docRef = await addDoc(collection(db, 'auditLogs'), auditData);
@@ -91,10 +87,13 @@ export const getAuditLogs = async (
   }
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AuditLog));
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AuditLog
+  );
 };
 
 export const getEntityAuditTrail = async (
@@ -111,10 +110,13 @@ export const getEntityAuditTrail = async (
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AuditLog));
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AuditLog
+  );
 };
 
 export const getUserActivityLog = async (
@@ -135,10 +137,13 @@ export const getUserActivityLog = async (
   }
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AuditLog));
+  return snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AuditLog
+  );
 };
 
 // ============================================================================
@@ -167,8 +172,8 @@ export const logPOCreation = async (
       metadata: {
         vendorName: poData.vendorName,
         totalAmount: poData.totalAmount,
-        itemCount: poData.items?.length || 0
-      }
+        itemCount: poData.items?.length || 0,
+      },
     },
     userId,
     userName,
@@ -197,8 +202,8 @@ export const logPOApproval = async (
       status: 'success',
       metadata: {
         approvalStage,
-        approver: userName
-      }
+        approver: userName,
+      },
     },
     userId,
     userName,
@@ -228,8 +233,8 @@ export const logGRCreation = async (
       metadata: {
         poNumber: grData.poNumber,
         receivedItems: grData.items?.length || 0,
-        totalValue: grData.totalValue
-      }
+        totalValue: grData.totalValue,
+      },
     },
     userId,
     userName,
@@ -258,8 +263,8 @@ export const logMRApproval = async (
       status: 'success',
       metadata: {
         approvalStage,
-        approver: userName
-      }
+        approver: userName,
+      },
     },
     userId,
     userName,
@@ -290,8 +295,8 @@ export const logInventoryTransaction = async (
       metadata: {
         transactionType,
         itemCount: items.length,
-        totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0)
-      }
+        totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0),
+      },
     },
     userId,
     userName,
@@ -319,8 +324,8 @@ export const logVendorEvaluation = async (
       metadata: {
         overallScore: evaluationData.overallScore,
         rating: evaluationData.rating,
-        evaluator: userName
-      }
+        evaluator: userName,
+      },
     },
     userId,
     userName,
@@ -350,15 +355,15 @@ export const logWBSBudgetUpdate = async (
         {
           field: 'budget',
           oldValue: oldBudget,
-          newValue: newBudget
-        }
+          newValue: newBudget,
+        },
       ],
       projectId,
       status: 'success',
       metadata: {
         variance: newBudget - oldBudget,
-        variancePercent: ((newBudget - oldBudget) / oldBudget) * 100
-      }
+        variancePercent: ((newBudget - oldBudget) / oldBudget) * 100,
+      },
     },
     userId,
     userName,
@@ -388,15 +393,15 @@ export const logProgressUpdate = async (
         {
           field: 'progress',
           oldValue: oldProgress,
-          newValue: newProgress
-        }
+          newValue: newProgress,
+        },
       ],
       projectId,
       status: 'success',
       metadata: {
         progressChange: newProgress - oldProgress,
-        updatedBy: userName
-      }
+        updatedBy: userName,
+      },
     },
     userId,
     userName,
@@ -425,8 +430,8 @@ export const logAutomationExecution = async (
       errorMessage,
       metadata: {
         trigger,
-        executedAt: new Date().toISOString()
-      }
+        executedAt: new Date().toISOString(),
+      },
     },
     'system',
     'System',
@@ -468,20 +473,23 @@ export const getAuditStatistics = async (
   }
 
   const snapshot = await getDocs(q);
-  const logs = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as AuditLog));
+  const logs = snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      }) as AuditLog
+  );
 
   const totalActions = logs.length;
-  const successfulActions = logs.filter(log => log.status === 'success').length;
-  const failedActions = logs.filter(log => log.status === 'failed').length;
+  const successfulActions = logs.filter((log) => log.status === 'success').length;
+  const failedActions = logs.filter((log) => log.status === 'failed').length;
 
   const actionsByModule: Record<string, number> = {};
   const actionsByType: Record<string, number> = {};
   const userActionCounts: Record<string, { userName: string; count: number }> = {};
 
-  logs.forEach(log => {
+  logs.forEach((log) => {
     // By module
     actionsByModule[log.module] = (actionsByModule[log.module] || 0) + 1;
 
@@ -492,7 +500,7 @@ export const getAuditStatistics = async (
     if (!userActionCounts[log.userId]) {
       userActionCounts[log.userId] = {
         userName: log.userName,
-        count: 0
+        count: 0,
       };
     }
     userActionCounts[log.userId].count++;
@@ -502,7 +510,7 @@ export const getAuditStatistics = async (
     .map(([userId, data]) => ({
       userId,
       userName: data.userName,
-      actionCount: data.count
+      actionCount: data.count,
     }))
     .sort((a, b) => b.actionCount - a.actionCount)
     .slice(0, 10);
@@ -516,7 +524,7 @@ export const getAuditStatistics = async (
     actionsByModule,
     actionsByType,
     mostActiveUsers,
-    recentActivity
+    recentActivity,
   };
 };
 
@@ -547,7 +555,7 @@ export const generateComplianceReport = async (
     {
       startDate,
       endDate,
-      projectId
+      projectId,
     },
     10000 // High limit for comprehensive report
   );
@@ -557,7 +565,7 @@ export const generateComplianceReport = async (
   const criticalActionTypes = ['delete', 'approve', 'reject'];
   const anomalies: AuditLog[] = [];
 
-  logs.forEach(log => {
+  logs.forEach((log) => {
     // User activity tracking
     if (!userActivity[log.userId]) {
       userActivity[log.userId] = {
@@ -565,7 +573,7 @@ export const generateComplianceReport = async (
         userName: log.userName,
         userRole: log.userRole,
         actionCount: 0,
-        lastActivity: log.timestamp.toDate()
+        lastActivity: log.timestamp.toDate(),
       };
     }
     userActivity[log.userId].actionCount++;
@@ -582,23 +590,21 @@ export const generateComplianceReport = async (
     }
   });
 
-  const criticalActions = logs.filter(log => 
-    criticalActionTypes.includes(log.actionType)
-  ).length;
+  const criticalActions = logs.filter((log) => criticalActionTypes.includes(log.actionType)).length;
 
-  const failedActions = logs.filter(log => log.status === 'failed').length;
+  const failedActions = logs.filter((log) => log.status === 'failed').length;
 
   return {
     period: {
       start: startDate.toDate(),
-      end: endDate.toDate()
+      end: endDate.toDate(),
     },
     totalActions: logs.length,
     criticalActions,
     failedActions,
     userActivity: Object.values(userActivity),
     moduleActivity,
-    anomalies
+    anomalies,
   };
 };
 
@@ -607,19 +613,14 @@ export const generateComplianceReport = async (
 // ============================================================================
 
 export const archiveOldAuditLogs = async (daysOld: number): Promise<number> => {
-  const cutoffDate = Timestamp.fromMillis(
-    Date.now() - (daysOld * 24 * 60 * 60 * 1000)
-  );
+  const cutoffDate = Timestamp.fromMillis(Date.now() - daysOld * 24 * 60 * 60 * 1000);
 
-  const q = query(
-    collection(db, 'auditLogs'),
-    where('timestamp', '<=', cutoffDate)
-  );
+  const q = query(collection(db, 'auditLogs'), where('timestamp', '<=', cutoffDate));
 
   const snapshot = await getDocs(q);
-  
+
   // In production, you would move these to an archive collection
   // or export to long-term storage before deleting
-  
+
   return snapshot.size;
 };

@@ -39,20 +39,84 @@ export interface PasswordStrengthCheck {
 
 // Common weak passwords (small subset for demo)
 const COMMON_PASSWORDS = new Set([
-  'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', '1234567',
-  'letmein', 'trustno1', 'dragon', 'baseball', 'iloveyou', 'master', 'sunshine',
-  'ashley', 'bailey', 'passw0rd', 'shadow', '123123', '654321', 'superman',
-  'qazwsx', 'michael', 'football', 'password1', 'password123', 'admin', 'welcome',
-  'login', 'root', 'toor', 'test', 'guest', 'user', 'demo', 'default'
+  'password',
+  '123456',
+  '12345678',
+  'qwerty',
+  'abc123',
+  'monkey',
+  '1234567',
+  'letmein',
+  'trustno1',
+  'dragon',
+  'baseball',
+  'iloveyou',
+  'master',
+  'sunshine',
+  'ashley',
+  'bailey',
+  'passw0rd',
+  'shadow',
+  '123123',
+  '654321',
+  'superman',
+  'qazwsx',
+  'michael',
+  'football',
+  'password1',
+  'password123',
+  'admin',
+  'welcome',
+  'login',
+  'root',
+  'toor',
+  'test',
+  'guest',
+  'user',
+  'demo',
+  'default',
 ]);
 
 // Common patterns to avoid
 const SEQUENTIAL_PATTERNS = [
-  'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi', 'hij', 'ijk', 'jkl',
-  '123', '234', '345', '456', '567', '678', '789', '890',
-  'qwe', 'wer', 'ert', 'rty', 'tyu', 'yui', 'uio', 'iop',
-  'asd', 'sdf', 'dfg', 'fgh', 'ghj', 'hjk', 'jkl',
-  'zxc', 'xcv', 'cvb', 'vbn', 'bnm'
+  'abc',
+  'bcd',
+  'cde',
+  'def',
+  'efg',
+  'fgh',
+  'ghi',
+  'hij',
+  'ijk',
+  'jkl',
+  '123',
+  '234',
+  '345',
+  '456',
+  '567',
+  '678',
+  '789',
+  '890',
+  'qwe',
+  'wer',
+  'ert',
+  'rty',
+  'tyu',
+  'yui',
+  'uio',
+  'iop',
+  'asd',
+  'sdf',
+  'dfg',
+  'fgh',
+  'ghj',
+  'hjk',
+  'jkl',
+  'zxc',
+  'xcv',
+  'cvb',
+  'vbn',
+  'bnm',
 ];
 
 // ========================================
@@ -82,7 +146,7 @@ export const validatePassword = (password: string): PasswordValidationResult => 
 
   // Run checks
   const checks = runPasswordChecks(password);
-  
+
   // Length check
   if (!checks.hasMinLength) {
     errors.push(`Password harus minimal ${PASSWORD_REQUIREMENTS.minLength} karakter`);
@@ -212,12 +276,18 @@ export const getPasswordStrength = (score: number): PasswordStrength => {
  */
 export const getStrengthColor = (strength: PasswordStrength): string => {
   switch (strength) {
-    case 'very-strong': return '#10b981'; // green-500
-    case 'strong': return '#22c55e'; // green-400
-    case 'good': return '#eab308'; // yellow-500
-    case 'fair': return '#f59e0b'; // amber-500
-    case 'weak': return '#ef4444'; // red-500
-    default: return '#6b7280'; // gray-500
+    case 'very-strong':
+      return '#10b981'; // green-500
+    case 'strong':
+      return '#22c55e'; // green-400
+    case 'good':
+      return '#eab308'; // yellow-500
+    case 'fair':
+      return '#f59e0b'; // amber-500
+    case 'weak':
+      return '#ef4444'; // red-500
+    default:
+      return '#6b7280'; // gray-500
   }
 };
 
@@ -226,12 +296,18 @@ export const getStrengthColor = (strength: PasswordStrength): string => {
  */
 export const getStrengthLabel = (strength: PasswordStrength): string => {
   switch (strength) {
-    case 'very-strong': return 'Sangat Kuat';
-    case 'strong': return 'Kuat';
-    case 'good': return 'Baik';
-    case 'fair': return 'Cukup';
-    case 'weak': return 'Lemah';
-    default: return 'Tidak Diketahui';
+    case 'very-strong':
+      return 'Sangat Kuat';
+    case 'strong':
+      return 'Kuat';
+    case 'good':
+      return 'Baik';
+    case 'fair':
+      return 'Cukup';
+    case 'weak':
+      return 'Lemah';
+    default:
+      return 'Tidak Diketahui';
   }
 };
 
@@ -256,7 +332,7 @@ export const estimateCrackTime = (score: number): string => {
  */
 const isCommonPassword = (password: string): boolean => {
   const normalized = password.toLowerCase();
-  
+
   // Check exact match
   if (COMMON_PASSWORDS.has(normalized)) {
     return true;
@@ -290,7 +366,7 @@ const hasRepeatingCharacters = (password: string): boolean => {
  */
 const hasSequentialCharacters = (password: string): boolean => {
   const normalized = password.toLowerCase();
-  
+
   // Check for sequential patterns
   for (const pattern of SEQUENTIAL_PATTERNS) {
     if (normalized.includes(pattern) || normalized.includes(reverseString(pattern))) {
@@ -315,31 +391,25 @@ const reverseString = (str: string): string => {
 /**
  * Check if new password is different from old password
  */
-export const isPasswordDifferent = (
-  newPassword: string,
-  oldPassword: string
-): boolean => {
+export const isPasswordDifferent = (newPassword: string, oldPassword: string): boolean => {
   return newPassword !== oldPassword;
 };
 
 /**
  * Check password similarity (simple Levenshtein-like check)
  */
-export const getPasswordSimilarity = (
-  password1: string,
-  password2: string
-): number => {
+export const getPasswordSimilarity = (password1: string, password2: string): number => {
   // Simple character overlap check (0-100%)
   const p1 = password1.toLowerCase();
   const p2 = password2.toLowerCase();
-  
+
   let matches = 0;
   const minLength = Math.min(p1.length, p2.length);
-  
+
   for (let i = 0; i < minLength; i++) {
     if (p1[i] === p2[i]) matches++;
   }
-  
+
   return (matches / Math.max(p1.length, p2.length)) * 100;
 };
 
@@ -378,7 +448,9 @@ export const isPasswordInHistory = (
 /**
  * Quick password strength check (no detailed errors)
  */
-export const quickStrengthCheck = (password: string): {
+export const quickStrengthCheck = (
+  password: string
+): {
   strength: PasswordStrength;
   score: number;
   color: string;
@@ -386,7 +458,7 @@ export const quickStrengthCheck = (password: string): {
 } => {
   const score = calculatePasswordScore(password);
   const strength = getPasswordStrength(score);
-  
+
   return {
     strength,
     score,

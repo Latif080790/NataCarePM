@@ -1,7 +1,7 @@
 /**
  * Contexts Central Export
  * Phase 3: Enterprise Construction PM Suite
- * 
+ *
  * Exports all context providers and hooks for easy importing
  */
 

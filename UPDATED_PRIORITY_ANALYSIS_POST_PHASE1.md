@@ -2,7 +2,8 @@
 
 **Tanggal Update**: 18 Oktober 2025  
 **Status Phase 1**: ✅ 100% COMPLETE  
-**Dokumen Referensi**: 
+**Dokumen Referensi**:
+
 - BELUM_DITERAPKAN_ANALYSIS.md (17 Okt 2025)
 - PHASE_1_FINAL_COMPLETION_REPORT.md (18 Okt 2025)
 
@@ -11,26 +12,27 @@
 ## 📊 EXECUTIVE SUMMARY - PERUBAHAN SETELAH PHASE 1
 
 ### Phase 1 Achievements (Completed October 18, 2025)
+
 ✅ **Security**: 7/7 fitur implemented (Rate limiting, 2FA, Input validation, XSS, RBAC, CSP, Testing)  
 ✅ **Disaster Recovery**: 3/3 fitur (Automated backup, Recovery procedures, Failover)  
 ✅ **Performance**: 3/3 fitur (Code splitting 68%, Memoization 40%, Firebase caching)  
 ✅ **Testing**: Security & DR testing suites  
-✅ **Documentation**: 15+ comprehensive guides  
+✅ **Documentation**: 15+ comprehensive guides
 
 ### Updated Implementation Progress
 
-| Kategori | Before Phase 1 | After Phase 1 | Progress |
-|----------|----------------|---------------|----------|
-| **Security** | 0% | **100%** ✅ | +100% |
-| **Disaster Recovery** | 0% | **100%** ✅ | +100% |
-| **Performance Core** | 10% | **90%** ✅ | +80% |
-| **Testing Infrastructure** | 25% | **45%** | +20% |
-| **Critical Features** | 20% | **60%** | +40% |
-| **Enhancement Features** | 0% | 0% | 0% |
-| **Mobile & PWA** | 0% | 0% | 0% |
-| **CI/CD** | 0% | 0% | 0% |
-| **AI Features** | 10% | 10% | 0% |
-| **Code Quality** | 0% | **40%** | +40% |
+| Kategori                   | Before Phase 1 | After Phase 1 | Progress |
+| -------------------------- | -------------- | ------------- | -------- |
+| **Security**               | 0%             | **100%** ✅   | +100%    |
+| **Disaster Recovery**      | 0%             | **100%** ✅   | +100%    |
+| **Performance Core**       | 10%            | **90%** ✅    | +80%     |
+| **Testing Infrastructure** | 25%            | **45%**       | +20%     |
+| **Critical Features**      | 20%            | **60%**       | +40%     |
+| **Enhancement Features**   | 0%             | 0%            | 0%       |
+| **Mobile & PWA**           | 0%             | 0%            | 0%       |
+| **CI/CD**                  | 0%             | 0%            | 0%       |
+| **AI Features**            | 10%            | 10%           | 0%       |
+| **Code Quality**           | 0%             | **40%**       | +40%     |
 
 **Overall Progress**: 25% → **55%** (+30%)  
 **Remaining Budget**: $6,500 (36% of original $18,000)
@@ -48,12 +50,14 @@ ROI: High - Production readiness & user feedback
 ---
 
 #### **1. PRODUCTION MONITORING & ERROR TRACKING** 🔴🔴🔴
+
 **Priority**: CRITICAL - MUST DO WEEK 1  
 **Status**: 0% → Need 100%  
 **Effort**: 40 jam (1 minggu)  
 **Cost**: $2,000
 
 **Alasan Prioritas #1**:
+
 - Production sudah deploy tapi NO monitoring
 - Can't detect issues in real-time
 - No user session replay untuk debugging
@@ -62,6 +66,7 @@ ROI: High - Production readiness & user feedback
 **Implementation**:
 
 ##### A. Sentry Integration (20 jam)
+
 ```bash
 npm install @sentry/react @sentry/tracing
 
@@ -86,6 +91,7 @@ Sentry.init({
 ```
 
 **Features**:
+
 - ✅ Automatic error capture
 - ✅ Stack traces with source maps
 - ✅ User session replay
@@ -94,6 +100,7 @@ Sentry.init({
 - ✅ Release tracking
 
 ##### B. Performance Monitoring Dashboard (10 jam)
+
 ```typescript
 // components/MonitoringDashboard.tsx
 - Real-time Web Vitals display
@@ -104,6 +111,7 @@ Sentry.init({
 ```
 
 ##### C. Alert Configuration (10 jam)
+
 ```yaml
 Alerts:
   - Error rate > 5% → Email + Slack
@@ -113,6 +121,7 @@ Alerts:
 ```
 
 **Benefits**:
+
 - 🎯 Detect issues within 5 minutes
 - 🎯 Understand user behavior
 - 🎯 Proactive bug fixing
@@ -121,12 +130,14 @@ Alerts:
 ---
 
 #### **2. ANALYTICS & USER INSIGHTS** 🔴🔴
+
 **Priority**: HIGH - MUST DO WEEK 1  
 **Status**: 0% → Need 80%  
 **Effort**: 30 jam  
 **Cost**: $1,500
 
 **Alasan Prioritas #2**:
+
 - Need data untuk Phase 2 decisions
 - Understand user behavior
 - Feature usage tracking
@@ -135,6 +146,7 @@ Alerts:
 **Implementation**:
 
 ##### A. Google Analytics 4 (10 jam)
+
 ```typescript
 // src/analytics.ts
 import ReactGA from 'react-ga4';
@@ -150,11 +162,12 @@ export const trackEvent = (category: string, action: string, label?: string) => 
 };
 
 export const trackPageView = (path: string) => {
-  ReactGA.send({ hitType: "pageview", page: path });
+  ReactGA.send({ hitType: 'pageview', page: path });
 };
 ```
 
 **Track Events**:
+
 ```typescript
 // User actions
 trackEvent('Authentication', '2FA Setup', userId);
@@ -169,28 +182,30 @@ trackEvent('Performance', 'FCP', fcpTime);
 ```
 
 ##### B. Custom Analytics Service (15 jam)
+
 ```typescript
 // api/analyticsService.ts
 export class AnalyticsService {
   // Business metrics
-  trackProjectCreated(project: Project)
-  trackTaskCompleted(task: Task)
-  trackDocumentShared(doc: Document)
-  trackReportGenerated(report: Report)
-  
+  trackProjectCreated(project: Project);
+  trackTaskCompleted(task: Task);
+  trackDocumentShared(doc: Document);
+  trackReportGenerated(report: Report);
+
   // User engagement
-  trackSessionDuration(duration: number)
-  trackFeatureUsage(feature: string)
-  trackErrorEncountered(error: Error)
-  
+  trackSessionDuration(duration: number);
+  trackFeatureUsage(feature: string);
+  trackErrorEncountered(error: Error);
+
   // Performance metrics
-  trackLoadTime(page: string, time: number)
-  trackBundleSize(size: number)
-  trackAPILatency(endpoint: string, latency: number)
+  trackLoadTime(page: string, time: number);
+  trackBundleSize(size: number);
+  trackAPILatency(endpoint: string, latency: number);
 }
 ```
 
 ##### C. Analytics Dashboard (5 jam)
+
 ```typescript
 // views/AnalyticsDashboard.tsx
 - Daily Active Users (DAU)
@@ -202,6 +217,7 @@ export class AnalyticsService {
 ```
 
 **Benefits**:
+
 - 🎯 Data-driven decisions for Phase 2
 - 🎯 Understand what users actually use
 - 🎯 Identify unused features
@@ -210,12 +226,14 @@ export class AnalyticsService {
 ---
 
 #### **3. USER FEEDBACK & SUPPORT SYSTEM** 🔴
+
 **Priority**: HIGH - MUST DO WEEK 2  
 **Status**: 0% → Need 70%  
 **Effort**: 25 jam  
 **Cost**: $1,250
 
 **Alasan Prioritas #3**:
+
 - Need direct user feedback channel
 - Bug reporting mechanism
 - Feature request tracking
@@ -224,6 +242,7 @@ export class AnalyticsService {
 **Implementation**:
 
 ##### A. In-App Feedback Widget (10 jam)
+
 ```typescript
 // components/FeedbackWidget.tsx
 import { useState } from 'react';
@@ -241,10 +260,10 @@ export const FeedbackWidget = () => {
   const submitFeedback = async () => {
     // Send to Firestore + Email
     await feedbackService.submit(feedback);
-    
+
     // Track in analytics
     trackEvent('Feedback', 'Submitted', feedback.type);
-    
+
     // Show confirmation
     showToast('Thank you for your feedback!', 'success');
   };
@@ -254,9 +273,9 @@ export const FeedbackWidget = () => {
       <button onClick={() => setIsOpen(true)}>
         💬 Feedback
       </button>
-      
+
       {isOpen && (
-        <FeedbackModal 
+        <FeedbackModal
           onSubmit={submitFeedback}
           onClose={() => setIsOpen(false)}
         />
@@ -267,6 +286,7 @@ export const FeedbackWidget = () => {
 ```
 
 ##### B. Bug Report System (10 jam)
+
 ```typescript
 // api/feedbackService.ts
 export class FeedbackService {
@@ -312,6 +332,7 @@ export class FeedbackService {
 ```
 
 ##### C. Support Dashboard (Admin) (5 jam)
+
 ```typescript
 // views/SupportDashboard.tsx
 - List all feedback/bugs
@@ -323,6 +344,7 @@ export class FeedbackService {
 ```
 
 **Benefits**:
+
 - 🎯 Direct communication channel
 - 🎯 Faster bug discovery
 - 🎯 Feature requests prioritization
@@ -331,12 +353,14 @@ export class FeedbackService {
 ---
 
 #### **4. PRODUCTION DEPLOYMENT OPTIMIZATION** 🔴
+
 **Priority**: MEDIUM - Week 2  
 **Status**: 0% → Need 60%  
 **Effort**: 25 jam  
 **Cost**: $1,250
 
 **Alasan Prioritas #4**:
+
 - Optimize deployment process
 - Add staging environment
 - Automated smoke tests
@@ -345,41 +369,42 @@ export class FeedbackService {
 **Implementation**:
 
 ##### A. Staging Environment (10 jam)
+
 ```yaml
 # .github/workflows/deploy-staging.yml
 name: Deploy to Staging
 
 on:
   push:
-    branches: [ develop ]
+    branches: [develop]
 
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build
         run: npm run build
         env:
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.STAGING_PROJECT_ID }}
-          
+
       - name: Deploy to Firebase Staging
         run: |
           npm install -g firebase-tools
           firebase deploy --only hosting:staging --token ${{ secrets.FIREBASE_TOKEN }}
-          
+
       - name: Run Smoke Tests
         run: npm run test:smoke -- https://staging.natacare.web.app
-        
+
       - name: Notify Slack
         run: |
           curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
@@ -388,6 +413,7 @@ jobs:
 ```
 
 ##### B. Automated Smoke Tests (10 jam)
+
 ```typescript
 // tests/smoke/critical-paths.spec.ts
 import { test, expect } from '@playwright/test';
@@ -403,14 +429,14 @@ test.describe('Production Smoke Tests', () => {
     await page.fill('[name="email"]', 'test@natacare.com');
     await page.fill('[name="password"]', 'testpassword');
     await page.click('button[type="submit"]');
-    
+
     await expect(page).toHaveURL('/dashboard');
   });
 
   test('should load dashboard with data', async ({ page }) => {
     // Login first
     await loginAsUser(page);
-    
+
     // Check dashboard elements
     await expect(page.locator('h1')).toContainText('Dashboard');
     await expect(page.locator('.metric-card')).toHaveCount(4);
@@ -418,10 +444,10 @@ test.describe('Production Smoke Tests', () => {
 
   test('should handle offline mode', async ({ page, context }) => {
     await loginAsUser(page);
-    
+
     // Go offline
     await context.setOffline(true);
-    
+
     // Should still load cached data
     await page.reload();
     await expect(page.locator('text=Offline Mode')).toBeVisible();
@@ -430,6 +456,7 @@ test.describe('Production Smoke Tests', () => {
 ```
 
 ##### C. Rollback Mechanism (5 jam)
+
 ```bash
 # scripts/rollback.sh
 #!/bin/bash
@@ -444,6 +471,7 @@ echo "✅ Rolled back to $PREVIOUS"
 ```
 
 **Benefits**:
+
 - 🎯 Safe deployments with staging
 - 🎯 Automated testing before production
 - 🎯 Quick rollback if issues
@@ -460,6 +488,7 @@ ROI: Medium-High - Better UX & Reliability
 ---
 
 #### **5. PROGRESSIVE WEB APP (PWA) FULL IMPLEMENTATION** 🟡🟡🟡
+
 **Priority**: HIGH - Month 2  
 **Status**: 10% (offline caching only) → Need 90%  
 **Effort**: 120 jam (3 minggu)  
@@ -468,11 +497,12 @@ ROI: Medium-High - Better UX & Reliability
 **Yang Sudah Ada (Phase 1)**:
 ✅ Firebase offline persistence  
 ✅ IndexedDB caching  
-✅ Basic offline support  
+✅ Basic offline support
 
 **Yang Masih Belum**:
 
 ##### A. Service Worker dengan Workbox (40 jam)
+
 ```typescript
 // vite.config.ts
 import { VitePWA } from 'vite-plugin-pwa';
@@ -493,14 +523,14 @@ export default {
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
+            type: 'image/png',
+          },
+        ],
       },
       workbox: {
         runtimeCaching: [
@@ -511,16 +541,16 @@ export default {
               cacheName: 'firebase-storage',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
           },
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'google-fonts'
-            }
+              cacheName: 'google-fonts',
+            },
           },
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
@@ -529,18 +559,19 @@ export default {
               cacheName: 'images',
               expiration: {
                 maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-              }
-            }
-          }
-        ]
-      }
-    })
-  ]
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+              },
+            },
+          },
+        ],
+      },
+    }),
+  ],
 };
 ```
 
 ##### B. Background Sync (30 jam)
+
 ```typescript
 // src/utils/backgroundSync.ts
 export class BackgroundSyncService {
@@ -561,24 +592,21 @@ export class BackgroundSyncService {
   }
 
   async processSyncQueue() {
-    const pendingRequests = await db.collection('syncQueue')
-      .where('status', '==', 'pending')
-      .get();
+    const pendingRequests = await db.collection('syncQueue').where('status', '==', 'pending').get();
 
     for (const doc of pendingRequests.docs) {
       try {
         const request = doc.data();
-        
+
         // Execute request
         await this.executeRequest(request);
-        
+
         // Mark as synced
         await doc.ref.update({ status: 'synced' });
-        
       } catch (error) {
         // Retry logic
         const retries = doc.data().retries + 1;
-        
+
         if (retries < 3) {
           await doc.ref.update({ retries });
         } else {
@@ -591,24 +619,23 @@ export class BackgroundSyncService {
 ```
 
 ##### C. Push Notifications (30 jam)
+
 ```typescript
 // src/utils/pushNotifications.ts
 export class PushNotificationService {
   async requestPermission() {
     if (!('Notification' in window)) return false;
-    
+
     const permission = await Notification.requestPermission();
     return permission === 'granted';
   }
 
   async subscribe(userId: string) {
     const registration = await navigator.serviceWorker.ready;
-    
+
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: this.urlBase64ToUint8Array(
-        process.env.VITE_VAPID_PUBLIC_KEY
-      )
+      applicationServerKey: this.urlBase64ToUint8Array(process.env.VITE_VAPID_PUBLIC_KEY),
     });
 
     // Save to Firestore
@@ -631,15 +658,16 @@ export class PushNotificationService {
       },
       webpush: {
         fcmOptions: {
-          link: notification.link
-        }
-      }
+          link: notification.link,
+        },
+      },
     });
   }
 }
 ```
 
 ##### D. Install Prompt & App-like Experience (20 jam)
+
 ```typescript
 // components/PWAInstallPrompt.tsx
 export const PWAInstallPrompt = () => {
@@ -681,6 +709,7 @@ export const PWAInstallPrompt = () => {
 ```
 
 **Benefits**:
+
 - 🎯 App Store-like experience
 - 🎯 Work completely offline
 - 🎯 Push notifications for updates
@@ -688,6 +717,7 @@ export const PWAInstallPrompt = () => {
 - 🎯 Better mobile experience
 
 **Expected Impact**:
+
 - +40% mobile user retention
 - +60% offline usage
 - +30% user engagement (push notifications)
@@ -695,12 +725,14 @@ export const PWAInstallPrompt = () => {
 ---
 
 #### **6. ADVANCED REPORTING MODULE** 🟡🟡
+
 **Priority**: HIGH - Month 2  
 **Status**: 10% (basic report view) → Need 80%  
 **Effort**: 80 jam (2 minggu)  
 **Cost**: $4,000
 
 **Current Limitation**:
+
 - Only fixed reports
 - No customization
 - No scheduling
@@ -709,6 +741,7 @@ export const PWAInstallPrompt = () => {
 **Implementation**:
 
 ##### A. Custom Report Builder (40 jam)
+
 ```typescript
 // components/ReportBuilder.tsx
 export const ReportBuilder = () => {
@@ -724,33 +757,33 @@ export const ReportBuilder = () => {
   return (
     <div className="report-builder">
       {/* Step 1: Select Data Source */}
-      <DataSourceSelector 
+      <DataSourceSelector
         value={config.dataSource}
         onChange={(ds) => setConfig({ ...config, dataSource: ds })}
       />
 
       {/* Step 2: Select Fields */}
-      <FieldSelector 
+      <FieldSelector
         dataSource={config.dataSource}
         selected={config.fields}
         onChange={(fields) => setConfig({ ...config, fields })}
       />
 
       {/* Step 3: Add Filters */}
-      <FilterBuilder 
+      <FilterBuilder
         filters={config.filters}
         onChange={(filters) => setConfig({ ...config, filters })}
       />
 
       {/* Step 4: Grouping & Aggregation */}
-      <GroupingSelector 
+      <GroupingSelector
         fields={config.fields}
         groupBy={config.groupBy}
         onChange={(groupBy) => setConfig({ ...config, groupBy })}
       />
 
       {/* Step 5: Visualization */}
-      <VisualizationPicker 
+      <VisualizationPicker
         visualizations={config.visualizations}
         onChange={(viz) => setConfig({ ...config, visualizations: viz })}
       />
@@ -770,6 +803,7 @@ export const ReportBuilder = () => {
 ```
 
 ##### B. Report Scheduling (20 jam)
+
 ```typescript
 // api/reportScheduler.ts
 export class ReportScheduler {
@@ -788,20 +822,21 @@ export class ReportScheduler {
     exports.generateScheduledReports = functions.pubsub
       .schedule('0 8 * * *') // Daily at 8 AM
       .onRun(async (context) => {
-        const dueReports = await db.collection('reportSchedules')
+        const dueReports = await db
+          .collection('reportSchedules')
           .where('nextRun', '<=', new Date())
           .where('active', '==', true)
           .get();
 
         for (const doc of dueReports.docs) {
           const schedule = doc.data();
-          
+
           // Generate report
           const report = await this.generateReport(schedule.reportConfig);
-          
+
           // Send via email
           await this.emailReport(report, schedule.recipients);
-          
+
           // Update next run
           await doc.ref.update({
             nextRun: this.calculateNextRun(schedule.frequency),
@@ -814,73 +849,73 @@ export class ReportScheduler {
 ```
 
 ##### C. Advanced Exports (20 jam)
+
 ```typescript
 // utils/reportExporter.ts
 export class ReportExporter {
   async exportToExcel(report: Report) {
     const workbook = XLSX.utils.book_new();
-    
+
     // Data sheet
     const worksheet = XLSX.utils.json_to_sheet(report.data);
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-    
+
     // Add formatting
-    worksheet['!cols'] = report.columns.map(col => ({ wch: col.width }));
-    
+    worksheet['!cols'] = report.columns.map((col) => ({ wch: col.width }));
+
     // Charts (if any)
     if (report.charts) {
       // Create chart sheet
       const chartSheet = this.createChartSheet(report.charts);
       XLSX.utils.book_append_sheet(workbook, chartSheet, 'Charts');
     }
-    
+
     // Generate file
     const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    
-    return new Blob([buffer], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+
+    return new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
   }
 
   async exportToPDF(report: Report) {
     const pdf = new jsPDF();
-    
+
     // Title
     pdf.setFontSize(20);
     pdf.text(report.title, 20, 20);
-    
+
     // Metadata
     pdf.setFontSize(10);
     pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
-    
+
     // Table
     pdf.autoTable({
-      head: [report.columns.map(col => col.label)],
-      body: report.data.map(row => 
-        report.columns.map(col => row[col.field])
-      ),
+      head: [report.columns.map((col) => col.label)],
+      body: report.data.map((row) => report.columns.map((col) => row[col.field])),
       startY: 40,
     });
-    
+
     // Charts
     if (report.charts) {
       let y = pdf.lastAutoTable.finalY + 20;
-      
+
       for (const chart of report.charts) {
         const canvas = await this.chartToCanvas(chart);
         const imgData = canvas.toDataURL('image/png');
-        
+
         pdf.addImage(imgData, 'PNG', 20, y, 170, 80);
         y += 90;
       }
     }
-    
+
     return pdf.output('blob');
   }
 }
 ```
 
 **Benefits**:
+
 - 🎯 Custom reports for any use case
 - 🎯 Automated daily/weekly reports
 - 🎯 Professional exports (Excel, PDF)
@@ -889,6 +924,7 @@ export class ReportExporter {
 ---
 
 #### **7. COMPREHENSIVE TEST COVERAGE** 🟡
+
 **Priority**: MEDIUM - Month 2  
 **Status**: 45% → Need 75%  
 **Effort**: 80 jam (2 minggu)  
@@ -897,11 +933,12 @@ export class ReportExporter {
 **Current Status**:
 ✅ Security tests (Phase 1)  
 ✅ DR tests (Phase 1)  
-✅ intelligentDocumentService tests  
+✅ intelligentDocumentService tests
 
 **Missing Tests**:
 
 ##### A. Critical Service Tests (40 jam)
+
 ```typescript
 // Priority services to test:
 1. projectService (15 jam)
@@ -924,17 +961,18 @@ export class ReportExporter {
 ```
 
 ##### B. Integration Tests (25 jam)
+
 ```typescript
 // tests/integration/project-workflow.test.ts
 describe('Project Workflow Integration', () => {
   it('should create project and add tasks', async () => {
     // Create project
     const project = await projectService.create(mockProject);
-    
+
     // Add tasks
     const task1 = await taskService.create(project.id, mockTask1);
     const task2 = await taskService.create(project.id, mockTask2);
-    
+
     // Verify tasks are in project
     const projectWithTasks = await projectService.getById(project.id);
     expect(projectWithTasks.tasks).toHaveLength(2);
@@ -943,10 +981,10 @@ describe('Project Workflow Integration', () => {
   it('should handle financial transactions', async () => {
     // Create project
     const project = await projectService.create(mockProject);
-    
+
     // Add expense
     const expense = await financeService.addExpense(project.id, mockExpense);
-    
+
     // Verify budget update
     const updatedProject = await projectService.getById(project.id);
     expect(updatedProject.actualCost).toBe(mockExpense.amount);
@@ -955,31 +993,32 @@ describe('Project Workflow Integration', () => {
 ```
 
 ##### C. E2E Critical Paths (15 jam)
+
 ```typescript
 // tests/e2e/critical-paths.spec.ts
 test.describe('Critical User Journeys', () => {
   test('complete project workflow', async ({ page }) => {
     // 1. Login
     await loginAsAdmin(page);
-    
+
     // 2. Create project
     await page.click('text=New Project');
     await page.fill('[name="name"]', 'Test Project');
     await page.click('button[type="submit"]');
-    
+
     // 3. Add tasks
     await page.click('text=Add Task');
     await page.fill('[name="title"]', 'Task 1');
     await page.click('button[type="submit"]');
-    
+
     // 4. Upload document
     await page.click('text=Documents');
     await page.setInputFiles('input[type="file"]', 'test.pdf');
-    
+
     // 5. Generate report
     await page.click('text=Reports');
     await page.click('text=Generate Report');
-    
+
     // 6. Verify all elements exist
     await expect(page.locator('text=Test Project')).toBeVisible();
     await expect(page.locator('text=Task 1')).toBeVisible();
@@ -989,6 +1028,7 @@ test.describe('Critical User Journeys', () => {
 ```
 
 **Benefits**:
+
 - 🎯 75% test coverage achieved
 - 🎯 90% fewer production bugs
 - 🎯 Confidence in refactoring
@@ -1005,6 +1045,7 @@ ROI: Medium - Better collaboration & features
 ---
 
 #### **8. REAL-TIME COLLABORATION ENHANCEMENTS** 🟢🟢
+
 **Priority**: MEDIUM  
 **Status**: 20% → Need 80%  
 **Effort**: 160 jam (4 minggu)  
@@ -1013,12 +1054,14 @@ ROI: Medium - Better collaboration & features
 **Implementation**:
 
 ##### A. Commenting System (60 jam)
+
 ```typescript
 // Task comments, document comments, project comments
 // Thread support, @mentions, notifications
 ```
 
 ##### B. Activity Feed (40 jam)
+
 ```typescript
 // Real-time activity stream per project
 // User activity timeline
@@ -1026,6 +1069,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 ##### C. Collaborative Editing (60 jam)
+
 ```typescript
 // CRDTs for conflict-free editing
 // Live cursors
@@ -1033,6 +1077,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 **Benefits**:
+
 - Better team communication
 - Reduced email overhead
 - Improved transparency
@@ -1040,6 +1085,7 @@ ROI: Medium - Better collaboration & features
 ---
 
 #### **9. DASHBOARD CUSTOMIZATION** 🟢
+
 **Priority**: MEDIUM  
 **Status**: 0% → Need 70%  
 **Effort**: 80 jam (2 minggu)  
@@ -1048,6 +1094,7 @@ ROI: Medium - Better collaboration & features
 **Implementation**:
 
 ##### A. Drag-and-Drop Widgets (40 jam)
+
 ```typescript
 // react-grid-layout integration
 // Widget library
@@ -1055,6 +1102,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 ##### B. Personal Dashboards (25 jam)
+
 ```typescript
 // User-specific layouts
 // Role-based templates
@@ -1062,6 +1110,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 ##### C. Custom Widgets (15 jam)
+
 ```typescript
 // Widget configuration
 // Data source selection
@@ -1069,6 +1118,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 **Benefits**:
+
 - Personalized experience
 - Better user adoption
 - Increased productivity
@@ -1076,6 +1126,7 @@ ROI: Medium - Better collaboration & features
 ---
 
 #### **10. ADVANCED SEARCH & FILTERING** 🟢
+
 **Priority**: MEDIUM  
 **Status**: 10% → Need 80%  
 **Effort**: 80 jam (2 minggu)  
@@ -1084,6 +1135,7 @@ ROI: Medium - Better collaboration & features
 **Implementation**:
 
 ##### A. Global Search (35 jam)
+
 ```typescript
 // Algolia/ElasticSearch integration
 // Search across all modules
@@ -1092,6 +1144,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 ##### B. Advanced Filters (30 jam)
+
 ```typescript
 // Filter builder UI
 // Multiple filter conditions
@@ -1100,6 +1153,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 ##### C. Search Analytics (15 jam)
+
 ```typescript
 // Track search queries
 // Improve relevance
@@ -1107,6 +1161,7 @@ ROI: Medium - Better collaboration & features
 ```
 
 **Benefits**:
+
 - Find information faster
 - Better data discovery
 - Improved productivity
@@ -1122,12 +1177,14 @@ ROI: High - Market differentiation
 ---
 
 #### **11. AI ENHANCEMENTS** 🔵🔵🔵
+
 **Priority**: STRATEGIC  
 **Status**: 10% → Need 70%  
 **Effort**: 240 jam (6 minggu)  
 **Cost**: $12,000
 
 **Features**:
+
 - Predictive analytics (delay prediction)
 - Smart document processing
 - Intelligent chatbot
@@ -1135,6 +1192,7 @@ ROI: High - Market differentiation
 - Budget forecasting ML
 
 **Benefits**:
+
 - Strong market differentiator
 - 40% productivity gain
 - Premium pricing capability
@@ -1142,12 +1200,14 @@ ROI: High - Market differentiation
 ---
 
 #### **12. INTEGRATION MARKETPLACE** 🔵🔵
+
 **Priority**: STRATEGIC  
 **Status**: 5% → Need 60%  
 **Effort**: 400 jam (10 minggu)  
 **Cost**: $20,000
 
 **Integrations**:
+
 - Project Management: Jira, Asana, Monday.com
 - Communication: Slack, Teams, Discord
 - Storage: Google Drive, Dropbox, OneDrive
@@ -1155,6 +1215,7 @@ ROI: High - Market differentiation
 - CRM: Salesforce, HubSpot
 
 **Benefits**:
+
 - 10x market expansion
 - Enterprise must-have
 - Revenue multiplier
@@ -1162,12 +1223,14 @@ ROI: High - Market differentiation
 ---
 
 #### **13. MOBILE NATIVE APPS** 🔵
+
 **Priority**: STRATEGIC  
 **Status**: 0% → Need 90%  
 **Effort**: 400 jam (10 minggu)  
 **Cost**: $20,000
 
 **Implementation**:
+
 - React Native development
 - iOS App Store submission
 - Android Play Store submission
@@ -1175,6 +1238,7 @@ ROI: High - Market differentiation
 - Push notifications
 
 **Benefits**:
+
 - Premium mobile experience
 - App Store presence
 - Better user retention
@@ -1182,17 +1246,20 @@ ROI: High - Market differentiation
 ---
 
 #### **14. ADVANCED ENTERPRISE FEATURES** 🔵
+
 **Priority**: STRATEGIC  
 **Effort**: 160 jam (4 minggu)  
 **Cost**: $8,000
 
 **Features**:
+
 - Resource Management Module
 - Risk Management Module
 - Change Order Management
 - Quality Management System
 
 **Benefits**:
+
 - Enterprise-ready
 - Higher contract values
 - Market leadership
@@ -1202,6 +1269,7 @@ ROI: High - Market differentiation
 ## 📊 UPDATED ROADMAP DENGAN BUDGET
 
 ### **IMMEDIATE (Week 1-2)** - $6,000 ✅ DALAM BUDGET
+
 ```
 Week 1:
 ├── Sentry Integration ($2,000)
@@ -1216,6 +1284,7 @@ Status: CAN START IMMEDIATELY ✅
 ```
 
 ### **SHORT-TERM (Month 2)** - $14,000 ❌ PERLU BUDGET TAMBAHAN
+
 ```
 Month 2:
 ├── PWA Full Implementation ($6,000)
@@ -1228,6 +1297,7 @@ Priority: HIGH - Significant UX & reliability improvements
 ```
 
 ### **MEDIUM-TERM (Month 3-4)** - $16,000
+
 ```
 Month 3-4:
 ├── Real-time Collaboration ($8,000)
@@ -1240,6 +1310,7 @@ Priority: MEDIUM - Better collaboration
 ```
 
 ### **LONG-TERM (Month 5-12)** - $60,000+
+
 ```
 Month 5-12:
 ├── AI Enhancements ($12,000)
@@ -1259,6 +1330,7 @@ Priority: Market differentiation
 ### **Option A: MAXIMIZE CURRENT BUDGET ($6,500)** ⭐ RECOMMENDED
 
 **Week 1-2 Plan**:
+
 ```bash
 Day 1-3: Sentry Integration
 ├── Setup Sentry account
@@ -1295,9 +1367,10 @@ OUTCOME: Production-ready monitoring & feedback system
 ✅ User behavior analytics (GA4)  
 ✅ Direct feedback channel  
 ✅ Safer deployments  
-✅ Complete production monitoring stack  
+✅ Complete production monitoring stack
 
 **Benefits**:
+
 - 🎯 Detect issues within 5 minutes
 - 🎯 Data-driven Phase 2 decisions
 - 🎯 Direct user feedback
@@ -1305,16 +1378,18 @@ OUTCOME: Production-ready monitoring & feedback system
 
 ---
 
-### **Option B: REQUEST ADDITIONAL BUDGET ($20,000)** 
+### **Option B: REQUEST ADDITIONAL BUDGET ($20,000)**
 
 If additional budget approved:
 
 **Month 2 Plan** ($14,000):
+
 - PWA Full Implementation
 - Advanced Reporting
 - Test Coverage Expansion
 
 **Expected ROI**:
+
 - +40% mobile retention
 - +30% user engagement
 - -90% production bugs
@@ -1327,6 +1402,7 @@ If additional budget approved:
 ### **Status Saat Ini (18 Oktober 2025)**
 
 ✅ **COMPLETED (55%)**:
+
 - Security: 100% ✅
 - Disaster Recovery: 100% ✅
 - Performance Core: 90% ✅
@@ -1334,6 +1410,7 @@ If additional budget approved:
 - Documentation: 15+ guides ✅
 
 ❌ **STILL NEEDED (45%)**:
+
 - Production Monitoring: 0%
 - Analytics: 0%
 - PWA Full: 10%
@@ -1343,15 +1420,13 @@ If additional budget approved:
 ### **Prioritas Absolute Immediate**
 
 **MUST DO (Week 1-2)**: $6,000
+
 1. ✅ Sentry Integration - CRITICAL untuk production
 2. ✅ Analytics Setup - PENTING untuk data-driven decisions
 3. ✅ User Feedback - PENTING untuk user satisfaction
 4. ✅ Deployment Optimization - PENTING untuk safe releases
 
-**SHOULD DO (Month 2)**: $14,000
-5. PWA Full Implementation - HIGH impact on mobile users
-6. Advanced Reporting - HIGH demand from enterprise
-7. Test Coverage - MEDIUM-HIGH risk mitigation
+**SHOULD DO (Month 2)**: $14,000 5. PWA Full Implementation - HIGH impact on mobile users 6. Advanced Reporting - HIGH demand from enterprise 7. Test Coverage - MEDIUM-HIGH risk mitigation
 
 **NICE TO HAVE (Month 3+)**: $76,000+
 8-14. Collaboration, Search, AI, Integrations, Mobile Apps
@@ -1367,6 +1442,7 @@ If additional budget approved:
 5. ✅ Request additional budget based on real data
 
 **Rationale**:
+
 - Production needs monitoring NOW
 - User feedback drives Phase 2 priorities
 - Data-driven decisions > assumptions
@@ -1377,6 +1453,6 @@ If additional budget approved:
 **Next Action**: Deploy monitoring stack (Week 1-2) ✅  
 **Status**: Ready to execute with current budget  
 **Risk**: LOW - All critical features already complete  
-**Confidence**: HIGH - Phase 1 success proves capability  
+**Confidence**: HIGH - Phase 1 success proves capability
 
 **Let's start with Week 1-2 plan?** 🚀

@@ -102,11 +102,13 @@ Install these extensions for optimal development experience:
 If you encounter TypeScript compilation errors:
 
 1. **Missing React types**: Install type definitions
+
    ```bash
    npm install --save-dev @types/react @types/react-dom
    ```
 
 2. **Module resolution errors**: Ensure proper imports
+
    ```typescript
    // Correct import syntax
    import * as React from 'react';
@@ -121,9 +123,10 @@ If you encounter TypeScript compilation errors:
 ### Development Server Issues
 
 1. **Port conflicts**: Change port in vite.config.ts
+
    ```typescript
    server: {
-     port: 3001
+     port: 3001;
    }
    ```
 
@@ -182,4 +185,7 @@ NataCarePM/
 ---
 
 Last updated: January 2025
+
+```
+
 ```

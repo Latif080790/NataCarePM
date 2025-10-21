@@ -7,9 +7,9 @@ import React, { useState, useRef, useCallback } from 'react';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Camera, Upload, X, Check, Loader, AlertCircle } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { uploadProfilePhoto } from '@/api/userProfileService';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   validateImageFile,
   createPreviewURL,
@@ -42,33 +42,36 @@ export const ProfilePhotoUpload: React.FC = () => {
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   // Handle file selection
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    // Validate file
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      addToast(validation.errors.join(', '), 'error');
-      return;
-    }
+      // Validate file
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        addToast(validation.errors.join(', '), 'error');
+        return;
+      }
 
-    // Show warnings if any
-    if (validation.warnings && validation.warnings.length > 0) {
-      addToast(validation.warnings.join(', '), 'info');
-    }
+      // Show warnings if any
+      if (validation.warnings && validation.warnings.length > 0) {
+        addToast(validation.warnings.join(', '), 'info');
+      }
 
-    // Set file and create preview
-    setSelectedFile(file);
-    const preview = createPreviewURL(file);
-    setPreviewURL(preview);
-    setShowCropModal(true);
+      // Set file and create preview
+      setSelectedFile(file);
+      const preview = createPreviewURL(file);
+      setPreviewURL(preview);
+      setShowCropModal(true);
 
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [addToast]);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    },
+    [addToast]
+  );
 
   // Handle upload
   const handleUpload = async () => {
@@ -203,9 +206,7 @@ export const ProfilePhotoUpload: React.FC = () => {
 
         {/* File Info */}
         <div className="text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            JPG, PNG, WebP or HEIC
-          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">JPG, PNG, WebP or HEIC</p>
           <p className="text-xs text-gray-500 dark:text-gray-500">
             Max size: 5MB • Recommended: Square, 800x800px
           </p>
@@ -284,9 +285,7 @@ export const ProfilePhotoUpload: React.FC = () => {
                   <div className="flex items-start space-x-2">
                     <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-blue-700 dark:text-blue-300">
-                      <p className="font-medium">
-                        {selectedFile.name}
-                      </p>
+                      <p className="font-medium">{selectedFile.name}</p>
                       <p className="text-xs mt-1">
                         Size: {formatFileSize(selectedFile.size)} • Type: {selectedFile.type}
                       </p>

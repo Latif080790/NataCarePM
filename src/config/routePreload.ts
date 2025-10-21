@@ -9,49 +9,36 @@ import { RoutePreloadConfig } from '@/utils/componentPreloader';
 // Import lazy components (will be defined in App.tsx)
 export const lazyViews = {
   // Core Views
-  dashboard: () => import('../../views/DashboardView'),
-  analytics: () => import('../../views/IntegratedAnalyticsView').then(m => ({ default: m.IntegratedAnalyticsView })),
-  
-  // Project Management
-  rabAhsp: () => import('../../views/EnhancedRabAhspView'),
-  gantt: () => import('../../views/GanttChartView'),
-  tasks: () => import('../../views/TasksView'),
-  kanban: () => import('../../views/KanbanView'),
-  dependencies: () => import('../../views/DependencyGraphView'),
-  
-  // Daily Operations
-  dailyReport: () => import('../../views/DailyReportView'),
-  progress: () => import('../../views/ProgressView'),
-  attendance: () => import('../../views/AttendanceView'),
-  
-  // Financial
-  finance: () => import('../../views/FinanceView'),
-  cashflow: () => import('../../views/CashflowView'),
-  chartOfAccounts: () => import('../../views/ChartOfAccountsView'),
-  journalEntries: () => import('../../views/JournalEntriesView'),
-  accountsPayable: () => import('../../views/AccountsPayableView'),
-  accountsReceivable: () => import('../../views/AccountsReceivableView'),
-  
-  // Logistics
-  logistics: () => import('../../views/LogisticsView'),
-  goodsReceipt: () => import('../../views/GoodsReceiptView'),
-  materialRequest: () => import('../../views/MaterialRequestView'),
-  vendorManagement: () => import('../../views/VendorManagementView'),
-  inventory: () => import('../../views/InventoryManagementView'),
-  
-  // Documents & Reports
-  documents: () => import('../../views/IntelligentDocumentSystem'),
-  reports: () => import('../../views/ReportView'),
-  
-  // Admin
-  userManagement: () => import('../../views/UserManagementView'),
-  masterData: () => import('../../views/MasterDataView'),
-  auditTrail: () => import('../../views/AuditTrailView'),
-  monitoring: () => import('../../views/MonitoringView'),
-  
-  // User
-  profile: () => import('../../views/ProfileView'),
-  notifications: () => import('../../views/NotificationCenterView'),
+  dashboard: () => import('@/views/DashboardView'),
+  analytics: () => import('@/views/IntegratedAnalyticsView').then((m) => ({ default: m.IntegratedAnalyticsView })),
+  rabAhsp: () => import('@/views/EnhancedRabAhspView'),
+  gantt: () => import('@/views/GanttChartView'),
+  tasks: () => import('@/views/TasksView'),
+  kanban: () => import('@/views/KanbanView'),
+  dependencies: () => import('@/views/DependencyGraphView'),
+  dailyReport: () => import('@/views/DailyReportView'),
+  progress: () => import('@/views/ProgressView'),
+  attendance: () => import('@/views/AttendanceView'),
+  finance: () => import('@/views/FinanceView'),
+  cashflow: () => import('@/views/CashflowView'),
+  chartOfAccounts: () => import('@/views/ChartOfAccountsView'),
+  journalEntries: () => import('@/views/JournalEntriesView'),
+  accountsPayable: () => import('@/views/AccountsPayableView'),
+  accountsReceivable: () => import('@/views/AccountsReceivableView'),
+  logistics: () => import('@/views/LogisticsView'),
+  goodsReceipt: () => import('@/views/GoodsReceiptView'),
+  materialRequest: () => import('@/views/MaterialRequestView'),
+  vendorManagement: () => import('@/views/VendorManagementView'),
+  inventory: () => import('@/views/InventoryManagementView'),
+  documents: () => import('@/views/IntelligentDocumentSystem'),
+  reports: () => import('@/views/ReportView'),
+  userManagement: () => import('@/views/UserManagementView'),
+  masterData: () => import('@/views/MasterDataView'),
+  auditTrail: () => import('@/views/AuditTrailView'),
+  monitoring: () => import('@/views/MonitoringView'),
+  profile: () => import('@/views/ProfileView'),
+
+  notifications: () => import('@/views/NotificationCenterView')
 };
 
 /**
@@ -61,10 +48,7 @@ export const lazyViews = {
 export const routePreloadConfig: RoutePreloadConfig[] = [
   {
     route: 'dashboard',
-    components: [
-      lazyViews.dashboard,
-      lazyViews.analytics,
-    ],
+    components: [lazyViews.dashboard, lazyViews.analytics],
     preloadOn: 'immediate', // Critical - load immediately after login
   },
   {
@@ -77,58 +61,37 @@ export const routePreloadConfig: RoutePreloadConfig[] = [
   },
   {
     route: 'jadwal',
-    components: [
-      lazyViews.gantt,
-      lazyViews.tasks,
-      lazyViews.dependencies,
-    ],
+    components: [lazyViews.gantt, lazyViews.tasks, lazyViews.dependencies],
     preloadOn: 'idle',
   },
   {
     route: 'tasks',
-    components: [
-      lazyViews.tasks,
-      lazyViews.kanban,
-    ],
+    components: [lazyViews.tasks, lazyViews.kanban],
     preloadOn: 'idle',
   },
   {
     route: 'laporan_harian',
-    components: [
-      lazyViews.dailyReport,
-      lazyViews.progress,
-    ],
+    components: [lazyViews.dailyReport, lazyViews.progress],
     preloadOn: 'idle',
   },
   {
     route: 'biaya_proyek',
-    components: [
-      lazyViews.finance,
-      lazyViews.cashflow,
-    ],
+    components: [lazyViews.finance, lazyViews.cashflow],
     preloadOn: 'idle',
   },
   {
     route: 'logistik',
-    components: [
-      lazyViews.logistics,
-      lazyViews.inventory,
-    ],
+    components: [lazyViews.logistics, lazyViews.inventory],
     preloadOn: 'idle',
   },
   {
     route: 'dokumen',
-    components: [
-      lazyViews.documents,
-    ],
+    components: [lazyViews.documents],
     preloadOn: 'hover',
   },
   {
     route: 'user_management',
-    components: [
-      lazyViews.userManagement,
-      lazyViews.auditTrail,
-    ],
+    components: [lazyViews.userManagement, lazyViews.auditTrail],
     preloadOn: 'hover',
   },
 ];
@@ -136,20 +99,12 @@ export const routePreloadConfig: RoutePreloadConfig[] = [
 /**
  * Critical components to preload immediately
  */
-export const criticalComponents = [
-  lazyViews.dashboard,
-  lazyViews.profile,
-  lazyViews.notifications,
-];
+export const criticalComponents = [lazyViews.dashboard, lazyViews.profile, lazyViews.notifications];
 
 /**
  * Heavy components to defer loading
  */
-export const deferredComponents = [
-  lazyViews.analytics,
-  lazyViews.gantt,
-  lazyViews.documents,
-];
+export const deferredComponents = [lazyViews.analytics, lazyViews.gantt, lazyViews.documents];
 
 /**
  * Get components to preload based on user role
@@ -163,14 +118,14 @@ export function getComponentsForRole(role: string): Array<() => Promise<any>> {
       lazyViews.auditTrail,
       lazyViews.monitoring,
     ],
-    'admin': [
+    admin: [
       lazyViews.dashboard,
       lazyViews.rabAhsp,
       lazyViews.gantt,
       lazyViews.finance,
       lazyViews.userManagement,
     ],
-    'manager': [
+    manager: [
       lazyViews.dashboard,
       lazyViews.analytics,
       lazyViews.rabAhsp,
@@ -178,16 +133,8 @@ export function getComponentsForRole(role: string): Array<() => Promise<any>> {
       lazyViews.finance,
       lazyViews.reports,
     ],
-    'editor': [
-      lazyViews.dashboard,
-      lazyViews.dailyReport,
-      lazyViews.progress,
-      lazyViews.documents,
-    ],
-    'viewer': [
-      lazyViews.dashboard,
-      lazyViews.reports,
-    ],
+    editor: [lazyViews.dashboard, lazyViews.dailyReport, lazyViews.progress, lazyViews.documents],
+    viewer: [lazyViews.dashboard, lazyViews.reports],
   };
 
   return roleComponentMap[role] || [lazyViews.dashboard];
@@ -198,28 +145,17 @@ export function getComponentsForRole(role: string): Array<() => Promise<any>> {
  */
 export function getComponentsForTimeOfDay(): Array<() => Promise<any>> {
   const hour = new Date().getHours();
-  
+
   // Morning (6-12): Daily reports, attendance
   if (hour >= 6 && hour < 12) {
-    return [
-      lazyViews.dailyReport,
-      lazyViews.attendance,
-      lazyViews.tasks,
-    ];
+    return [lazyViews.dailyReport, lazyViews.attendance, lazyViews.tasks];
   }
-  
+
   // Afternoon (12-18): Progress, finance
   if (hour >= 12 && hour < 18) {
-    return [
-      lazyViews.progress,
-      lazyViews.finance,
-      lazyViews.logistics,
-    ];
+    return [lazyViews.progress, lazyViews.finance, lazyViews.logistics];
   }
-  
+
   // Evening/Night (18-6): Reports, analytics
-  return [
-    lazyViews.reports,
-    lazyViews.analytics,
-  ];
+  return [lazyViews.reports, lazyViews.analytics];
 }

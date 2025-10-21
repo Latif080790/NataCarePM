@@ -1,7 +1,7 @@
 /**
  * Risk Management Type Definitions
  * Priority 3B: Risk Management System
- * 
+ *
  * Comprehensive type system for identifying, assessing, mitigating,
  * and monitoring risks in construction projects.
  */
@@ -52,10 +52,10 @@ export type RiskPriorityLevel = 'low' | 'medium' | 'high' | 'critical';
  * Mitigation Strategy Type
  */
 export type MitigationStrategy =
-  | 'avoid'      // Eliminate the risk
-  | 'mitigate'   // Reduce likelihood or impact
-  | 'transfer'   // Transfer to third party (insurance, subcontractor)
-  | 'accept';    // Accept the risk
+  | 'avoid' // Eliminate the risk
+  | 'mitigate' // Reduce likelihood or impact
+  | 'transfer' // Transfer to third party (insurance, subcontractor)
+  | 'accept'; // Accept the risk
 
 /**
  * Risk Impact Area
@@ -142,44 +142,44 @@ export interface ContingencyPlan {
 export interface Risk {
   id: string;
   projectId: string;
-  
+
   // Basic Information
   riskNumber: string; // e.g., "RISK-001"
   title: string;
   description: string;
   category: RiskCategory;
-  
+
   // Assessment
   severity: RiskSeverity;
   probability: RiskProbability;
   riskScore: number; // severity × probability (1-25)
   priorityLevel: RiskPriorityLevel;
-  
+
   // Impact Analysis
   impactAreas: RiskImpactArea;
   estimatedImpact: number; // Total estimated cost impact
-  
+
   // Ownership & Responsibility
   owner: string; // user ID - person responsible for managing this risk
   identifiedBy: string; // user ID
   stakeholders: string[]; // affected parties
-  
+
   // Status & Timeline
   status: RiskStatus;
   identifiedDate: Date;
   assessmentDate?: Date;
   targetCloseDate?: Date;
   actualCloseDate?: Date;
-  
+
   // Mitigation
   mitigationPlan?: MitigationPlan;
   contingencyPlan?: ContingencyPlan;
-  
+
   // Residual Risk (after mitigation)
   residualSeverity?: RiskSeverity;
   residualProbability?: RiskProbability;
   residualScore?: number;
-  
+
   // If risk occurred
   occurred?: {
     date: Date;
@@ -188,12 +188,12 @@ export interface Risk {
     lessonsLearned: string;
     preventiveMeasures: string;
   };
-  
+
   // History & Tracking
   reviewHistory: RiskReview[];
   statusHistory: RiskStatusChange[];
   attachments: string[];
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -207,18 +207,18 @@ export interface RiskReview {
   id: string;
   reviewDate: Date;
   reviewedBy: string;
-  
+
   currentSeverity: RiskSeverity;
   currentProbability: RiskProbability;
   currentScore: number;
-  
+
   changes: {
     field: string;
     oldValue: any;
     newValue: any;
     reason: string;
   }[];
-  
+
   findings: string;
   recommendations: string;
   nextReviewDate: Date;
@@ -267,9 +267,9 @@ export interface RiskMatrixConfig {
     5: string; // e.g., "Almost Certain"
   };
   scoreThresholds: {
-    low: number;      // 1-4
-    medium: number;   // 5-9
-    high: number;     // 10-15
+    low: number; // 1-4
+    medium: number; // 5-9
+    high: number; // 10-15
     critical: number; // 16-25
   };
   colors: {
@@ -288,26 +288,26 @@ export interface RiskTrend {
     start: Date;
     end: Date;
   };
-  
+
   totalRisks: number;
   newRisks: number;
   closedRisks: number;
   occurredRisks: number;
-  
+
   byPriority: {
     low: number;
     medium: number;
     high: number;
     critical: number;
   };
-  
+
   byCategory: Record<RiskCategory, number>;
   byStatus: Record<RiskStatus, number>;
-  
+
   averageScore: number;
   totalEstimatedImpact: number;
   totalActualImpact: number;
-  
+
   mitigationEffectiveness: number; // percentage
 }
 
@@ -318,19 +318,19 @@ export interface RiskAlert {
   id: string;
   riskId: string;
   riskTitle: string;
-  
+
   alertType: 'overdue_action' | 'high_score' | 'review_due' | 'occurred' | 'escalation';
   severity: 'low' | 'medium' | 'high' | 'urgent';
-  
+
   message: string;
   actionRequired: string;
   assignedTo: string[];
-  
+
   createdAt: Date;
   acknowledged: boolean;
   acknowledgedBy?: string;
   acknowledgedAt?: Date;
-  
+
   dueDate?: Date;
   resolved: boolean;
   resolvedAt?: Date;
@@ -344,28 +344,28 @@ export interface RiskFilterOptions {
   status?: RiskStatus[];
   priorityLevel?: RiskPriorityLevel[];
   owner?: string[];
-  
+
   severityRange?: {
     min: RiskSeverity;
     max: RiskSeverity;
   };
-  
+
   probabilityRange?: {
     min: RiskProbability;
     max: RiskProbability;
   };
-  
+
   scoreRange?: {
     min: number;
     max: number;
   };
-  
+
   dateRange?: {
     field: 'identified' | 'target_close' | 'actual_close';
     start: Date;
     end: Date;
   };
-  
+
   searchTerm?: string;
 }
 
@@ -379,7 +379,7 @@ export interface RiskDashboardStats {
     closedRisks: number;
     occurredRisks: number;
   };
-  
+
   distribution: {
     byPriority: {
       critical: number;
@@ -390,7 +390,7 @@ export interface RiskDashboardStats {
     byCategory: Record<RiskCategory, number>;
     byStatus: Record<RiskStatus, number>;
   };
-  
+
   financial: {
     totalEstimatedImpact: number;
     totalActualImpact: number;
@@ -398,7 +398,7 @@ export interface RiskDashboardStats {
     contingencyBudget: number;
     contingencyUsed: number;
   };
-  
+
   performance: {
     risksIdentifiedThisMonth: number;
     risksClosedThisMonth: number;
@@ -406,7 +406,7 @@ export interface RiskDashboardStats {
     mitigationSuccessRate: number; // percentage
     overdueActions: number;
   };
-  
+
   alerts: {
     critical: number;
     high: number;
@@ -422,24 +422,24 @@ export interface LessonsLearned {
   id: string;
   projectId: string;
   riskId?: string;
-  
+
   title: string;
   description: string;
   category: RiskCategory;
-  
+
   whatHappened: string;
   whatWentWell: string;
   whatWentWrong: string;
   rootCause: string;
-  
+
   preventiveMeasures: string[];
   recommendations: string[];
-  
+
   applicableTo: string[]; // future projects, categories, etc.
-  
+
   documentedBy: string;
   documentedAt: Date;
-  
+
   tags: string[];
   attachments: string[];
 }
@@ -452,7 +452,7 @@ export interface RiskAssessmentTemplate {
   name: string;
   description: string;
   category: RiskCategory;
-  
+
   questions: {
     id: string;
     question: string;
@@ -460,12 +460,12 @@ export interface RiskAssessmentTemplate {
     options?: string[];
     weight: number; // importance 1-10
   }[];
-  
+
   scoringLogic: {
     severityCalculation: string;
     probabilityCalculation: string;
   };
-  
+
   createdBy: string;
   createdAt: Date;
   isActive: boolean;
@@ -477,20 +477,20 @@ export interface RiskAssessmentTemplate {
 export interface RiskEscalationRule {
   id: string;
   name: string;
-  
+
   trigger: {
     condition: 'score_threshold' | 'overdue_action' | 'status_change' | 'occurred';
     value: any;
   };
-  
+
   escalateTo: {
     roles: string[];
     users: string[];
   };
-  
+
   notificationMethod: ('email' | 'sms' | 'in_app')[];
   notificationTemplate: string;
-  
+
   isActive: boolean;
 }
 

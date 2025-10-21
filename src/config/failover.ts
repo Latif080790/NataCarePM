@@ -34,42 +34,70 @@ export const REGIONS: RegionConfig[] = [
       projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
       storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
       messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: import.meta.env.VITE_FIREBASE_APP_ID || ''
+      appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
     },
     priority: 1,
-    healthCheckUrl: import.meta.env.VITE_FIREBASE_HEALTH_CHECK_URL || 'https://us-central1-natacare-pm.cloudfunctions.net/health',
-    latencyThreshold: 1000
+    healthCheckUrl:
+      import.meta.env.VITE_FIREBASE_HEALTH_CHECK_URL ||
+      'https://us-central1-natacare-pm.cloudfunctions.net/health',
+    latencyThreshold: 1000,
   },
   {
     id: 'us-east1',
     name: 'US East (Secondary)',
     firebaseConfig: {
-      apiKey: import.meta.env.VITE_FIREBASE_API_KEY_SECONDARY || import.meta.env.VITE_FIREBASE_API_KEY || '',
-      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN_SECONDARY || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+      apiKey:
+        import.meta.env.VITE_FIREBASE_API_KEY_SECONDARY ||
+        import.meta.env.VITE_FIREBASE_API_KEY ||
+        '',
+      authDomain:
+        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN_SECONDARY ||
+        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
+        '',
       projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET_SECONDARY || import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+      storageBucket:
+        import.meta.env.VITE_FIREBASE_STORAGE_BUCKET_SECONDARY ||
+        import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
+        '',
       messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: import.meta.env.VITE_FIREBASE_APP_ID_SECONDARY || import.meta.env.VITE_FIREBASE_APP_ID || ''
+      appId:
+        import.meta.env.VITE_FIREBASE_APP_ID_SECONDARY ||
+        import.meta.env.VITE_FIREBASE_APP_ID ||
+        '',
     },
     priority: 2,
-    healthCheckUrl: import.meta.env.VITE_FIREBASE_HEALTH_CHECK_URL_SECONDARY || 'https://us-east1-natacare-pm.cloudfunctions.net/health',
-    latencyThreshold: 1500
+    healthCheckUrl:
+      import.meta.env.VITE_FIREBASE_HEALTH_CHECK_URL_SECONDARY ||
+      'https://us-east1-natacare-pm.cloudfunctions.net/health',
+    latencyThreshold: 1500,
   },
   {
     id: 'europe-west1',
     name: 'Europe West (Tertiary)',
     firebaseConfig: {
-      apiKey: import.meta.env.VITE_FIREBASE_API_KEY_TERTIARY || import.meta.env.VITE_FIREBASE_API_KEY || '',
-      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN_TERTIARY || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+      apiKey:
+        import.meta.env.VITE_FIREBASE_API_KEY_TERTIARY ||
+        import.meta.env.VITE_FIREBASE_API_KEY ||
+        '',
+      authDomain:
+        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN_TERTIARY ||
+        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
+        '',
       projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET_TERTIARY || import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+      storageBucket:
+        import.meta.env.VITE_FIREBASE_STORAGE_BUCKET_TERTIARY ||
+        import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
+        '',
       messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: import.meta.env.VITE_FIREBASE_APP_ID_TERTIARY || import.meta.env.VITE_FIREBASE_APP_ID || ''
+      appId:
+        import.meta.env.VITE_FIREBASE_APP_ID_TERTIARY || import.meta.env.VITE_FIREBASE_APP_ID || '',
     },
     priority: 3,
-    healthCheckUrl: import.meta.env.VITE_FIREBASE_HEALTH_CHECK_URL_TERTIARY || 'https://europe-west1-natacare-pm.cloudfunctions.net/health',
-    latencyThreshold: 2000
-  }
+    healthCheckUrl:
+      import.meta.env.VITE_FIREBASE_HEALTH_CHECK_URL_TERTIARY ||
+      'https://europe-west1-natacare-pm.cloudfunctions.net/health',
+    latencyThreshold: 2000,
+  },
 ];
 
 /**
@@ -78,24 +106,24 @@ export const REGIONS: RegionConfig[] = [
 export const FAILOVER_CONFIG = {
   // Number of consecutive failed checks before failover
   failureThreshold: 3,
-  
+
   // Time to wait before attempting failover (ms)
   failoverDelay: 5000,
-  
+
   // Time to wait before failing back to primary (ms)
   failbackDelay: 300000, // 5 minutes
-  
+
   // Health check interval (ms)
   healthCheckInterval: 30000, // 30 seconds
-  
+
   // Maximum failover attempts before giving up
   maxFailoverAttempts: 3,
-  
+
   // Enable automatic failover
   autoFailoverEnabled: import.meta.env.VITE_AUTO_FAILOVER_ENABLED === 'true',
-  
+
   // Enable automatic failback
-  autoFailbackEnabled: import.meta.env.VITE_AUTO_FAILBACK_ENABLED === 'true'
+  autoFailbackEnabled: import.meta.env.VITE_AUTO_FAILBACK_ENABLED === 'true',
 };
 
 /**
@@ -103,7 +131,7 @@ export const FAILOVER_CONFIG = {
  */
 export function getCurrentRegion(): RegionConfig {
   const storedRegionId = localStorage.getItem('active_region');
-  const region = REGIONS.find(r => r.id === storedRegionId) || REGIONS[0];
+  const region = REGIONS.find((r) => r.id === storedRegionId) || REGIONS[0];
   return region;
 }
 
@@ -137,13 +165,13 @@ export function recordFailover(from: string, to: string, reason: string): void {
     timestamp: Date.now(),
     from,
     to,
-    reason
+    reason,
   });
-  
+
   // Keep only last 50 events
   if (history.length > 50) {
     history.shift();
   }
-  
+
   localStorage.setItem('failover_history', JSON.stringify(history));
 }

@@ -13,7 +13,7 @@ import {
   PieChart,
   BarChart3,
   LineChart as LineChartIcon,
-  Target
+  Target,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -21,14 +21,14 @@ import { useToast } from '@/contexts/ToastContext';
 import {
   getCostControlSummary,
   generateForecast,
-  generateCostAlerts
+  generateCostAlerts,
 } from '@/api/costControlService';
 import {
   CostControlSummary,
   EVMMetrics,
   BudgetVsActual,
   CostBreakdown,
-  CostAlert
+  CostAlert,
 } from '@/types/costControl';
 
 const CostControlDashboardView: React.FC = () => {
@@ -39,7 +39,9 @@ const CostControlDashboardView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [summary, setSummary] = useState<CostControlSummary | null>(null);
   const [alerts, setAlerts] = useState<CostAlert[]>([]);
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'evm' | 'budget' | 'trends' | 'cashflow'>('overview');
+  const [selectedTab, setSelectedTab] = useState<
+    'overview' | 'evm' | 'budget' | 'trends' | 'cashflow'
+  >('overview');
   const [dateRange, setDateRange] = useState<'month' | 'quarter' | 'year'>('month');
 
   useEffect(() => {
@@ -68,7 +70,7 @@ const CostControlDashboardView: React.FC = () => {
 
   const handleExport = async (format: 'excel' | 'pdf') => {
     if (!summary) return;
-    
+
     try {
       addToast(`Exporting to ${format.toUpperCase()}...`, 'info');
       // Export functionality would be implemented here
@@ -81,34 +83,34 @@ const CostControlDashboardView: React.FC = () => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const getStatusColor = (status: string): string => {
     const colors: Record<string, string> = {
-      'on_track': 'text-green-600',
-      'over_budget': 'text-red-600',
-      'under_budget': 'text-blue-600',
-      'behind_schedule': 'text-orange-600',
-      'ahead_of_schedule': 'text-green-600',
-      'critical': 'text-red-600',
-      'at_risk': 'text-orange-600'
+      on_track: 'text-green-600',
+      over_budget: 'text-red-600',
+      under_budget: 'text-blue-600',
+      behind_schedule: 'text-orange-600',
+      ahead_of_schedule: 'text-green-600',
+      critical: 'text-red-600',
+      at_risk: 'text-orange-600',
     };
     return colors[status] || 'text-gray-600';
   };
 
   const getStatusBadgeColor = (status: string): string => {
     const colors: Record<string, string> = {
-      'on_track': 'bg-green-100 text-green-800',
-      'over_budget': 'bg-red-100 text-red-800',
-      'under_budget': 'bg-blue-100 text-blue-800',
-      'behind_schedule': 'bg-orange-100 text-orange-800',
-      'ahead_of_schedule': 'bg-green-100 text-green-800',
-      'critical': 'bg-red-100 text-red-800',
-      'at_risk': 'bg-orange-100 text-orange-800',
-      'within_budget': 'bg-green-100 text-green-800',
-      'near_limit': 'bg-yellow-100 text-yellow-800'
+      on_track: 'bg-green-100 text-green-800',
+      over_budget: 'bg-red-100 text-red-800',
+      under_budget: 'bg-blue-100 text-blue-800',
+      behind_schedule: 'bg-orange-100 text-orange-800',
+      ahead_of_schedule: 'bg-green-100 text-green-800',
+      critical: 'bg-red-100 text-red-800',
+      at_risk: 'bg-orange-100 text-orange-800',
+      within_budget: 'bg-green-100 text-green-800',
+      near_limit: 'bg-yellow-100 text-yellow-800',
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
@@ -221,14 +223,18 @@ const CostControlDashboardView: React.FC = () => {
           {/* EAC */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
             <p className="text-sm text-orange-700 font-medium">Estimate at Completion</p>
-            <p className="text-xl font-bold mt-1 text-orange-900">{formatCurrency(evmMetrics.eac)}</p>
+            <p className="text-xl font-bold mt-1 text-orange-900">
+              {formatCurrency(evmMetrics.eac)}
+            </p>
             <p className="text-xs text-orange-600 mt-2">EAC (Forecast)</p>
           </div>
 
           {/* VAC */}
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
             <p className="text-sm text-purple-700 font-medium">Variance at Completion</p>
-            <p className={`text-xl font-bold mt-1 ${evmMetrics.vac >= 0 ? 'text-purple-900' : 'text-red-900'}`}>
+            <p
+              className={`text-xl font-bold mt-1 ${evmMetrics.vac >= 0 ? 'text-purple-900' : 'text-red-900'}`}
+            >
               {formatCurrency(evmMetrics.vac)}
             </p>
             <p className="text-xs text-purple-600 mt-2">VAC (BAC - EAC)</p>
@@ -247,19 +253,25 @@ const CostControlDashboardView: React.FC = () => {
                 <div
                   key={alert.id}
                   className={`p-4 rounded-lg border-l-4 ${
-                    alert.severity === 'critical' ? 'bg-red-50 border-red-500' :
-                    alert.severity === 'high' ? 'bg-orange-50 border-orange-500' :
-                    'bg-yellow-50 border-yellow-500'
+                    alert.severity === 'critical'
+                      ? 'bg-red-50 border-red-500'
+                      : alert.severity === 'high'
+                        ? 'bg-orange-50 border-orange-500'
+                        : 'bg-yellow-50 border-yellow-500'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          alert.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                          alert.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            alert.severity === 'critical'
+                              ? 'bg-red-100 text-red-800'
+                              : alert.severity === 'high'
+                                ? 'bg-orange-100 text-orange-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
                           {alert.severity.toUpperCase()}
                         </span>
                         <p className="font-medium text-gray-900">{alert.title}</p>
@@ -284,16 +296,22 @@ const CostControlDashboardView: React.FC = () => {
               <div className="relative pt-1">
                 <div className="flex mb-2 items-center justify-between">
                   <div>
-                    <span className={`text-3xl font-bold ${
-                      evmMetrics.healthScore >= 80 ? 'text-green-600' :
-                      evmMetrics.healthScore >= 60 ? 'text-yellow-600' :
-                      'text-red-600'
-                    }`}>
+                    <span
+                      className={`text-3xl font-bold ${
+                        evmMetrics.healthScore >= 80
+                          ? 'text-green-600'
+                          : evmMetrics.healthScore >= 60
+                            ? 'text-yellow-600'
+                            : 'text-red-600'
+                      }`}
+                    >
                       {evmMetrics.healthScore.toFixed(0)}%
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className={`text-xs font-semibold inline-block py-1 px-2 rounded-full ${getStatusBadgeColor(evmMetrics.status)}`}>
+                    <span
+                      className={`text-xs font-semibold inline-block py-1 px-2 rounded-full ${getStatusBadgeColor(evmMetrics.status)}`}
+                    >
                       {evmMetrics.status.replace(/_/g, ' ').toUpperCase()}
                     </span>
                   </div>
@@ -302,9 +320,11 @@ const CostControlDashboardView: React.FC = () => {
                   <div
                     style={{ width: `${evmMetrics.healthScore}%` }}
                     className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${
-                      evmMetrics.healthScore >= 80 ? 'bg-green-500' :
-                      evmMetrics.healthScore >= 60 ? 'bg-yellow-500' :
-                      'bg-red-500'
+                      evmMetrics.healthScore >= 80
+                        ? 'bg-green-500'
+                        : evmMetrics.healthScore >= 60
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
                     }`}
                   ></div>
                 </div>
@@ -314,13 +334,17 @@ const CostControlDashboardView: React.FC = () => {
           <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-gray-600">Cost Health: </span>
-              <span className={`font-medium ${evmMetrics.cpi >= 0.95 ? 'text-green-600' : 'text-red-600'}`}>
+              <span
+                className={`font-medium ${evmMetrics.cpi >= 0.95 ? 'text-green-600' : 'text-red-600'}`}
+              >
                 {evmMetrics.cpi >= 0.95 ? 'Good' : 'Poor'}
               </span>
             </div>
             <div>
               <span className="text-gray-600">Schedule Health: </span>
-              <span className={`font-medium ${evmMetrics.spi >= 0.95 ? 'text-green-600' : 'text-red-600'}`}>
+              <span
+                className={`font-medium ${evmMetrics.spi >= 0.95 ? 'text-green-600' : 'text-red-600'}`}
+              >
                 {evmMetrics.spi >= 0.95 ? 'Good' : 'Poor'}
               </span>
             </div>
@@ -351,9 +375,11 @@ const CostControlDashboardView: React.FC = () => {
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full ${
-                    evmMetrics.percentSpent > evmMetrics.percentComplete + 10 ? 'bg-red-500' :
-                    evmMetrics.percentSpent > evmMetrics.percentComplete + 5 ? 'bg-orange-500' :
-                    'bg-green-500'
+                    evmMetrics.percentSpent > evmMetrics.percentComplete + 10
+                      ? 'bg-red-500'
+                      : evmMetrics.percentSpent > evmMetrics.percentComplete + 5
+                        ? 'bg-orange-500'
+                        : 'bg-green-500'
                   }`}
                   style={{ width: `${Math.min(100, evmMetrics.percentSpent)}%` }}
                 ></div>
@@ -363,7 +389,8 @@ const CostControlDashboardView: React.FC = () => {
           {evmMetrics.percentSpent > evmMetrics.percentComplete && (
             <div className="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-500 rounded">
               <p className="text-sm text-yellow-800">
-                ⚠️ Spending is ahead of progress by {(evmMetrics.percentSpent - evmMetrics.percentComplete).toFixed(1)}%
+                ⚠️ Spending is ahead of progress by{' '}
+                {(evmMetrics.percentSpent - evmMetrics.percentComplete).toFixed(1)}%
               </p>
             </div>
           )}
@@ -383,7 +410,7 @@ const CostControlDashboardView: React.FC = () => {
       <div className="space-y-6">
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-6">Earned Value Management (EVM) Analysis</h3>
-          
+
           {/* EVM Metrics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Planned Value */}
@@ -424,22 +451,25 @@ const CostControlDashboardView: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cost Variance (CV):</span>
-                  <span className={`font-bold ${evmMetrics.cv >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`font-bold ${evmMetrics.cv >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  >
                     {formatCurrency(evmMetrics.cv)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cost Performance Index (CPI):</span>
-                  <span className={`font-bold ${evmMetrics.cpi >= 1 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`font-bold ${evmMetrics.cpi >= 1 ? 'text-green-600' : 'text-red-600'}`}
+                  >
                     {evmMetrics.cpi.toFixed(3)}
                   </span>
                 </div>
                 <div className="p-3 bg-gray-50 rounded">
                   <p className="text-sm text-gray-700">
-                    {evmMetrics.cpi >= 1 ? 
-                      `Project is ${((evmMetrics.cpi - 1) * 100).toFixed(1)}% under budget` :
-                      `Project is ${((1 - evmMetrics.cpi) * 100).toFixed(1)}% over budget`
-                    }
+                    {evmMetrics.cpi >= 1
+                      ? `Project is ${((evmMetrics.cpi - 1) * 100).toFixed(1)}% under budget`
+                      : `Project is ${((1 - evmMetrics.cpi) * 100).toFixed(1)}% over budget`}
                   </p>
                 </div>
               </div>
@@ -450,22 +480,25 @@ const CostControlDashboardView: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Schedule Variance (SV):</span>
-                  <span className={`font-bold ${evmMetrics.sv >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`font-bold ${evmMetrics.sv >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  >
                     {formatCurrency(evmMetrics.sv)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Schedule Performance Index (SPI):</span>
-                  <span className={`font-bold ${evmMetrics.spi >= 1 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`font-bold ${evmMetrics.spi >= 1 ? 'text-green-600' : 'text-red-600'}`}
+                  >
                     {evmMetrics.spi.toFixed(3)}
                   </span>
                 </div>
                 <div className="p-3 bg-gray-50 rounded">
                   <p className="text-sm text-gray-700">
-                    {evmMetrics.spi >= 1 ? 
-                      `Project is ${((evmMetrics.spi - 1) * 100).toFixed(1)}% ahead of schedule` :
-                      `Project is ${((1 - evmMetrics.spi) * 100).toFixed(1)}% behind schedule`
-                    }
+                    {evmMetrics.spi >= 1
+                      ? `Project is ${((evmMetrics.spi - 1) * 100).toFixed(1)}% ahead of schedule`
+                      : `Project is ${((1 - evmMetrics.spi) * 100).toFixed(1)}% behind schedule`}
                   </p>
                 </div>
               </div>
@@ -490,7 +523,9 @@ const CostControlDashboardView: React.FC = () => {
               </div>
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">Variance at Completion (VAC)</p>
-                <p className={`text-xl font-bold ${evmMetrics.vac >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p
+                  className={`text-xl font-bold ${evmMetrics.vac >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
                   {formatCurrency(evmMetrics.vac)}
                 </p>
               </div>
@@ -501,9 +536,12 @@ const CostControlDashboardView: React.FC = () => {
                 <Target className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-blue-900">To-Complete Performance Index (TCPI)</p>
-                  <p className="text-2xl font-bold text-blue-900 mt-1">{evmMetrics.tcpi.toFixed(3)}</p>
+                  <p className="text-2xl font-bold text-blue-900 mt-1">
+                    {evmMetrics.tcpi.toFixed(3)}
+                  </p>
                   <p className="text-sm text-blue-700 mt-2">
-                    Remaining work must be performed at {(evmMetrics.tcpi * 100).toFixed(1)}% efficiency to meet budget
+                    Remaining work must be performed at {(evmMetrics.tcpi * 100).toFixed(1)}%
+                    efficiency to meet budget
                   </p>
                 </div>
               </div>
@@ -532,11 +570,15 @@ const CostControlDashboardView: React.FC = () => {
             </div>
           </div>
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-            <p className="text-sm text-green-700 font-medium mb-1">Selected Forecast (CPI Method)</p>
-            <p className="text-2xl font-bold text-green-900">{formatCurrency(forecast.selectedEAC)}</p>
+            <p className="text-sm text-green-700 font-medium mb-1">
+              Selected Forecast (CPI Method)
+            </p>
+            <p className="text-2xl font-bold text-green-900">
+              {formatCurrency(forecast.selectedEAC)}
+            </p>
             <p className="text-sm text-green-600 mt-2">
-              Confidence Level: {forecast.confidenceLevel.toFixed(0)}% • 
-              Estimated completion in {forecast.daysRemaining} days
+              Confidence Level: {forecast.confidenceLevel.toFixed(0)}% • Estimated completion in{' '}
+              {forecast.daysRemaining} days
             </p>
           </div>
         </div>
@@ -556,14 +598,30 @@ const CostControlDashboardView: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">WBS Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Budget</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actual</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Committed</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Remaining</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Variance</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    WBS Code
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Description
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Budget
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Actual
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Committed
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Remaining
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Variance
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -574,16 +632,16 @@ const CostControlDashboardView: React.FC = () => {
                     <td className="px-6 py-4 text-right">{formatCurrency(item.budgetAmount)}</td>
                     <td className="px-6 py-4 text-right">{formatCurrency(item.actualAmount)}</td>
                     <td className="px-6 py-4 text-right">{formatCurrency(item.committedAmount)}</td>
-                    <td className="px-6 py-4 text-right">
-                      {formatCurrency(item.remainingBudget)}
-                    </td>
+                    <td className="px-6 py-4 text-right">{formatCurrency(item.remainingBudget)}</td>
                     <td className="px-6 py-4 text-right">
                       <span className={item.variance >= 0 ? 'text-green-600' : 'text-red-600'}>
                         {formatCurrency(item.variance)} ({item.variancePercent.toFixed(1)}%)
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(item.status)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(item.status)}`}
+                      >
                         {item.status.replace(/_/g, ' ')}
                       </span>
                     </td>
@@ -662,7 +720,7 @@ const CostControlDashboardView: React.FC = () => {
             { id: 'evm', label: 'EVM Analysis', icon: Target },
             { id: 'budget', label: 'Budget vs Actual', icon: DollarSign },
             { id: 'trends', label: 'Trends', icon: LineChartIcon },
-            { id: 'cashflow', label: 'Cash Flow', icon: TrendingUp }
+            { id: 'cashflow', label: 'Cash Flow', icon: TrendingUp },
           ].map((tab) => {
             const Icon = tab.icon;
             return (

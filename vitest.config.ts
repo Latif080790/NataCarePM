@@ -5,17 +5,17 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  
+
   test: {
     // Test environment
     environment: 'happy-dom',
-    
+
     // Setup files
     setupFiles: ['./setupTests.ts'],
-    
+
     // Global test APIs (no need to import describe, it, expect)
     globals: true,
-    
+
     // Coverage configuration
     coverage: {
       provider: 'v8',
@@ -44,13 +44,10 @@ export default defineConfig({
         statements: 80,
       },
     },
-    
+
     // Test file patterns
-    include: [
-      '**/__tests__/**/*.{test,spec}.{ts,tsx}',
-      '**/*.{test,spec}.{ts,tsx}',
-    ],
-    
+    include: ['**/__tests__/**/*.{test,spec}.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
+
     // Exclude patterns
     exclude: [
       '**/node_modules/**',
@@ -58,24 +55,24 @@ export default defineConfig({
       '**/build/**',
       '**/.{idea,git,cache,output,temp}/**',
     ],
-    
+
     // Timeout
     testTimeout: 10000,
     hookTimeout: 10000,
-    
+
     // Reporter
     reporter: ['verbose', 'html'],
-    
+
     // Watch mode
     watch: false,
-    
+
     // Threads
     threads: true,
-    
+
     // Silent mode (set to false for debugging)
     silent: false,
   },
-  
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

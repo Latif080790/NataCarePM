@@ -3,11 +3,11 @@ import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Task, User } from '@/types';
-import { 
-  Plus, 
-  Search, 
-  CheckCircle, 
-  Clock, 
+import {
+  Plus,
+  Search,
+  CheckCircle,
+  Clock,
   AlertTriangle,
   User as UserIcon,
   Calendar,
@@ -18,7 +18,7 @@ import {
   Flag,
   Target,
   TrendingUp,
-  Zap
+  Zap,
 } from 'lucide-react';
 import { sanitizeBasic } from '@/utils/sanitizer';
 
@@ -30,11 +30,7 @@ interface TasksViewProps {
   onDeleteTask?: (taskId: string) => void;
 }
 
-export const TasksView: React.FC<TasksViewProps> = ({
-  tasks = [],
-  users = [],
-  onDeleteTask
-}) => {
+export const TasksView: React.FC<TasksViewProps> = ({ tasks = [], users = [], onDeleteTask }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,12 +39,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
   // Enhanced task filtering and search
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
-      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           task.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    return tasks.filter((task) => {
+      const matchesSearch =
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
       const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-      
+
       return matchesSearch && matchesStatus && matchesPriority;
     });
   }, [tasks, searchTerm, statusFilter, priorityFilter]);
@@ -56,48 +53,60 @@ export const TasksView: React.FC<TasksViewProps> = ({
   // Task analytics
   const taskAnalytics = useMemo(() => {
     const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'done').length;
-    const inProgress = tasks.filter(t => t.status === 'in-progress').length;
-    const pending = tasks.filter(t => t.status === 'todo').length;
-    const overdue = tasks.filter(t => {
+    const completed = tasks.filter((t) => t.status === 'done').length;
+    const inProgress = tasks.filter((t) => t.status === 'in-progress').length;
+    const pending = tasks.filter((t) => t.status === 'todo').length;
+    const overdue = tasks.filter((t) => {
       if (!t.dueDate) return false;
       return new Date(t.dueDate) < new Date() && t.status !== 'done';
     }).length;
-    
+
     return {
       total,
       completed,
       inProgress,
       pending,
       overdue,
-      completionRate: total > 0 ? (completed / total) * 100 : 0
+      completionRate: total > 0 ? (completed / total) * 100 : 0,
     };
   }, [tasks]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'done': return 'text-green-600 bg-green-100';
-      case 'in-progress': return 'text-blue-600 bg-blue-100';
-      case 'todo': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'done':
+        return 'text-green-600 bg-green-100';
+      case 'in-progress':
+        return 'text-blue-600 bg-blue-100';
+      case 'todo':
+        return 'text-gray-600 bg-gray-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600';
-      case 'medium': return 'text-yellow-600';
-      case 'low': return 'text-green-600';
-      default: return 'text-gray-600';
+      case 'high':
+        return 'text-red-600';
+      case 'medium':
+        return 'text-yellow-600';
+      case 'low':
+        return 'text-green-600';
+      default:
+        return 'text-gray-600';
     }
   };
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'high': return <Flag className="w-4 h-4" />;
-      case 'medium': return <AlertTriangle className="w-4 h-4" />;
-      case 'low': return <Target className="w-4 h-4" />;
-      default: return <Flag className="w-4 h-4" />;
+      case 'high':
+        return <Flag className="w-4 h-4" />;
+      case 'medium':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'low':
+        return <Target className="w-4 h-4" />;
+      default:
+        return <Flag className="w-4 h-4" />;
     }
   };
 
@@ -105,7 +114,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
     return new Date(dateString).toLocaleDateString('id-ID', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -118,14 +127,16 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               🎯 Task Management Center
             </h1>
-            <p className="text-lg text-gray-700 font-medium">Enterprise Task Tracking • AI Analytics • Team Collaboration • Performance Insights</p>
+            <p className="text-lg text-gray-700 font-medium">
+              Enterprise Task Tracking • AI Analytics • Team Collaboration • Performance Insights
+            </p>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg shadow-sm">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-green-700 font-medium">Live Updates</span>
             </div>
-            <Button 
+            <Button
               onClick={() => setIsCreateModalOpen(true)}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 shadow-lg"
             >
@@ -214,7 +225,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               />
             </div>
           </div>
-          
+
           <div className="flex gap-4">
             <select
               value={statusFilter}
@@ -249,13 +260,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <Target className="w-16 h-16 text-gray-400 mb-4" />
               <h3 className="text-xl font-semibold text-gray-600 mb-2">No tasks found</h3>
               <p className="text-gray-500 mb-6">
-                {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' 
-                  ? 'Try adjusting your search or filters' 
-                  : 'Create your first task to get started'
-                }
+                {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
+                  ? 'Try adjusting your search or filters'
+                  : 'Create your first task to get started'}
               </p>
               {!searchTerm && statusFilter === 'all' && priorityFilter === 'all' && (
-                <Button 
+                <Button
                   onClick={() => setIsCreateModalOpen(true)}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2"
                 >
@@ -267,8 +277,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
           </Card>
         ) : (
           filteredTasks.map((task) => (
-            <Card 
-              key={task.id} 
+            <Card
+              key={task.id}
               className="p-6 bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group"
               onClick={() => setSelectedTask(task)}
             >
@@ -278,27 +288,33 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                       {task.title}
                     </h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}
+                    >
                       {task.status.replace('-', ' ').toUpperCase()}
                     </span>
-                    <div className={`flex items-center space-x-1 ${getPriorityColor(task.priority)}`}>
+                    <div
+                      className={`flex items-center space-x-1 ${getPriorityColor(task.priority)}`}
+                    >
                       {getPriorityIcon(task.priority)}
                       <span className="text-sm font-medium capitalize">{task.priority}</span>
                     </div>
                   </div>
-                  
+
                   {task.description && (
-                    <div 
+                    <div
                       className="text-gray-600 mb-4 line-clamp-2"
                       dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
                     />
                   )}
-                  
+
                   <div className="flex items-center space-x-6 text-sm text-gray-500">
                     {task.assignedTo && task.assignedTo.length > 0 && (
                       <div className="flex items-center space-x-2">
                         <UserIcon className="w-4 h-4" />
-                        <span>{users.find(u => u.id === task.assignedTo[0])?.name || 'Unknown'}</span>
+                        <span>
+                          {users.find((u) => u.id === task.assignedTo[0])?.name || 'Unknown'}
+                        </span>
                       </div>
                     )}
                     {task.dueDate && (
@@ -315,7 +331,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 ml-4">
                   <Button
                     onClick={(e) => {
@@ -362,9 +378,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <Plus className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Create New Task</h3>
-              <p className="text-gray-600 mb-6">Task management system is being integrated with Firebase backend.</p>
+              <p className="text-gray-600 mb-6">
+                Task management system is being integrated with Firebase backend.
+              </p>
               <div className="space-y-3">
-                <Button 
+                <Button
                   onClick={() => setIsCreateModalOpen(false)}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
                 >
@@ -385,11 +403,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <Eye className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
-              <div 
+              <div
                 className="text-gray-600 mb-6"
                 dangerouslySetInnerHTML={{ __html: sanitizeBasic(selectedTask.description) }}
               />
-              <Button 
+              <Button
                 onClick={() => setSelectedTask(null)}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
               >
@@ -403,7 +421,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* 🏆 FOOTER */}
       <div className="mt-12 text-center">
         <p className="text-gray-500">
-          🎯 Enterprise Task Management • AI-Powered Analytics • Real-time Collaboration • Strategic Planning • NataCarePM v2.0
+          🎯 Enterprise Task Management • AI-Powered Analytics • Real-time Collaboration • Strategic
+          Planning • NataCarePM v2.0
         </p>
       </div>
     </div>

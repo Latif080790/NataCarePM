@@ -4,9 +4,9 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { LineChart } from './LineChart';
 import { GaugeChart } from './GaugeChart';
-import { 
-  TrendingUp, 
-  DollarSign, 
+import {
+  TrendingUp,
+  DollarSign,
   Clock,
   Target,
   AlertTriangle,
@@ -17,7 +17,7 @@ import {
   Download,
   RefreshCw,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
 } from 'lucide-react';
 import { EVMService } from '@/api/evmService';
 import { EVMMetrics, EVMTrendData, Task, RabItem } from '@/types';
@@ -41,11 +41,13 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
   projectStartDate,
   budgetAtCompletion,
   historicalData = [],
-  onMetricsUpdate
+  onMetricsUpdate,
 }) => {
   const [evmMetrics, setEvmMetrics] = useState<EVMMetrics | null>(null);
   const [trendData, setTrendData] = useState<EVMTrendData[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'forecast' | 'analysis'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'forecast' | 'analysis'>(
+    'overview'
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -61,9 +63,9 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
         actualCosts,
         currentDate: new Date(),
         projectStartDate,
-        budgetAtCompletion
+        budgetAtCompletion,
       });
-      
+
       setEvmMetrics(metrics);
       onMetricsUpdate?.(metrics);
 
@@ -89,7 +91,7 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -102,7 +104,8 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
       if (value >= 1.0) return 'text-green-600';
       if (value >= 0.9) return 'text-yellow-600';
       return 'text-red-600';
-    } else { // variance
+    } else {
+      // variance
       if (value >= 0) return 'text-green-600';
       if (value >= -0.1 * budgetAtCompletion) return 'text-yellow-600';
       return 'text-red-600';
@@ -128,12 +131,12 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
     return {
       planned: trendData.map((data, index) => ({
         day: index + 1,
-        cost: data.plannedValue
+        cost: data.plannedValue,
       })),
       actual: trendData.map((data, index) => ({
         day: index + 1,
-        cost: data.earnedValue
-      }))
+        cost: data.earnedValue,
+      })),
     };
   };
 
@@ -143,12 +146,12 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
     return {
       planned: trendData.map((data, index) => ({
         day: index + 1,
-        cost: data.cpi
+        cost: data.cpi,
       })),
       actual: trendData.map((data, index) => ({
         day: index + 1,
-        cost: data.spi
-      }))
+        cost: data.spi,
+      })),
     };
   };
 
@@ -186,11 +189,7 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
           </div>
 
           <div className="flex gap-2">
-            <Button
-              onClick={calculateEVMMetrics}
-              disabled={isLoading}
-              variant="outline"
-            >
+            <Button onClick={calculateEVMMetrics} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -209,7 +208,7 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'trends', label: 'Trends', icon: TrendingUp },
             { id: 'forecast', label: 'Forecast', icon: Calendar },
-            { id: 'analysis', label: 'Analysis', icon: Calculator }
+            { id: 'analysis', label: 'Analysis', icon: Calculator },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -279,9 +278,7 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
               <div className="text-2xl font-bold text-gray-900">
                 {formatCurrency(budgetAtCompletion)}
               </div>
-              <p className="text-sm text-gray-600">
-                Total project budget
-              </p>
+              <p className="text-sm text-gray-600">Total project budget</p>
             </Card>
           </div>
 
@@ -305,14 +302,15 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                 </div>
               </div>
               <div className="h-32">
-                <GaugeChart 
-                  value={evmMetrics.costPerformanceIndex} 
-                  max={2} 
-                  thresholds={[0.8, 1.0, 1.2]} 
+                <GaugeChart
+                  value={evmMetrics.costPerformanceIndex}
+                  max={2}
+                  thresholds={[0.8, 1.0, 1.2]}
                 />
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                CPI = EV / AC = {formatCurrency(evmMetrics.earnedValue)} / {formatCurrency(evmMetrics.actualCost)}
+                CPI = EV / AC = {formatCurrency(evmMetrics.earnedValue)} /{' '}
+                {formatCurrency(evmMetrics.actualCost)}
               </p>
             </Card>
 
@@ -328,20 +326,25 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                   ) : (
                     <ArrowDown className="w-5 h-5 text-red-600" />
                   )}
-                  <span className={getPerformanceColor(evmMetrics.schedulePerformanceIndex, 'index')}>
-                    {evmMetrics.schedulePerformanceIndex >= 1.0 ? 'Ahead of Schedule' : 'Behind Schedule'}
+                  <span
+                    className={getPerformanceColor(evmMetrics.schedulePerformanceIndex, 'index')}
+                  >
+                    {evmMetrics.schedulePerformanceIndex >= 1.0
+                      ? 'Ahead of Schedule'
+                      : 'Behind Schedule'}
                   </span>
                 </div>
               </div>
               <div className="h-32">
-                <GaugeChart 
-                  value={evmMetrics.schedulePerformanceIndex} 
-                  max={2} 
-                  thresholds={[0.8, 1.0, 1.2]} 
+                <GaugeChart
+                  value={evmMetrics.schedulePerformanceIndex}
+                  max={2}
+                  thresholds={[0.8, 1.0, 1.2]}
                 />
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                SPI = EV / PV = {formatCurrency(evmMetrics.earnedValue)} / {formatCurrency(evmMetrics.plannedValue)}
+                SPI = EV / PV = {formatCurrency(evmMetrics.earnedValue)} /{' '}
+                {formatCurrency(evmMetrics.plannedValue)}
               </p>
             </Card>
           </div>
@@ -351,7 +354,9 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Cost Variance (CV)</h3>
               <div className="flex items-center justify-between mb-2">
-                <div className={`text-3xl font-bold ${getPerformanceColor(evmMetrics.costVariance, 'variance')}`}>
+                <div
+                  className={`text-3xl font-bold ${getPerformanceColor(evmMetrics.costVariance, 'variance')}`}
+                >
                   {formatCurrency(evmMetrics.costVariance)}
                 </div>
                 <div className="text-right">
@@ -362,7 +367,8 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                CV = EV - AC = {formatCurrency(evmMetrics.earnedValue)} - {formatCurrency(evmMetrics.actualCost)}
+                CV = EV - AC = {formatCurrency(evmMetrics.earnedValue)} -{' '}
+                {formatCurrency(evmMetrics.actualCost)}
               </p>
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -370,12 +376,12 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                   <span>Over Budget</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className={`h-2 rounded-full ${
                       evmMetrics.costVariance >= 0 ? 'bg-green-500' : 'bg-red-500'
                     }`}
-                    style={{ 
-                      width: `${Math.min(Math.abs(evmMetrics.costVariance / budgetAtCompletion) * 100 * 5, 100)}%` 
+                    style={{
+                      width: `${Math.min(Math.abs(evmMetrics.costVariance / budgetAtCompletion) * 100 * 5, 100)}%`,
                     }}
                   ></div>
                 </div>
@@ -385,18 +391,19 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Schedule Variance (SV)</h3>
               <div className="flex items-center justify-between mb-2">
-                <div className={`text-3xl font-bold ${getPerformanceColor(evmMetrics.scheduleVariance, 'variance')}`}>
+                <div
+                  className={`text-3xl font-bold ${getPerformanceColor(evmMetrics.scheduleVariance, 'variance')}`}
+                >
                   {formatCurrency(evmMetrics.scheduleVariance)}
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-gray-600">
-                    {evmMetrics.timeVariance} days
-                  </div>
+                  <div className="text-sm text-gray-600">{evmMetrics.timeVariance} days</div>
                   <div className="text-xs text-gray-500">time variance</div>
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                SV = EV - PV = {formatCurrency(evmMetrics.earnedValue)} - {formatCurrency(evmMetrics.plannedValue)}
+                SV = EV - PV = {formatCurrency(evmMetrics.earnedValue)} -{' '}
+                {formatCurrency(evmMetrics.plannedValue)}
               </p>
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -404,12 +411,12 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                   <span>Behind</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className={`h-2 rounded-full ${
                       evmMetrics.scheduleVariance >= 0 ? 'bg-green-500' : 'bg-red-500'
                     }`}
-                    style={{ 
-                      width: `${Math.min(Math.abs(evmMetrics.scheduleVariance / budgetAtCompletion) * 100 * 5, 100)}%` 
+                    style={{
+                      width: `${Math.min(Math.abs(evmMetrics.scheduleVariance / budgetAtCompletion) * 100 * 5, 100)}%`,
                     }}
                   ></div>
                 </div>
@@ -427,9 +434,7 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
               <div className="text-2xl font-bold text-orange-600">
                 {formatCurrency(evmMetrics.estimateAtCompletion)}
               </div>
-              <p className="text-sm text-gray-600">
-                Projected final cost
-              </p>
+              <p className="text-sm text-gray-600">Projected final cost</p>
             </Card>
 
             <Card className="p-4">
@@ -440,9 +445,7 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
               <div className="text-2xl font-bold text-blue-600">
                 {formatCurrency(evmMetrics.estimateToComplete)}
               </div>
-              <p className="text-sm text-gray-600">
-                Remaining cost needed
-              </p>
+              <p className="text-sm text-gray-600">Remaining cost needed</p>
             </Card>
 
             <Card className="p-4">
@@ -450,12 +453,12 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                 <h3 className="font-medium text-gray-900">Variance at Completion (VAC)</h3>
                 <AlertTriangle className="w-4 h-4 text-gray-400" />
               </div>
-              <div className={`text-2xl font-bold ${getPerformanceColor(evmMetrics.varianceAtCompletion, 'variance')}`}>
+              <div
+                className={`text-2xl font-bold ${getPerformanceColor(evmMetrics.varianceAtCompletion, 'variance')}`}
+              >
                 {formatCurrency(evmMetrics.varianceAtCompletion)}
               </div>
-              <p className="text-sm text-gray-600">
-                Budget vs forecast variance
-              </p>
+              <p className="text-sm text-gray-600">Budget vs forecast variance</p>
             </Card>
           </div>
         </div>
@@ -493,7 +496,9 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Schedule Variance:</span>
-                    <span className={evmMetrics.timeVariance >= 0 ? 'text-green-600' : 'text-red-600'}>
+                    <span
+                      className={evmMetrics.timeVariance >= 0 ? 'text-green-600' : 'text-red-600'}
+                    >
                       {evmMetrics.timeVariance} days
                     </span>
                   </div>
@@ -505,11 +510,17 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Estimate at Completion:</span>
-                    <span className="font-medium">{formatCurrency(evmMetrics.estimateAtCompletion)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(evmMetrics.estimateAtCompletion)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Budget Variance:</span>
-                    <span className={evmMetrics.varianceAtCompletion >= 0 ? 'text-green-600' : 'text-red-600'}>
+                    <span
+                      className={
+                        evmMetrics.varianceAtCompletion >= 0 ? 'text-green-600' : 'text-red-600'
+                      }
+                    >
                       {formatCurrency(evmMetrics.varianceAtCompletion)}
                     </span>
                   </div>
@@ -533,12 +544,11 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                       ✓ Project is performing under budget
                     </div>
                   ) : (
-                    <div className="text-red-600 text-sm">
-                      ⚠ Project is over budget
-                    </div>
+                    <div className="text-red-600 text-sm">⚠ Project is over budget</div>
                   )}
                   <p className="text-sm text-gray-600">
-                    For every dollar spent, the project is earning ${evmMetrics.costPerformanceIndex.toFixed(2)} worth of work.
+                    For every dollar spent, the project is earning $
+                    {evmMetrics.costPerformanceIndex.toFixed(2)} worth of work.
                   </p>
                 </div>
               </div>
@@ -547,16 +557,13 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
                 <h4 className="font-medium mb-3">Schedule Performance</h4>
                 <div className="space-y-2">
                   {evmMetrics.schedulePerformanceIndex >= 1.0 ? (
-                    <div className="text-green-600 text-sm">
-                      ✓ Project is ahead of schedule
-                    </div>
+                    <div className="text-green-600 text-sm">✓ Project is ahead of schedule</div>
                   ) : (
-                    <div className="text-red-600 text-sm">
-                      ⚠ Project is behind schedule
-                    </div>
+                    <div className="text-red-600 text-sm">⚠ Project is behind schedule</div>
                   )}
                   <p className="text-sm text-gray-600">
-                    The project is progressing at {(evmMetrics.schedulePerformanceIndex * 100).toFixed(0)}% of the planned rate.
+                    The project is progressing at{' '}
+                    {(evmMetrics.schedulePerformanceIndex * 100).toFixed(0)}% of the planned rate.
                   </p>
                 </div>
               </div>

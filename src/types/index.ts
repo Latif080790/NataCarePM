@@ -1,6 +1,6 @@
 /**
  * Central Type Definitions Export
- * 
+ *
  * Phase 3: Enterprise Construction PM Suite
  * Priorities 3A-3F Type System
  */

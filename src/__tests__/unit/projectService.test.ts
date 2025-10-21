@@ -11,7 +11,7 @@ describe('ProjectService', () => {
       const project = createMockProject({
         name: 'New Project',
         location: 'Jakarta',
-        members: [user]
+        members: [user],
       });
 
       expect(project).toBeDefined();
@@ -32,9 +32,9 @@ describe('ProjectService', () => {
   describe('updateProject', () => {
     it('should update project properties', () => {
       const project = createMockProject({ name: 'Original Name' });
-      const updated = createMockProject({ 
-        ...project, 
-        name: 'Updated Name' 
+      const updated = createMockProject({
+        ...project,
+        name: 'Updated Name',
       });
 
       expect(updated.name).toBe('Updated Name');

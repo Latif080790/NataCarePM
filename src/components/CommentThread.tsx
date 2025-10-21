@@ -28,9 +28,13 @@ export function CommentThread({ comments, onAddComment }: CommentThreadProps) {
     <div className="space-y-4">
       <h4 className="font-semibold text-night-black">Diskusi & Komentar</h4>
       <div className="space-y-3">
-        {comments.map(comment => (
+        {comments.map((comment) => (
           <div key={comment.id} className="flex items-start gap-3">
-            <img src={comment.authorAvatar} alt={comment.authorName} className="w-8 h-8 rounded-full flex-shrink-0" />
+            <img
+              src={comment.authorAvatar}
+              alt={comment.authorName}
+              className="w-8 h-8 rounded-full flex-shrink-0"
+            />
             <div className="flex-1 bg-violet-essence/50 p-2 rounded-lg">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold">{comment.authorName}</span>
@@ -41,15 +45,19 @@ export function CommentThread({ comments, onAddComment }: CommentThreadProps) {
           </div>
         ))}
         {comments.length === 0 && (
-            <p className="text-sm text-center text-palladium py-4">Belum ada komentar.</p>
+          <p className="text-sm text-center text-palladium py-4">Belum ada komentar.</p>
         )}
       </div>
       {currentUser && (
         <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-4 border-t">
-          <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-8 h-8 rounded-full" />
+          <img
+            src={currentUser.avatarUrl}
+            alt={currentUser.name}
+            className="w-8 h-8 rounded-full"
+          />
           <Input
             value={newComment}
-            onChange={e => setNewComment(e.target.value)}
+            onChange={(e) => setNewComment(e.target.value)}
             placeholder="Tulis komentar..."
             className="flex-1"
           />

@@ -3,7 +3,7 @@
  * Priority 3D: Quality Management System
  */
 
-export type InspectionType = 
+export type InspectionType =
   | 'pre_construction'
   | 'foundation'
   | 'structural'
@@ -53,44 +53,44 @@ export interface QualityInspection {
   id: string;
   projectId: string;
   inspectionNumber: string; // e.g., "QI-2024-001"
-  
+
   inspectionType: InspectionType;
   title: string;
   description?: string;
-  
+
   scheduledDate: Date;
   actualDate?: Date;
   completedDate?: Date;
-  
+
   inspector: string;
   inspectorSignature?: string;
-  
+
   location: string;
   workPackageId?: string;
   contractorId?: string;
-  
+
   checklist: ChecklistItem[];
   photos: InspectionPhoto[];
-  
+
   overallResult: InspectionResult;
   passedItems: number;
   failedItems: number;
   conditionalItems: number;
   totalItems: number;
   passRate: number; // percentage
-  
+
   defectsFound: string[]; // defect IDs
-  
+
   notes: string;
   recommendations?: string;
-  
+
   status: InspectionStatus;
-  
+
   reviewedBy?: string;
   reviewedAt?: Date;
   approvedBy?: string;
   approvedAt?: Date;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -98,35 +98,35 @@ export interface QualityInspection {
 export interface Defect {
   id: string;
   defectNumber: string; // e.g., "DEF-2024-001"
-  
+
   inspectionId?: string;
   projectId: string;
-  
+
   title: string;
   description: string;
   severity: DefectSeverity;
-  
+
   category: 'workmanship' | 'material' | 'design' | 'specification' | 'safety' | 'other';
-  
+
   location: string;
   workPackageId?: string;
   contractorId?: string;
-  
+
   photos: string[];
   videoUrls?: string[];
-  
+
   identifiedBy: string;
   identifiedDate: Date;
-  
+
   rootCause?: string;
   correctiveAction: string;
   preventiveAction?: string;
-  
+
   assignedTo?: string;
   dueDate?: Date;
-  
+
   status: DefectStatus;
-  
+
   resolution?: {
     description: string;
     resolvedBy: string;
@@ -135,19 +135,19 @@ export interface Defect {
     cost?: number;
     reworkHours?: number;
   };
-  
+
   verification?: {
     verifiedBy: string;
     verifiedDate: Date;
     approved: boolean;
     comments?: string;
   };
-  
+
   costImpact?: number;
   scheduleImpact?: number; // days
-  
+
   relatedDefects?: string[];
-  
+
   createdAt: Date;
   updatedAt: Date;
   closedAt?: Date;
@@ -175,7 +175,7 @@ export interface QualityMetrics {
     start: Date;
     end: Date;
   };
-  
+
   inspections: {
     total: number;
     completed: number;
@@ -183,7 +183,7 @@ export interface QualityMetrics {
     failed: number;
     passRate: number;
   };
-  
+
   defects: {
     total: number;
     open: number;
@@ -191,7 +191,7 @@ export interface QualityMetrics {
     bySeverity: Record<DefectSeverity, number>;
     byCategory: Record<string, number>;
   };
-  
+
   quality: {
     firstTimePassRate: number;
     defectRate: number; // defects per inspection
@@ -199,13 +199,13 @@ export interface QualityMetrics {
     reworkCost: number;
     reworkHours: number;
   };
-  
+
   compliance: {
     inspectionsOnTime: number;
     inspectionsDelayed: number;
     complianceScore: number; // percentage
   };
-  
+
   trends: {
     improving: boolean;
     defectTrend: 'increasing' | 'decreasing' | 'stable';
@@ -217,34 +217,34 @@ export interface CAPARecord {
   // Corrective and Preventive Action
   id: string;
   projectId: string;
-  
+
   type: 'corrective' | 'preventive';
-  
+
   issue: string;
   defectId?: string;
-  
+
   rootCause: string;
   analysis: string;
-  
+
   action: string;
   responsibility: string;
   targetDate: Date;
-  
+
   status: 'planned' | 'in_progress' | 'completed' | 'verified' | 'ineffective';
-  
+
   implementation?: {
     completedDate: Date;
     completedBy: string;
     evidence?: string[];
   };
-  
+
   verification?: {
     verifiedDate: Date;
     verifiedBy: string;
     effective: boolean;
     comments?: string;
   };
-  
+
   createdAt: Date;
 }
 

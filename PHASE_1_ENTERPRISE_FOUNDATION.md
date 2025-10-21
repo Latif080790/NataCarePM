@@ -1,6 +1,7 @@
 # Fase 1: Enterprise Foundation - Implementation Plan
 
 ## 🎯 Objektif Fase 1 (Bulan 1-2)
+
 Membangun fondasi enterprise yang solid dengan arsitektur microservices, containerization, dan infrastruktur cloud-native.
 
 ---
@@ -10,6 +11,7 @@ Membangun fondasi enterprise yang solid dengan arsitektur microservices, contain
 ### Service Decomposition Strategy
 
 #### Current Monolithic Structure → Target Microservices
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Current NataCarePM                      │
@@ -38,6 +40,7 @@ Membangun fondasi enterprise yang solid dengan arsitektur microservices, contain
 ### Service Definitions
 
 #### 1. **API Gateway Service**
+
 ```yaml
 Responsibilities:
   - Request routing & load balancing
@@ -55,6 +58,7 @@ Technology Stack:
 ```
 
 #### 2. **Authentication Service**
+
 ```yaml
 Responsibilities:
   - User authentication & authorization
@@ -72,6 +76,7 @@ Technology Stack:
 ```
 
 #### 3. **User Management Service**
+
 ```yaml
 Responsibilities:
   - User profile management
@@ -89,6 +94,7 @@ Technology Stack:
 ```
 
 #### 4. **Project Management Service**
+
 ```yaml
 Responsibilities:
   - Project lifecycle management
@@ -106,6 +112,7 @@ Technology Stack:
 ```
 
 #### 5. **Task Management Service**
+
 ```yaml
 Responsibilities:
   - Task creation & management
@@ -123,6 +130,7 @@ Technology Stack:
 ```
 
 #### 6. **Document Management Service**
+
 ```yaml
 Responsibilities:
   - File upload & storage
@@ -141,6 +149,7 @@ Technology Stack:
 ```
 
 #### 7. **Notification Service**
+
 ```yaml
 Responsibilities:
   - Real-time notifications
@@ -159,6 +168,7 @@ Technology Stack:
 ```
 
 #### 8. **Analytics Service**
+
 ```yaml
 Responsibilities:
   - Data collection & processing
@@ -177,6 +187,7 @@ Technology Stack:
 ```
 
 #### 9. **Integration Service**
+
 ```yaml
 Responsibilities:
   - Third-party API integrations
@@ -201,6 +212,7 @@ Technology Stack:
 ### Docker Configuration
 
 #### Base Images Strategy
+
 ```dockerfile
 # Multi-stage build untuk production optimization
 FROM node:18-alpine AS base
@@ -227,6 +239,7 @@ CMD ["npm", "start"]
 #### Service-Specific Dockerfiles
 
 **API Gateway Service**
+
 ```dockerfile
 FROM kong:3.4-alpine
 COPY kong.yml /usr/local/kong/declarative/
@@ -236,6 +249,7 @@ CMD ["kong", "start", "--vv"]
 ```
 
 **Authentication Service**
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -251,13 +265,14 @@ CMD ["node", "dist/main.js"]
 ### Container Orchestration
 
 #### Docker Compose (Development)
+
 ```yaml
 version: '3.8'
 services:
   api-gateway:
     build: ./services/api-gateway
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
@@ -268,7 +283,7 @@ services:
   auth-service:
     build: ./services/auth-service
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - DATABASE_URL=${AUTH_DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
@@ -278,7 +293,7 @@ services:
   user-service:
     build: ./services/user-service
     ports:
-      - "3002:3002"
+      - '3002:3002'
     environment:
       - DATABASE_URL=${USER_DATABASE_URL}
       - ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
@@ -289,7 +304,7 @@ services:
   project-service:
     build: ./services/project-service
     ports:
-      - "3003:3003"
+      - '3003:3003'
     environment:
       - DATABASE_URL=${PROJECT_DATABASE_URL}
       - MONGODB_URL=${MONGODB_URL}
@@ -300,7 +315,7 @@ services:
   task-service:
     build: ./services/task-service
     ports:
-      - "3004:3004"
+      - '3004:3004'
     environment:
       - DATABASE_URL=${TASK_DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
@@ -311,7 +326,7 @@ services:
   document-service:
     build: ./services/document-service
     ports:
-      - "3005:3005"
+      - '3005:3005'
     environment:
       - DATABASE_URL=${DOCUMENT_DATABASE_URL}
       - S3_BUCKET=${S3_BUCKET}
@@ -323,7 +338,7 @@ services:
   notification-service:
     build: ./services/notification-service
     ports:
-      - "3006:3006"
+      - '3006:3006'
     environment:
       - KAFKA_BROKERS=${KAFKA_BROKERS}
       - REDIS_URL=${REDIS_URL}
@@ -335,7 +350,7 @@ services:
   analytics-service:
     build: ./services/analytics-service
     ports:
-      - "3007:3007"
+      - '3007:3007'
     environment:
       - CLICKHOUSE_URL=${CLICKHOUSE_URL}
       - KAFKA_BROKERS=${KAFKA_BROKERS}
@@ -346,7 +361,7 @@ services:
   integration-service:
     build: ./services/integration-service
     ports:
-      - "3008:3008"
+      - '3008:3008'
     environment:
       - DATABASE_URL=${INTEGRATION_DATABASE_URL}
       - KAFKA_BROKERS=${KAFKA_BROKERS}
@@ -365,7 +380,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   mongodb:
     image: mongo:6.0
@@ -375,7 +390,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     ports:
-      - "27017:27017"
+      - '27017:27017'
 
   redis:
     image: redis:7-alpine
@@ -383,7 +398,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   elasticsearch:
     image: elasticsearch:8.10.0
@@ -393,7 +408,7 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
+      - '9200:9200'
 
   clickhouse:
     image: clickhouse/clickhouse-server:23.8
@@ -404,7 +419,7 @@ services:
     volumes:
       - clickhouse_data:/var/lib/clickhouse
     ports:
-      - "8123:8123"
+      - '8123:8123'
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -415,7 +430,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
+      - '9092:9092'
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -423,7 +438,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - '2181:2181'
 
 volumes:
   postgres_data:
@@ -442,6 +457,7 @@ networks:
 ## ☸️ **3. Kubernetes Configuration**
 
 ### Namespace Organization
+
 ```yaml
 apiVersion: v1
 kind: Namespace
@@ -469,6 +485,7 @@ metadata:
 ```
 
 ### Service Deployment Example (Auth Service)
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -490,40 +507,40 @@ spec:
         version: v1.0.0
     spec:
       containers:
-      - name: auth-service
-        image: natacare/auth-service:v1.0.0
-        ports:
-        - containerPort: 3001
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: database-secret
-              key: auth-database-url
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: secret
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 3001
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: auth-service
+          image: natacare/auth-service:v1.0.0
+          ports:
+            - containerPort: 3001
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: auth-database-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: secret
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
@@ -534,9 +551,9 @@ spec:
   selector:
     app: auth-service
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3001
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
@@ -549,23 +566,24 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
-  - hosts:
-    - auth.natacare.enterprise
-    secretName: auth-service-tls
+    - hosts:
+        - auth.natacare.enterprise
+      secretName: auth-service-tls
   rules:
-  - host: auth.natacare.enterprise
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: auth-service
-            port:
-              number: 80
+    - host: auth.natacare.enterprise
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80
 ```
 
 ### HorizontalPodAutoscaler
+
 ```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -580,18 +598,18 @@ spec:
   minReplicas: 3
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
 ```
 
 ---
@@ -599,6 +617,7 @@ spec:
 ## 🛠️ **4. Development & Deployment Tools**
 
 ### Helm Charts Structure
+
 ```
 helm/
 ├── Chart.yaml
@@ -622,6 +641,7 @@ helm/
 ```
 
 ### CI/CD Pipeline (GitHub Actions)
+
 ```yaml
 name: Enterprise CI/CD Pipeline
 
@@ -649,31 +669,31 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run test:unit
-    - run: npm run test:integration
-    - run: npm run test:e2e
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npm run test:e2e
 
   security-scan:
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - uses: actions/checkout@v3
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-    - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: 'trivy-results.sarif'
+      - uses: actions/checkout@v3
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   build-and-push:
     runs-on: ubuntu-latest
@@ -682,25 +702,25 @@ jobs:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v3
-    - name: Log in to Container Registry
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+      - uses: actions/checkout@v3
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   deploy-staging:
     runs-on: ubuntu-latest
@@ -708,18 +728,18 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     environment: staging
     steps:
-    - uses: actions/checkout@v3
-    - name: Configure kubectl
-      uses: azure/k8s-set-context@v1
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
-    - name: Deploy to staging
-      run: |
-        helm upgrade --install natacare-staging ./helm \
-          --namespace natacare-staging \
-          --values ./helm/values-staging.yaml \
-          --set image.tag=${{ github.sha }}
+      - uses: actions/checkout@v3
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
+      - name: Deploy to staging
+        run: |
+          helm upgrade --install natacare-staging ./helm \
+            --namespace natacare-staging \
+            --values ./helm/values-staging.yaml \
+            --set image.tag=${{ github.sha }}
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -727,18 +747,18 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment: production
     steps:
-    - uses: actions/checkout@v3
-    - name: Configure kubectl
-      uses: azure/k8s-set-context@v1
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
-    - name: Deploy to production
-      run: |
-        helm upgrade --install natacare-enterprise ./helm \
-          --namespace natacare-enterprise \
-          --values ./helm/values-production.yaml \
-          --set image.tag=${{ github.sha }}
+      - uses: actions/checkout@v3
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
+      - name: Deploy to production
+        run: |
+          helm upgrade --install natacare-enterprise ./helm \
+            --namespace natacare-enterprise \
+            --values ./helm/values-production.yaml \
+            --set image.tag=${{ github.sha }}
 ```
 
 ---
@@ -746,51 +766,58 @@ jobs:
 ## 📊 **5. Monitoring & Observability Setup**
 
 ### Prometheus Configuration
+
 ```yaml
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
 rule_files:
-  - "/etc/prometheus/rules/*.yml"
+  - '/etc/prometheus/rules/*.yml'
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - alertmanager:9093
+            - alertmanager:9093
 
 scrape_configs:
   - job_name: 'kubernetes-apiservers'
     kubernetes_sd_configs:
-    - role: endpoints
+      - role: endpoints
     scheme: https
     tls_config:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
     relabel_configs:
-    - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
-      action: keep
-      regex: default;kubernetes;https
+      - source_labels:
+          [
+            __meta_kubernetes_namespace,
+            __meta_kubernetes_service_name,
+            __meta_kubernetes_endpoint_port_name,
+          ]
+        action: keep
+        regex: default;kubernetes;https
 
   - job_name: 'natacare-services'
     kubernetes_sd_configs:
-    - role: endpoints
-      namespaces:
-        names:
-        - natacare-enterprise
-        - natacare-staging
+      - role: endpoints
+        namespaces:
+          names:
+            - natacare-enterprise
+            - natacare-staging
     relabel_configs:
-    - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
-      action: keep
-      regex: true
-    - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
-      action: replace
-      target_label: __metrics_path__
-      regex: (.+)
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
 ```
 
 ### Grafana Dashboards
+
 ```json
 {
   "dashboard": {
@@ -836,24 +863,28 @@ scrape_configs:
 ## ✅ **Action Items untuk Fase 1**
 
 ### Week 1-2: Architecture Planning
+
 - [ ] Finalize microservices decomposition
 - [ ] Design API contracts between services
 - [ ] Setup development environment
 - [ ] Create service templates
 
 ### Week 3-4: Infrastructure Setup
+
 - [ ] Setup Kubernetes cluster
 - [ ] Configure monitoring stack
 - [ ] Setup CI/CD pipelines
 - [ ] Create Helm charts
 
 ### Week 5-6: Service Development
+
 - [ ] Implement API Gateway
 - [ ] Migrate Authentication service
 - [ ] Implement User Management service
 - [ ] Setup inter-service communication
 
 ### Week 7-8: Testing & Deployment
+
 - [ ] Integration testing
 - [ ] Performance testing
 - [ ] Security testing
@@ -863,6 +894,6 @@ scrape_configs:
 
 **Estimated Timeline**: 8 minggu  
 **Team Required**: 8-10 developers  
-**Budget**: $400K - $600K  
+**Budget**: $400K - $600K
 
 Fase 1 ini akan memberikan fondasi yang solid untuk semua fase enterprise berikutnya!

@@ -1,6 +1,6 @@
 /**
  * BottomNav Component
- * 
+ *
  * Bottom navigation bar for mobile devices
  * Features:
  * - 5 main navigation items
@@ -32,11 +32,7 @@ const NAV_ITEMS: BottomNavItem[] = [
   { id: 'notifications', name: 'Alerts', icon: Bell },
 ];
 
-export const BottomNav: React.FC<BottomNavProps> = ({
-  currentView,
-  onNavigate,
-  onMenuClick,
-}) => {
+export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate, onMenuClick }) => {
   return (
     <nav className="mobile-bottom-nav" role="navigation" aria-label="Bottom navigation">
       {NAV_ITEMS.map((item) => {
@@ -58,11 +54,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       })}
 
       {/* Menu Button */}
-      <button
-        onClick={onMenuClick}
-        className="mobile-bottom-nav-item"
-        aria-label="Open menu"
-      >
+      <button onClick={onMenuClick} className="mobile-bottom-nav-item" aria-label="Open menu">
         <Menu size={24} className="mobile-bottom-nav-icon" />
         <span className="mobile-bottom-nav-label">More</span>
       </button>

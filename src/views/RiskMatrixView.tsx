@@ -1,7 +1,7 @@
 /**
  * Risk Matrix View
  * Priority 3B: Risk Management System
- * 
+ *
  * Interactive risk heat map visualization showing severity vs probability
  */
 
@@ -15,17 +15,14 @@ interface RiskMatrixViewProps {
 }
 
 const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
-  const {
-    risks,
-    risksLoading,
-    risksError,
-    fetchRisks,
-  } = useRisk();
+  const { risks, risksLoading, risksError, fetchRisks } = useRisk();
 
   // Local state
   const [selectedCategory, setSelectedCategory] = useState<RiskCategory | 'all'>('all');
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
-  const [hoveredCell, setHoveredCell] = useState<{ severity: number; probability: number } | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<{ severity: number; probability: number } | null>(
+    null
+  );
 
   // Fetch risks on mount
   useEffect(() => {
@@ -35,7 +32,7 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
   // Filter risks by category
   const filteredRisks = useMemo(() => {
     if (selectedCategory === 'all') return risks;
-    return risks.filter(risk => risk.category === selectedCategory);
+    return risks.filter((risk) => risk.category === selectedCategory);
   }, [risks, selectedCategory]);
 
   // Matrix dimensions (5x5)
@@ -63,14 +60,14 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
   // Get risks for a specific cell
   const getRisksInCell = (severity: RiskSeverity, probability: RiskProbability): Risk[] => {
     return filteredRisks.filter(
-      risk => risk.severity === severity && risk.probability === probability
+      (risk) => risk.severity === severity && risk.probability === probability
     );
   };
 
   // Get cell color based on risk score
   const getCellColor = (severity: RiskSeverity, probability: RiskProbability): string => {
     const score = severity * probability;
-    
+
     if (score >= 20) return 'bg-red-600 hover:bg-red-700';
     if (score >= 15) return 'bg-red-500 hover:bg-red-600';
     if (score >= 10) return 'bg-orange-500 hover:bg-orange-600';
@@ -88,7 +85,7 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
   // Get priority label
   const getPriorityLabel = (severity: RiskSeverity, probability: RiskProbability): string => {
     const score = severity * probability;
-    
+
     if (score >= 16) return 'CRITICAL';
     if (score >= 10) return 'HIGH';
     if (score >= 5) return 'MEDIUM';
@@ -118,14 +115,12 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Risk Matrix
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Risk Matrix</h1>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Visual risk assessment heat map
               </p>
             </div>
-            
+
             {/* Category Filter */}
             <div className="mt-4 sm:mt-0">
               <select
@@ -144,7 +139,9 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 
           {/* Legend */}
           <div className="mt-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Risk Priority Legend</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+              Risk Priority Legend
+            </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-red-600 rounded"></div>
@@ -195,9 +192,7 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
                             <div className="text-xs font-medium text-gray-900 dark:text-white">
                               {probabilityLabels[prob]}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              ({prob})
-                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">({prob})</div>
                           </th>
                         ))}
                       </tr>
@@ -216,7 +211,9 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
                           {probabilityLevels.map((probability) => {
                             const cellRisks = getRisksInCell(severity, probability);
                             const score = severity * probability;
-                            const isHovered = hoveredCell?.severity === severity && hoveredCell?.probability === probability;
+                            const isHovered =
+                              hoveredCell?.severity === severity &&
+                              hoveredCell?.probability === probability;
 
                             return (
                               <td
@@ -232,13 +229,13 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
                                   }
                                 }}
                               >
-                                <div className={`text-center ${getTextColor(severity, probability)}`}>
+                                <div
+                                  className={`text-center ${getTextColor(severity, probability)}`}
+                                >
                                   <div className="text-xs font-bold mb-1">
                                     {getPriorityLabel(severity, probability)}
                                   </div>
-                                  <div className="text-lg font-bold">
-                                    {score}
-                                  </div>
+                                  <div className="text-lg font-bold">{score}</div>
                                   {cellRisks.length > 0 && (
                                     <div className="mt-1 text-xs font-medium">
                                       {cellRisks.length} {cellRisks.length === 1 ? 'risk' : 'risks'}
@@ -257,12 +254,8 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 
               {/* Axis Labels */}
               <div className="mt-4 flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-                <div className="transform -rotate-0">
-                  ← Probability →
-                </div>
-                <div className="transform rotate-0">
-                  ← Impact →
-                </div>
+                <div className="transform -rotate-0">← Probability →</div>
+                <div className="transform rotate-0">← Impact →</div>
               </div>
             </div>
           </div>
@@ -272,23 +265,30 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
         {hoveredCell && (
           <div className="mt-6 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Cell Details: {severityLabels[hoveredCell.severity as RiskSeverity]} × {probabilityLabels[hoveredCell.probability as RiskProbability]}
+              Cell Details: {severityLabels[hoveredCell.severity as RiskSeverity]} ×{' '}
+              {probabilityLabels[hoveredCell.probability as RiskProbability]}
             </h3>
-            
+
             {(() => {
-              const cellRisks = getRisksInCell(hoveredCell.severity as RiskSeverity, hoveredCell.probability as RiskProbability);
+              const cellRisks = getRisksInCell(
+                hoveredCell.severity as RiskSeverity,
+                hoveredCell.probability as RiskProbability
+              );
               const score = hoveredCell.severity * hoveredCell.probability;
-              
+
               return cellRisks.length === 0 ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No risks in this cell
-                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No risks in this cell</p>
               ) : (
                 <div className="space-y-3">
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Risk Score: <span className="font-bold text-gray-900 dark:text-white">{score}</span> - {getPriorityLabel(hoveredCell.severity as RiskSeverity, hoveredCell.probability as RiskProbability)}
+                    Risk Score:{' '}
+                    <span className="font-bold text-gray-900 dark:text-white">{score}</span> -{' '}
+                    {getPriorityLabel(
+                      hoveredCell.severity as RiskSeverity,
+                      hoveredCell.probability as RiskProbability
+                    )}
                   </div>
-                  
+
                   <div className="space-y-2">
                     {cellRisks.map((risk) => (
                       <div
@@ -313,8 +313,18 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          <svg
+                            className="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
                           </svg>
                         </div>
                       </div>
@@ -333,9 +343,10 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {(['critical', 'high', 'medium', 'low'] as const).map((priority) => {
-              const count = filteredRisks.filter(risk => risk.priorityLevel === priority).length;
-              const percentage = filteredRisks.length > 0 ? (count / filteredRisks.length) * 100 : 0;
-              
+              const count = filteredRisks.filter((risk) => risk.priorityLevel === priority).length;
+              const percentage =
+                filteredRisks.length > 0 ? (count / filteredRisks.length) * 100 : 0;
+
               const colorClasses = {
                 critical: 'bg-red-500',
                 high: 'bg-orange-500',
@@ -349,9 +360,7 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
                       {priority}
                     </span>
-                    <span className="text-lg font-bold text-gray-900 dark:text-white">
-                      {count}
-                    </span>
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">{count}</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                     <div
@@ -382,14 +391,21 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</h4>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Description
+                    </h4>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       {selectedRisk.description}
                     </p>
@@ -397,13 +413,17 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Severity</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Severity
+                      </h4>
                       <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                         {selectedRisk.severity} - {severityLabels[selectedRisk.severity]}
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Probability</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Probability
+                      </h4>
                       <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                         {selectedRisk.probability} - {probabilityLabels[selectedRisk.probability]}
                       </p>
@@ -412,13 +432,17 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Risk Score</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Risk Score
+                      </h4>
                       <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
                         {selectedRisk.riskScore}
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Priority</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Priority
+                      </h4>
                       <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white capitalize">
                         {selectedRisk.priorityLevel}
                       </p>
@@ -427,13 +451,17 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Category
+                      </h4>
                       <p className="mt-1 text-sm text-gray-900 dark:text-white capitalize">
                         {selectedRisk.category}
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Status
+                      </h4>
                       <p className="mt-1 text-sm text-gray-900 dark:text-white capitalize">
                         {selectedRisk.status}
                       </p>
@@ -442,7 +470,9 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 
                   {selectedRisk.estimatedImpact > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Estimated Impact</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Estimated Impact
+                      </h4>
                       <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
                         ${selectedRisk.estimatedImpact.toLocaleString()}
                       </p>

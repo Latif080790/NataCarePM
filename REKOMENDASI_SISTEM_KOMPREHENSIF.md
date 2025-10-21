@@ -9,6 +9,7 @@
 ## 🎯 EXECUTIVE SUMMARY
 
 ### Status Sistem Saat Ini
+
 - **Skor Keseluruhan:** 92/100 ⭐
 - **Status:** Production-ready dengan area perbaikan
 - **Total File:** 418 TypeScript/React files
@@ -18,13 +19,16 @@
 - **TypeScript Errors:** 0 errors ✅
 
 ### Temuan Utama
+
 ✅ **Kelebihan:**
+
 - Arsitektur modular yang sangat baik
 - Type safety 100% dengan 0 error
 - Service layer yang comprehensive
 - State management yang solid
 
 ⚠️ **Area Perbaikan:**
+
 - **6,000+ baris** backup code yang perlu dihapus
 - **45+ file dokumentasi** perlu konsolidasi
 - **50+ TODO comments** menunjukkan fitur incomplete
@@ -35,9 +39,11 @@
 ## 📊 ANALISIS BERDASARKAN KRITERIA
 
 ### 1️⃣ DETAIL (Kelengkapan Fitur)
+
 **Skor Saat Ini:** 85/100
 
 #### ✅ Sudah Lengkap:
+
 - ✅ Project & Task Management (95% complete)
 - ✅ Finance & Accounting (90% complete)
 - ✅ Logistics & Materials (85% complete)
@@ -46,6 +52,7 @@
 - ✅ Monitoring & Analytics (75% complete)
 
 #### ❌ Masih Kurang:
+
 - ❌ **User Profile Management** - Hanya 40% (basic view saja)
   - Missing: Photo upload, password change, 2FA, activity log, session management
 - ❌ **Advanced Reporting** - Hanya 30%
@@ -58,15 +65,18 @@
 ---
 
 ### 2️⃣ KETELITIAN (Akurasi & Validasi)
+
 **Skor Saat Ini:** 88/100
 
 #### ✅ Sudah Baik:
+
 - ✅ Type system yang comprehensive
 - ✅ Input validation di service layer
 - ✅ Error handling yang consistent
 - ✅ API response standardization
 
 #### ⚠️ Perlu Ditingkatkan:
+
 - ⚠️ **Runtime Validation** - Hanya server-side
   - Rekomendasi: Tambahkan Zod/Yup untuk client-side validation
 - ⚠️ **Sanitization** - Belum ada HTML sanitization
@@ -77,15 +87,18 @@
 ---
 
 ### 3️⃣ AKURASI (Presisi Data & Perhitungan)
+
 **Skor Saat Ini:** 90/100
 
 #### ✅ Sudah Akurat:
+
 - ✅ Finance calculations (Chart of Accounts, Journal, AP/AR)
 - ✅ WBS budget tracking & variance analysis
 - ✅ Inventory stock calculations
 - ✅ EVM (Earned Value Management) formulas
 
 #### ⚠️ Area Perbaikan:
+
 - ⚠️ **Currency Conversion** - Manual exchange rates
   - Rekomendasi: Auto-update dari API eksternal
 - ⚠️ **Cost Allocation** - Hardcoded algorithms
@@ -96,15 +109,18 @@
 ---
 
 ### 4️⃣ PRESISI (Granularitas & Kontrol)
+
 **Skor Saat Ini:** 87/100
 
 #### ✅ Sudah Presisi:
+
 - ✅ Role-based access control (RBAC)
 - ✅ Audit logging comprehensive
 - ✅ Transaction tracking dengan timestamps
 - ✅ Multi-level approval workflows
 
 #### ⚠️ Perlu Peningkatan:
+
 - ⚠️ **Permissions Granularity** - Hanya role-level
   - Rekomendasi: Field-level permissions
 - ⚠️ **Audit Details** - Missing user actions context
@@ -115,9 +131,11 @@
 ---
 
 ### 5️⃣ KOMPREHENSIVITAS (Cakupan Menyeluruh)
+
 **Skor Saat Ini:** 82/100
 
 #### ✅ Module Coverage:
+
 - ✅ Core PM: 95%
 - ✅ Finance: 90%
 - ✅ Logistics: 85%
@@ -125,6 +143,7 @@
 - ✅ Analytics: 75%
 
 #### ❌ Missing Modules:
+
 - ❌ **Resource Management** (0%)
   - Equipment, people, resource allocation & utilization
 - ❌ **Risk Management** (0%)
@@ -143,11 +162,13 @@
 ### 🔴 CRITICAL (Harus Dikerjakan Sekarang)
 
 #### 1. **Code Cleanup - 6,000+ Baris Dead Code**
+
 **Masalah:** 9 backup files mengacaukan codebase  
 **Impact:** Confusing, slower IDE, maintenance overhead  
-**Estimasi:** 2 jam  
+**Estimasi:** 2 jam
 
 **Files to Delete:**
+
 ```bash
 # API Backup Files (5,450 lines)
 api/intelligentDocumentService-before-firebase.ts (~800 lines)
@@ -167,7 +188,8 @@ __tests__/intelligentDocumentSystem.integration.test.ts (7 errors)
 __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ```
 
-**Benefit:** 
+**Benefit:**
+
 - -6,000 lines of confusion
 - +30% IDE performance
 - Cleaner git history
@@ -175,20 +197,24 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ---
 
 #### 2. **Fix Broken Test Suite**
+
 **Masalah:** 48 TypeScript errors in test files  
 **Impact:** No automated testing, risk of regressions  
-**Estimasi:** 4 jam  
+**Estimasi:** 4 jam
 
 **Files to Fix:**
+
 - `__tests__/intelligentDocumentSystem.integration.test.ts` (7 errors)
 - `__tests__/intelligentDocumentSystem.validation.ts` (41 errors)
 
 **Options:**
+
 1. Fix errors (recommended)
 2. Delete tests and rewrite later
 3. Skip for now (not recommended)
 
 **Benefit:**
+
 - Working CI/CD pipeline
 - Confidence in deployments
 - Regression prevention
@@ -196,11 +222,13 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ---
 
 #### 3. **Complete TODO Items - 50+ Incomplete Implementations**
+
 **Masalah:** 50+ TODO/FIXME comments indicating incomplete features  
 **Impact:** Missing functionality, user frustration  
-**Estimasi:** 20 jam (priority TODOs only)  
+**Estimasi:** 20 jam (priority TODOs only)
 
 **High Priority TODOs:**
+
 ```typescript
 // 1. Password Security (CRITICAL)
 // src/api/authService.ts - Line X
@@ -249,6 +277,7 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ```
 
 **Benefit:**
+
 - Complete features
 - Better user experience
 - Production readiness
@@ -258,10 +287,12 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ### 🟡 HIGH (Sprint Berikutnya)
 
 #### 4. **User Profile Management - Complete Implementation**
+
 **Status Saat Ini:** 40% (basic view only)  
-**Estimasi:** 20 jam  
+**Estimasi:** 20 jam
 
 **Missing Features:**
+
 1. ✅ **Profile Photo Upload** - SELESAI! (Feature 1.1, A+ 98/100)
 2. ✅ **Password Change** - SELESAI! (Feature 1.2, A+ 97/100)
 3. ❌ **Activity Log** - View last 100 user actions with filters
@@ -279,6 +310,7 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 **Next:** Feature 1.3 (Activity Log), Feature 1.4 (Session Management)
 
 **Benefit:**
+
 - Improved security
 - Better user control
 - Professional appearance
@@ -286,10 +318,12 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ---
 
 #### 5. **Advanced Reporting Module**
+
 **Status Saat Ini:** 30% (basic report view)  
-**Estimasi:** 30 jam  
+**Estimasi:** 30 jam
 
 **Missing Features:**
+
 1. **Custom Report Builder**
    - Drag-and-drop field selection
    - Filter builder
@@ -325,6 +359,7 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
    - Trend analysis across projects
 
 **Benefit:**
+
 - Better business intelligence
 - Data-driven decisions
 - Executive dashboards
@@ -332,10 +367,12 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ---
 
 #### 6. **Mobile Responsive Optimization**
+
 **Status Saat Ini:** 50% (works but not optimized)  
-**Estimasi:** 25 jam  
+**Estimasi:** 25 jam
 
 **Required:**
+
 1. **Touch Optimization**
    - Larger touch targets (44x44px minimum)
    - Swipe gestures for navigation
@@ -372,6 +409,7 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
    - Optimize for 3G networks
 
 **Benefit:**
+
 - +60% mobile usage
 - Field team productivity
 - Competitive advantage
@@ -379,10 +417,12 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ---
 
 #### 7. **Dashboard Customization**
+
 **Status Saat Ini:** Fixed layouts only  
-**Estimasi:** 15 jam  
+**Estimasi:** 15 jam
 
 **Features:**
+
 1. **Drag-and-Drop Widgets**
    - Rearrange dashboard layout
    - Resize widgets
@@ -415,6 +455,7 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
    - Public dashboard URLs (for clients)
 
 **Benefit:**
+
 - Personalization
 - Role-specific views
 - Improved efficiency
@@ -424,10 +465,12 @@ __tests__/intelligentDocumentSystem.validation.ts (41 errors)
 ### 🟢 MEDIUM (Q1 2026)
 
 #### 8. **Documentation Consolidation**
+
 **Masalah:** 45+ .md files sulit dikelola  
-**Estimasi:** 8 jam  
+**Estimasi:** 8 jam
 
 **Action Plan:**
+
 ```
 Current: 45+ scattered .md files
 Target: 8 core documentation files
@@ -447,13 +490,15 @@ archive/
 ```
 
 **Files to Consolidate:**
-- PHASE_1_*.md (10+ files) → ARCHITECTURE.md
-- PHASE_2_*.md (15+ files) → ARCHITECTURE.md
-- *_COMPLETE.md (8+ files) → CHANGELOG.md
-- *_REPORT.md (7+ files) → archive/
-- *_GUIDE.md (5+ files) → Appropriate docs
+
+- PHASE*1*\*.md (10+ files) → ARCHITECTURE.md
+- PHASE*2*\*.md (15+ files) → ARCHITECTURE.md
+- \*\_COMPLETE.md (8+ files) → CHANGELOG.md
+- \*\_REPORT.md (7+ files) → archive/
+- \*\_GUIDE.md (5+ files) → Appropriate docs
 
 **Benefit:**
+
 - -82% documentation files
 - Easier navigation
 - Better onboarding
@@ -461,10 +506,12 @@ archive/
 ---
 
 #### 9. **Resource Management Module**
+
 **Status:** 0% (tidak ada)  
-**Estimasi:** 40 jam  
+**Estimasi:** 40 jam
 
 **Features:**
+
 1. **Equipment Tracking**
    - Equipment register
    - Maintenance schedules
@@ -486,6 +533,7 @@ archive/
    - Resource scheduling
 
 **Benefit:**
+
 - Better resource optimization
 - Cost reduction
 - Improved scheduling
@@ -493,10 +541,12 @@ archive/
 ---
 
 #### 10. **Risk Management Module**
+
 **Status:** 0% (tidak ada)  
-**Estimasi:** 35 jam  
+**Estimasi:** 35 jam
 
 **Features:**
+
 1. **Risk Register**
    - Risk identification
    - Risk categorization
@@ -518,6 +568,7 @@ archive/
    - Risk reporting
 
 **Benefit:**
+
 - Proactive risk management
 - Reduced project failures
 - Better decision making
@@ -525,10 +576,12 @@ archive/
 ---
 
 #### 11. **Quality Management System**
+
 **Status:** 0% (tidak ada)  
-**Estimasi:** 45 jam  
+**Estimasi:** 45 jam
 
 **Features:**
+
 1. **Quality Plans**
    - Quality objectives
    - Quality criteria
@@ -550,6 +603,7 @@ archive/
    - Quality costs
 
 **Benefit:**
+
 - Quality assurance
 - Compliance tracking
 - Customer satisfaction
@@ -557,10 +611,12 @@ archive/
 ---
 
 #### 12. **Change Order Management**
+
 **Status:** 0% (tidak ada)  
-**Estimasi:** 30 jam  
+**Estimasi:** 30 jam
 
 **Features:**
+
 1. **Change Request Workflow**
    - Request submission
    - Impact analysis
@@ -582,6 +638,7 @@ archive/
    - Change reports
 
 **Benefit:**
+
 - Better change control
 - Reduced scope creep
 - Clear audit trail
@@ -591,9 +648,11 @@ archive/
 ### 🔵 LOW (Q2 2026)
 
 #### 13. **Email Integration**
-**Estimasi:** 20 jam  
+
+**Estimasi:** 20 jam
 
 **Features:**
+
 - Send email from app
 - Email templates
 - Bulk email
@@ -605,9 +664,11 @@ archive/
 ---
 
 #### 14. **Advanced Search**
-**Estimasi:** 15 jam  
+
+**Estimasi:** 15 jam
 
 **Features:**
+
 - Global search across modules
 - Faceted search
 - Saved searches
@@ -617,9 +678,11 @@ archive/
 ---
 
 #### 15. **Time Tracking Module**
-**Estimasi:** 35 jam  
+
+**Estimasi:** 35 jam
 
 **Features:**
+
 - Timesheet entry
 - Time approval workflow
 - Billable hours tracking
@@ -629,9 +692,11 @@ archive/
 ---
 
 #### 16. **AI-Powered Features**
-**Estimasi:** 60 jam  
+
+**Estimasi:** 60 jam
 
 **Features:**
+
 - Predictive cost analysis
 - Automatic task prioritization
 - Smart scheduling
@@ -641,9 +706,11 @@ archive/
 ---
 
 #### 17. **Integration Hub**
-**Estimasi:** 40 jam  
+
+**Estimasi:** 40 jam
 
 **Features:**
+
 - API marketplace
 - Webhook management
 - Third-party integrations (Slack, Teams)
@@ -656,10 +723,12 @@ archive/
 ### Performance Optimization
 
 #### 1. **Code Splitting & Lazy Loading**
+
 **Masalah:** Bundle size terlalu besar (>2MB)  
-**Estimasi:** 6 jam  
+**Estimasi:** 6 jam
 
 **Implementation:**
+
 ```typescript
 // Lazy load large views
 const WBSManagementView = lazy(() => import('./views/WBSManagementView'));
@@ -673,6 +742,7 @@ const AdvancedFinanceView = lazy(() => import('./views/AdvancedFinanceView'));
 ```
 
 **Benefit:**
+
 - -40% initial load time (3s → 1.8s)
 - Better perceived performance
 - Improved Lighthouse score
@@ -680,27 +750,30 @@ const AdvancedFinanceView = lazy(() => import('./views/AdvancedFinanceView'));
 ---
 
 #### 2. **Memoization & Performance Hooks**
+
 **Masalah:** Unnecessary re-renders pada complex components  
-**Estimasi:** 8 jam  
+**Estimasi:** 8 jam
 
 **Implementation:**
+
 ```typescript
 // Memoize expensive components
 export const ExpensiveChart = React.memo(ChartComponent);
 
 // Memoize expensive calculations
-const processedData = useMemo(() => 
-  calculateComplexMetrics(rawData), 
-  [rawData]
-);
+const processedData = useMemo(() => calculateComplexMetrics(rawData), [rawData]);
 
 // Callback memoization
-const handleSubmit = useCallback((data) => {
-  submitData(data);
-}, [submitData]);
+const handleSubmit = useCallback(
+  (data) => {
+    submitData(data);
+  },
+  [submitData]
+);
 ```
 
 **Benefit:**
+
 - -50% re-render time
 - Smoother UI interactions
 - Better performance on low-end devices
@@ -708,10 +781,12 @@ const handleSubmit = useCallback((data) => {
 ---
 
 #### 3. **Virtual Scrolling**
+
 **Masalah:** Large lists (1000+ items) laggy  
-**Estimasi:** 10 jam  
+**Estimasi:** 10 jam
 
 **Implementation:**
+
 ```typescript
 import { FixedSizeList } from 'react-window';
 
@@ -723,6 +798,7 @@ import { FixedSizeList } from 'react-window';
 ```
 
 **Benefit:**
+
 - Handle 10,000+ items smoothly
 - Constant memory usage
 - 60fps scrolling
@@ -730,9 +806,11 @@ import { FixedSizeList } from 'react-window';
 ---
 
 #### 4. **Image Optimization**
-**Estimasi:** 5 jam  
+
+**Estimasi:** 5 jam
 
 **Actions:**
+
 - Implement lazy loading for images
 - Convert to WebP format
 - Add responsive images (srcset)
@@ -741,9 +819,11 @@ import { FixedSizeList } from 'react-window';
 ---
 
 #### 5. **Bundle Analysis & Tree Shaking**
-**Estimasi:** 4 jam  
+
+**Estimasi:** 4 jam
 
 **Actions:**
+
 ```bash
 # Analyze bundle
 npm install --save-dev vite-plugin-bundle-analyzer
@@ -758,6 +838,7 @@ npm prune
 ```
 
 **Benefit:**
+
 - -25% bundle size
 - Faster downloads
 - Lower hosting costs
@@ -767,17 +848,19 @@ npm prune
 ### Security Enhancements
 
 #### 6. **Runtime Validation with Zod**
+
 **Masalah:** No client-side validation  
-**Estimasi:** 12 hours  
+**Estimasi:** 12 hours
 
 **Implementation:**
+
 ```typescript
 import { z } from 'zod';
 
 const userSchema = z.object({
   email: z.string().email(),
   password: z.string().min(12),
-  role: z.enum(['admin', 'manager', 'user'])
+  role: z.enum(['admin', 'manager', 'user']),
 });
 
 // Validate at runtime
@@ -788,6 +871,7 @@ if (!result.success) {
 ```
 
 **Benefit:**
+
 - Type-safe validation
 - Better error messages
 - Prevent invalid data
@@ -795,22 +879,26 @@ if (!result.success) {
 ---
 
 #### 7. **Content Security Policy (CSP)**
+
 **Masalah:** No CSP headers  
-**Estimasi:** 3 jam  
+**Estimasi:** 3 jam
 
 **Implementation:**
+
 ```typescript
 // vite.config.ts
 export default {
   server: {
     headers: {
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
-    }
-  }
-}
+      'Content-Security-Policy':
+        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+    },
+  },
+};
 ```
 
 **Benefit:**
+
 - XSS protection
 - Clickjacking prevention
 - Security best practices
@@ -818,10 +906,12 @@ export default {
 ---
 
 #### 8. **Rate Limiting**
+
 **Masalah:** No API abuse protection  
-**Estimasi:** 6 jam  
+**Estimasi:** 6 jam
 
 **Implementation:**
+
 ```typescript
 // Client-side rate limiting
 import { throttle, debounce } from 'lodash';
@@ -836,6 +926,7 @@ const handleScroll = throttle(() => {
 ```
 
 **Benefit:**
+
 - Prevent API abuse
 - Better server performance
 - Lower costs
@@ -843,10 +934,12 @@ const handleScroll = throttle(() => {
 ---
 
 #### 9. **HTML Sanitization**
+
 **Masalah:** XSS vulnerability in user inputs  
-**Estimasi:** 4 jam  
+**Estimasi:** 4 jam
 
 **Implementation:**
+
 ```typescript
 import DOMPurify from 'dompurify';
 
@@ -854,6 +947,7 @@ const sanitizedHTML = DOMPurify.sanitize(userInput);
 ```
 
 **Benefit:**
+
 - XSS prevention
 - Safe user-generated content
 - Compliance with security standards
@@ -863,27 +957,37 @@ const sanitizedHTML = DOMPurify.sanitize(userInput);
 ### Code Quality Improvements
 
 #### 10. **Extract Magic Numbers to Constants**
+
 **Masalah:** Hardcoded values di banyak tempat  
-**Estimasi:** 8 jam  
+**Estimasi:** 8 jam
 
 **Before:**
+
 ```typescript
-if (progress > 90) { showWarning(); }
-if (budget > 1000000) { requireApproval(); }
+if (progress > 90) {
+  showWarning();
+}
+if (budget > 1000000) {
+  requireApproval();
+}
 ```
 
 **After:**
+
 ```typescript
 const THRESHOLDS = {
   PROGRESS_WARNING: 90,
   BUDGET_APPROVAL: 1_000_000,
-  CRITICAL_INVENTORY: 10
+  CRITICAL_INVENTORY: 10,
 } as const;
 
-if (progress > THRESHOLDS.PROGRESS_WARNING) { showWarning(); }
+if (progress > THRESHOLDS.PROGRESS_WARNING) {
+  showWarning();
+}
 ```
 
 **Benefit:**
+
 - Easier maintenance
 - Configuration flexibility
 - Better readability
@@ -891,9 +995,11 @@ if (progress > THRESHOLDS.PROGRESS_WARNING) { showWarning(); }
 ---
 
 #### 11. **Centralized Error Handling**
-**Estimasi:** 10 jam  
+
+**Estimasi:** 10 jam
 
 **Implementation:**
+
 ```typescript
 class AppError extends Error {
   constructor(
@@ -911,6 +1017,7 @@ throw new AppError('AUTH_FAILED', 'Invalid credentials', 401);
 ```
 
 **Benefit:**
+
 - Consistent error handling
 - Better error tracking
 - Easier debugging
@@ -918,16 +1025,18 @@ throw new AppError('AUTH_FAILED', 'Invalid credentials', 401);
 ---
 
 #### 12. **Enhanced Logging System**
-**Estimasi:** 6 jam  
+
+**Estimasi:** 6 jam
 
 **Implementation:**
+
 ```typescript
 class Logger {
   static info(message: string, context?: any) {
     console.log(message, context);
     // Send to logging service in production
   }
-  
+
   static error(message: string, error?: Error) {
     console.error(message, error);
     // Send to Sentry/LogRocket
@@ -936,6 +1045,7 @@ class Logger {
 ```
 
 **Benefit:**
+
 - Better debugging
 - Production monitoring
 - Error tracking
@@ -945,6 +1055,7 @@ class Logger {
 ## 📈 ESTIMASI IMPACT
 
 ### Cleanup Impact
+
 ```
 Code Reduction:        -6,000 lines (-1.4%)
 Documentation:         45 files → 8 files (-82%)
@@ -955,6 +1066,7 @@ Git Clone Time:        -25%
 ```
 
 ### Feature Addition Impact
+
 ```
 User Satisfaction:     +40%
 Team Productivity:     +35%
@@ -964,6 +1076,7 @@ Feature Completeness:  85% → 95%
 ```
 
 ### Performance Impact
+
 ```
 Initial Load Time:     3.0s → 1.8s (-40%)
 Re-render Time:        -50%
@@ -974,6 +1087,7 @@ First Contentful Paint: 1.8s → 1.2s (-33%)
 ```
 
 ### Security Impact
+
 ```
 Security Score:        75 → 92
 XSS Vulnerabilities:   High → None
@@ -986,22 +1100,26 @@ Audit Pass Rate:      70% → 95%
 ## 🎯 RECOMMENDED ACTION PLAN
 
 ### **FASE 1: CLEANUP & FOUNDATIONS (Week 1-2)**
+
 **Priority:** 🔴 CRITICAL  
-**Total Effort:** 20 jam  
+**Total Effort:** 20 jam
 
 #### Week 1
+
 - [ ] Day 1-2: Delete 9 backup files (2 jam)
 - [ ] Day 2-3: Fix broken test suite (4 jam)
 - [ ] Day 3-4: Complete critical TODO items (8 jam)
 - [ ] Day 4-5: Code quality improvements (6 jam)
 
 **Deliverables:**
+
 - Clean codebase (-6,000 lines)
 - Working test suite
 - Password security fixed
 - No critical TODOs
 
 **Success Metrics:**
+
 - 0 backup files
 - 0 test errors
 - 0 critical security issues
@@ -1009,58 +1127,69 @@ Audit Pass Rate:      70% → 95%
 ---
 
 ### **FASE 2: USER PROFILE COMPLETION (Week 3-4)**
+
 **Priority:** 🟡 HIGH  
-**Total Effort:** 20 jam  
+**Total Effort:** 20 jam
 
 #### Week 3
+
 - [x] Feature 1.1: Profile Photo Upload (DONE - 8 jam)
 - [x] Feature 1.2: Password Change (DONE - 7 jam)
 - [ ] Feature 1.3: Activity Log (6 jam)
 
 #### Week 4
+
 - [ ] Feature 1.4: Session Management (5 jam)
 - [ ] Feature 1.5: Two-Factor Auth (8 jam)
 - [ ] Feature 1.6: Email Preferences (4 jam)
 
 **Deliverables:**
+
 - Complete user profile system
 - 6/12 profile features done (50%)
 - Testing guides for all features
 
 **Success Metrics:**
+
 - User satisfaction +30%
 - Security score +15 points
 
 ---
 
 ### **FASE 3: CRITICAL FEATURES (Week 5-8)**
+
 **Priority:** 🟡 HIGH  
-**Total Effort:** 90 jam  
+**Total Effort:** 90 jam
 
 #### Week 5-6: Advanced Reporting (30 jam)
+
 - Custom report builder
 - Report templates
 - Export formats
 - Scheduled reports
 
 #### Week 6-7: Mobile Optimization (25 jam)
+
 - Touch optimization
 - PWA implementation
 - Push notifications
 - Mobile layouts
 
 #### Week 7-8: Dashboard Customization (15 jam)
+
 - Drag-and-drop widgets
 - Widget library
 - Multiple dashboards
 - Dashboard templates
 
 **Deliverables:**
+
 - Advanced reporting module
 - Mobile-responsive app
 - Customizable dashboards
 
 **Success Metrics:**
+
 - Mobile usage +60%
 - Report generation +300%
 - User engagement +40%
@@ -1068,25 +1197,30 @@ Audit Pass Rate:      70% → 95%
 ---
 
 ### **FASE 4: PERFORMANCE & OPTIMIZATION (Week 9-10)**
+
 **Priority:** 🟢 MEDIUM  
-**Total Effort:** 43 jam  
+**Total Effort:** 43 jam
 
 #### Week 9
+
 - Code splitting (6 jam)
 - Memoization (8 jam)
 - Virtual scrolling (10 jam)
 
 #### Week 10
+
 - Image optimization (5 jam)
 - Bundle analysis (4 jam)
 - Security enhancements (10 jam)
 
 **Deliverables:**
+
 - -40% load time
 - -25% bundle size
 - +15 Lighthouse score
 
 **Success Metrics:**
+
 - Load time < 2s
 - Lighthouse score > 95
 - Bundle size < 1.6MB
@@ -1094,41 +1228,49 @@ Audit Pass Rate:      70% → 95%
 ---
 
 ### **FASE 5: NEW MODULES (Week 11-18)**
+
 **Priority:** 🟢 MEDIUM  
-**Total Effort:** 150 jam  
+**Total Effort:** 150 jam
 
 #### Week 11-12: Documentation (8 jam)
+
 - Consolidate 45 → 8 files
 
 #### Week 13-14: Resource Management (40 jam)
+
 - Equipment tracking
 - Resource allocation
 - Utilization reports
 
 #### Week 15-16: Risk Management (35 jam)
+
 - Risk register
 - Risk assessment
 - Mitigation plans
 
 #### Week 17-18: Quality Management (45 jam)
+
 - Quality plans
 - Inspection checklists
 - NCR system
 
 **Deliverables:**
+
 - 3 new major modules
 - Clean documentation
 - Complete ERP system
 
 **Success Metrics:**
+
 - Feature completeness 95%
 - System adoption +45%
 
 ---
 
 ### **FASE 6: ADVANCED FEATURES (Q2 2026)**
+
 **Priority:** 🔵 LOW  
-**Total Effort:** 170 jam  
+**Total Effort:** 170 jam
 
 - Change Order Management (30 jam)
 - Email Integration (20 jam)
@@ -1138,6 +1280,7 @@ Audit Pass Rate:      70% → 95%
 - Integration Hub (40 jam)
 
 **Deliverables:**
+
 - Complete enterprise ERP
 - AI capabilities
 - Third-party integrations
@@ -1148,20 +1291,21 @@ Audit Pass Rate:      70% → 95%
 
 ### Development Costs (Indonesia Rates)
 
-| Fase | Effort | Rate/Hour | Total Cost |
-|------|--------|-----------|------------|
-| Fase 1: Cleanup | 20 jam | Rp 200K | **Rp 4,000,000** |
-| Fase 2: User Profile | 20 jam | Rp 200K | **Rp 4,000,000** |
-| Fase 3: Critical Features | 90 jam | Rp 250K | **Rp 22,500,000** |
-| Fase 4: Performance | 43 jam | Rp 200K | **Rp 8,600,000** |
-| Fase 5: New Modules | 150 jam | Rp 250K | **Rp 37,500,000** |
-| Fase 6: Advanced | 170 jam | Rp 300K | **Rp 51,000,000** |
-| **TOTAL** | **493 jam** | - | **Rp 127,600,000** |
+| Fase                      | Effort      | Rate/Hour | Total Cost         |
+| ------------------------- | ----------- | --------- | ------------------ |
+| Fase 1: Cleanup           | 20 jam      | Rp 200K   | **Rp 4,000,000**   |
+| Fase 2: User Profile      | 20 jam      | Rp 200K   | **Rp 4,000,000**   |
+| Fase 3: Critical Features | 90 jam      | Rp 250K   | **Rp 22,500,000**  |
+| Fase 4: Performance       | 43 jam      | Rp 200K   | **Rp 8,600,000**   |
+| Fase 5: New Modules       | 150 jam     | Rp 250K   | **Rp 37,500,000**  |
+| Fase 6: Advanced          | 170 jam     | Rp 300K   | **Rp 51,000,000**  |
+| **TOTAL**                 | **493 jam** | -         | **Rp 127,600,000** |
 
 ### ROI Projection
 
 **Investment:** Rp 127.6 juta  
 **Expected Benefits:**
+
 - +40% user productivity → Rp 200 juta/tahun
 - -30% error rate → Rp 50 juta/tahun saved
 - +60% mobile adoption → 3x more users
@@ -1174,6 +1318,7 @@ Audit Pass Rate:      70% → 95%
 ## 🏆 SUCCESS METRICS
 
 ### Technical Metrics
+
 - [ ] 0 TypeScript errors (current: 0 ✅)
 - [ ] 0 backup files (current: 9 ❌)
 - [ ] Test coverage > 80% (current: ~30% ❌)
@@ -1182,6 +1327,7 @@ Audit Pass Rate:      70% → 95%
 - [ ] Load time < 2s (current: ~3s ⚠️)
 
 ### Feature Completeness
+
 - [ ] User Profile: 100% (current: 40% - Feature 1.1 & 1.2 done)
 - [ ] Reporting: 90% (current: 30%)
 - [ ] Mobile: 95% (current: 50%)
@@ -1191,6 +1337,7 @@ Audit Pass Rate:      70% → 95%
 - [ ] Quality Mgmt: 90% (current: 0%)
 
 ### Business Metrics
+
 - [ ] User satisfaction > 90%
 - [ ] System adoption > 95%
 - [ ] Mobile usage > 40%
@@ -1202,7 +1349,9 @@ Audit Pass Rate:      70% → 95%
 ## 🎓 CONCLUSION
 
 ### Current State
+
 **NataCarePM adalah sistem yang SANGAT SOLID** dengan:
+
 - ✅ Arsitektur excellent (92/100)
 - ✅ Type safety 100%
 - ✅ 29 production services
@@ -1210,6 +1359,7 @@ Audit Pass Rate:      70% → 95%
 - ✅ 0 TypeScript errors
 
 ### Areas for Improvement
+
 - ⚠️ **Code Cleanup:** 6,000 lines backup code
 - ⚠️ **Documentation:** 45 files → 8 files
 - ⚠️ **Features:** Missing 5 critical modules
@@ -1219,22 +1369,26 @@ Audit Pass Rate:      70% → 95%
 ### Recommended Priority
 
 #### 🔴 **DO NOW (Week 1-2):**
+
 1. Delete backup files (2 jam)
 2. Fix broken tests (4 jam)
 3. Complete critical TODOs (8 jam)
 
 #### 🟡 **DO NEXT (Week 3-8):**
+
 1. Complete User Profile features
 2. Build Advanced Reporting
 3. Optimize for Mobile
 4. Dashboard Customization
 
 #### 🟢 **DO LATER (Week 9-18):**
+
 1. Performance optimization
 2. Documentation consolidation
 3. New modules (Resource, Risk, Quality)
 
 #### 🔵 **FUTURE (Q2 2026):**
+
 1. AI-powered features
 2. Integration hub
 3. Time tracking
@@ -1245,12 +1399,14 @@ Audit Pass Rate:      70% → 95%
 ## 📞 NEXT STEPS
 
 ### Immediate Actions (Today)
+
 1. **Review recommendations** dengan stakeholders
 2. **Prioritize features** based on business needs
 3. **Allocate resources** for Fase 1
 4. **Set timeline** untuk 6-month roadmap
 
 ### Questions to Answer
+
 1. **Budget:** Berapa budget available untuk development?
 2. **Timeline:** Target launch untuk features mana?
 3. **Resources:** Berapa developer available?
@@ -1259,16 +1415,19 @@ Audit Pass Rate:      70% → 95%
 ### Choose Your Path
 
 **Option A: CONSERVATIVE** (Rp 17M, 3 months)
+
 - Fase 1-2-4 only
 - Focus on cleanup + profile + performance
 - Quick wins, minimal risk
 
 **Option B: BALANCED** (Rp 47M, 6 months) ⭐ **RECOMMENDED**
+
 - Fase 1-2-3-4
 - Add critical features
 - Balanced risk/reward
 
 **Option C: AGGRESSIVE** (Rp 128M, 12 months)
+
 - All 6 phases
 - Complete transformation
 - Maximum impact

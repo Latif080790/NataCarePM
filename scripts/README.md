@@ -80,6 +80,7 @@ When prompted, you need to:
 ### Error: Firebase CLI not found
 
 **Solution**: Install Firebase CLI globally
+
 ```bash
 npm install -g firebase-tools
 ```
@@ -87,6 +88,7 @@ npm install -g firebase-tools
 ### Error: storage.rules not found
 
 **Solution**: Make sure you're running the script from the project root directory
+
 ```bash
 cd c:\Users\latie\Documents\GitHub\NataCarePM
 .\scripts\deploy-storage-rules.ps1
@@ -99,6 +101,7 @@ cd c:\Users\latie\Documents\GitHub\NataCarePM
 ### Error: Permission denied (Linux/Mac)
 
 **Solution**: Make the script executable
+
 ```bash
 chmod +x scripts/deploy-storage-rules.sh
 ./scripts/deploy-storage-rules.sh
@@ -107,6 +110,7 @@ chmod +x scripts/deploy-storage-rules.sh
 ### Error: Deployment failed
 
 **Solutions**:
+
 1. Check you're logged in: `firebase login`
 2. Verify project ID: `firebase projects:list`
 3. Re-authenticate: `firebase login --reauth`
@@ -116,6 +120,7 @@ chmod +x scripts/deploy-storage-rules.sh
 The `storage.rules` file (244 lines) includes:
 
 ### Security Features
+
 - ✅ File type validation (images, PDFs, documents)
 - ✅ Size limits (5MB - 100MB depending on file type)
 - ✅ Access control (authenticated users only)
@@ -123,6 +128,7 @@ The `storage.rules` file (244 lines) includes:
 - ✅ Role-based permissions
 
 ### Protected Paths
+
 - User profile photos
 - Project documents
 - Daily report photos
@@ -147,6 +153,7 @@ https://console.firebase.google.com/project/natacara-hns/storage/rules
 ## Support
 
 If you encounter issues:
+
 1. Check the troubleshooting section above
 2. Review `FIREBASE_STORAGE_SETUP_GUIDE.md`
 3. Check Firebase console for error messages

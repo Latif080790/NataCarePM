@@ -1,7 +1,19 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  GraduationCap, Plus, Search, Filter, Calendar, Users, CheckCircle, 
-  XCircle, Clock, Award, TrendingUp, AlertCircle, FileText, Download 
+import {
+  GraduationCap,
+  Plus,
+  Search,
+  Filter,
+  Calendar,
+  Users,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Award,
+  TrendingUp,
+  AlertCircle,
+  FileText,
+  Download,
 } from 'lucide-react';
 import { useSafety } from '@/contexts/SafetyContext';
 import { TrainingForm } from '@/components/safety/TrainingForm';
@@ -36,8 +48,9 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
 
   // Filter training
   const filteredTraining = useMemo(() => {
-    return training.filter(session => {
-      const matchesSearch = !searchQuery || 
+    return training.filter((session) => {
+      const matchesSearch =
+        !searchQuery ||
         session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         session.instructor.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType = selectedType === 'all' || session.type === selectedType;
@@ -49,19 +62,22 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
   // Calculate statistics
   const statistics = useMemo(() => {
     const totalSessions = training.length;
-    const completedSessions = training.filter(t => t.status === 'completed').length;
+    const completedSessions = training.filter((t) => t.status === 'completed').length;
     const upcomingSessions = getUpcomingTraining().length;
     const totalAttendees = training.reduce((sum, t) => sum + t.attendees.length, 0);
-    const certifiedWorkers = training.reduce((sum, t) => 
-      sum + t.attendees.filter(a => a.certificateIssued).length, 0
+    const certifiedWorkers = training.reduce(
+      (sum, t) => sum + t.attendees.filter((a) => a.certificateIssued).length,
+      0
     );
-    const averageScore = training
-      .filter(t => t.status === 'completed')
-      .reduce((sum, t) => {
-        const scores = t.attendees.filter(a => a.score !== undefined).map(a => a.score!);
-        const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-        return sum + avgScore;
-      }, 0) / (completedSessions || 1);
+    const averageScore =
+      training
+        .filter((t) => t.status === 'completed')
+        .reduce((sum, t) => {
+          const scores = t.attendees.filter((a) => a.score !== undefined).map((a) => a.score!);
+          const avgScore =
+            scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+          return sum + avgScore;
+        }, 0) / (completedSessions || 1);
 
     return {
       totalSessions,
@@ -75,32 +91,42 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
   }, [training, getUpcomingTraining]);
 
   // Handle create training
-  const handleCreateTraining = useCallback(async (trainingData: Omit<SafetyTraining, 'id' | 'trainingNumber' | 'createdAt' | 'updatedAt'>) => {
-    setIsSubmitting(true);
-    try {
-      await createTraining(trainingData);
-      setShowCreateForm(false);
-    } catch (error) {
-      console.error('Error creating training:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [createTraining]);
+  const handleCreateTraining = useCallback(
+    async (
+      trainingData: Omit<SafetyTraining, 'id' | 'trainingNumber' | 'createdAt' | 'updatedAt'>
+    ) => {
+      setIsSubmitting(true);
+      try {
+        await createTraining(trainingData);
+        setShowCreateForm(false);
+      } catch (error) {
+        console.error('Error creating training:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [createTraining]
+  );
 
   // Handle update training
-  const handleUpdateTraining = useCallback(async (trainingData: Omit<SafetyTraining, 'id' | 'trainingNumber' | 'createdAt' | 'updatedAt'>) => {
-    if (!selectedTraining) return;
-    
-    setIsSubmitting(true);
-    try {
-      await updateTraining(selectedTraining.id, trainingData);
-      setSelectedTraining(null);
-    } catch (error) {
-      console.error('Error updating training:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [selectedTraining, updateTraining]);
+  const handleUpdateTraining = useCallback(
+    async (
+      trainingData: Omit<SafetyTraining, 'id' | 'trainingNumber' | 'createdAt' | 'updatedAt'>
+    ) => {
+      if (!selectedTraining) return;
+
+      setIsSubmitting(true);
+      try {
+        await updateTraining(selectedTraining.id, trainingData);
+        setSelectedTraining(null);
+      } catch (error) {
+        console.error('Error updating training:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [selectedTraining, updateTraining]
+  );
 
   // Get status color
   const getStatusColor = (status: TrainingStatus): string => {
@@ -192,9 +218,7 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
               <Calendar className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Sessions this month
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Sessions this month</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -209,9 +233,7 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
               <Award className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Active certifications
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Active certifications</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -226,9 +248,7 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
               <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Assessment performance
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Assessment performance</p>
         </div>
       </div>
 
@@ -333,41 +353,54 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
                   const StatusIcon = getStatusIcon(session.status);
                   const attendeeCount = session.attendees.length;
                   const maxAttendees = session.maxAttendees || 0;
-                  const attendanceRate = session.status === 'completed' && attendeeCount > 0
-                    ? Math.round((session.attendees.filter(a => a.attended).length / attendeeCount) * 100)
-                    : null;
+                  const attendanceRate =
+                    session.status === 'completed' && attendeeCount > 0
+                      ? Math.round(
+                          (session.attendees.filter((a) => a.attended).length / attendeeCount) * 100
+                        )
+                      : null;
 
                   return (
-                    <tr 
+                    <tr
                       key={session.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                       onClick={() => setSelectedTraining(session)}
                     >
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{session.title}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {session.title}
+                          </p>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
                             {session.trainingNumber} • {session.duration}h
                           </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-gray-900 dark:text-white">{session.instructor}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{session.location}</p>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {session.instructor}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {session.location}
+                        </p>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm text-gray-900 dark:text-white">
                           {new Date(session.scheduledDate).toLocaleDateString()}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(session.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(session.scheduledDate).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-gray-400" />
                           <span className="text-sm text-gray-900 dark:text-white">
-                            {attendeeCount}{maxAttendees > 0 && `/${maxAttendees}`}
+                            {attendeeCount}
+                            {maxAttendees > 0 && `/${maxAttendees}`}
                           </span>
                         </div>
                         {attendanceRate !== null && (
@@ -377,7 +410,9 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}
+                        >
                           <StatusIcon className="w-3 h-3" />
                           {session.status.replace('_', ' ')}
                         </span>

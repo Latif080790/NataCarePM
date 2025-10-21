@@ -1,5 +1,15 @@
 import React, { useState, useCallback } from 'react';
-import { X, Plus, Trash2, ClipboardCheck, Calendar, MapPin, User, FileText, AlertTriangle } from 'lucide-react';
+import {
+  X,
+  Plus,
+  Trash2,
+  ClipboardCheck,
+  Calendar,
+  MapPin,
+  User,
+  FileText,
+  AlertTriangle,
+} from 'lucide-react';
 import type { SafetyAudit, AuditType, AuditStatus } from '@/types/safety.types';
 
 type ChecklistItem = SafetyAudit['checklist'][0];
@@ -8,7 +18,9 @@ type Finding = SafetyAudit['findings'][0];
 interface AuditFormProps {
   projectId: string;
   initialData?: Partial<SafetyAudit>;
-  onSubmit: (audit: Omit<SafetyAudit, 'id' | 'auditNumber' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onSubmit: (
+    audit: Omit<SafetyAudit, 'id' | 'auditNumber' | 'createdAt' | 'updatedAt'>
+  ) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
@@ -18,7 +30,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
   initialData,
   onSubmit,
   onCancel,
-  isSubmitting = false
+  isSubmitting = false,
 }) => {
   // Form state
   const [formData, setFormData] = useState({
@@ -26,7 +38,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
     status: initialData?.status || ('scheduled' as AuditStatus),
     title: initialData?.title || '',
     description: initialData?.description || '',
-    scheduledDate: initialData?.scheduledDate 
+    scheduledDate: initialData?.scheduledDate
       ? initialData.scheduledDate.toISOString().slice(0, 16)
       : new Date().toISOString().slice(0, 16),
     conductedDate: initialData?.conductedDate
@@ -53,13 +65,13 @@ export const AuditForm: React.FC<AuditFormProps> = ({
 
   const addScopeItem = useCallback(() => {
     if (scopeInput.trim()) {
-      setScope(prev => [...prev, scopeInput.trim()]);
+      setScope((prev) => [...prev, scopeInput.trim()]);
       setScopeInput('');
     }
   }, [scopeInput]);
 
   const removeScopeItem = useCallback((index: number) => {
-    setScope(prev => prev.filter((_, i) => i !== index));
+    setScope((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   // Checklist management
@@ -72,17 +84,15 @@ export const AuditForm: React.FC<AuditFormProps> = ({
       compliant: false,
       priority: 'minor',
     };
-    setChecklist(prev => [...prev, newItem]);
+    setChecklist((prev) => [...prev, newItem]);
   }, []);
 
   const updateChecklistItem = useCallback((id: string, updates: Partial<ChecklistItem>) => {
-    setChecklist(prev => prev.map(item => 
-      item.id === id ? { ...item, ...updates } : item
-    ));
+    setChecklist((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
   }, []);
 
   const removeChecklistItem = useCallback((id: string) => {
-    setChecklist(prev => prev.filter(item => item.id !== id));
+    setChecklist((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
   // Findings management
@@ -95,26 +105,26 @@ export const AuditForm: React.FC<AuditFormProps> = ({
       recommendation: '',
       status: 'open',
     };
-    setFindings(prev => [...prev, newFinding]);
+    setFindings((prev) => [...prev, newFinding]);
   }, []);
 
   const updateFinding = useCallback((id: string, updates: Partial<Finding>) => {
-    setFindings(prev => prev.map(finding => 
-      finding.id === id ? { ...finding, ...updates } : finding
-    ));
+    setFindings((prev) =>
+      prev.map((finding) => (finding.id === id ? { ...finding, ...updates } : finding))
+    );
   }, []);
 
   const removeFinding = useCallback((id: string) => {
-    setFindings(prev => prev.filter(finding => finding.id !== id));
+    setFindings((prev) => prev.filter((finding) => finding.id !== id));
   }, []);
 
   // Calculate compliance metrics
   const complianceMetrics = useCallback(() => {
     const total = checklist.length;
-    const compliant = checklist.filter(item => item.compliant).length;
+    const compliant = checklist.filter((item) => item.compliant).length;
     const nonCompliant = total - compliant;
     const complianceRate = total > 0 ? Math.round((compliant / total) * 100) : 0;
-    
+
     return { total, compliant, nonCompliant, complianceRate };
   }, [checklist]);
 
@@ -132,42 +142,45 @@ export const AuditForm: React.FC<AuditFormProps> = ({
   }, [formData, scope]);
 
   // Handle form submission
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+      if (!validateForm()) {
+        return;
+      }
 
-    const metrics = complianceMetrics();
+      const metrics = complianceMetrics();
 
-    const auditData: Omit<SafetyAudit, 'id' | 'auditNumber' | 'createdAt' | 'updatedAt'> = {
-      projectId,
-      type: formData.type,
-      status: formData.status,
-      title: formData.title,
-      description: formData.description || undefined,
-      scheduledDate: new Date(formData.scheduledDate),
-      conductedDate: formData.conductedDate ? new Date(formData.conductedDate) : undefined,
-      auditor: formData.auditor,
-      auditorCertification: formData.auditorCertification || undefined,
-      location: formData.location,
-      scope,
-      checklist,
-      totalItems: metrics.total,
-      compliantItems: metrics.compliant,
-      nonCompliantItems: metrics.nonCompliant,
-      complianceRate: metrics.complianceRate,
-      findings,
-      followUpRequired: formData.followUpRequired,
-      followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : undefined,
-      overallRating: formData.overallRating,
-      photos: [],
-      notes: formData.notes || undefined,
-    };
+      const auditData: Omit<SafetyAudit, 'id' | 'auditNumber' | 'createdAt' | 'updatedAt'> = {
+        projectId,
+        type: formData.type,
+        status: formData.status,
+        title: formData.title,
+        description: formData.description || undefined,
+        scheduledDate: new Date(formData.scheduledDate),
+        conductedDate: formData.conductedDate ? new Date(formData.conductedDate) : undefined,
+        auditor: formData.auditor,
+        auditorCertification: formData.auditorCertification || undefined,
+        location: formData.location,
+        scope,
+        checklist,
+        totalItems: metrics.total,
+        compliantItems: metrics.compliant,
+        nonCompliantItems: metrics.nonCompliant,
+        complianceRate: metrics.complianceRate,
+        findings,
+        followUpRequired: formData.followUpRequired,
+        followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : undefined,
+        overallRating: formData.overallRating,
+        photos: [],
+        notes: formData.notes || undefined,
+      };
 
-    await onSubmit(auditData);
-  }, [formData, scope, checklist, findings, projectId, validateForm, complianceMetrics, onSubmit]);
+      await onSubmit(auditData);
+    },
+    [formData, scope, checklist, findings, projectId, validateForm, complianceMetrics, onSubmit]
+  );
 
   const metrics = complianceMetrics();
 
@@ -198,12 +211,14 @@ export const AuditForm: React.FC<AuditFormProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto">
-          
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto"
+        >
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Audit Details</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Type */}
               <div>
@@ -212,7 +227,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as AuditType }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, type: e.target.value as AuditType }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                   required
                 >
@@ -230,7 +247,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as AuditStatus }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, status: e.target.value as AuditStatus }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="scheduled">Scheduled</option>
@@ -249,7 +268,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white ${
                   errors.title ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 }`}
@@ -266,7 +285,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                 placeholder="Audit purpose and overview..."
@@ -283,7 +302,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 <input
                   type="text"
                   value={formData.auditor}
-                  onChange={(e) => setFormData(prev => ({ ...prev, auditor: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, auditor: e.target.value }))}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white ${
                     errors.auditor ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
@@ -300,7 +319,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 <input
                   type="text"
                   value={formData.auditorCertification}
-                  onChange={(e) => setFormData(prev => ({ ...prev, auditorCertification: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, auditorCertification: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                   placeholder="e.g., OSHA 510, CSP"
                 />
@@ -314,7 +335,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 <input
                   type="text"
                   value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white ${
                     errors.location ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
@@ -332,7 +353,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 <input
                   type="datetime-local"
                   value={formData.scheduledDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, scheduledDate: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, scheduledDate: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                   required
                 />
@@ -343,7 +366,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
           {/* Scope */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Audit Scope</h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Scope Items * (Areas or topics to be audited)
@@ -366,10 +389,13 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 </button>
               </div>
               {errors.scope && <p className="mt-1 text-sm text-red-600">{errors.scope}</p>}
-              
+
               <div className="flex flex-wrap gap-2 mt-2">
                 {scope.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full">
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full"
+                  >
                     <span className="text-sm">{item}</span>
                     <button
                       type="button"
@@ -387,7 +413,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
           {/* Checklist */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Audit Checklist</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Audit Checklist
+              </h3>
               <button
                 type="button"
                 onClick={addChecklistItem}
@@ -403,28 +431,39 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-blue-700 dark:text-blue-300 font-medium">Compliance Rate</p>
-                    <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{metrics.complianceRate}%</p>
+                    <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                      {metrics.complianceRate}%
+                    </p>
                   </div>
                   <div>
                     <p className="text-blue-700 dark:text-blue-300 font-medium">Compliant</p>
-                    <p className="text-xl font-semibold text-green-600 dark:text-green-400">{metrics.compliant}/{metrics.total}</p>
+                    <p className="text-xl font-semibold text-green-600 dark:text-green-400">
+                      {metrics.compliant}/{metrics.total}
+                    </p>
                   </div>
                   <div>
                     <p className="text-blue-700 dark:text-blue-300 font-medium">Non-Compliant</p>
-                    <p className="text-xl font-semibold text-red-600 dark:text-red-400">{metrics.nonCompliant}</p>
+                    <p className="text-xl font-semibold text-red-600 dark:text-red-400">
+                      {metrics.nonCompliant}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
 
             {checklist.map((item) => (
-              <div key={item.id} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3 border border-gray-200 dark:border-gray-600">
+              <div
+                key={item.id}
+                className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3 border border-gray-200 dark:border-gray-600"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 flex-1">
                     <input
                       type="checkbox"
                       checked={item.compliant}
-                      onChange={(e) => updateChecklistItem(item.id, { compliant: e.target.checked })}
+                      onChange={(e) =>
+                        updateChecklistItem(item.id, { compliant: e.target.checked })
+                      }
                       className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                     />
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -444,7 +483,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                       />
                       <select
                         value={item.priority || 'minor'}
-                        onChange={(e) => updateChecklistItem(item.id, { priority: e.target.value as any })}
+                        onChange={(e) =>
+                          updateChecklistItem(item.id, { priority: e.target.value as any })
+                        }
                         className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
                       >
                         <option value="critical">Critical</option>
@@ -487,7 +528,10 @@ export const AuditForm: React.FC<AuditFormProps> = ({
             </div>
 
             {findings.map((finding) => (
-              <div key={finding.id} className="p-4 bg-orange-50 dark:bg-orange-900/10 rounded-lg space-y-3 border border-orange-200 dark:border-orange-800">
+              <div
+                key={finding.id}
+                className="p-4 bg-orange-50 dark:bg-orange-900/10 rounded-lg space-y-3 border border-orange-200 dark:border-orange-800"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input
@@ -499,7 +543,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                     />
                     <select
                       value={finding.severity}
-                      onChange={(e) => updateFinding(finding.id, { severity: e.target.value as any })}
+                      onChange={(e) =>
+                        updateFinding(finding.id, { severity: e.target.value as any })
+                      }
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                     >
                       <option value="critical">Critical</option>
@@ -544,8 +590,10 @@ export const AuditForm: React.FC<AuditFormProps> = ({
 
           {/* Overall Rating & Follow-up */}
           <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Overall Assessment</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Overall Assessment
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -553,7 +601,12 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                 </label>
                 <select
                   value={formData.overallRating || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, overallRating: e.target.value as any || undefined }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      overallRating: (e.target.value as any) || undefined,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Not Rated</option>
@@ -571,10 +624,15 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                     type="checkbox"
                     id="followUpRequired"
                     checked={formData.followUpRequired}
-                    onChange={(e) => setFormData(prev => ({ ...prev, followUpRequired: e.target.checked }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, followUpRequired: e.target.checked }))
+                    }
                     className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                   />
-                  <label htmlFor="followUpRequired" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="followUpRequired"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Follow-up Required
                   </label>
                 </div>
@@ -582,7 +640,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
                   <input
                     type="date"
                     value={formData.followUpDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, followUpDate: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, followUpDate: e.target.value }))
+                    }
                     className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white"
                   />
                 )}
@@ -595,7 +655,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
               </label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
                 placeholder="Additional notes or observations..."

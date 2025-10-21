@@ -1,7 +1,7 @@
 /**
  * Quality Dashboard View
  * Priority 3D: Quality Management System
- * 
+ *
  * Comprehensive quality metrics and analytics dashboard
  */
 
@@ -29,7 +29,9 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
   } = useQuality();
 
   // Local state
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>(
+    'month'
+  );
 
   // Fetch data on mount
   useEffect(() => {
@@ -41,7 +43,7 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
   useEffect(() => {
     if (projectId) {
       const now = new Date();
-      let startDate = new Date();
+      const startDate = new Date();
 
       switch (selectedPeriod) {
         case 'week':
@@ -83,10 +85,14 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
   // Get severity color
   const getSeverityColor = (severity: DefectSeverity): string => {
     switch (severity) {
-      case 'critical': return 'bg-red-500';
-      case 'major': return 'bg-orange-500';
-      case 'minor': return 'bg-yellow-500';
-      case 'cosmetic': return 'bg-green-500';
+      case 'critical':
+        return 'bg-red-500';
+      case 'major':
+        return 'bg-orange-500';
+      case 'minor':
+        return 'bg-yellow-500';
+      case 'cosmetic':
+        return 'bg-green-500';
     }
   };
 
@@ -94,14 +100,29 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
   const getTrendIcon = (improving: boolean) => {
     if (improving) {
       return (
-        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        <svg
+          className="w-5 h-5 text-green-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+          />
         </svg>
       );
     }
     return (
       <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
+        />
       </svg>
     );
   };
@@ -120,7 +141,7 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
                 Comprehensive quality metrics and analytics
               </p>
             </div>
-            
+
             {/* Period selector */}
             <div className="mt-4 sm:mt-0">
               <select
@@ -147,8 +168,18 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="h-8 w-8 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -180,8 +211,18 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg
+                    className="h-8 w-8 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -213,8 +254,18 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <svg
+                    className="h-8 w-8 text-red-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
                   </svg>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -246,8 +297,18 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-8 w-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  <svg
+                    className="h-8 w-8 text-purple-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                    />
                   </svg>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -295,8 +356,8 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                     <div
                       className={`${getSeverityColor(severity as DefectSeverity)} h-3 rounded-full transition-all duration-500`}
-                      style={{ 
-                        width: `${metrics.defects.total > 0 ? (count / metrics.defects.total) * 100 : 0}%` 
+                      style={{
+                        width: `${metrics.defects.total > 0 ? (count / metrics.defects.total) * 100 : 0}%`,
                       }}
                     />
                   </div>
@@ -324,8 +385,8 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                     <div
                       className="bg-blue-600 h-3 rounded-full transition-all duration-500"
-                      style={{ 
-                        width: `${metrics.defects.total > 0 ? (count / metrics.defects.total) * 100 : 0}%` 
+                      style={{
+                        width: `${metrics.defects.total > 0 ? (count / metrics.defects.total) * 100 : 0}%`,
                       }}
                     />
                   </div>
@@ -425,7 +486,9 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
                 </dd>
               </div>
               <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                <dt className="text-sm font-medium text-gray-700 dark:text-gray-300">Compliance Score</dt>
+                <dt className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Compliance Score
+                </dt>
                 <dd className="text-sm font-bold text-gray-900 dark:text-white">
                   {metrics.compliance.complianceScore.toFixed(1)}%
                 </dd>

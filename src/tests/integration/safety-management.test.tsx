@@ -1,6 +1,6 @@
 /**
  * Safety Management System - Integration Tests
- * 
+ *
  * Comprehensive integration testing for all safety modules:
  * - Incident Management
  * - Training Management
@@ -26,16 +26,14 @@ jest.mock('@/api/safetyService');
 const mockProjectId = 'test-project-123';
 
 describe('Safety Management System - Integration Tests', () => {
-  
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('1. Incident Management Workflow', () => {
-    
     it('should create, update, and close an incident', async () => {
       const user = userEvent.setup();
-      
+
       // Mock data
       const mockIncident = {
         id: 'inc-001',
@@ -50,15 +48,17 @@ describe('Safety Management System - Integration Tests', () => {
         occurredAt: new Date('2024-10-15T10:30:00'),
         reportedAt: new Date('2024-10-15T11:00:00'),
         reportedBy: 'Safety Officer',
-        injuredPersons: [{
-          id: 'person-1',
-          name: 'John Doe',
-          role: 'Warehouse Worker',
-          injuryType: 'Sprain',
-          injurySeverity: 'minor' as const,
-          medicalTreatment: 'first_aid',
-          daysLost: 0,
-        }],
+        injuredPersons: [
+          {
+            id: 'person-1',
+            name: 'John Doe',
+            role: 'Warehouse Worker',
+            injuryType: 'Sprain',
+            injurySeverity: 'minor' as const,
+            medicalTreatment: 'first_aid',
+            daysLost: 0,
+          },
+        ],
         witnesses: [],
         correctiveActions: [],
         photos: [],
@@ -111,15 +111,17 @@ describe('Safety Management System - Integration Tests', () => {
         occurredAt: new Date(),
         reportedAt: new Date(),
         reportedBy: 'Site Manager',
-        injuredPersons: [{
-          id: 'person-2',
-          name: 'Jane Smith',
-          role: 'Construction Worker',
-          injuryType: 'Fracture',
-          injurySeverity: 'major' as const,
-          medicalTreatment: 'hospital',
-          daysLost: 15,
-        }],
+        injuredPersons: [
+          {
+            id: 'person-2',
+            name: 'Jane Smith',
+            role: 'Construction Worker',
+            injuryType: 'Fracture',
+            injurySeverity: 'major' as const,
+            medicalTreatment: 'hospital',
+            daysLost: 15,
+          },
+        ],
         witnesses: [],
         correctiveActions: [],
         photos: [],
@@ -149,10 +151,9 @@ describe('Safety Management System - Integration Tests', () => {
   });
 
   describe('2. Training Management Workflow', () => {
-    
     it('should schedule training and record attendance', async () => {
       const user = userEvent.setup();
-      
+
       const mockTraining = {
         id: 'train-001',
         trainingNumber: 'TRN-2024-001',
@@ -256,7 +257,6 @@ describe('Safety Management System - Integration Tests', () => {
   });
 
   describe('3. PPE Management Workflow', () => {
-    
     it('should track PPE inventory and low stock alerts', async () => {
       const lowStockItem = {
         id: 'ppe-001',
@@ -273,8 +273,8 @@ describe('Safety Management System - Integration Tests', () => {
         specifications: {},
         certifications: ['ANSI Z89.1 Type I'],
         inspectionInterval: 90,
-        unitCost: 25.00,
-        totalValue: 1250.00,
+        unitCost: 25.0,
+        totalValue: 1250.0,
         storageLocation: 'Equipment Room A',
         reorderLevel: 10,
         reorderQuantity: 50,
@@ -316,8 +316,8 @@ describe('Safety Management System - Integration Tests', () => {
           specifications: {},
           certifications: ['ANSI Z89.1'],
           inspectionInterval: 90,
-          unitCost: 25.00,
-          totalValue: 1250.00,
+          unitCost: 25.0,
+          totalValue: 1250.0,
           storageLocation: 'Room A',
           reorderLevel: 10,
           reorderQuantity: 50,
@@ -338,8 +338,8 @@ describe('Safety Management System - Integration Tests', () => {
           specifications: {},
           certifications: ['ANSI Z87.1'],
           inspectionInterval: 180,
-          unitCost: 10.00,
-          totalValue: 1000.00,
+          unitCost: 10.0,
+          totalValue: 1000.0,
           storageLocation: 'Room B',
           reorderLevel: 20,
           reorderQuantity: 100,
@@ -364,7 +364,6 @@ describe('Safety Management System - Integration Tests', () => {
   });
 
   describe('4. OSHA Metrics Calculation', () => {
-    
     it('should calculate TRIR correctly', async () => {
       const mockMetrics = {
         projectId: mockProjectId,
@@ -461,7 +460,18 @@ describe('Safety Management System - Integration Tests', () => {
         incidents: {
           total: 1,
           bySeverity: { fatal: 0, critical: 0, major: 0, minor: 1, near_miss: 1 },
-          byType: { fall: 1, struck_by: 0, caught_in_between: 0, electrical: 0, chemical: 0, fire: 0, equipment: 0, environmental: 0, ergonomic: 0, other: 0 },
+          byType: {
+            fall: 1,
+            struck_by: 0,
+            caught_in_between: 0,
+            electrical: 0,
+            chemical: 0,
+            fire: 0,
+            equipment: 0,
+            environmental: 0,
+            ergonomic: 0,
+            other: 0,
+          },
           fatalCount: 0,
           lostTimeInjuries: 0,
           totalDaysLost: 0,
@@ -499,10 +509,9 @@ describe('Safety Management System - Integration Tests', () => {
   });
 
   describe('5. End-to-End Workflows', () => {
-    
     it('should complete full incident-to-closure workflow', async () => {
       const user = userEvent.setup();
-      
+
       // Simulate complete incident lifecycle
       const stages = [
         { status: 'reported', expectedText: 'Reported' },
@@ -570,15 +579,35 @@ describe('Safety Management System - Integration Tests', () => {
           incidents: {
             total: 10,
             bySeverity: { fatal: 0, critical: 1, major: 3, minor: 4, near_miss: 5 },
-            byType: { fall: 3, struck_by: 2, caught_in_between: 1, electrical: 1, chemical: 0, fire: 0, equipment: 2, environmental: 1, ergonomic: 0, other: 0 },
+            byType: {
+              fall: 3,
+              struck_by: 2,
+              caught_in_between: 1,
+              electrical: 1,
+              chemical: 0,
+              fire: 0,
+              equipment: 2,
+              environmental: 1,
+              ergonomic: 0,
+              other: 0,
+            },
             fatalCount: 0,
             lostTimeInjuries: 2,
             totalDaysLost: 30,
           },
-          costImpact: { totalCosts: 100000, medicalCosts: 60000, propertyCosts: 20000, productivityCosts: 20000 },
+          costImpact: {
+            totalCosts: 100000,
+            medicalCosts: 60000,
+            propertyCosts: 20000,
+            productivityCosts: 20000,
+          },
         },
         previousMetrics: null,
-        trends: { trirTrend: 'stable' as const, ltifrTrend: 'improving' as const, incidentTrend: 'worsening' as const },
+        trends: {
+          trirTrend: 'stable' as const,
+          ltifrTrend: 'improving' as const,
+          incidentTrend: 'worsening' as const,
+        },
         recentIncidents: [],
         criticalIncidents: [],
         openIncidents: [],
@@ -610,7 +639,6 @@ describe('Safety Management System - Integration Tests', () => {
   });
 
   describe('6. Error Handling', () => {
-    
     it('should handle API errors gracefully', async () => {
       (safetyService.getIncidents as jest.Mock).mockRejectedValue(
         new Error('Failed to fetch incidents')
@@ -648,7 +676,6 @@ describe('Safety Management System - Integration Tests', () => {
   });
 
   describe('7. Performance Tests', () => {
-    
     it('should handle large datasets efficiently', async () => {
       // Generate 100 mock incidents
       const largeDataset = Array.from({ length: 100 }, (_, i) => ({

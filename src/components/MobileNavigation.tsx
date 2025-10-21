@@ -1,11 +1,11 @@
 /**
  * MobileNavigation Component
- * 
+ *
  * Main mobile navigation system that combines:
  * - Hamburger button
  * - Slide-in drawer
  * - Bottom navigation bar
- * 
+ *
  * Usage:
  * <MobileNavigation
  *   currentView={currentView}

@@ -1,6 +1,6 @@
 /**
  * MobileOptimizedChart Component
- * 
+ *
  * Simplified chart wrapper for mobile devices
  * Features:
  * - Reduced data points for performance

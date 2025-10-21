@@ -3,9 +3,9 @@ import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Task, User } from '@/types';
-import { 
-  Plus, 
-  Search, 
+import {
+  Plus,
+  Search,
   Edit3,
   User as UserIcon,
   Calendar,
@@ -15,7 +15,7 @@ import {
   CheckCircle,
   Zap,
   Eye,
-  Activity
+  Activity,
 } from 'lucide-react';
 import { sanitizeBasic } from '@/utils/sanitizer';
 
@@ -41,36 +41,32 @@ const kanbanColumns: KanbanColumn[] = [
     title: 'To Do',
     status: 'todo',
     color: 'bg-gradient-to-br from-gray-100 to-gray-200 border-gray-300',
-    icon: Target
+    icon: Target,
   },
   {
     id: 'in-progress',
     title: 'In Progress',
     status: 'in-progress',
     color: 'bg-gradient-to-br from-blue-100 to-blue-200 border-blue-300',
-    icon: Zap
+    icon: Zap,
   },
   {
     id: 'review',
     title: 'Review',
     status: 'review',
     color: 'bg-gradient-to-br from-yellow-100 to-yellow-200 border-yellow-300',
-    icon: Eye
+    icon: Eye,
   },
   {
     id: 'done',
     title: 'Done',
     status: 'done',
     color: 'bg-gradient-to-br from-green-100 to-green-200 border-green-300',
-    icon: CheckCircle
-  }
+    icon: CheckCircle,
+  },
 ];
 
-export const KanbanView: React.FC<KanbanViewProps> = ({
-  tasks = [],
-  users = [],
-  onUpdateTask
-}) => {
+export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], onUpdateTask }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -78,25 +74,29 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
   // Group tasks by status
   const tasksByStatus = useMemo(() => {
-    const filtered = tasks.filter(task => 
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    return kanbanColumns.reduce((acc, column) => {
-      acc[column.status] = filtered.filter(task => task.status === column.status);
-      return acc;
-    }, {} as Record<string, Task[]>);
+    return kanbanColumns.reduce(
+      (acc, column) => {
+        acc[column.status] = filtered.filter((task) => task.status === column.status);
+        return acc;
+      },
+      {} as Record<string, Task[]>
+    );
   }, [tasks, searchTerm]);
 
   // Kanban analytics
   const kanbanAnalytics = useMemo(() => {
     const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'done').length;
-    const inProgress = tasks.filter(t => t.status === 'in-progress').length;
-    const todo = tasks.filter(t => t.status === 'todo').length;
-    const review = tasks.filter(t => t.status === 'review').length;
-    
+    const completed = tasks.filter((t) => t.status === 'done').length;
+    const inProgress = tasks.filter((t) => t.status === 'in-progress').length;
+    const todo = tasks.filter((t) => t.status === 'todo').length;
+    const review = tasks.filter((t) => t.status === 'review').length;
+
     return {
       total,
       completed,
@@ -104,34 +104,42 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       todo,
       review,
       completionRate: total > 0 ? (completed / total) * 100 : 0,
-      throughput: Math.round(completed * 7 / 30), // Weekly throughput estimate
+      throughput: Math.round((completed * 7) / 30), // Weekly throughput estimate
       cycleTime: '3.2 days', // Mock cycle time
-      wip: inProgress + review // Work in progress
+      wip: inProgress + review, // Work in progress
     };
   }, [tasks]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-100 border-red-200';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 border-yellow-200';
-      case 'low': return 'text-green-600 bg-green-100 border-green-200';
-      default: return 'text-gray-600 bg-gray-100 border-gray-200';
+      case 'high':
+        return 'text-red-600 bg-red-100 border-red-200';
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-100 border-yellow-200';
+      case 'low':
+        return 'text-green-600 bg-green-100 border-green-200';
+      default:
+        return 'text-gray-600 bg-gray-100 border-gray-200';
     }
   };
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'high': return <Flag className="w-3 h-3" />;
-      case 'medium': return <AlertTriangle className="w-3 h-3" />;
-      case 'low': return <Target className="w-3 h-3" />;
-      default: return <Flag className="w-3 h-3" />;
+      case 'high':
+        return <Flag className="w-3 h-3" />;
+      case 'medium':
+        return <AlertTriangle className="w-3 h-3" />;
+      case 'low':
+        return <Target className="w-3 h-3" />;
+      default:
+        return <Flag className="w-3 h-3" />;
     }
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       day: '2-digit',
-      month: 'short'
+      month: 'short',
     });
   };
 
@@ -162,14 +170,16 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
             <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               📋 Kanban Board
             </h1>
-            <p className="text-lg text-gray-700 font-medium">Enterprise Kanban • Visual Workflow • Team Collaboration • Advanced Analytics</p>
+            <p className="text-lg text-gray-700 font-medium">
+              Enterprise Kanban • Visual Workflow • Team Collaboration • Advanced Analytics
+            </p>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg shadow-sm">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-green-700 font-medium">Live Board</span>
             </div>
-            <Button 
+            <Button
               onClick={() => setIsCreateModalOpen(true)}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 shadow-lg"
             >
@@ -251,7 +261,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         {kanbanColumns.map((column) => {
           const Icon = column.icon;
           const columnTasks = tasksByStatus[column.status] || [];
-          
+
           return (
             <div key={column.id} className="flex flex-col h-full">
               {/* Column Header */}
@@ -323,7 +333,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
                         {/* Task Description */}
                         {task.description && (
-                          <div 
+                          <div
                             className="text-xs text-gray-600 line-clamp-2"
                             dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
                           />
@@ -332,21 +342,25 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                         {/* Task Metadata */}
                         <div className="space-y-2">
                           {/* Priority */}
-                          <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium w-fit ${getPriorityColor(task.priority)}`}>
+                          <div
+                            className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium w-fit ${getPriorityColor(task.priority)}`}
+                          >
                             {getPriorityIcon(task.priority)}
                             <span className="capitalize">{task.priority}</span>
                           </div>
 
                           {/* Assignee and Due Date */}
                           <div className="flex items-center justify-between text-xs text-gray-500">
-                          {task.assignedTo && task.assignedTo.length > 0 && (
-                            <div className="flex items-center space-x-1">
-                              <UserIcon className="w-3 h-3" />
-                              <span className="truncate">
-                                {users.find(u => u.id === task.assignedTo[0])?.name?.split(' ')[0] || 'Unknown'}
-                              </span>
-                            </div>
-                          )}
+                            {task.assignedTo && task.assignedTo.length > 0 && (
+                              <div className="flex items-center space-x-1">
+                                <UserIcon className="w-3 h-3" />
+                                <span className="truncate">
+                                  {users
+                                    .find((u) => u.id === task.assignedTo[0])
+                                    ?.name?.split(' ')[0] || 'Unknown'}
+                                </span>
+                              </div>
+                            )}
                             {task.dueDate && (
                               <div className="flex items-center space-x-1">
                                 <Calendar className="w-3 h-3" />
@@ -359,7 +373,10 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                           {task.tags && task.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {task.tags.slice(0, 2).map((tag, index) => (
-                                <span key={index} className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+                                <span
+                                  key={index}
+                                  className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
+                                >
                                   {tag}
                                 </span>
                               ))}
@@ -398,7 +415,9 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-xl border border-blue-200">
             <div className="text-center">
-              <p className="text-3xl font-bold text-blue-600">{kanbanAnalytics.completionRate.toFixed(0)}%</p>
+              <p className="text-3xl font-bold text-blue-600">
+                {kanbanAnalytics.completionRate.toFixed(0)}%
+              </p>
               <p className="text-blue-700 text-sm">Completion Rate</p>
               <p className="text-blue-600 text-xs mt-1">↗️ +5.2% from last week</p>
             </div>
@@ -431,9 +450,11 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                 <Plus className="w-8 h-8 text-purple-600" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Add Task to Board</h3>
-              <p className="text-gray-600 mb-6">Advanced Kanban task management is being integrated with the project system.</p>
+              <p className="text-gray-600 mb-6">
+                Advanced Kanban task management is being integrated with the project system.
+              </p>
               <div className="space-y-3">
-                <Button 
+                <Button
                   onClick={() => setIsCreateModalOpen(false)}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
                 >
@@ -454,11 +475,11 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                 <Eye className="w-8 h-8 text-indigo-600" />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
-              <div 
+              <div
                 className="text-gray-600 mb-6"
                 dangerouslySetInnerHTML={{ __html: sanitizeBasic(selectedTask.description) }}
               />
-              <Button 
+              <Button
                 onClick={() => setSelectedTask(null)}
                 className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
               >
@@ -472,7 +493,8 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       {/* 🏆 FOOTER */}
       <div className="mt-12 text-center">
         <p className="text-gray-500">
-          📋 Enterprise Kanban Board • Visual Workflow Management • Real-time Collaboration • Advanced Analytics • NataCarePM v2.0
+          📋 Enterprise Kanban Board • Visual Workflow Management • Real-time Collaboration •
+          Advanced Analytics • NataCarePM v2.0
         </p>
       </div>
     </div>

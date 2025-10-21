@@ -5,7 +5,11 @@
 
 import { useEffect, useRef } from 'react';
 import { RoutePreloader } from '@/utils/componentPreloader';
-import { routePreloadConfig, criticalComponents, getComponentsForRole } from '../config/routePreload';
+import {
+  routePreloadConfig,
+  criticalComponents,
+  getComponentsForRole,
+} from '../config/routePreload';
 
 export function useRoutePreload(currentRoute: string, userRole?: string) {
   const preloaderRef = useRef<RoutePreloader | null>(null);
@@ -22,7 +26,7 @@ export function useRoutePreload(currentRoute: string, userRole?: string) {
   useEffect(() => {
     if (!hasPreloadedCritical.current) {
       hasPreloadedCritical.current = true;
-      
+
       // Preload critical components immediately
       import('../utils/componentPreloader').then(({ preloadComponents }) => {
         preloadComponents(criticalComponents);
@@ -64,7 +68,7 @@ export function usePreloadOnHover(componentLoader: () => Promise<any>) {
   const handlePreload = () => {
     if (!hasPreloaded.current) {
       hasPreloaded.current = true;
-      componentLoader().catch(error => {
+      componentLoader().catch((error) => {
         console.error('Preload failed:', error);
         hasPreloaded.current = false; // Allow retry
       });

@@ -1,7 +1,7 @@
 /**
  * Predictive Analytics Type Definitions
  * NataCarePM - Phase 4.2: AI & Analytics
- * 
+ *
  * Comprehensive types for cost forecasting, schedule prediction,
  * risk analysis, and quality prediction using ML models
  */
@@ -10,7 +10,7 @@
 // Forecast Types
 // ============================================================================
 
-export type ForecastType = 
+export type ForecastType =
   | 'cost'
   | 'schedule'
   | 'risk'
@@ -18,7 +18,7 @@ export type ForecastType =
   | 'resource_demand'
   | 'material_price';
 
-export type ForecastMethod = 
+export type ForecastMethod =
   | 'time_series'
   | 'regression'
   | 'neural_network'

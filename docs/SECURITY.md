@@ -26,16 +26,16 @@
 
 ### **Security Score: 95/100** ⭐
 
-| Category | Score | Status |
-|----------|-------|--------|
-| Authentication | 98/100 | ✅ Excellent |
-| Authorization | 95/100 | ✅ Excellent |
-| Data Protection | 92/100 | ✅ Very Good |
-| Input Validation | 96/100 | ✅ Excellent |
-| File Security | 94/100 | ✅ Very Good |
+| Category           | Score  | Status       |
+| ------------------ | ------ | ------------ |
+| Authentication     | 98/100 | ✅ Excellent |
+| Authorization      | 95/100 | ✅ Excellent |
+| Data Protection    | 92/100 | ✅ Very Good |
+| Input Validation   | 96/100 | ✅ Excellent |
+| File Security      | 94/100 | ✅ Very Good |
 | Session Management | 93/100 | ✅ Very Good |
-| API Security | 95/100 | ✅ Excellent |
-| Audit Trails | 97/100 | ✅ Excellent |
+| API Security       | 95/100 | ✅ Excellent |
+| Audit Trails       | 97/100 | ✅ Excellent |
 
 ### **Key Security Features**
 
@@ -79,43 +79,53 @@ export const logout = async () => {
 #### **2. Role-Based Access Control (RBAC)**
 
 **User Roles:**
+
 ```typescript
-export type UserRole = 
-  | 'admin'              // Full system access
-  | 'project_manager'    // Project & team management
-  | 'finance_manager'    // Financial operations
-  | 'accountant'         // Accounting operations
-  | 'logistics_manager'  // Logistics & materials
-  | 'team_member';       // Basic access
+export type UserRole =
+  | 'admin' // Full system access
+  | 'project_manager' // Project & team management
+  | 'finance_manager' // Financial operations
+  | 'accountant' // Accounting operations
+  | 'logistics_manager' // Logistics & materials
+  | 'team_member'; // Basic access
 
 // Permission Matrix
 export const PERMISSIONS = {
   admin: ['*'], // All permissions
   project_manager: [
-    'projects:read', 'projects:write', 'projects:delete',
-    'tasks:read', 'tasks:write', 'tasks:delete',
-    'users:read', 'reports:read'
+    'projects:read',
+    'projects:write',
+    'projects:delete',
+    'tasks:read',
+    'tasks:write',
+    'tasks:delete',
+    'users:read',
+    'reports:read',
   ],
   finance_manager: [
-    'finance:read', 'finance:write', 'finance:approve',
-    'accounts:read', 'accounts:write',
-    'reports:finance'
+    'finance:read',
+    'finance:write',
+    'finance:approve',
+    'accounts:read',
+    'accounts:write',
+    'reports:finance',
   ],
   accountant: [
-    'accounts:read', 'accounts:write',
-    'journal:read', 'journal:write',
-    'reports:accounting'
+    'accounts:read',
+    'accounts:write',
+    'journal:read',
+    'journal:write',
+    'reports:accounting',
   ],
   logistics_manager: [
-    'materials:read', 'materials:write',
-    'inventory:read', 'inventory:write',
-    'vendors:read', 'vendors:write'
+    'materials:read',
+    'materials:write',
+    'inventory:read',
+    'inventory:write',
+    'vendors:read',
+    'vendors:write',
   ],
-  team_member: [
-    'tasks:read', 'tasks:update-own',
-    'projects:read',
-    'documents:read'
-  ]
+  team_member: ['tasks:read', 'tasks:update-own', 'projects:read', 'documents:read'],
 };
 ```
 
@@ -125,17 +135,17 @@ export const PERMISSIONS = {
 // hooks/usePermissions.ts
 export const usePermissions = () => {
   const { user } = useAuth();
-  
+
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;
     const userPermissions = PERMISSIONS[user.role] || [];
     return userPermissions.includes('*') || userPermissions.includes(permission);
   };
-  
+
   const canAccess = (resource: string, action: string): boolean => {
     return hasPermission(`${resource}:${action}`);
   };
-  
+
   return { hasPermission, canAccess };
 };
 
@@ -217,9 +227,9 @@ const handleSubmit = (formData: any) => {
     name: sanitizeInput(formData.name),
     email: sanitizeEmail(formData.email),
     description: sanitizeHTML(formData.description),
-    budget: sanitizeNumber(formData.budget)
+    budget: sanitizeNumber(formData.budget),
   };
-  
+
   await projectService.create(sanitized);
 };
 ```
@@ -237,12 +247,10 @@ const handleSubmit = (formData: any) => {
 export const ALLOWED_FILE_TYPES = {
   documents: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt'],
   images: ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'],
-  archives: ['.zip', '.rar', '.7z']
+  archives: ['.zip', '.rar', '.7z'],
 };
 
-export const BLOCKED_FILE_TYPES = [
-  '.exe', '.bat', '.cmd', '.sh', '.ps1', '.vbs', '.js', '.jar'
-];
+export const BLOCKED_FILE_TYPES = ['.exe', '.bat', '.cmd', '.sh', '.ps1', '.vbs', '.js', '.jar'];
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
@@ -251,27 +259,27 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
  */
 export const validateFileType = (file: File): { valid: boolean; error?: string } => {
   const extension = getFileExtension(file.name);
-  
+
   if (BLOCKED_FILE_TYPES.includes(extension)) {
     return {
       valid: false,
-      error: `File type ${extension} is not allowed for security reasons`
+      error: `File type ${extension} is not allowed for security reasons`,
     };
   }
-  
+
   const allAllowed = [
     ...ALLOWED_FILE_TYPES.documents,
     ...ALLOWED_FILE_TYPES.images,
-    ...ALLOWED_FILE_TYPES.archives
+    ...ALLOWED_FILE_TYPES.archives,
   ];
-  
+
   if (!allAllowed.includes(extension)) {
     return {
       valid: false,
-      error: `File type ${extension} is not supported`
+      error: `File type ${extension} is not supported`,
     };
   }
-  
+
   return { valid: true };
 };
 
@@ -282,7 +290,7 @@ export const validateFileSize = (file: File): { valid: boolean; error?: string }
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: `File size exceeds ${MAX_FILE_SIZE / 1024 / 1024} MB limit`
+      error: `File size exceeds ${MAX_FILE_SIZE / 1024 / 1024} MB limit`,
     };
   }
   return { valid: true };
@@ -295,11 +303,11 @@ export const validateFileName = (fileName: string): { valid: boolean; error?: st
   if (fileName.length > 255) {
     return { valid: false, error: 'File name too long' };
   }
-  
+
   if (/[<>:"/\\|?*]/.test(fileName)) {
     return { valid: false, error: 'File name contains invalid characters' };
   }
-  
+
   return { valid: true };
 };
 
@@ -308,19 +316,19 @@ export const validateFileName = (fileName: string): { valid: boolean; error?: st
  */
 export const validateFile = (file: File): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   const typeCheck = validateFileType(file);
   if (!typeCheck.valid) errors.push(typeCheck.error!);
-  
+
   const sizeCheck = validateFileSize(file);
   if (!sizeCheck.valid) errors.push(sizeCheck.error!);
-  
+
   const nameCheck = validateFileName(file.name);
   if (!nameCheck.valid) errors.push(nameCheck.error!);
-  
+
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 };
 ```
@@ -332,14 +340,14 @@ export const validateFile = (file: File): { valid: boolean; errors: string[] } =
 const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (!file) return;
-  
+
   const validation = validateFile(file);
-  
+
   if (!validation.valid) {
     toast.error(`File validation failed: ${validation.errors.join(', ')}`);
     return;
   }
-  
+
   // Proceed with upload
   uploadFile(file);
 };
@@ -355,29 +363,29 @@ const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function hasRole(role) {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
     }
-    
+
     function isAdmin() {
       return hasRole('admin');
     }
-    
+
     function isProjectManager() {
       return hasRole('project_manager') || isAdmin();
     }
-    
+
     // Users collection
     match /users/{userId} {
       // Users can read their own data
@@ -387,7 +395,7 @@ service cloud.firestore {
       // Users cannot delete themselves
       allow delete: if isAdmin() && !isOwner(userId);
     }
-    
+
     // Projects collection
     match /projects/{projectId} {
       // All authenticated users can read projects
@@ -397,34 +405,34 @@ service cloud.firestore {
       // Only admins can delete
       allow delete: if isAdmin();
     }
-    
+
     // Tasks collection
     match /tasks/{taskId} {
       allow read: if isAuthenticated();
       allow create, update: if isAuthenticated();
       allow delete: if isProjectManager();
     }
-    
+
     // Finance collections
     match /chartOfAccounts/{accountId} {
       allow read: if isAuthenticated();
       allow write: if hasRole('finance_manager') || hasRole('accountant') || isAdmin();
     }
-    
+
     match /journals/{journalId} {
       allow read: if isAuthenticated();
       allow create, update: if hasRole('accountant') || hasRole('finance_manager') || isAdmin();
       allow delete: if hasRole('finance_manager') || isAdmin();
     }
-    
+
     // Documents collection
     match /documents/{documentId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && 
+      allow update, delete: if isAuthenticated() &&
                                (resource.data.uploadedBy == request.auth.uid || isAdmin());
     }
-    
+
     // Audit logs (read-only for admins)
     match /auditLogs/{logId} {
       allow read: if isAdmin();
@@ -440,33 +448,33 @@ service cloud.firestore {
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isValidFile() {
       return request.resource.size < 10 * 1024 * 1024 // 10 MB
              && request.resource.contentType.matches('image/.*|application/pdf|application/msword|application/vnd.*');
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     // User uploads
     match /uploads/{userId}/{fileName} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isOwner(userId) && isValidFile();
       allow delete: if isAuthenticated() && isOwner(userId);
     }
-    
+
     // Project documents
     match /projects/{projectId}/documents/{fileName} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isValidFile();
     }
-    
+
     // Public files (company logos, etc.)
     match /public/{fileName} {
       allow read: if true;
@@ -506,40 +514,40 @@ export const useSessionTimeout = () => {
   const { logout, user } = useAuth();
   const timeoutRef = useRef<NodeJS.Timeout>();
   const warningRef = useRef<NodeJS.Timeout>();
-  
+
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (warningRef.current) clearTimeout(warningRef.current);
-    
+
     if (!user) return;
-    
+
     // Set warning timer
     warningRef.current = setTimeout(() => {
       alert('Your session will expire in 5 minutes due to inactivity');
     }, SESSION_TIMEOUT - WARNING_TIME);
-    
+
     // Set logout timer
     timeoutRef.current = setTimeout(() => {
       logout();
       alert('Your session has expired due to inactivity');
     }, SESSION_TIMEOUT);
   };
-  
+
   useEffect(() => {
     if (!user) return;
-    
+
     // Reset timeout on user activity
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
     const handleActivity = () => resetTimeout();
-    
-    events.forEach(event => {
+
+    events.forEach((event) => {
       document.addEventListener(event, handleActivity);
     });
-    
+
     resetTimeout();
-    
+
     return () => {
-      events.forEach(event => {
+      events.forEach((event) => {
         document.removeEventListener(event, handleActivity);
       });
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -557,7 +565,7 @@ import { useSessionTimeout } from './hooks/useSessionTimeout';
 
 export const App = () => {
   useSessionTimeout(); // Automatically manages session
-  
+
   return (
     <Routes>
       {/* Routes */}
@@ -573,6 +581,7 @@ export const App = () => {
 ### **API Key Protection**
 
 ✅ **Never expose API keys in client code**
+
 ```typescript
 // ❌ BAD - Hardcoded
 const apiKey = 'AIzaSyXXXXXXXXXXXXXX';
@@ -588,16 +597,16 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 export const authenticatedRequest = async (url: string, options: RequestInit = {}) => {
   const user = auth.currentUser;
   if (!user) throw new Error('Not authenticated');
-  
+
   const token = await user.getIdToken();
-  
+
   return fetch(url, {
     ...options,
     headers: {
       ...options.headers,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
   });
 };
 ```
@@ -610,18 +619,18 @@ class RateLimiter {
   private requests: Map<string, number[]> = new Map();
   private limit = 100; // requests
   private window = 60 * 1000; // 1 minute
-  
+
   canMakeRequest(key: string): boolean {
     const now = Date.now();
     const requests = this.requests.get(key) || [];
-    
+
     // Remove old requests
-    const recent = requests.filter(time => now - time < this.window);
-    
+    const recent = requests.filter((time) => now - time < this.window);
+
     if (recent.length >= this.limit) {
       return false;
     }
-    
+
     recent.push(now);
     this.requests.set(key, recent);
     return true;
@@ -636,30 +645,35 @@ export const rateLimiter = new RateLimiter();
 ## ✅ Security Best Practices
 
 ### **1. Environment Variables**
+
 - ✅ Use `.env.local` for secrets
 - ✅ Add `.env*` to `.gitignore`
 - ✅ Never commit secrets to Git
 - ✅ Rotate keys regularly
 
 ### **2. Input Validation**
+
 - ✅ Sanitize all user input
 - ✅ Validate on client AND server
 - ✅ Use TypeScript for type safety
 - ✅ Whitelist allowed values
 
 ### **3. Authentication**
+
 - ✅ Use Firebase Auth
 - ✅ Implement session timeout
 - ✅ Require strong passwords
 - ✅ Enable 2FA for admins
 
 ### **4. Authorization**
+
 - ✅ Implement RBAC
 - ✅ Check permissions on every action
 - ✅ Use Firebase Security Rules
 - ✅ Principle of least privilege
 
 ### **5. Data Protection**
+
 - ✅ Encrypt sensitive data
 - ✅ Use HTTPS everywhere
 - ✅ Sanitize outputs
@@ -681,7 +695,7 @@ export const logAuditEvent = async (event: AuditEvent) => {
     resourceId: event.resourceId,
     timestamp: new Date(),
     ipAddress: await getClientIP(),
-    userAgent: navigator.userAgent
+    userAgent: navigator.userAgent,
   });
 };
 
@@ -689,7 +703,7 @@ export const logAuditEvent = async (event: AuditEvent) => {
 await logAuditEvent({
   action: 'DELETE',
   resource: 'PROJECT',
-  resourceId: projectId
+  resourceId: projectId,
 });
 ```
 

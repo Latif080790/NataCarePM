@@ -3,19 +3,16 @@
  * Handles password changes, validation, and strength checking
  */
 
-import { 
-  EmailAuthProvider, 
-  reauthenticateWithCredential, 
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
   updatePassword,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger';
-import type { 
-  PasswordChangeRequest, 
-  PasswordValidationResult 
-} from '@/types';
+import type { PasswordChangeRequest, PasswordValidationResult } from '@/types';
 
 // Password requirements
 const PASSWORD_REQUIREMENTS = {
@@ -24,24 +21,37 @@ const PASSWORD_REQUIREMENTS = {
   requireUppercase: true,
   requireLowercase: true,
   requireNumber: true,
-  requireSpecialChar: true
+  requireSpecialChar: true,
 };
 
 // Common passwords to reject
 const COMMON_PASSWORDS = [
-  'password', 'password123', '12345678', 'qwerty', 'abc123',
-  'password1', '123456789', '1234567890', 'admin', 'admin123',
-  'letmein', 'welcome', 'monkey', '111111', '123123',
-  'password!', 'Password1', 'Passw0rd', 'P@ssw0rd', 'P@ssword'
+  'password',
+  'password123',
+  '12345678',
+  'qwerty',
+  'abc123',
+  'password1',
+  '123456789',
+  '1234567890',
+  'admin',
+  'admin123',
+  'letmein',
+  'welcome',
+  'monkey',
+  '111111',
+  '123123',
+  'password!',
+  'Password1',
+  'Passw0rd',
+  'P@ssw0rd',
+  'P@ssword',
 ];
 
 /**
  * Validate password strength and requirements
  */
-export const validatePassword = (
-  password: string, 
-  email?: string
-): PasswordValidationResult => {
+export const validatePassword = (password: string, email?: string): PasswordValidationResult => {
   const requirements = {
     minLength: password.length >= PASSWORD_REQUIREMENTS.minLength,
     hasUppercase: /[A-Z]/.test(password),
@@ -49,12 +59,14 @@ export const validatePassword = (
     hasNumber: /\d/.test(password),
     hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
     notCommon: !COMMON_PASSWORDS.includes(password.toLowerCase()),
-    notSimilarToEmail: email ? !password.toLowerCase().includes(email.split('@')[0].toLowerCase()) : true
+    notSimilarToEmail: email
+      ? !password.toLowerCase().includes(email.split('@')[0].toLowerCase())
+      : true,
   };
 
   // Calculate strength score (0-100)
   let score = 0;
-  
+
   // Length scoring (max 30 points)
   if (password.length >= 8) score += 10;
   if (password.length >= 12) score += 10;
@@ -81,7 +93,9 @@ export const validatePassword = (
   // Generate suggestions
   const suggestions: string[] = [];
   if (!requirements.minLength) {
-    suggestions.push(`Password must be at least ${PASSWORD_REQUIREMENTS.minLength} characters long`);
+    suggestions.push(
+      `Password must be at least ${PASSWORD_REQUIREMENTS.minLength} characters long`
+    );
   }
   if (!requirements.hasUppercase) {
     suggestions.push('Add uppercase letters (A-Z)');
@@ -114,7 +128,7 @@ export const validatePassword = (
   else estimatedCrackTime = 'Less than an hour';
 
   // Check if all requirements are met
-  const isValid = Object.values(requirements).every(req => req === true);
+  const isValid = Object.values(requirements).every((req) => req === true);
 
   return {
     isValid,
@@ -122,7 +136,7 @@ export const validatePassword = (
     score,
     requirements,
     suggestions,
-    estimatedCrackTime
+    estimatedCrackTime,
   };
 };
 
@@ -141,7 +155,7 @@ export const changePassword = async (
     if (!currentPassword || !newPassword || !confirmPassword) {
       return {
         success: false,
-        error: 'All fields are required'
+        error: 'All fields are required',
       };
     }
 
@@ -149,7 +163,7 @@ export const changePassword = async (
     if (newPassword !== confirmPassword) {
       return {
         success: false,
-        error: 'New passwords do not match'
+        error: 'New passwords do not match',
       };
     }
 
@@ -157,7 +171,7 @@ export const changePassword = async (
     if (currentPassword === newPassword) {
       return {
         success: false,
-        error: 'New password must be different from current password'
+        error: 'New password must be different from current password',
       };
     }
 
@@ -166,7 +180,7 @@ export const changePassword = async (
     if (!currentUser || currentUser.uid !== userId) {
       return {
         success: false,
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       };
     }
 
@@ -174,7 +188,7 @@ export const changePassword = async (
     if (!userEmail) {
       return {
         success: false,
-        error: 'User email not found'
+        error: 'User email not found',
       };
     }
 
@@ -183,28 +197,28 @@ export const changePassword = async (
     if (!validation.isValid) {
       return {
         success: false,
-        error: `Password does not meet requirements: ${validation.suggestions.join(', ')}`
+        error: `Password does not meet requirements: ${validation.suggestions.join(', ')}`,
       };
     }
 
     // Re-authenticate user with current password
     const credential = EmailAuthProvider.credential(userEmail, currentPassword);
-    
+
     try {
       await reauthenticateWithCredential(currentUser, credential);
     } catch (error: any) {
       logger.warn('Re-authentication failed during password change', { userId, error: error.code });
-      
+
       if (error.code === 'auth/wrong-password') {
         return {
           success: false,
-          error: 'Current password is incorrect'
+          error: 'Current password is incorrect',
         };
       }
-      
+
       return {
         success: false,
-        error: 'Authentication failed. Please try again.'
+        error: 'Authentication failed. Please try again.',
       };
     }
 
@@ -219,7 +233,7 @@ export const changePassword = async (
       lastPasswordChange: serverTimestamp(),
       passwordExpiresAt: null, // Reset expiration if any
       requirePasswordChange: false,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('User document updated after password change', { userId });
@@ -228,15 +242,14 @@ export const changePassword = async (
     await logPasswordChange(userId);
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error changing password', error, { userId: request.userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to change password. Please try again.'
+      error: error.message || 'Failed to change password. Please try again.',
     };
   }
 };
@@ -255,14 +268,13 @@ export const sendPasswordReset = async (
     logger.info('Password reset email sent', { email });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error sending password reset email', error, { email });
-    
+
     let errorMessage = 'Failed to send password reset email';
-    
+
     if (error.code === 'auth/user-not-found') {
       errorMessage = 'No account found with this email';
     } else if (error.code === 'auth/invalid-email') {
@@ -270,10 +282,10 @@ export const sendPasswordReset = async (
     } else if (error.code === 'auth/too-many-requests') {
       errorMessage = 'Too many requests. Please try again later.';
     }
-    
+
     return {
       success: false,
-      error: errorMessage
+      error: errorMessage,
     };
   }
 };
@@ -287,13 +299,13 @@ export const checkPasswordExpiration = async (
   try {
     const userRef = doc(db, 'users', userId);
     const userDoc = await getDoc(userRef);
-    
+
     if (!userDoc.exists()) {
       return { expired: false };
     }
 
     const userData = userDoc.data();
-    
+
     // Check if password change is required
     if (userData.requirePasswordChange) {
       return { expired: true };
@@ -303,7 +315,7 @@ export const checkPasswordExpiration = async (
     if (userData.passwordExpiresAt) {
       const expirationDate = userData.passwordExpiresAt.toDate();
       const now = new Date();
-      
+
       if (expirationDate <= now) {
         return { expired: true };
       }
@@ -315,12 +327,11 @@ export const checkPasswordExpiration = async (
 
       return {
         expired: false,
-        daysUntilExpiration
+        daysUntilExpiration,
       };
     }
 
     return { expired: false };
-
   } catch (error: any) {
     logger.error('Error checking password expiration', error, { userId });
     return { expired: false };
@@ -336,27 +347,26 @@ export const setPasswordExpiration = async (
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     const userRef = doc(db, 'users', userId);
-    
+
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + daysUntilExpiration);
 
     await updateDoc(userRef, {
       passwordExpiresAt: expirationDate,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('Password expiration set', { userId, daysUntilExpiration });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error setting password expiration', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to set password expiration'
+      error: error.message || 'Failed to set password expiration',
     };
   }
 };
@@ -369,24 +379,23 @@ export const forcePasswordChange = async (
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     const userRef = doc(db, 'users', userId);
-    
+
     await updateDoc(userRef, {
       requirePasswordChange: true,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
 
     logger.info('Password change forced', { userId });
 
     return {
-      success: true
+      success: true,
     };
-
   } catch (error: any) {
     logger.error('Error forcing password change', error, { userId });
-    
+
     return {
       success: false,
-      error: error.message || 'Failed to force password change'
+      error: error.message || 'Failed to force password change',
     };
   }
 };
@@ -398,7 +407,6 @@ const logPasswordChange = async (userId: string): Promise<void> => {
   try {
     // TODO: Implement activity logging when activityLogService is created
     logger.info('Password change activity', { userId, action: 'password_change' });
-
   } catch (error: any) {
     // Log error but don't fail the password change
     logger.error('Error logging password change activity', error, { userId });
@@ -416,7 +424,7 @@ export const generateRandomPassword = (length: number = 16): string => {
   const all = uppercase + lowercase + numbers + special;
 
   let password = '';
-  
+
   // Ensure at least one of each type
   password += uppercase[Math.floor(Math.random() * uppercase.length)];
   password += lowercase[Math.floor(Math.random() * lowercase.length)];
@@ -429,7 +437,10 @@ export const generateRandomPassword = (length: number = 16): string => {
   }
 
   // Shuffle the password
-  return password.split('').sort(() => Math.random() - 0.5).join('');
+  return password
+    .split('')
+    .sort(() => Math.random() - 0.5)
+    .join('');
 };
 
 export default {
@@ -439,5 +450,5 @@ export default {
   checkPasswordExpiration,
   setPasswordExpiration,
   forcePasswordChange,
-  generateRandomPassword
+  generateRandomPassword,
 };

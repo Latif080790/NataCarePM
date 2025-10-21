@@ -1,7 +1,7 @@
 /**
  * Offline Context
  * Phase 3.5: Mobile Offline Inspections
- * 
+ *
  * Manages offline state, sync status, and network connectivity
  */
 
@@ -20,13 +20,13 @@ interface OfflineContextState {
   // Network status
   isOnline: boolean;
   networkStatus: NetworkStatus | null;
-  
+
   // Inspections
   offlineInspections: OfflineInspection[];
   pendingInspections: OfflineInspection[];
   syncedInspections: OfflineInspection[];
   conflictedInspections: OfflineInspection[];
-  
+
   // Sync status
   syncStatus: {
     pending: number;
@@ -35,33 +35,41 @@ interface OfflineContextState {
     inProgress: boolean;
     lastSync: Date | null;
   };
-  
+
   // Storage
   storageMetadata: OfflineStorageMetadata | null;
-  
+
   // Service Worker
   serviceWorkerStatus: ServiceWorkerStatus | null;
-  
+
   // Conflicts
   conflicts: SyncConflict[];
-  
+
   // Actions
-  createInspection: (projectId: string, inspectionType: string, data: OfflineInspection['data']) => Promise<OfflineInspection>;
+  createInspection: (
+    projectId: string,
+    inspectionType: string,
+    data: OfflineInspection['data']
+  ) => Promise<OfflineInspection>;
   updateInspection: (localId: string, updates: Partial<OfflineInspection['data']>) => Promise<void>;
   deleteInspection: (localId: string) => Promise<void>;
   addAttachment: (inspectionId: string, file: File) => Promise<string>;
-  
+
   // Sync actions
   syncNow: () => Promise<void>;
   getSyncStatus: () => Promise<void>;
-  
+
   // Conflict resolution
-  resolveConflict: (conflictId: string, resolution: 'local' | 'remote' | 'merge', mergedData?: any) => Promise<void>;
-  
+  resolveConflict: (
+    conflictId: string,
+    resolution: 'local' | 'remote' | 'merge',
+    mergedData?: any
+  ) => Promise<void>;
+
   // Storage management
   refreshStorageStats: () => Promise<void>;
   clearSyncedData: () => Promise<void>;
-  
+
   // Service Worker
   updateServiceWorker: () => void;
 }
@@ -80,10 +88,10 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Network status
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus | null>(null);
-  
+
   // Inspections
   const [offlineInspections, setOfflineInspections] = useState<OfflineInspection[]>([]);
-  
+
   // Sync status
   const [syncStatus, setSyncStatus] = useState({
     pending: 0,
@@ -92,17 +100,17 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     inProgress: false,
     lastSync: null as Date | null,
   });
-  
+
   // Storage
   const [storageMetadata, setStorageMetadata] = useState<OfflineStorageMetadata | null>(null);
-  
+
   // Conflicts
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
-  
+
   // Service Worker state
   const [offlineReady, setOfflineReady] = useState(false);
   const [needRefresh, setNeedRefresh] = useState(false);
-  
+
   const [serviceWorkerStatus, setServiceWorkerStatus] = useState<ServiceWorkerStatus | null>(null);
 
   // Service Worker update function
@@ -121,12 +129,12 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     () => offlineInspections.filter((i) => i.syncStatus === 'pending'),
     [offlineInspections]
   );
-  
+
   const syncedInspections = useMemo(
     () => offlineInspections.filter((i) => i.syncStatus === 'synced'),
     [offlineInspections]
   );
-  
+
   const conflictedInspections = useMemo(
     () => offlineInspections.filter((i) => i.syncStatus === 'conflict'),
     [offlineInspections]
@@ -311,7 +319,14 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
 
     initialize();
-  }, [loadInspections, loadConflicts, getSyncStatus, refreshStorageStats, updateNetworkStatus, updateSWStatus]);
+  }, [
+    loadInspections,
+    loadConflicts,
+    getSyncStatus,
+    refreshStorageStats,
+    updateNetworkStatus,
+    updateSWStatus,
+  ]);
 
   // Network status listeners
   useEffect(() => {
@@ -329,10 +344,11 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     window.addEventListener('offline', handleOffline);
 
     // Network Information API listener
-    const connection = (navigator as any).connection || 
-                       (navigator as any).mozConnection || 
-                       (navigator as any).webkitConnection;
-    
+    const connection =
+      (navigator as any).connection ||
+      (navigator as any).mozConnection ||
+      (navigator as any).webkitConnection;
+
     if (connection) {
       connection.addEventListener('change', updateNetworkStatus);
     }
@@ -340,7 +356,7 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      
+
       if (connection) {
         connection.removeEventListener('change', updateNetworkStatus);
       }
@@ -363,7 +379,7 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (offlineReady) {
       console.log('App is ready to work offline');
     }
-    
+
     if (needRefresh) {
       console.log('New version available, update recommended');
     }
@@ -392,9 +408,5 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     updateServiceWorker: updateServiceWorkerApp,
   };
 
-  return (
-    <OfflineContext.Provider value={value}>
-      {children}
-    </OfflineContext.Provider>
-  );
+  return <OfflineContext.Provider value={value}>{children}</OfflineContext.Provider>;
 };

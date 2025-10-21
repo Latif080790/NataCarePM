@@ -1,7 +1,7 @@
 /**
  * Resource Utilization View
  * Priority 3A: Resource Management System
- * 
+ *
  * Dashboard for tracking resource utilization metrics and efficiency
  */
 
@@ -22,7 +22,9 @@ const ResourceUtilizationView: React.FC = () => {
   } = useResource();
 
   // Local state
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>(
+    'month'
+  );
   const [selectedType, setSelectedType] = useState<ResourceType | 'all'>('all');
   const [sortBy, setSortBy] = useState<'utilization' | 'cost' | 'name'>('utilization');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -61,7 +63,7 @@ const ResourceUtilizationView: React.FC = () => {
     let filtered = resources;
 
     if (selectedType !== 'all') {
-      filtered = filtered.filter(r => r.type === selectedType);
+      filtered = filtered.filter((r) => r.type === selectedType);
     }
 
     // Sort resources
@@ -121,8 +123,18 @@ const ResourceUtilizationView: React.FC = () => {
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      <svg
+                        className="h-8 w-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -143,8 +155,18 @@ const ResourceUtilizationView: React.FC = () => {
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-8 w-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -165,8 +187,18 @@ const ResourceUtilizationView: React.FC = () => {
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-8 w-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -187,8 +219,18 @@ const ResourceUtilizationView: React.FC = () => {
                 <div className="p-5">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-8 w-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -215,7 +257,10 @@ const ResourceUtilizationView: React.FC = () => {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
             {/* Period Filter */}
             <div>
-              <label htmlFor="period" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="period"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Time Period
               </label>
               <select
@@ -233,7 +278,10 @@ const ResourceUtilizationView: React.FC = () => {
 
             {/* Type Filter */}
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Resource Type
               </label>
               <select
@@ -251,7 +299,10 @@ const ResourceUtilizationView: React.FC = () => {
 
             {/* Sort By */}
             <div>
-              <label htmlFor="sortBy" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="sortBy"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Sort By
               </label>
               <select
@@ -268,7 +319,10 @@ const ResourceUtilizationView: React.FC = () => {
 
             {/* Sort Order */}
             <div>
-              <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="sortOrder"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Order
               </label>
               <select
@@ -298,10 +352,22 @@ const ResourceUtilizationView: React.FC = () => {
             </div>
           ) : filteredResources.length === 0 ? (
             <div className="text-center py-12">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No resources found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                No resources found
+              </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Try adjusting your filters
               </p>
@@ -311,22 +377,40 @@ const ResourceUtilizationView: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
                       Resource
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
                       Type
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
                       Status
                     </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
                       Utilization
                     </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
                       Hours
                     </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
                       Cost
                     </th>
                   </tr>
@@ -354,12 +438,17 @@ const ResourceUtilizationView: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                            resource.status === 'available' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                            resource.status === 'allocated' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                            resource.status === 'maintenance' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                              resource.status === 'available'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : resource.status === 'allocated'
+                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                  : resource.status === 'maintenance'
+                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            }`}
+                          >
                             {resource.status}
                           </span>
                         </td>
@@ -371,7 +460,9 @@ const ResourceUtilizationView: React.FC = () => {
                                 style={{ width: `${Math.min(utilizationRate, 100)}%` }}
                               />
                             </div>
-                            <span className={`text-sm font-medium ${getUtilizationColor(utilizationRate)}`}>
+                            <span
+                              className={`text-sm font-medium ${getUtilizationColor(utilizationRate)}`}
+                            >
                               {utilizationRate.toFixed(1)}%
                             </span>
                           </div>
@@ -379,7 +470,10 @@ const ResourceUtilizationView: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                           {resourceUtil ? (
                             <div>
-                              <div>{resourceUtil.totalAllocatedHours.toFixed(1)} / {resourceUtil.totalAvailableHours.toFixed(1)}</div>
+                              <div>
+                                {resourceUtil.totalAllocatedHours.toFixed(1)} /{' '}
+                                {resourceUtil.totalAvailableHours.toFixed(1)}
+                              </div>
                               {resourceUtil.idleHours > 0 && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400">
                                   {resourceUtil.idleHours.toFixed(1)}h idle

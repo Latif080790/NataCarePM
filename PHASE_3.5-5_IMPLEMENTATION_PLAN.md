@@ -1,6 +1,7 @@
 # Phase 3.5-5: Advanced Features Implementation Plan
 
 ## Executive Summary
+
 **Timeline**: 10 weeks total  
 **Phases**: 3 major phases (3.5, 4, 5)  
 **Total Features**: 11 major systems  
@@ -12,7 +13,9 @@
 ## Phase 3.5: Quick Wins (2 weeks)
 
 ### Overview
+
 Implement high-impact features with immediate business value:
+
 - Mobile offline inspections
 - Safety management system
 - Executive dashboard
@@ -20,9 +23,11 @@ Implement high-impact features with immediate business value:
 ### Week 1: Mobile Offline & Safety
 
 #### Days 1-2: Mobile Offline Inspections
+
 **Objective**: Enable field workers to perform inspections without internet connection
 
 **Type Definitions** ✅ COMPLETE
+
 - [x] `types/offline.types.ts` (225 lines)
   - OfflineInspection interface
   - SyncQueueItem, SyncConflict
@@ -30,7 +35,9 @@ Implement high-impact features with immediate business value:
   - BackgroundSyncTask
 
 **Implementation Tasks**:
+
 1. **IndexedDB Setup**
+
    ```typescript
    // utils/indexedDB.ts
    - Database schema for offline storage
@@ -40,6 +47,7 @@ Implement high-impact features with immediate business value:
    ```
 
 2. **Service Worker**
+
    ```typescript
    // public/service-worker.js
    - Cache static assets (app shell)
@@ -49,6 +57,7 @@ Implement high-impact features with immediate business value:
    ```
 
 3. **Sync Service**
+
    ```typescript
    // api/syncService.ts
    - Detect network status
@@ -64,6 +73,7 @@ Implement high-impact features with immediate business value:
    - `views/SyncStatusView.tsx`
 
 **Success Criteria**:
+
 - [ ] Inspections work offline
 - [ ] Data syncs when online
 - [ ] Conflicts handled gracefully
@@ -71,9 +81,11 @@ Implement high-impact features with immediate business value:
 - [ ] Storage quota management
 
 #### Days 3-5: Safety Management System
+
 **Objective**: Comprehensive safety tracking and compliance
 
 **Type Definitions** ✅ COMPLETE
+
 - [x] `types/safety.types.ts` (502 lines)
   - SafetyIncident (OSHA-compliant)
   - SafetyTraining with certifications
@@ -83,7 +95,9 @@ Implement high-impact features with immediate business value:
   - SafetyMetrics (TRIR, LTIFR, DART)
 
 **Implementation Tasks**:
+
 1. **Safety Service**
+
    ```typescript
    // api/safetyService.ts
    - Incident CRUD operations
@@ -94,6 +108,7 @@ Implement high-impact features with immediate business value:
    ```
 
 2. **Safety Context**
+
    ```typescript
    // contexts/SafetyContext.tsx
    - State management for all safety entities
@@ -111,6 +126,7 @@ Implement high-impact features with immediate business value:
    - `views/SafetyObservationView.tsx` - Report observations
 
 **Success Criteria**:
+
 - [ ] OSHA-compliant incident tracking
 - [ ] Training certification management
 - [ ] PPE inventory & assignment
@@ -120,9 +136,11 @@ Implement high-impact features with immediate business value:
 ### Week 2: Executive Dashboard
 
 #### Days 1-3: Executive Dashboard
+
 **Objective**: Real-time C-level insights and KPIs
 
 **Type Definitions** ✅ COMPLETE
+
 - [x] `types/executive.types.ts` (413 lines)
   - ExecutiveKPI with trends
   - ProjectPortfolioSummary
@@ -135,7 +153,9 @@ Implement high-impact features with immediate business value:
   - ExecutiveAlert system
 
 **Implementation Tasks**:
+
 1. **Executive Service**
+
    ```typescript
    // api/executiveService.ts
    - Aggregate data from all modules
@@ -146,6 +166,7 @@ Implement high-impact features with immediate business value:
    ```
 
 2. **Executive Context**
+
    ```typescript
    // contexts/ExecutiveContext.tsx
    - Real-time dashboard data
@@ -166,6 +187,7 @@ Implement high-impact features with immediate business value:
    - `components/AlertPanel.tsx` - Critical notifications
 
 **Success Criteria**:
+
 - [ ] Real-time KPI updates
 - [ ] Portfolio-level aggregation
 - [ ] Financial P&L dashboard
@@ -174,6 +196,7 @@ Implement high-impact features with immediate business value:
 - [ ] Exportable PDF reports
 
 #### Days 4-5: Testing & Documentation
+
 - [ ] Integration testing (all Phase 3.5 features)
 - [ ] Performance testing (dashboard load time < 2s)
 - [ ] Mobile testing (offline inspections)
@@ -186,7 +209,9 @@ Implement high-impact features with immediate business value:
 ## Phase 4: AI & Analytics (4 weeks)
 
 ### Overview
+
 Implement AI-powered optimization and predictive capabilities:
+
 - AI resource optimization
 - Predictive analytics
 - Document intelligence
@@ -196,6 +221,7 @@ Implement AI-powered optimization and predictive capabilities:
 **Objective**: ML-powered resource allocation and scheduling
 
 **Type Definitions** (To Create):
+
 ```typescript
 // types/ai.types.ts
 interface AIModel {
@@ -223,7 +249,9 @@ interface MLPrediction {
 ```
 
 **Implementation Tasks**:
+
 1. **AI Service** (TensorFlow.js integration)
+
    ```typescript
    // api/aiService.ts
    - Load pre-trained models
@@ -245,6 +273,7 @@ interface MLPrediction {
    - `views/AIInsightsView.tsx`
 
 **Success Criteria**:
+
 - [ ] 20%+ improvement in resource utilization
 - [ ] Accurate duration predictions (±10%)
 - [ ] Automated schedule optimization
@@ -255,6 +284,7 @@ interface MLPrediction {
 **Objective**: Forecast trends and predict risks
 
 **Type Definitions** (To Create):
+
 ```typescript
 // types/analytics.types.ts
 interface ForecastModel {
@@ -274,7 +304,9 @@ interface RiskPrediction {
 ```
 
 **Implementation Tasks**:
+
 1. **Analytics Service**
+
    ```typescript
    // api/analyticsService.ts
    - Time series forecasting (cost, schedule)
@@ -298,6 +330,7 @@ interface RiskPrediction {
    - `views/ForecastingView.tsx`
 
 **Success Criteria**:
+
 - [ ] 30-day forecast accuracy > 80%
 - [ ] Early risk detection (14+ days)
 - [ ] Anomaly detection real-time
@@ -308,6 +341,7 @@ interface RiskPrediction {
 **Objective**: AI-powered document processing
 
 **Type Definitions** (To Create):
+
 ```typescript
 // types/documentAI.types.ts
 interface OCRResult {
@@ -331,7 +365,9 @@ interface NLPAnalysis {
 ```
 
 **Implementation Tasks**:
+
 1. **Document AI Service**
+
    ```typescript
    // api/documentAIService.ts
    - OCR (Tesseract.js)
@@ -353,6 +389,7 @@ interface NLPAnalysis {
    - `views/IntelligentSearchView.tsx`
 
 **Success Criteria**:
+
 - [ ] OCR accuracy > 95%
 - [ ] Auto-classification > 90%
 - [ ] Data extraction accuracy > 85%
@@ -363,7 +400,9 @@ interface NLPAnalysis {
 ## Phase 5: Integration & Scale (4 weeks)
 
 ### Overview
+
 Enterprise-grade integrations and scalability:
+
 - ERP integration (SAP, Oracle)
 - IoT sensor integration
 - API ecosystem
@@ -373,6 +412,7 @@ Enterprise-grade integrations and scalability:
 **Objective**: Bidirectional sync with major ERP systems
 
 **Type Definitions** (To Create):
+
 ```typescript
 // types/erp.types.ts
 interface ERPConnection {
@@ -401,7 +441,9 @@ interface ERPTransaction {
 ```
 
 **Implementation Tasks**:
+
 1. **ERP Connectors**
+
    ```typescript
    // api/erp/sapConnector.ts
    // api/erp/oracleConnector.ts
@@ -414,6 +456,7 @@ interface ERPTransaction {
    ```
 
 2. **ERP Sync Service**
+
    ```typescript
    // api/erpSyncService.ts
    - Scheduled sync jobs
@@ -429,6 +472,7 @@ interface ERPTransaction {
    - `views/ERPMappingView.tsx`
 
 **Success Criteria**:
+
 - [ ] SAP S/4HANA integration
 - [ ] Oracle EBS integration
 - [ ] Real-time transaction sync
@@ -440,6 +484,7 @@ interface ERPTransaction {
 **Objective**: Real-time monitoring from construction site sensors
 
 **Type Definitions** (To Create):
+
 ```typescript
 // types/iot.types.ts
 interface IoTDevice {
@@ -469,7 +514,9 @@ interface IoTAlert {
 ```
 
 **Implementation Tasks**:
+
 1. **IoT Service**
+
    ```typescript
    // api/iotService.ts
    - MQTT client (Mosquitto)
@@ -493,6 +540,7 @@ interface IoTAlert {
    - `views/LiveMonitoringView.tsx`
 
 **Success Criteria**:
+
 - [ ] MQTT broker setup
 - [ ] Real-time sensor data display
 - [ ] Alert thresholds configurable
@@ -504,6 +552,7 @@ interface IoTAlert {
 **Objective**: Comprehensive API platform for third-party integrations
 
 **Type Definitions** (To Create):
+
 ```typescript
 // types/api.types.ts
 interface APIKey {
@@ -537,7 +586,9 @@ interface APIRequest {
 ```
 
 **Implementation Tasks**:
+
 1. **GraphQL API**
+
    ```graphql
    # schema.graphql
    type Query {
@@ -545,12 +596,12 @@ interface APIRequest {
      tasks(projectId: ID!): [Task!]!
      resources: [Resource!]!
    }
-   
+
    type Mutation {
      createProject(input: ProjectInput!): Project!
      updateTask(id: ID!, input: TaskInput!): Task!
    }
-   
+
    type Subscription {
      taskUpdated(projectId: ID!): Task!
      newAlert: Alert!
@@ -558,6 +609,7 @@ interface APIRequest {
    ```
 
 2. **REST API v2**
+
    ```typescript
    // api/rest/v2/
    - Versioned endpoints
@@ -569,6 +621,7 @@ interface APIRequest {
    ```
 
 3. **Webhooks**
+
    ```typescript
    // api/webhookService.ts
    - Event registration
@@ -590,6 +643,7 @@ interface APIRequest {
    - `views/APIAnalyticsView.tsx`
 
 **Success Criteria**:
+
 - [ ] GraphQL API complete
 - [ ] REST API v2 production-ready
 - [ ] Webhook delivery 99%+
@@ -602,30 +656,33 @@ interface APIRequest {
 ## Testing Strategy
 
 ### Unit Testing
+
 ```typescript
 // __tests__/services/
-- safetyService.test.ts
-- syncService.test.ts
-- executiveService.test.ts
-- aiService.test.ts
-- erpConnector.test.ts
-- iotService.test.ts
+-safetyService.test.ts -
+  syncService.test.ts -
+  executiveService.test.ts -
+  aiService.test.ts -
+  erpConnector.test.ts -
+  iotService.test.ts;
 
 // Target: 80%+ code coverage
 ```
 
 ### Integration Testing
+
 ```typescript
 // __tests__/integration/
-- offlineSync.integration.test.ts
-- erpSync.integration.test.ts
-- iotPipeline.integration.test.ts
-- apiEndpoints.integration.test.ts
+-offlineSync.integration.test.ts -
+  erpSync.integration.test.ts -
+  iotPipeline.integration.test.ts -
+  apiEndpoints.integration.test.ts;
 
 // Target: All critical paths covered
 ```
 
 ### Performance Testing
+
 ```typescript
 // tests/performance/
 - dashboardLoad.perf.test.ts (< 2s)
@@ -635,12 +692,13 @@ interface APIRequest {
 ```
 
 ### E2E Testing (Playwright)
+
 ```typescript
 // tests/e2e/
-- offlineInspection.e2e.ts
-- incidentReporting.e2e.ts
-- executiveDashboard.e2e.ts
-- erpIntegration.e2e.ts
+-offlineInspection.e2e.ts -
+  incidentReporting.e2e.ts -
+  executiveDashboard.e2e.ts -
+  erpIntegration.e2e.ts;
 ```
 
 ---
@@ -648,6 +706,7 @@ interface APIRequest {
 ## Documentation Requirements
 
 ### User Guides
+
 1. **Mobile Offline User Guide** (10 pages)
    - How to perform offline inspections
    - Sync troubleshooting
@@ -670,6 +729,7 @@ interface APIRequest {
    - Document AI capabilities
 
 ### Developer Guides
+
 1. **Offline Sync Developer Guide** (25 pages)
    - IndexedDB architecture
    - Service worker implementation
@@ -698,6 +758,7 @@ interface APIRequest {
    - SDK usage examples
 
 ### API Documentation
+
 1. **GraphQL API Documentation** (auto-generated)
 2. **REST API Documentation** (OpenAPI/Swagger)
 3. **Webhook Event Reference**
@@ -708,6 +769,7 @@ interface APIRequest {
 ## Deployment Plan
 
 ### Phase 3.5 Deployment (Week 2, Day 5)
+
 ```bash
 # Deploy offline capabilities
 - Service worker registration
@@ -726,6 +788,7 @@ interface APIRequest {
 ```
 
 ### Phase 4 Deployment (Week 7, Day 5)
+
 ```bash
 # Deploy AI services
 - TensorFlow.js model loading
@@ -739,6 +802,7 @@ interface APIRequest {
 ```
 
 ### Phase 5 Deployment (Week 10, Day 5)
+
 ```bash
 # Deploy ERP connectors
 - ERP OAuth setup
@@ -762,18 +826,21 @@ interface APIRequest {
 ## Success Metrics
 
 ### Phase 3.5 KPIs
+
 - [ ] Offline inspection adoption: > 80% field workers
 - [ ] Safety incident reporting time: < 15 minutes
 - [ ] Executive dashboard load time: < 2 seconds
 - [ ] Mobile responsiveness: 100% features
 
 ### Phase 4 KPIs
+
 - [ ] Resource optimization improvement: > 20%
 - [ ] Forecast accuracy: > 80%
 - [ ] OCR accuracy: > 95%
 - [ ] AI recommendation acceptance: > 60%
 
 ### Phase 5 KPIs
+
 - [ ] ERP sync reliability: 99.9%
 - [ ] IoT data ingestion: > 1000 readings/second
 - [ ] API uptime: 99.95%
@@ -784,6 +851,7 @@ interface APIRequest {
 ## Risk Mitigation
 
 ### Technical Risks
+
 1. **Offline Sync Complexity**
    - Mitigation: Comprehensive conflict resolution
    - Fallback: Manual resolution UI
@@ -801,6 +869,7 @@ interface APIRequest {
    - Fallback: Polling-based updates
 
 ### Business Risks
+
 1. **User Adoption**
    - Mitigation: Comprehensive training
    - Fallback: Gradual rollout
@@ -818,11 +887,13 @@ interface APIRequest {
 ## Team & Resources
 
 ### Development Team
+
 - **Phase 3.5**: 2 full-stack developers
 - **Phase 4**: 2 ML engineers + 1 full-stack
 - **Phase 5**: 2 integration specialists + 1 DevOps
 
 ### Infrastructure
+
 - Firebase Firestore (primary database)
 - Cloud Functions (serverless backend)
 - TensorFlow.js (ML models)
@@ -831,6 +902,7 @@ interface APIRequest {
 - Redis (caching)
 
 ### Third-Party Services
+
 - Tesseract.js (OCR)
 - TensorFlow.js (ML)
 - Chart.js (visualizations)
@@ -842,12 +914,14 @@ interface APIRequest {
 ## Estimated Costs
 
 ### Development
+
 - **Phase 3.5**: $40,000 (2 devs × 2 weeks)
 - **Phase 4**: $60,000 (3 devs × 4 weeks)
 - **Phase 5**: $60,000 (3 devs × 4 weeks)
 - **Total**: $160,000
 
 ### Infrastructure (Monthly)
+
 - Firebase: $500
 - MQTT Broker: $200
 - InfluxDB: $300
@@ -856,6 +930,7 @@ interface APIRequest {
 - **Total**: $1,550/month
 
 ### Third-Party (Annual)
+
 - ERP Connectors: $5,000
 - IoT Platform: $3,000
 - API Gateway: $2,000
@@ -865,21 +940,22 @@ interface APIRequest {
 
 ## Timeline Summary
 
-| Week | Phase | Focus | Deliverables |
-|------|-------|-------|--------------|
-| 1 | 3.5 | Offline + Safety | Offline inspections, Safety module |
-| 2 | 3.5 | Executive Dashboard | Real-time KPIs, Reports |
-| 3-4 | 4 | AI Resources | Resource optimization, ML models |
-| 5-6 | 4 | Predictive Analytics | Forecasting, Risk prediction |
-| 7 | 4 | Document AI | OCR, NLP, Auto-classification |
-| 8-9 | 5 | ERP Integration | SAP, Oracle connectors |
-| 9-10 | 5 | IoT + API | Sensors, GraphQL, SDKs |
+| Week | Phase | Focus                | Deliverables                       |
+| ---- | ----- | -------------------- | ---------------------------------- |
+| 1    | 3.5   | Offline + Safety     | Offline inspections, Safety module |
+| 2    | 3.5   | Executive Dashboard  | Real-time KPIs, Reports            |
+| 3-4  | 4     | AI Resources         | Resource optimization, ML models   |
+| 5-6  | 4     | Predictive Analytics | Forecasting, Risk prediction       |
+| 7    | 4     | Document AI          | OCR, NLP, Auto-classification      |
+| 8-9  | 5     | ERP Integration      | SAP, Oracle connectors             |
+| 9-10 | 5     | IoT + API            | Sensors, GraphQL, SDKs             |
 
 ---
 
 ## Conclusion
 
 This implementation plan provides a comprehensive roadmap for Phases 3.5-5, delivering:
+
 - **Mobile-first capabilities** (offline inspections)
 - **Safety excellence** (OSHA-compliant tracking)
 - **Executive insights** (real-time KPIs)

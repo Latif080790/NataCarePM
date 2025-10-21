@@ -1,6 +1,6 @@
 /**
  * Mobile Responsive Constants and Utilities
- * 
+ *
  * TypeScript utilities for responsive design including:
  * - Breakpoint constants
  * - Media query strings
@@ -13,13 +13,13 @@
 // ============================================
 
 export const BREAKPOINTS = {
-  mobileXS: 320,   // iPhone SE
-  mobileSM: 375,   // iPhone 12/13
-  mobileMD: 390,   // iPhone 14
-  mobileLG: 430,   // iPhone 14 Pro Max
-  tablet: 768,     // iPad
-  tabletLG: 1024,  // iPad Pro
-  desktop: 1440,   // Desktop
+  mobileXS: 320, // iPhone SE
+  mobileSM: 375, // iPhone 12/13
+  mobileMD: 390, // iPhone 14
+  mobileLG: 430, // iPhone 14 Pro Max
+  tablet: 768, // iPad
+  tabletLG: 1024, // iPad Pro
+  desktop: 1440, // Desktop
   desktopXL: 1920, // Large desktop
 } as const;
 
@@ -36,21 +36,21 @@ export const MEDIA_QUERIES = {
   mobileMD: `(max-width: ${BREAKPOINTS.mobileMD}px)`,
   mobileLG: `(max-width: ${BREAKPOINTS.mobileLG}px)`,
   mobile: `(max-width: ${BREAKPOINTS.tablet - 1}px)`,
-  
+
   // Tablet breakpoints
   tablet: `(min-width: ${BREAKPOINTS.tablet}px) and (max-width: ${BREAKPOINTS.tabletLG - 1}px)`,
   tabletUp: `(min-width: ${BREAKPOINTS.tablet}px)`,
   tabletDown: `(max-width: ${BREAKPOINTS.tabletLG - 1}px)`,
-  
+
   // Desktop breakpoints
   desktop: `(min-width: ${BREAKPOINTS.tabletLG}px)`,
   desktopLG: `(min-width: ${BREAKPOINTS.desktop}px)`,
   desktopXL: `(min-width: ${BREAKPOINTS.desktopXL}px)`,
-  
+
   // Orientation
   portrait: '(orientation: portrait)',
   landscape: '(orientation: landscape)',
-  
+
   // Special queries
   touch: '(hover: none) and (pointer: coarse)',
   mouse: '(hover: hover) and (pointer: fine)',
@@ -146,10 +146,10 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook to detect media query match
- * 
+ *
  * @param query - Media query string (e.g., '(max-width: 768px)')
  * @returns boolean indicating if media query matches
- * 
+ *
  * @example
  * const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
  * if (isMobile) {
@@ -170,7 +170,7 @@ export const useMediaQuery = (query: string): boolean => {
     }
 
     const mediaQuery = window.matchMedia(query);
-    
+
     // Update state if query match changes
     const handleChange = (e: MediaQueryListEvent) => {
       setMatches(e.matches);
@@ -180,7 +180,7 @@ export const useMediaQuery = (query: string): boolean => {
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
-    } 
+    }
     // Legacy browsers
     else {
       // @ts-ignore
@@ -195,9 +195,9 @@ export const useMediaQuery = (query: string): boolean => {
 
 /**
  * Hook to detect if device is mobile
- * 
+ *
  * @returns boolean indicating if viewport is mobile size
- * 
+ *
  * @example
  * const isMobile = useIsMobile();
  * return (
@@ -212,7 +212,7 @@ export const useIsMobile = (): boolean => {
 
 /**
  * Hook to detect if device is tablet
- * 
+ *
  * @returns boolean indicating if viewport is tablet size
  */
 export const useIsTablet = (): boolean => {
@@ -221,7 +221,7 @@ export const useIsTablet = (): boolean => {
 
 /**
  * Hook to detect if device is desktop
- * 
+ *
  * @returns boolean indicating if viewport is desktop size
  */
 export const useIsDesktop = (): boolean => {
@@ -231,7 +231,7 @@ export const useIsDesktop = (): boolean => {
 /**
  * Hook to detect if device is tablet or larger
  * Useful for showing/hiding mobile-only features
- * 
+ *
  * @returns boolean indicating if viewport is tablet or larger
  */
 export const useIsTabletUp = (): boolean => {
@@ -240,12 +240,12 @@ export const useIsTabletUp = (): boolean => {
 
 /**
  * Hook to get current device type
- * 
+ *
  * @returns DeviceType enum value
- * 
+ *
  * @example
  * const deviceType = useDeviceType();
- * 
+ *
  * switch (deviceType) {
  *   case DeviceType.MOBILE:
  *     return <MobileNav />;
@@ -278,7 +278,7 @@ export const useDeviceType = (): DeviceType => {
 
 /**
  * Hook to detect if device has touch capability
- * 
+ *
  * @returns boolean indicating if device supports touch
  */
 export const useIsTouchDevice = (): boolean => {
@@ -294,12 +294,12 @@ export const useIsTouchDevice = (): boolean => {
 
 /**
  * Hook to detect device orientation
- * 
+ *
  * @returns 'portrait' | 'landscape'
- * 
+ *
  * @example
  * const orientation = useOrientation();
- * 
+ *
  * if (orientation === 'portrait') {
  *   return <PortraitLayout />;
  * }
@@ -329,7 +329,7 @@ export const useOrientation = (): 'portrait' | 'landscape' => {
 /**
  * Hook to detect if user prefers reduced motion
  * Important for accessibility
- * 
+ *
  * @returns boolean indicating if reduced motion is preferred
  */
 export const usePrefersReducedMotion = (): boolean => {
@@ -338,7 +338,7 @@ export const usePrefersReducedMotion = (): boolean => {
 
 /**
  * Hook to detect if user prefers dark mode
- * 
+ *
  * @returns boolean indicating if dark mode is preferred
  */
 export const usePrefersDarkMode = (): boolean => {
@@ -348,9 +348,9 @@ export const usePrefersDarkMode = (): boolean => {
 /**
  * Hook to get window dimensions
  * Useful for responsive calculations
- * 
+ *
  * @returns { width: number; height: number }
- * 
+ *
  * @example
  * const { width, height } = useWindowSize();
  * const cardWidth = width < 768 ? '100%' : '50%';
@@ -391,10 +391,10 @@ export const useWindowSize = (): { width: number; height: number } => {
 
 /**
  * Get responsive value based on current breakpoint
- * 
+ *
  * @param values - Object with breakpoint keys and values
  * @returns Value for current breakpoint
- * 
+ *
  * @example
  * const columns = getResponsiveValue({
  *   mobile: 1,
@@ -402,11 +402,11 @@ export const useWindowSize = (): { width: number; height: number } => {
  *   desktop: 4,
  * });
  */
-export const getResponsiveValue = <T,>(
+export const getResponsiveValue = <T>(
   values: Partial<Record<'mobile' | 'tablet' | 'desktop', T>>
 ): T | undefined => {
   const deviceType = getDeviceType();
-  
+
   if (!deviceType) {
     return values.desktop || values.tablet || values.mobile;
   }
@@ -426,13 +426,13 @@ export const getResponsiveValue = <T,>(
 /**
  * Calculate responsive font size
  * Uses fluid typography with clamp()
- * 
+ *
  * @param minSize - Minimum font size (px)
  * @param maxSize - Maximum font size (px)
  * @param minWidth - Minimum viewport width (px, default: 320)
  * @param maxWidth - Maximum viewport width (px, default: 1440)
  * @returns CSS clamp() string
- * 
+ *
  * @example
  * const fontSize = getFluidFontSize(16, 24);
  * // Returns: 'clamp(16px, 1.6vw + 10.88px, 24px)'
@@ -445,21 +445,18 @@ export const getFluidFontSize = (
 ): string => {
   const slope = (maxSize - minSize) / (maxWidth - minWidth);
   const yAxisIntersection = -minWidth * slope + minSize;
-  
+
   return `clamp(${minSize}px, ${yAxisIntersection.toFixed(2)}px + ${(slope * 100).toFixed(2)}vw, ${maxSize}px)`;
 };
 
 /**
  * Calculate responsive spacing
- * 
+ *
  * @param mobileSpacing - Spacing on mobile (px)
  * @param desktopSpacing - Spacing on desktop (px)
  * @returns CSS calc() string
  */
-export const getFluidSpacing = (
-  mobileSpacing: number,
-  desktopSpacing: number
-): string => {
+export const getFluidSpacing = (mobileSpacing: number, desktopSpacing: number): string => {
   return getFluidFontSize(mobileSpacing, desktopSpacing);
 };
 
@@ -530,10 +527,10 @@ export const detectSwipe = (
   const deltaX = endX - startX;
   const deltaY = endY - startY;
   const duration = endTime - startTime;
-  
+
   const distanceX = Math.abs(deltaX);
   const distanceY = Math.abs(deltaY);
-  
+
   // Not enough distance for swipe
   if (distanceX < threshold && distanceY < threshold) {
     return null;
@@ -566,19 +563,17 @@ export const detectSwipe = (
 /**
  * Trigger haptic feedback (vibration)
  * Useful for touch interactions on mobile
- * 
+ *
  * @param pattern - Vibration pattern (ms) or single duration
- * 
+ *
  * @example
  * // Single vibration
  * triggerHapticFeedback(10);
- * 
+ *
  * // Pattern: vibrate 50ms, pause 100ms, vibrate 50ms
  * triggerHapticFeedback([50, 100, 50]);
  */
-export const triggerHapticFeedback = (
-  pattern: number | number[] = 10
-): void => {
+export const triggerHapticFeedback = (pattern: number | number[] = 10): void => {
   if (typeof window === 'undefined' || !('vibrate' in navigator)) {
     return;
   }
@@ -646,4 +641,4 @@ export const scrollToElement = (
 // ============================================
 
 export type MediaQueryKey = keyof typeof MEDIA_QUERIES;
-export type Breakpoint = typeof BREAKPOINTS[BreakpointKey];
+export type Breakpoint = (typeof BREAKPOINTS)[BreakpointKey];
