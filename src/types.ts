@@ -1331,8 +1331,6 @@ export type DocumentCategory =
   | 'contract_document'
   | 'inspection_report'
   | 'custom'
-  | 'other'
-  | 'policy'
   | 'other';
 
 export interface AIInsight {
@@ -2034,4 +2032,29 @@ export interface BulkSessionInvalidationRequest {
   keepCurrentSession: boolean;
   sessionIdsToKeep?: string[];
   reason: string;
+}
+
+// Milestone Management Types
+export interface Milestone {
+  id: string;
+  projectId: string;
+  name: string;
+  description?: string;
+  dueDate: string; // ISO date string
+  status: 'pending' | 'in-progress' | 'completed' | 'delayed';
+  isKeyMilestone: boolean;
+  deliverables?: string[];
+  progress: number; // 0-100
+  dependencies: string[]; // Task IDs that must be completed before milestone
+  assignedTo: string[]; // User IDs
+  createdBy: string; // User ID
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+}
+
+export interface MilestoneProgressUpdate {
+  milestoneId: string;
+  progress: number; // 0-100
+  status?: 'pending' | 'in-progress' | 'completed' | 'delayed';
+  notes?: string;
 }

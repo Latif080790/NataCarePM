@@ -1,454 +1,592 @@
 /**
  * Resource Allocation View
- * Priority 3A: Resource Management System
  *
- * Interactive calendar for resource allocation with drag-and-drop
- * and conflict detection
+ * Manages resource allocation for tasks with visualization
+ * Shows resource utilization, conflicts, and optimization opportunities
+ *
+ * @component ResourceAllocationView
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useResource } from '@/contexts/ResourceContext';
-import type { Resource, ResourceAllocation, ResourceConflict } from '@/types/resource.types';
-import { Spinner } from '@/components/Spinner';
+import React, { useState, useEffect } from 'react';
+import { Task, User } from '@/types';
+import { ResourceAllocation } from '@/types/ai-resource.types';
+import { enhancedTaskService } from '@/api/taskService.enhanced';
+import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { Input } from '@/components/FormControls';
+import {
+  Users,
+  Calendar,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  TrendingUp,
+  Plus,
+  Search,
+  Filter,
+  Download,
+  RefreshCw,
+} from 'lucide-react';
+import { formatCurrency } from '@/constants';
 
-const ResourceAllocationView: React.FC = () => {
-  const {
-    resources,
-    allocations,
-    resourcesLoading,
-    fetchResources,
-    fetchAllocations,
-    createAllocation,
-    checkConflicts,
-  } = useResource();
+interface ResourceAllocationViewProps {
+  projectId: string;
+  tasks: Task[];
+  currentUser: User;
+  onTaskSelect?: (taskId: string) => void;
+}
 
-  // Local state
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('week');
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [conflicts, setConflicts] = useState<ResourceConflict[]>([]);
-  const [showAllocationForm, setShowAllocationForm] = useState(false);
+interface ResourceUtilization {
+  resourceId: string;
+  resourceName: string;
+  allocatedHours: number;
+  availableHours: number;
+  utilizationRate: number;
+  conflicts: number;
+}
 
-  // Fetch resources on mount
+export const ResourceAllocationView: React.FC<ResourceAllocationViewProps> = ({
+  projectId,
+  tasks,
+  currentUser,
+  onTaskSelect,
+}) => {
+  const [allocations, setAllocations] = useState<ResourceAllocation[]>([]);
+  const [utilization, setUtilization] = useState<ResourceUtilization[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterResource, setFilterResource] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
   useEffect(() => {
-    fetchResources();
-  }, []);
+    loadResourceAllocations();
+  }, [projectId]);
 
-  // Fetch allocations when resource is selected
-  useEffect(() => {
-    if (selectedResource) {
-      fetchAllocations(selectedResource.id);
-    }
-  }, [selectedResource]);
+  const loadResourceAllocations = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  // Calendar navigation
-  const navigateDate = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate);
-
-    if (viewMode === 'day') {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
-    } else if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
-    } else {
-      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
-    }
-
-    setCurrentDate(newDate);
-  };
-
-  // Get calendar dates
-  const calendarDates = useMemo(() => {
-    const dates: Date[] = [];
-    const start = new Date(currentDate);
-
-    if (viewMode === 'day') {
-      dates.push(new Date(start));
-    } else if (viewMode === 'week') {
-      // Start from Monday
-      const dayOfWeek = start.getDay();
-      const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-      start.setDate(diff);
-
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(start);
-        date.setDate(start.getDate() + i);
-        dates.push(date);
+      // Get all resource allocations for the project
+      const allAllocations: ResourceAllocation[] = [];
+      
+      for (const task of tasks) {
+        try {
+          const response = await enhancedTaskService.getTaskResourceAllocations(
+            projectId,
+            task.id
+          );
+          if (response.success && response.data) {
+            allAllocations.push(...response.data);
+          }
+        } catch (err) {
+          console.warn(`Failed to load allocations for task ${task.id}:`, err);
+        }
       }
-    } else {
-      // Month view
-      const year = start.getFullYear();
-      const month = start.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
 
-      for (let d = firstDay.getDate(); d <= lastDay.getDate(); d++) {
-        dates.push(new Date(year, month, d));
+      setAllocations(allAllocations);
+      calculateUtilization(allAllocations);
+    } catch (err) {
+      console.error('Error loading resource allocations:', err);
+      setError('Failed to load resource allocations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateUtilization = (allocations: ResourceAllocation[]) => {
+    // Group allocations by resource
+    const resourceMap = new Map<string, ResourceAllocation[]>();
+    
+    allocations.forEach(allocation => {
+      if (!resourceMap.has(allocation.resourceId)) {
+        resourceMap.set(allocation.resourceId, []);
       }
-    }
-
-    return dates;
-  }, [currentDate, viewMode]);
-
-  // Format date header
-  const formatDateHeader = (date: Date) => {
-    if (viewMode === 'day') {
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    } else if (viewMode === 'week') {
-      return date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-      });
-    } else {
-      return date.getDate().toString();
-    }
-  };
-
-  // Get allocations for a specific date
-  const getAllocationsForDate = (date: Date) => {
-    return allocations.filter((allocation) => {
-      const allocStart = new Date(allocation.startDate);
-      const allocEnd = new Date(allocation.endDate);
-
-      return date >= allocStart && date <= allocEnd;
+      resourceMap.get(allocation.resourceId)!.push(allocation);
     });
-  };
 
-  // Check if resource is available on date
-  const isResourceAvailable = (resource: Resource, date: Date) => {
-    return resource.availability.some((slot) => {
-      const slotStart = new Date(slot.startDate);
-      const slotEnd = new Date(slot.endDate);
+    // Calculate utilization for each resource
+    const utilizationData: ResourceUtilization[] = [];
+    
+    resourceMap.forEach((resourceAllocations, resourceId) => {
+      // Calculate total allocated hours
+      const allocatedHours = resourceAllocations.reduce((total, allocation) => {
+        const start = new Date(allocation.startDate);
+        const end = new Date(allocation.endDate);
+        const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        return total + (hours * allocation.allocationPercentage / 100);
+      }, 0);
 
-      return date >= slotStart && date <= slotEnd;
+      // For demo purposes, assume 40 hours/week availability
+      const availableHours = 40 * 4; // 4 weeks
+      const utilizationRate = availableHours > 0 ? (allocatedHours / availableHours) * 100 : 0;
+      
+      // Count conflicts (over allocation)
+      const conflicts = utilizationRate > 100 ? Math.ceil((utilizationRate - 100) / 10) : 0;
+
+      utilizationData.push({
+        resourceId,
+        resourceName: `Resource ${resourceId.substring(0, 8)}`, // Placeholder name
+        allocatedHours,
+        availableHours,
+        utilizationRate,
+        conflicts,
+      });
     });
+
+    setUtilization(utilizationData);
   };
 
-  // Handle resource selection
-  const handleResourceSelect = (resource: Resource) => {
-    setSelectedResource(resource);
+  const handleRefresh = () => {
+    loadResourceAllocations();
   };
 
-  // Handle create allocation
-  const handleCreateAllocation = () => {
-    setShowAllocationForm(true);
+  const handleExport = () => {
+    const csvContent = [
+      ['Resource ID', 'Resource Name', 'Allocated Hours', 'Available Hours', 'Utilization %', 'Conflicts'],
+      ...utilization.map(u => [
+        u.resourceId,
+        u.resourceName,
+        u.allocatedHours.toFixed(2),
+        u.availableHours.toFixed(2),
+        u.utilizationRate.toFixed(2),
+        u.conflicts.toString()
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `resource-utilization-${projectId}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
+
+  const getUtilizationColor = (rate: number) => {
+    if (rate > 100) return 'text-red-600 bg-red-50';
+    if (rate > 80) return 'text-orange-600 bg-orange-50';
+    if (rate > 50) return 'text-yellow-600 bg-yellow-50';
+    return 'text-green-600 bg-green-50';
+  };
+
+  const filteredAllocations = allocations.filter(allocation => {
+    const matchesSearch = allocation.resourceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (allocation.taskId && tasks.find(t => t.id === allocation.taskId)?.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesResource = !filterResource || allocation.resourceId === filterResource;
+    
+    return matchesSearch && matchesResource;
+  });
+
+  const filteredUtilization = utilization.filter(u => 
+    u.resourceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.resourceName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading resource allocations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="p-8">
+        <div className="flex flex-col items-center justify-center text-red-600">
+          <AlertTriangle className="w-12 h-12 mb-4" />
+          <p className="text-lg font-medium mb-2">Error Loading Allocations</p>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={handleRefresh}>Retry</Button>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Resource Allocation Calendar
-              </h1>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Manage resource allocations and schedules
+              <p className="text-sm text-gray-600">Total Resources</p>
+              <p className="text-2xl font-bold">{utilization.length}</p>
+            </div>
+            <Users className="w-8 h-8 text-blue-500" />
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Allocations</p>
+              <p className="text-2xl font-bold">{allocations.length}</p>
+            </div>
+            <Calendar className="w-8 h-8 text-green-500" />
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Over-allocated</p>
+              <p className="text-2xl font-bold text-red-600">
+                {utilization.filter(u => u.utilizationRate > 100).length}
               </p>
             </div>
-            <div className="mt-4 sm:mt-0">
-              <Button
-                onClick={handleCreateAllocation}
-                disabled={!selectedResource}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            <AlertTriangle className="w-8 h-8 text-red-500" />
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Avg Utilization</p>
+              <p className="text-2xl font-bold">
+                {utilization.length > 0 
+                  ? `${(utilization.reduce((sum, u) => sum + u.utilizationRate, 0) / utilization.length).toFixed(1)}%`
+                  : '0%'}
+              </p>
+            </div>
+            <TrendingUp className="w-8 h-8 text-purple-500" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Controls */}
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold">Resource Allocation</h3>
+            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+              {allocations.length} allocations
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search resources or tasks..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-64"
+              />
+            </div>
+
+            <select
+              value={filterResource}
+              onChange={(e) => setFilterResource(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm"
+            >
+              <option value="">All Resources</option>
+              {utilization.map(u => (
+                <option key={u.resourceId} value={u.resourceId}>
+                  {u.resourceName}
+                </option>
+              ))}
+            </select>
+
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+
+            <Button onClick={() => setShowCreateModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Allocate Resource
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Resource Utilization Chart */}
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Resource Utilization</h3>
+        <div className="space-y-3">
+          {filteredUtilization.map((resource) => (
+            <div key={resource.resourceId} className="border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h4 className="font-medium">{resource.resourceName}</h4>
+                  <p className="text-sm text-gray-600">{resource.resourceId}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium">
+                    {resource.allocatedHours.toFixed(1)}h / {resource.availableHours}h
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {resource.utilizationRate.toFixed(1)}% utilization
+                  </p>
+                </div>
+              </div>
+              
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                <div
+                  className={`h-2.5 rounded-full ${
+                    resource.utilizationRate > 100
+                      ? 'bg-red-600'
+                      : resource.utilizationRate > 80
+                      ? 'bg-orange-500'
+                      : resource.utilizationRate > 50
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min(resource.utilizationRate, 100)}%` }}
+                ></div>
+              </div>
+              
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">0h</span>
+                <span className="text-gray-600">{resource.availableHours}h</span>
+              </div>
+              
+              {resource.conflicts > 0 && (
+                <div className="mt-2 flex items-center text-red-600">
+                  <AlertTriangle className="w-4 h-4 mr-1" />
+                  <span className="text-sm">
+                    {resource.conflicts} conflict{resource.conflicts > 1 ? 's' : ''} detected
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {filteredUtilization.length === 0 && (
+            <p className="text-gray-500 text-center py-4">No resource utilization data available</p>
+          )}
+        </div>
+      </Card>
+
+      {/* Resource Allocations Table */}
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Resource
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Task
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Period
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Allocation
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Utilization
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredAllocations.map((allocation) => {
+                const task = tasks.find(t => t.id === allocation.taskId);
+                const resourceUtil = utilization.find(u => u.resourceId === allocation.resourceId);
+                
+                const startDate = new Date(allocation.startDate);
+                const endDate = new Date(allocation.endDate);
+                const durationDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                
+                return (
+                  <tr key={allocation.allocationId} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {resourceUtil?.resourceName || allocation.resourceId}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {allocation.resourceType}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {task?.title || allocation.taskId || 'Unassigned'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {startDate.toLocaleDateString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {durationDays} days
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {allocation.allocationPercentage}%
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        allocation.status === 'planned' ? 'bg-gray-100 text-gray-800' :
+                        allocation.status === 'allocated' ? 'bg-blue-100 text-blue-800' :
+                        allocation.status === 'in_use' ? 'bg-green-100 text-green-800' :
+                        allocation.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {allocation.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {resourceUtil && (
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getUtilizationColor(resourceUtil.utilizationRate)}`}>
+                          {resourceUtil.utilizationRate.toFixed(1)}%
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onTaskSelect?.(allocation.taskId || '')}
+                        disabled={!allocation.taskId}
+                      >
+                        View Task
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          
+          {filteredAllocations.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No resource allocations found</p>
+              <p className="text-sm mt-1">Create your first resource allocation to get started</p>
+              <Button 
+                className="mt-4" 
+                onClick={() => setShowCreateModal(true)}
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
+                <Plus className="w-4 h-4 mr-2" />
                 Allocate Resource
               </Button>
             </div>
-          </div>
+          )}
         </div>
-      </div>
+      </Card>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Resource List Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Resources</h2>
-              </div>
-              <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
-                {resourcesLoading ? (
-                  <div className="flex justify-center py-4">
-                    <Spinner />
-                  </div>
-                ) : resources.length === 0 ? (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                    No resources available
-                  </p>
-                ) : (
-                  resources.map((resource) => (
-                    <button
-                      key={resource.id}
-                      onClick={() => handleResourceSelect(resource)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors $
-{
-                        selectedResource?.id === resource.id
-                          ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
-                          : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-transparent'
-                      }`}
-                    >
-                      <div className="font-medium text-sm text-gray-900 dark:text-white">
-                        {resource.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {resource.type} • {resource.status}
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Resource Details */}
-            {selectedResource && (
-              <div className="mt-6 bg-white dark:bg-gray-800 shadow rounded-lg p-4">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                  Resource Details
-                </h3>
-                <dl className="space-y-2">
-                  <div>
-                    <dt className="text-xs text-gray-500 dark:text-gray-400">Type</dt>
-                    <dd className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                      {selectedResource.type}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-gray-500 dark:text-gray-400">Status</dt>
-                    <dd className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                      {selectedResource.status}
-                    </dd>
-                  </div>
-                  {selectedResource.location && (
-                    <div>
-                      <dt className="text-xs text-gray-500 dark:text-gray-400">Location</dt>
-                      <dd className="text-sm font-medium text-gray-900 dark:text-white">
-                        {selectedResource.location}
-                      </dd>
-                    </div>
-                  )}
-                  {selectedResource.costPerDay && (
-                    <div>
-                      <dt className="text-xs text-gray-500 dark:text-gray-400">Cost/Day</dt>
-                      <dd className="text-sm font-medium text-gray-900 dark:text-white">
-                        ${selectedResource.costPerDay.toLocaleString()}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            )}
+      {/* Recommendations */}
+      {utilization.filter(u => u.utilizationRate > 100).length > 0 && (
+        <Card className="p-6 bg-red-50 border-red-200">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            Resource Conflicts Detected
+          </h3>
+          <div className="space-y-2">
+            <p className="text-red-800">
+              <strong>{utilization.filter(u => u.utilizationRate > 100).length} resources</strong> are over-allocated.
+            </p>
+            <ul className="list-disc list-inside text-red-700 space-y-1">
+              <li>Review and adjust resource allocations to prevent burnout</li>
+              <li>Consider adding additional resources to critical tasks</li>
+              <li>Reschedule non-critical tasks to balance workload</li>
+              <li>Prioritize tasks based on project critical path</li>
+            </ul>
           </div>
+        </Card>
+      )}
 
-          {/* Calendar */}
-          <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-              {/* Calendar Header */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={() => navigateDate('prev')}
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
-                      </svg>
-                    </button>
-                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">
-                      {currentDate.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        ...(viewMode === 'day' && { day: 'numeric' }),
-                      })}
-                    </h2>
-                    <button
-                      onClick={() => navigateDate('next')}
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* View Mode Toggle */}
-                  <div className="flex space-x-2">
-                    {(['day', 'week', 'month'] as const).map((mode) => (
-                      <button
-                        key={mode}
-                        onClick={() => setViewMode(mode)}
-                        className={`px-3 py-1 text-sm rounded ${
-                          viewMode === mode
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                        }`}
-                      >
-                        {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                      </button>
-                    ))}
-                  </div>
+      {/* Create Allocation Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Allocate Resource</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Resource
+                </label>
+                <select className="w-full px-3 py-2 border rounded-lg">
+                  <option>Select a resource</option>
+                  {utilization.map(u => (
+                    <option key={u.resourceId} value={u.resourceId}>
+                      {u.resourceName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Task
+                </label>
+                <select className="w-full px-3 py-2 border rounded-lg">
+                  <option>Select a task</option>
+                  {tasks.map(task => (
+                    <option key={task.id} value={task.id}>
+                      {task.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start Date
+                  </label>
+                  <Input type="date" />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End Date
+                  </label>
+                  <Input type="date" />
                 </div>
               </div>
-
-              {/* Calendar Grid */}
-              <div className="p-4">
-                {!selectedResource ? (
-                  <div className="text-center py-12">
-                    <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Select a resource
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Choose a resource from the sidebar to view and manage allocations
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    className={`grid ${
-                      viewMode === 'day'
-                        ? 'grid-cols-1'
-                        : viewMode === 'week'
-                          ? 'grid-cols-7'
-                          : 'grid-cols-7'
-                    } gap-2`}
-                  >
-                    {calendarDates.map((date, index) => {
-                      const dateAllocations = getAllocationsForDate(date);
-                      const isAvailable = isResourceAvailable(selectedResource, date);
-                      const isToday = date.toDateString() === new Date().toDateString();
-
-                      return (
-                        <div
-                          key={index}
-                          className={`min-h-24 p-2 rounded-lg border-2 ${
-                            isToday
-                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-gray-200 dark:border-gray-700'
-                          }`}
-                        >
-                          <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                            {formatDateHeader(date)}
-                          </div>
-
-                          {dateAllocations.length > 0 ? (
-                            <div className="space-y-1">
-                              {dateAllocations.map((allocation) => (
-                                <div
-                                  key={allocation.id}
-                                  className={`text-xs p-1 rounded ${
-                                    allocation.status === 'active'
-                                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-                                      : allocation.status === 'confirmed'
-                                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                                  }`}
-                                >
-                                  {allocation.projectName}
-                                </div>
-                              ))}
-                            </div>
-                          ) : isAvailable ? (
-                            <div className="text-xs text-green-600 dark:text-green-400">
-                              Available
-                            </div>
-                          ) : (
-                            <div className="text-xs text-gray-400">Unavailable</div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Allocation Percentage
+                </label>
+                <Input type="number" min="0" max="100" defaultValue="100" />
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreateModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    // TODO: Implement allocation creation
+                    setShowCreateModal(false);
+                  }}
+                >
+                  Allocate
+                </Button>
               </div>
             </div>
-
-            {/* Conflicts Warning */}
-            {conflicts.length > 0 && (
-              <div className="mt-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                <div className="flex">
-                  <svg
-                    className="h-5 w-5 text-yellow-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                  </svg>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                      Allocation Conflicts Detected
-                    </h3>
-                    <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                      <ul className="list-disc list-inside space-y-1">
-                        {conflicts.map((conflict, idx) => (
-                          <li key={idx}>
-                            {conflict.conflictType} - {conflict.resourceName} ({conflict.severity})
-                            {conflict.suggestedResolution && ` - ${conflict.suggestedResolution}`}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          </Card>
         </div>
-      </div>
+      )}
     </div>
   );
 };
