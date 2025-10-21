@@ -19,6 +19,10 @@ import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config'
 import LoginView from '@/views/LoginView';
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
 
+// Context providers
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ProjectProvider } from '@/contexts/ProjectContext';
+
 // Lazy-loaded Views (loaded on demand)
 const DashboardView = lazy(() => import('@/views/DashboardView'));
 const RabAhspView = lazy(() => import('@/views/RabAhspView'));
@@ -152,14 +156,48 @@ const comingSoonViews: { [key: string]: { name: string; features: string[] } } =
   // All views have been moved to viewComponents
 };
 
+// Error Boundary Fallback Component
+function ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-red-50 p-4">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Application Error</h2>
+        <p className="text-gray-700 mb-4">
+          An error occurred while loading the application. This has been reported to our team.
+        </p>
+        <details className="bg-gray-100 p-4 rounded mb-4 text-sm">
+          <summary className="font-medium cursor-pointer">Error details</summary>
+          <p className="mt-2 text-red-500">{error.message}</p>
+        </details>
+        <div className="flex gap-2">
+          <button
+            onClick={resetError}
+            className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+          >
+            Try Again
+          </button>
+          <button
+            onClick={() => (window.location.href = '/')}
+            className="flex-1 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   const { currentUser, loading: authLoading } = useAuth();
-  const { currentProject, loading: projectLoading, error, ...projectActions } = useProject();
+  const { currentProject, loading: projectLoading, error: projectError } = useProject();
   const { updatePresence } = useRealtimeCollaboration();
 
   // 🔒 Initialize session timeout hook
@@ -186,42 +224,58 @@ function AppContent() {
 
   // 🔒 Priority 2C: Initialize Sentry & GA4 on app start
   useEffect(() => {
-    // Initialize Sentry (Error Tracking)
-    initializeSentry();
-    console.log('[Sentry] Error tracking initialized');
+    try {
+      // Initialize Sentry (Error Tracking)
+      initializeSentry();
+      console.log('[Sentry] Error tracking initialized');
 
-    // Initialize Google Analytics 4
-    initializeGA4();
-    console.log('[GA4] Analytics initialized');
+      // Initialize Google Analytics 4
+      initializeGA4();
+      console.log('[GA4] Analytics initialized');
+    } catch (err) {
+      console.error('Failed to initialize monitoring services:', err);
+    }
   }, []);
 
   // 👤 Priority 2C: Set user context for Sentry & GA4
   useEffect(() => {
     if (currentUser) {
-      // Set Sentry user context
-      setSentryUser({
-        id: currentUser.id,
-        email: currentUser.email,
-        username: currentUser.name,
-        role: currentUser.roleId,
-      });
+      try {
+        // Set Sentry user context
+        setSentryUser({
+          id: currentUser.id,
+          email: currentUser.email,
+          username: currentUser.name,
+          role: currentUser.roleId,
+        });
 
-      // Set GA4 user ID
-      setGA4UserId(currentUser.id);
+        // Set GA4 user ID
+        setGA4UserId(currentUser.id);
 
-      console.log('[Monitoring] User context set:', currentUser.id);
+        console.log('[Monitoring] User context set:', currentUser.id);
+      } catch (err) {
+        console.error('Failed to set user context:', err);
+      }
     } else {
       // Clear user context on logout
-      clearSentryUser();
-      console.log('[Monitoring] User context cleared');
+      try {
+        clearSentryUser();
+        console.log('[Monitoring] User context cleared');
+      } catch (err) {
+        console.error('Failed to clear user context:', err);
+      }
     }
   }, [currentUser]);
 
   // 📊 Priority 2C: Track page views in GA4
   useEffect(() => {
     if (currentUser) {
-      trackPageView(`/${currentView}`, `NataCarePM - ${currentView}`);
-      console.log('[GA4] Page view tracked:', currentView);
+      try {
+        trackPageView(`/${currentView}`, `NataCarePM - ${currentView}`);
+        console.log('[GA4] Page view tracked:', currentView);
+      } catch (err) {
+        console.error('Failed to track page view:', err);
+      }
     }
   }, [currentView, currentUser]);
 
@@ -302,6 +356,26 @@ function AppContent() {
   // Initialize Route Preloading
   useRoutePreload(currentView, currentUser?.roleId);
 
+  // Error boundary reset function
+  const resetError = () => {
+    setHasError(false);
+    setError(null);
+  };
+
+  // Handle errors
+  useEffect(() => {
+    if (projectError) {
+      console.error('Project error:', projectError);
+      setError(projectError);
+      setHasError(true);
+    }
+  }, [projectError]);
+
+  // Show error boundary if there's an error
+  if (hasError && error) {
+    return <ErrorFallback error={error} resetError={resetError} />;
+  }
+
   if (authLoading && !currentUser) {
     return <EnterpriseAuthLoader />;
   }
@@ -310,18 +384,24 @@ function AppContent() {
     return <EnterpriseLoginView />;
   }
 
-  if (projectLoading || (!currentProject && !error)) {
+  if (projectLoading || (!currentProject && !projectError)) {
     return <EnterpriseProjectLoader />;
   }
 
-  if (error || !currentProject) {
+  if (projectError || !currentProject) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-red-50 text-red-700 p-4 text-center">
         <p className="font-bold text-lg mb-2">Gagal Memuat Aplikasi</p>
         <p>
-          {error?.message ||
+          {projectError?.message ||
             'Tidak dapat memuat data proyek yang diperlukan. Coba muat ulang halaman.'}
         </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Muat Ulang
+        </button>
       </div>
     );
   }
@@ -400,14 +480,14 @@ function AppContent() {
   // Safe view props with comprehensive null safety and error handling
   const getViewProps = (viewId: string): any => {
     const safeProject = (currentProject as any) || {};
-    const safeActions = (projectActions as any) || {};
+    const safeActions = {} as any; // Simplified for now
 
     // Common safe props for all views
     const commonProps = {
       project: currentProject,
       projectMetrics: projectMetrics,
       loading: projectLoading,
-      error: error,
+      error: projectError,
     };
 
     // View-specific props with comprehensive safety checks
@@ -420,21 +500,21 @@ function AppContent() {
         purchaseOrders: safeProject.purchaseOrders || [],
         users: safeProject.members || [],
         recentReports: safeProject.dailyReports?.slice(-5) || [],
-        notifications: safeActions.notifications || [],
-        updateAiInsight: safeActions.handleUpdateAiInsight || (() => {}),
+        notifications: [], // Will be populated by the view
+        updateAiInsight: () => console.log('AI Insight update feature coming soon'),
         onNavigate: handleNavigate,
       },
       enhanced_dashboard: {
         ...commonProps,
         projectMetrics: projectMetrics,
         recentReports: safeProject.dailyReports || [],
-        notifications: safeActions.notifications || [],
-        updateAiInsight: safeActions.handleUpdateAiInsight || (() => {}),
+        notifications: [],
+        updateAiInsight: () => console.log('AI Insight update feature coming soon'),
       },
       rab_ahsp: {
         ...commonProps,
         items: safeProject.items || [],
-        ahspData: safeActions.ahspData || [],
+        ahspData: {}, // Will be populated by the view
         projectLocation: safeProject.location || 'Jakarta',
       },
       jadwal: {
@@ -447,12 +527,9 @@ function AppContent() {
         ...commonProps,
         tasks: safeProject.tasks || [],
         users: safeProject.members || [],
-        onCreateTask:
-          safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
-        onUpdateTask:
-          safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
-        onDeleteTask:
-          safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon')),
+        onCreateTask: () => console.log('Create task feature coming soon'),
+        onUpdateTask: () => console.log('Update task feature coming soon'),
+        onDeleteTask: () => console.log('Delete task feature coming soon'),
       },
       task_list: {
         ...commonProps,
@@ -463,12 +540,9 @@ function AppContent() {
         ...commonProps,
         tasks: safeProject.tasks || [],
         users: safeProject.members || [],
-        onCreateTask:
-          safeActions.handleCreateTask || (() => console.log('Create task feature coming soon')),
-        onUpdateTask:
-          safeActions.handleUpdateTask || (() => console.log('Update task feature coming soon')),
-        onDeleteTask:
-          safeActions.handleDeleteTask || (() => console.log('Delete task feature coming soon')),
+        onCreateTask: () => console.log('Create task feature coming soon'),
+        onUpdateTask: () => console.log('Update task feature coming soon'),
+        onDeleteTask: () => console.log('Delete task feature coming soon'),
       },
       kanban_board: {
         ...commonProps,
@@ -484,30 +558,25 @@ function AppContent() {
       notifications: {
         ...commonProps,
         projectId: safeProject.id || '',
-        notifications: safeActions.notifications || [],
+        notifications: [],
       },
       laporan_harian: {
         ...commonProps,
         dailyReports: safeProject.dailyReports || [],
         rabItems: safeProject.items || [],
-        workers: safeActions.workers || [],
-        onAddReport:
-          safeActions.handleAddDailyReport || (() => console.log('Add report feature coming soon')),
+        workers: [],
+        onAddReport: () => console.log('Add report feature coming soon'),
       },
       progres: {
         ...commonProps,
         itemsWithProgress: itemsWithProgress || [],
-        onUpdateProgress:
-          safeActions.handleUpdateProgress ||
-          (() => console.log('Update progress feature coming soon')),
+        onUpdateProgress: () => console.log('Update progress feature coming soon'),
       },
       absensi: {
         ...commonProps,
         attendances: safeProject.attendances || [],
-        workers: safeActions.workers || [],
-        onUpdateAttendance:
-          safeActions.handleUpdateAttendance ||
-          (() => console.log('Update attendance feature coming soon')),
+        workers: [],
+        onUpdateAttendance: () => console.log('Update attendance feature coming soon'),
       },
       biaya_proyek: {
         ...commonProps,
@@ -529,11 +598,9 @@ function AppContent() {
         ...commonProps,
         purchaseOrders: safeProject.purchaseOrders || [],
         inventory: safeProject.inventory || [],
-        onUpdatePOStatus:
-          safeActions.handleUpdatePOStatus ||
-          (() => console.log('Update PO status feature coming soon')),
-        ahspData: safeActions.ahspData || [],
-        onAddPO: safeActions.handleAddPO || (() => console.log('Add PO feature coming soon')),
+        onUpdatePOStatus: () => console.log('Update PO status feature coming soon'),
+        ahspData: {},
+        onAddPO: () => console.log('Add PO feature coming soon'),
       },
       dokumen: {
         ...commonProps,
@@ -551,7 +618,7 @@ function AppContent() {
       },
       master_data: {
         ...commonProps,
-        workers: safeActions.workers || [],
+        workers: [],
         materials: safeProject.materials || [],
         equipment: safeProject.equipment || [],
       },
@@ -620,7 +687,17 @@ function AppContent() {
               {CurrentViewComponent ? (
                 <CurrentViewComponent {...viewProps} />
               ) : (
-                <div>View not found</div>
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <p className="text-gray-500">View component failed to load</p>
+                    <button
+                      onClick={() => handleNavigate('dashboard')}
+                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Go to Dashboard
+                    </button>
+                  </div>
+                </div>
               )}
             </Suspense>
           </EnterpriseErrorBoundary>
@@ -662,6 +739,55 @@ function AppContent() {
 function App() {
   const { currentUser, loading: authLoading } = useAuth();
 
+  // Error boundary state
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Error boundary reset function
+  const resetError = () => {
+    setHasError(false);
+    setError(null);
+  };
+
+  // Handle errors
+  useEffect(() => {
+    if (error) {
+      console.error('App error:', error);
+    }
+  }, [error]);
+
+  // Show error boundary if there's an error
+  if (hasError && error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-red-50 p-4">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Application Error</h2>
+          <p className="text-gray-700 mb-4">
+            An error occurred while initializing the application.
+          </p>
+          <details className="bg-gray-100 p-4 rounded mb-4 text-sm">
+            <summary className="font-medium cursor-pointer">Error details</summary>
+            <p className="mt-2 text-red-500">{error.message}</p>
+          </details>
+          <div className="flex gap-2">
+            <button
+              onClick={resetError}
+              className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => (window.location.href = '/')}
+              className="flex-1 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
+            >
+              Go Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (authLoading && !currentUser) {
     return (
       <div className="flex items-center justify-center h-screen bg-alabaster">
@@ -676,7 +802,13 @@ function App() {
 
   return (
     <RealtimeCollaborationProvider>
-      <AppContent />
+      <AuthProvider>
+        <ProjectProvider>
+          <EnterpriseErrorBoundary>
+            <AppContent />
+          </EnterpriseErrorBoundary>
+        </ProjectProvider>
+      </AuthProvider>
     </RealtimeCollaborationProvider>
   );
 }

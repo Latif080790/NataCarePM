@@ -6,21 +6,26 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { User } from '@/types';
+import { User as AppUser } from '@/types';
 import { auth } from '@/firebaseConfig';
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { rateLimiter } from '@/utils/rateLimiter';
 import { twoFactorService } from '@/api/twoFactorService';
+import { authService } from '@/services/authService';
 
 interface AuthContextType {
-  currentUser: User | null;
+  currentUser: AppUser | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   loading: boolean;
   requires2FA: boolean;
   pending2FAUserId: string | null;
   verify2FA: (code: string) => Promise<void>;
   cancel2FA: () => void;
+  error: string | null;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,7 +39,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [requires2FA, setRequires2FA] = useState(false);
   const [pending2FAUserId, setPending2FAUserId] = useState<string | null>(null);
@@ -42,20 +47,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     email: string;
     password: string;
   } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  // Clear error message
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setCurrentUser({
-          uid: user.uid,
-          id: user.uid,
-          email: user.email || '',
-          name: user.displayName || '',
-          roleId: 'user',
-          avatarUrl: user.photoURL || '',
-          isOnline: true,
-          permissions: [],
-        });
+        try {
+          const appUser = await authService.getCurrentUser();
+          if (appUser) {
+            setCurrentUser(appUser);
+          } else {
+            setCurrentUser({
+              uid: user.uid,
+              id: user.uid,
+              email: user.email || '',
+              name: user.displayName || '',
+              roleId: 'user',
+              avatarUrl: user.photoURL || '',
+              isOnline: true,
+              permissions: [],
+              lastSeen: new Date().toISOString(),
+            });
+          }
+        } catch (err) {
+          console.error('Error getting user data:', err);
+          setCurrentUser({
+            uid: user.uid,
+            id: user.uid,
+            email: user.email || '',
+            name: user.displayName || '',
+            roleId: 'user',
+            avatarUrl: user.photoURL || '',
+            isOnline: true,
+            permissions: [],
+            lastSeen: new Date().toISOString(),
+          });
+        }
       } else {
         setCurrentUser(null);
       }
@@ -65,71 +98,103 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, []);
 
+  // Enhanced login function
   const login = useCallback(async (email: string, password: string) => {
     try {
-      // Check rate limit BEFORE attempting login
-      const rateCheck = rateLimiter.checkLimit(email, 'login');
-
-      if (!rateCheck.allowed) {
-        throw new Error(rateCheck.message || 'Too many login attempts. Please try again later.');
-      }
-
+      setError(null);
       setLoading(true);
 
-      // Step 1: Authenticate with email/password
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const userId = userCredential.user.uid;
+      const response = await authService.login(email, password);
+      
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Login failed');
+      }
 
-      // Step 2: Check if 2FA is enabled for this user
-      const is2FAEnabled = await twoFactorService.isEnabled(userId);
-
-      if (is2FAEnabled) {
-        // 2FA is enabled - don't complete login yet, show 2FA verification
+      // Check if 2FA is required
+      if (response.data?.requires2FA) {
         setRequires2FA(true);
-        setPending2FAUserId(userId);
+        setPending2FAUserId(response.data.pending2FAUserId || null);
         setPendingCredentials({ email, password });
         setLoading(false);
-
-        // Sign out temporarily (will re-authenticate after 2FA verification)
-        await signOut(auth);
-        return; // Stop here, wait for 2FA verification
+        return;
       }
 
-      // No 2FA required - complete login normally
+      // Login successful, user will be set by auth state listener
       rateLimiter.reset(email, 'login');
+    } catch (err) {
       setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      if (error instanceof Error) {
-        throw new Error(`Login failed: ${error.message}`);
-      } else {
-        throw new Error('Login failed: Unknown error occurred');
-      }
+      const errorMessage = err instanceof Error ? err.message : 'Login failed: Unknown error occurred';
+      setError(errorMessage);
+      throw new Error(errorMessage);
     }
   }, []);
 
+  // Enhanced register function
+  const register = useCallback(async (email: string, password: string, name: string) => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      const response = await authService.register(email, password, name);
+      
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Registration failed');
+      }
+
+      // Registration successful, user will be set by auth state listener after email verification
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed: Unknown error occurred';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Enhanced password reset function
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      const response = await authService.resetPassword(email);
+      
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Password reset failed');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Password reset failed: Unknown error occurred';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // 2FA verification
   const verify2FA = useCallback(
     async (code: string) => {
       if (!pending2FAUserId || !pendingCredentials) {
-        throw new Error('No pending 2FA verification');
+        const errorMessage = 'No pending 2FA verification';
+        setError(errorMessage);
+        throw new Error(errorMessage);
       }
 
       try {
         setLoading(true);
+        setError(null);
 
         // Verify the 2FA code
         const isValid = await twoFactorService.verifyCode(pending2FAUserId, code);
 
         if (!isValid) {
-          throw new Error('Invalid 2FA code');
+          const errorMessage = 'Invalid 2FA code';
+          setError(errorMessage);
+          throw new Error(errorMessage);
         }
 
         // 2FA verified - complete the login
-        await signInWithEmailAndPassword(
-          auth,
-          pendingCredentials.email,
-          pendingCredentials.password
-        );
+        await authService.login(pendingCredentials.email, pendingCredentials.password);
 
         // Reset rate limit on success
         rateLimiter.reset(pendingCredentials.email, 'login');
@@ -138,32 +203,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setRequires2FA(false);
         setPending2FAUserId(null);
         setPendingCredentials(null);
+      } catch (err) {
         setLoading(false);
-      } catch (error) {
+        const errorMessage = err instanceof Error ? err.message : '2FA verification failed: Unknown error occurred';
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
         setLoading(false);
-        if (error instanceof Error) {
-          throw new Error(`2FA verification failed: ${error.message}`);
-        } else {
-          throw new Error('2FA verification failed: Unknown error occurred');
-        }
       }
     },
     [pending2FAUserId, pendingCredentials]
   );
 
+  // Cancel 2FA verification
   const cancel2FA = useCallback(() => {
     setRequires2FA(false);
     setPending2FAUserId(null);
     setPendingCredentials(null);
+    setError(null);
   }, []);
 
+  // Enhanced logout function
   const logout = useCallback(async () => {
     try {
+      setError(null);
+      setLoading(true);
+
+      const response = await authService.logout();
+      
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Logout failed');
+      }
+
       await signOut(auth);
       setCurrentUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Logout failed: Unknown error occurred';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -171,11 +250,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     currentUser,
     login,
     logout,
+    register,
+    resetPassword,
     loading,
     requires2FA,
     pending2FAUserId,
     verify2FA,
     cancel2FA,
+    error,
+    clearError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
