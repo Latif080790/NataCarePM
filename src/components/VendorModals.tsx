@@ -11,23 +11,8 @@
  * Created: October 2025
  */
 
-import React, { useState } from 'react';
-import {
-  X,
-  Plus,
-  Save,
-  Store,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  FileText,
-  DollarSign,
-  Award,
-  Ban,
-  AlertTriangle,
-  Star,
-} from 'lucide-react';
+import { useState, FormEvent } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input } from './FormControls';
@@ -39,16 +24,10 @@ import {
   VendorCategory,
   PaymentTerm,
   CreateVendorInput,
-  UpdateVendorInput,
   CreateEvaluationInput,
   CreateBlacklistInput,
 } from '@/types/vendor';
-import {
-  createVendor,
-  updateVendor,
-  createVendorEvaluation,
-  blacklistVendor,
-} from '@/api/vendorService';
+import { createVendor, createVendorEvaluation, blacklistVendor } from '@/api/vendorService';
 
 // ============================================================================
 // CREATE VENDOR MODAL
@@ -85,7 +64,7 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
 
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
 
@@ -153,7 +132,7 @@ export const CreateVendorModal: React.FC<CreateVendorModalProps> = ({
               <label>Business Type*</label>
               <select
                 value={formData.businessType}
-                onChange={(e) => setFormData({ ...formData, businessType: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, businessType: e.target.value as CreateVendorInput['businessType'] })}
                 required
               >
                 <option value="pt">PT (Perseroan Terbatas)</option>
@@ -461,7 +440,8 @@ export const EvaluateVendorModal: React.FC<EvaluateVendorModalProps> = ({
   const { currentProject } = useProject();
   const { addToast } = useToast();
 
-  const [scores, setScores] = useState({
+  type ScoreKeys = 'quality' | 'delivery' | 'price' | 'communication' | 'documentation' | 'compliance';
+  const [scores, setScores] = useState<Record<ScoreKeys, number>>({
     quality: 75,
     delivery: 75,
     price: 75,
@@ -477,7 +457,7 @@ export const EvaluateVendorModal: React.FC<EvaluateVendorModalProps> = ({
 
   const averageScore = Object.values(scores).reduce((a, b) => a + b, 0) / 6;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentUser || !currentProject) return;
 
@@ -515,7 +495,7 @@ export const EvaluateVendorModal: React.FC<EvaluateVendorModalProps> = ({
                 min="0"
                 max="100"
                 value={value}
-                onChange={(e) => setScores({ ...scores, [key]: parseInt(e.target.value) })}
+                onChange={(e) => setScores({ ...scores, [key as ScoreKeys]: parseInt(e.target.value) })}
               />
               <span className="score-value">{value}</span>
             </div>
@@ -594,15 +574,14 @@ export const BlacklistVendorModal: React.FC<BlacklistVendorModalProps> = ({
   const { addToast } = useToast();
 
   const [reason, setReason] = useState('');
-  const [category, setCategory] = useState<
-    'quality' | 'fraud' | 'non_compliance' | 'financial' | 'ethical' | 'other'
-  >('quality');
+  type BlacklistCategory = 'quality' | 'fraud' | 'non_compliance' | 'financial' | 'ethical' | 'other';
+  const [category, setCategory] = useState<BlacklistCategory>('quality');
   const [severity, setSeverity] = useState<'warning' | 'temporary' | 'permanent'>('temporary');
   const [effectiveFrom, setEffectiveFrom] = useState(new Date().toISOString().split('T')[0]);
   const [effectiveUntil, setEffectiveUntil] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
 
@@ -654,7 +633,7 @@ export const BlacklistVendorModal: React.FC<BlacklistVendorModalProps> = ({
         <div className="form-grid">
           <div className="form-group">
             <label>Category*</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value as any)} required>
+            <select value={category} onChange={(e) => setCategory(e.target.value as BlacklistCategory)} required>
               <option value="quality">Quality Issues</option>
               <option value="fraud">Fraud</option>
               <option value="non_compliance">Non-Compliance</option>
@@ -666,7 +645,7 @@ export const BlacklistVendorModal: React.FC<BlacklistVendorModalProps> = ({
 
           <div className="form-group">
             <label>Severity*</label>
-            <select value={severity} onChange={(e) => setSeverity(e.target.value as any)} required>
+            <select value={severity} onChange={(e) => setSeverity(e.target.value as 'warning' | 'temporary' | 'permanent')} required>
               <option value="warning">Warning (Can be reviewed)</option>
               <option value="temporary">Temporary (Time-limited)</option>
               <option value="permanent">Permanent (Indefinite)</option>

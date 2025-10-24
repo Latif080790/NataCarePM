@@ -7,13 +7,8 @@
 
 import {
   collection,
-  doc,
   getDocs,
   query,
-  where,
-  orderBy,
-  Timestamp,
-  getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type {
@@ -42,7 +37,7 @@ class ExecutiveService {
     projectId?: string,
     customDateRange?: { start: Date; end: Date }
   ): Promise<ExecutiveDashboardData> {
-    const dateRange = this.getDateRange(timeFrame, customDateRange);
+  // const dateRange = this.getDateRange(timeFrame, customDateRange);
 
     // Fetch all data in parallel for performance
     const [
@@ -56,15 +51,15 @@ class ExecutiveService {
       productivity,
       alerts,
     ] = await Promise.all([
-      this.calculateKPIs(dateRange, projectId),
-      this.getPortfolioSummary(dateRange, projectId),
-      this.getFinancialOverview(dateRange, projectId),
-      this.getSchedulePerformance(dateRange, projectId),
-      this.getResourceUtilization(dateRange, projectId),
-      this.getQualitySafetySummary(dateRange, projectId),
-      this.getRiskSummary(dateRange, projectId),
-      this.getProductivityMetrics(dateRange, projectId),
-      this.getExecutiveAlerts(projectId),
+      this.calculateKPIs(),
+      this.getPortfolioSummary(),
+      this.getFinancialOverview(),
+      this.getSchedulePerformance(),
+      this.getResourceUtilization(),
+      this.getQualitySafetySummary(),
+      this.getRiskSummary(),
+      this.getProductivityMetrics(),
+      this.getExecutiveAlerts(),
     ]);
 
     return {
@@ -88,16 +83,13 @@ class ExecutiveService {
   /**
    * Calculate key performance indicators
    */
-  private async calculateKPIs(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<ExecutiveKPI[]> {
+  private async calculateKPIs(): Promise<ExecutiveKPI[]> {
     const [financial, schedule, quality, safety, productivity] = await Promise.all([
-      this.getFinancialOverview(dateRange, projectId),
-      this.getSchedulePerformance(dateRange, projectId),
-      this.getQualitySafetySummary(dateRange, projectId),
-      this.getQualitySafetySummary(dateRange, projectId),
-      this.getProductivityMetrics(dateRange, projectId),
+      this.getFinancialOverview(),
+      this.getSchedulePerformance(),
+      this.getQualitySafetySummary(),
+      this.getQualitySafetySummary(),
+      this.getProductivityMetrics(),
     ]);
 
     const kpis: ExecutiveKPI[] = [
@@ -296,19 +288,23 @@ class ExecutiveService {
   /**
    * Get project portfolio summary
    */
-  private async getPortfolioSummary(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<ProjectPortfolioSummary> {
-    const projectsQuery = projectId
-      ? query(collection(db, 'projects'), where('id', '==', projectId))
-      : query(collection(db, 'projects'));
+  private async getPortfolioSummary(): Promise<ProjectPortfolioSummary> {
+    const projectsQuery = query(collection(db, 'projects'));
 
-    const snapshot = await getDocs(projectsQuery);
-    const projects = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Project[];
+    let projects: Project[] = [];
+    try {
+      const snapshot = await getDocs(projectsQuery);
+      projects = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Project[];
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      if (error instanceof Error) {
+        throw new Error(`Error fetching projects: ${error.message}`);
+      }
+      throw error;
+    }
 
     // Calculate project values from RAB items
     const getProjectValue = (p: Project) => {
@@ -415,10 +411,7 @@ class ExecutiveService {
   /**
    * Get financial overview
    */
-  private async getFinancialOverview(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<FinancialOverview> {
+  private async getFinancialOverview(): Promise<FinancialOverview> {
     // This would aggregate from actual financial data
     // Simplified implementation for demonstration
 
@@ -463,10 +456,7 @@ class ExecutiveService {
   /**
    * Get schedule performance
    */
-  private async getSchedulePerformance(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<SchedulePerformance> {
+  private async getSchedulePerformance(): Promise<SchedulePerformance> {
     // Simplified implementation
     const totalTasks = 1250;
     const completedTasks = 780;
@@ -521,10 +511,7 @@ class ExecutiveService {
   /**
    * Get resource utilization summary
    */
-  private async getResourceUtilization(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<ResourceUtilizationSummary> {
+  private async getResourceUtilization(): Promise<ResourceUtilizationSummary> {
     return {
       totalResources: 450,
       activeResources: 385,
@@ -574,10 +561,7 @@ class ExecutiveService {
   /**
    * Get quality and safety summary
    */
-  private async getQualitySafetySummary(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<QualitySafetySummary> {
+  private async getQualitySafetySummary(): Promise<QualitySafetySummary> {
     return {
       quality: {
         inspections: {
@@ -620,10 +604,7 @@ class ExecutiveService {
   /**
    * Get risk dashboard summary
    */
-  private async getRiskSummary(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<RiskDashboardSummary> {
+  private async getRiskSummary(): Promise<RiskDashboardSummary> {
     return {
       totalRisks: 45,
       activeRisks: 28,
@@ -670,10 +651,7 @@ class ExecutiveService {
   /**
    * Get productivity metrics
    */
-  private async getProductivityMetrics(
-    dateRange: { start: Date; end: Date },
-    projectId?: string
-  ): Promise<ProductivityMetrics> {
+  private async getProductivityMetrics(): Promise<ProductivityMetrics> {
     const earnedValue = 3500000;
     const plannedValue = 3800000;
     const actualCost = 3200000;
@@ -705,7 +683,7 @@ class ExecutiveService {
   /**
    * Get executive alerts
    */
-  private async getExecutiveAlerts(projectId?: string): Promise<ExecutiveAlert[]> {
+  private async getExecutiveAlerts(): Promise<ExecutiveAlert[]> {
     // This would come from actual monitoring systems
     return [
       {
@@ -751,37 +729,7 @@ class ExecutiveService {
   /**
    * Helper: Get date range for time frame
    */
-  private getDateRange(
-    timeFrame: TimeFrame,
-    customDateRange?: { start: Date; end: Date }
-  ): { start: Date; end: Date } {
-    if (timeFrame === 'custom' && customDateRange) {
-      return customDateRange;
-    }
-
-    const end = new Date();
-    const start = new Date();
-
-    switch (timeFrame) {
-      case 'today':
-        start.setHours(0, 0, 0, 0);
-        break;
-      case 'week':
-        start.setDate(start.getDate() - 7);
-        break;
-      case 'month':
-        start.setMonth(start.getMonth() - 1);
-        break;
-      case 'quarter':
-        start.setMonth(start.getMonth() - 3);
-        break;
-      case 'year':
-        start.setFullYear(start.getFullYear() - 1);
-        break;
-    }
-
-    return { start, end };
-  }
+  // Removed unused getDateRange method
 
   /**
    * Helper: Determine KPI trend

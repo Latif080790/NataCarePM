@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
@@ -7,20 +7,12 @@ import {
   Plus,
   Edit,
   Eye,
-  Copy,
   Trash2,
-  Download,
-  Upload,
   Zap,
-  Settings,
   Tag,
-  Calendar,
-  Users,
+  
   CheckCircle,
-  AlertTriangle,
-  Info,
   Search,
-  Filter,
   SortAsc,
   SortDesc,
   RefreshCw,
@@ -29,7 +21,6 @@ import {
   FileSpreadsheet,
   FileCode,
   Star,
-  Share,
   Lock,
   Unlock,
 } from 'lucide-react';
@@ -87,7 +78,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
     isPublic: false,
     tags: [],
   });
-  const [generateData, setGenerateData] = useState<Record<string, any>>({});
+  const [generateData, setGenerateData] = useState<Record<string, string | boolean | number | undefined>>({});
 
   // Load templates
   useEffect(() => {
@@ -166,11 +157,38 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
     setFilteredTemplates(filtered);
   };
 
+  // Reset form
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      category: 'other',
+      content: '',
+      variables: [],
+      isPublic: false,
+      tags: [],
+    });
+    setSelectedTemplate(null);
+  };
+
+  // Populate form with template data
+  const populateForm = (template: DocumentTemplate) => {
+    setFormData({
+      name: template.name,
+      description: template.description,
+      category: template.category,
+      content: template.content || '',
+      variables: template.variables || [],
+      isPublic: template.isPublic ?? false,
+      tags: template.tags || [],
+    });
+  };
+
   // Handle template creation
   const handleCreateTemplate = async () => {
     setIsLoading(true);
     try {
-      const newTemplate = smartTemplatesEngine.createTemplate({
+      await smartTemplatesEngine.createTemplate({
         name: formData.name,
         description: formData.description,
         category: formData.category,
@@ -225,7 +243,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
 
     setIsLoading(true);
     try {
-      smartTemplatesEngine.updateTemplate(selectedTemplate.id, {
+      await smartTemplatesEngine.updateTemplate(selectedTemplate.id, {
         name: formData.name,
         description: formData.description,
         category: formData.category,
@@ -288,36 +306,9 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
     }
   };
 
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      category: 'other',
-      content: '',
-      variables: [],
-      isPublic: false,
-      tags: [],
-    });
-    setSelectedTemplate(null);
-  };
-
-  // Populate form with template data
-  const populateForm = (template: DocumentTemplate) => {
-    setFormData({
-      name: template.name,
-      description: template.description,
-      category: template.category,
-      content: template.content,
-      variables: template.variables,
-      isPublic: template.isPublic,
-      tags: template.tags,
-    });
-  };
-
   // Get template icon
   const getTemplateIcon = (category: DocumentCategory) => {
-    const icons = {
+  const icons: Record<string, ReactElement> = {
       contract: <FileText className="w-5 h-5 text-red-500" />,
       specification: <BookOpen className="w-5 h-5 text-blue-500" />,
       drawing: <FileImage className="w-5 h-5 text-green-500" />,
@@ -330,12 +321,12 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
       policy: <FileCode className="w-5 h-5 text-gray-500" />,
       other: <FileText className="w-5 h-5 text-gray-500" />,
     };
-    return icons[category] || icons.other;
+    return icons[category as string] || icons.other;
   };
 
   // Get category color
   const getCategoryColor = (category: DocumentCategory) => {
-    const colors = {
+  const colors: Record<string, string> = {
       contract: 'bg-red-100 text-red-800',
       specification: 'bg-blue-100 text-blue-800',
       drawing: 'bg-green-100 text-green-800',
@@ -348,7 +339,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
       policy: 'bg-gray-100 text-gray-800',
       other: 'bg-slate-100 text-slate-800',
     };
-    return colors[category] || colors.other;
+    return colors[category as string] || colors.other;
   };
 
   // Add variable to form
@@ -377,7 +368,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
   };
 
   // Update variable
-  const updateVariable = (index: number, field: keyof TemplateVariable, value: any) => {
+  const updateVariable = (index: number, field: keyof TemplateVariable, value: string | number | boolean) => {
     setFormData((prev) => ({
       ...prev,
       variables: prev.variables.map((variable, i) =>
@@ -478,17 +469,17 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
         </div>
 
         {/* Variables */}
-        {template.variables.length > 0 && (
+        {(template.variables ?? []).length > 0 && (
           <div className="mb-3">
-            <div className="text-xs text-gray-500 mb-1">{template.variables.length} variables</div>
+            <div className="text-xs text-gray-500 mb-1">{(template.variables ?? []).length} variables</div>
             <div className="flex flex-wrap gap-1">
-              {template.variables.slice(0, 3).map((variable, index) => (
+              {(template.variables ?? []).slice(0, 3).map((variable, index) => (
                 <span key={index} className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-700">
                   {variable.name}
                 </span>
               ))}
-              {template.variables.length > 3 && (
-                <span className="text-xs text-gray-500">+{template.variables.length - 3}</span>
+              {(template.variables ?? []).length > 3 && (
+                <span className="text-xs text-gray-500">+{(template.variables ?? []).length - 3}</span>
               )}
             </div>
           </div>
@@ -862,7 +853,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
               <div className="space-y-4">
                 <p className="text-gray-600 mb-4">{selectedTemplate.description}</p>
 
-                {selectedTemplate.variables.map((variable) => (
+                    {(selectedTemplate.variables ?? []).map((variable) => (
                   <div key={variable.name}>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {variable.name}
@@ -965,11 +956,11 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                   </pre>
                 </div>
 
-                {selectedTemplate.variables.length > 0 && (
+                {(selectedTemplate.variables ?? []).length > 0 && (
                   <div>
                     <h4 className="font-medium text-gray-900 mb-2">Variables:</h4>
                     <div className="grid gap-2 md:grid-cols-2">
-                      {selectedTemplate.variables.map((variable) => (
+                      {(selectedTemplate.variables ?? []).map((variable) => (
                         <div key={variable.name} className="text-sm">
                           <span className="font-medium">{variable.name}</span>
                           <span className="text-gray-500 ml-2">({variable.type})</span>

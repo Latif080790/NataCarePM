@@ -17,11 +17,7 @@ import {
   query,
   where,
   orderBy,
-  limit,
-  startAfter,
   Timestamp,
-  writeBatch,
-  increment,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type {
@@ -29,22 +25,15 @@ import type {
   ResourceAllocation,
   ResourceUtilization,
   ResourceConflict,
-  ResourceForecast,
-  CapacityPlan,
-  ResourceCostSummary,
-  OptimizationSuggestion,
-  ResourcePerformance,
   MaintenanceRecord,
   ResourceFilterOptions,
   ResourceStatistics,
-  ResourceType,
-  ResourceStatus,
 } from '@/types/resource.types';
 
 // Collection references
 const RESOURCES_COLLECTION = 'resources';
 const ALLOCATIONS_COLLECTION = 'resourceAllocations';
-const UTILIZATION_COLLECTION = 'resourceUtilization';
+// const UTILIZATION_COLLECTION = 'resourceUtilization';
 const MAINTENANCE_COLLECTION = 'resourceMaintenance';
 
 /**
@@ -75,7 +64,10 @@ class ResourceService {
       };
     } catch (error) {
       console.error('[ResourceService] Error creating resource:', error);
-      throw new Error(`Failed to create resource: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to create resource: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -105,7 +97,10 @@ class ResourceService {
       } as Resource;
     } catch (error) {
       console.error('[ResourceService] Error getting resource:', error);
-      throw new Error(`Failed to get resource: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get resource: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -187,7 +182,10 @@ class ResourceService {
       return filtered;
     } catch (error) {
       console.error('[ResourceService] Error getting resources:', error);
-      throw new Error(`Failed to get resources: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get resources: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -210,7 +208,10 @@ class ResourceService {
       await updateDoc(docRef, updateData);
     } catch (error) {
       console.error('[ResourceService] Error updating resource:', error);
-      throw new Error(`Failed to update resource: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to update resource: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -232,7 +233,10 @@ class ResourceService {
       await deleteDoc(docRef);
     } catch (error) {
       console.error('[ResourceService] Error deleting resource:', error);
-      throw new Error(`Failed to delete resource: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to delete resource: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -280,7 +284,10 @@ class ResourceService {
       };
     } catch (error) {
       console.error('[ResourceService] Error creating allocation:', error);
-      throw new Error(`Failed to create allocation: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to create allocation: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -320,7 +327,10 @@ class ResourceService {
       });
     } catch (error) {
       console.error('[ResourceService] Error getting allocations:', error);
-      throw new Error(`Failed to get allocations: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get allocations: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -353,7 +363,10 @@ class ResourceService {
       await updateDoc(docRef, updateData);
     } catch (error) {
       console.error('[ResourceService] Error updating allocation:', error);
-      throw new Error(`Failed to update allocation: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to update allocation: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -412,7 +425,10 @@ class ResourceService {
       return conflicts;
     } catch (error) {
       console.error('[ResourceService] Error checking conflicts:', error);
-      throw new Error(`Failed to check conflicts: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to check conflicts: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -480,7 +496,10 @@ class ResourceService {
       };
     } catch (error) {
       console.error('[ResourceService] Error calculating utilization:', error);
-      throw new Error(`Failed to calculate utilization: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to calculate utilization: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -554,7 +573,10 @@ class ResourceService {
       return stats;
     } catch (error) {
       console.error('[ResourceService] Error getting statistics:', error);
-      throw new Error(`Failed to get statistics: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get statistics: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -581,7 +603,10 @@ class ResourceService {
       };
     } catch (error) {
       console.error('[ResourceService] Error creating maintenance record:', error);
-      throw new Error(`Failed to create maintenance record: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to create maintenance record: ${error.message}`);
+      }
+      throw error;
     }
   }
 
@@ -611,7 +636,10 @@ class ResourceService {
       });
     } catch (error) {
       console.error('[ResourceService] Error getting maintenance records:', error);
-      throw new Error(`Failed to get maintenance records: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get maintenance records: ${error.message}`);
+      }
+      throw error;
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -11,21 +11,14 @@ import {
   AlertTriangle,
   Send,
   Eye,
-  Download,
   RefreshCw,
-  Calendar,
   Mail,
   User,
-  FileText,
-  Shield,
   Plus,
   X,
-  Info,
   ChevronRight,
   ChevronDown,
   Zap,
-  History,
-  AlertCircle,
 } from 'lucide-react';
 
 import {
@@ -203,7 +196,11 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
     ]);
   };
 
-  const updateSigner = (index: number, field: keyof SignerData, value: any) => {
+  const updateSigner = (
+    index: number,
+    field: keyof SignerData,
+    value: string | number | boolean
+  ) => {
     setSigners((prev) =>
       prev.map((signer, i) => (i === index ? { ...signer, [field]: value } : signer))
     );

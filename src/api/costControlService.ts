@@ -1,11 +1,8 @@
 import {
   collection,
-  doc,
-  getDoc,
   getDocs,
   query,
   where,
-  orderBy,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
@@ -19,9 +16,6 @@ import {
   CashFlowProjection,
   CashFlowSummary,
   VarianceAnalysis,
-  CostCategory,
-  CostCategoryTotal,
-  ModuleCostSummary,
   ForecastData,
   CostControlFilters,
   CostAlert,
@@ -39,10 +33,10 @@ export const getCostControlSummary = async (
   try {
     // Aggregate data from all modules
     const [wbsData, financeData, logisticsData, inventoryData, progressData] = await Promise.all([
-      aggregateWBSCosts(projectId, filters),
-      aggregateFinanceCosts(projectId, filters),
-      aggregateLogisticsCosts(projectId, filters),
-      aggregateInventoryCosts(projectId, filters),
+      aggregateWBSCosts(projectId),
+      aggregateFinanceCosts(projectId),
+      aggregateLogisticsCosts(projectId),
+      aggregateInventoryCosts(projectId),
       getProgressData(projectId),
     ]);
 
@@ -61,10 +55,10 @@ export const getCostControlSummary = async (
     const costBreakdown = calculateCostBreakdown(financeData, logisticsData, inventoryData);
 
     // Calculate trend analysis
-    const trendAnalysis = await calculateTrendAnalysis(projectId, filters);
+  const trendAnalysis = await calculateTrendAnalysis(projectId);
 
     // Calculate cash flow
-    const cashFlowSummary = await calculateCashFlow(projectId, filters);
+  const cashFlowSummary = await calculateCashFlow(projectId);
 
     // Calculate variance analysis
     const varianceAnalysis = calculateVarianceAnalysis(wbsData, evmMetrics);
@@ -96,6 +90,9 @@ export const getCostControlSummary = async (
     };
   } catch (error) {
     console.error('Error generating cost control summary:', error);
+    if (error instanceof Error) {
+      throw new Error(`Error generating cost control summary: ${error.message}`);
+    }
     throw error;
   }
 };
@@ -117,8 +114,7 @@ interface WBSCostData {
 }
 
 const aggregateWBSCosts = async (
-  projectId: string,
-  filters?: CostControlFilters
+  projectId: string
 ): Promise<WBSCostData[]> => {
   const wbsQuery = query(collection(db, 'wbs'), where('projectId', '==', projectId));
 
@@ -147,8 +143,7 @@ interface FinanceCostData {
 }
 
 const aggregateFinanceCosts = async (
-  projectId: string,
-  filters?: CostControlFilters
+  projectId: string
 ): Promise<FinanceCostData> => {
   // Aggregate from journal entries
   const journalQuery = query(
@@ -195,8 +190,7 @@ const aggregateFinanceCosts = async (
 };
 
 const aggregateLogisticsCosts = async (
-  projectId: string,
-  filters?: CostControlFilters
+  projectId: string
 ): Promise<{ totalCost: number; itemCount: number }> => {
   const grQuery = query(
     collection(db, 'goodsReceipts'),
@@ -220,8 +214,7 @@ const aggregateLogisticsCosts = async (
 };
 
 const aggregateInventoryCosts = async (
-  projectId: string,
-  filters?: CostControlFilters
+  projectId: string
 ): Promise<{ totalValue: number; transactionCount: number }> => {
   const transactionQuery = query(
     collection(db, 'inventoryTransactions'),
@@ -415,8 +408,7 @@ const calculateCostBreakdown = (
 // ============================================================================
 
 const calculateTrendAnalysis = async (
-  projectId: string,
-  filters?: CostControlFilters
+  projectId: string
 ): Promise<TrendAnalysis> => {
   // Get historical EVM data (mock for now - would come from historical records)
   const dataPoints: TrendData[] = [];
@@ -496,8 +488,7 @@ const calculateTrendAnalysis = async (
 // ============================================================================
 
 const calculateCashFlow = async (
-  projectId: string,
-  filters?: CostControlFilters
+  projectId: string
 ): Promise<CashFlowSummary> => {
   const projections: CashFlowProjection[] = [];
 
@@ -826,6 +817,9 @@ export const getWBSBudgetStatus = async (
     };
   } catch (error) {
     console.error('Error getting WBS budget status:', error);
+    if (error instanceof Error) {
+      throw new Error(`Error getting WBS budget status: ${error.message}`);
+    }
     return null;
   }
 };
