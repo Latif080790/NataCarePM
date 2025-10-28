@@ -217,7 +217,7 @@
 
 #### Test Execution Results
 
-```bash
+```
 PASS __tests__/unit/projectService.test.ts
 PASS __tests__/unit/taskService.test.ts
 PASS __tests__/unit/purchaseOrderService.test.ts

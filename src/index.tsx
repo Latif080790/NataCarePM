@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import { AIResourceProvider } from '@/contexts/AIResourceContext';
 import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
-import EnterpriseErrorBoundary from '@/components/EnterpriseErrorBoundary';
+import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { registerServiceWorker } from '@/utils/pwa';
 
 const container = document.getElementById('root');
@@ -14,7 +14,7 @@ if (container) {
   const root = createRoot(container);
   root.render(
     <React.StrictMode>
-      <EnterpriseErrorBoundary>
+      <EnhancedErrorBoundary>
         <ToastProvider>
           <AuthProvider>
             <ProjectProvider>
@@ -26,7 +26,7 @@ if (container) {
             </ProjectProvider>
           </AuthProvider>
         </ToastProvider>
-      </EnterpriseErrorBoundary>
+      </EnhancedErrorBoundary>
     </React.StrictMode>
   );
 } else {

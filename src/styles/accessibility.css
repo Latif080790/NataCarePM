@@ -1,0 +1,215 @@
+/* Accessibility Styles */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only.focusable:active,
+.sr-only.focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus indicators for keyboard navigation */
+:focus {
+  outline: 2px solid #4A90E2;
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --border-color: #000000;
+  --focus-color: #0000ff;
+}
+
+.high-contrast body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.high-contrast * {
+  border-color: var(--border-color) !important;
+}
+
+.high-contrast a {
+  color: #0000ff;
+  text-decoration: underline;
+}
+
+.high-contrast a:hover,
+.high-contrast a:focus {
+  background-color: #ffff00;
+  color: #000000;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .animate-spin {
+    animation: none;
+  }
+  
+  .transition {
+    transition: none !important;
+  }
+  
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* Keyboard navigation focus styles */
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #4A90E2;
+  outline-offset: 2px;
+}
+
+/* Focus visible utility */
+.focus-visible {
+  outline: 2px solid #4A90E2;
+  outline-offset: 2px;
+}
+
+/* Skip link styles */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #4A90E2;
+  color: white;
+  padding: 8px;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* ARIA live regions */
+[aria-live="polite"] {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[aria-live="assertive"] {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Landmark roles */
+[role="banner"] {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[role="main"] {
+  min-height: calc(100vh - 100px);
+}
+
+[role="navigation"] {
+  border-right: 1px solid #e2e8f0;
+}
+
+[role="complementary"] {
+  background-color: #f8fafc;
+}
+
+[role="contentinfo"] {
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Form accessibility */
+input[aria-invalid="true"] {
+  border-color: #ef4444;
+}
+
+input[aria-describedby] {
+  margin-bottom: 0.5rem;
+}
+
+/* Labels and descriptions */
+.label-required::after {
+  content: " *";
+  color: #ef4444;
+}
+
+/* Disabled state accessibility */
+[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Contrast ratios for WCAG compliance */
+.text-contrast-high {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.text-contrast-medium {
+  color: #333333;
+  background-color: #ffffff;
+}
+
+/* Focus management for modals */
+.dialog-focus-trap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Accessible error messages */
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Accessible success messages */
+.success-message {
+  color: #10b981;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

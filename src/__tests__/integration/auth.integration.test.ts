@@ -387,7 +387,7 @@ describe('Authentication Integration Tests', () => {
       const password = 'wrongpassword';
       
       // Simulate multiple failed attempts
-      (rateLimiter.checkLimit as jest.Mock).mockReturnValueOnce({
+      (rateLimiter.checkLimit as ReturnType<typeof vi.fn>).mockReturnValueOnce({
         allowed: false,
         message: 'Account temporarily locked due to multiple failed attempts',
       });

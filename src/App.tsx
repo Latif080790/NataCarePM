@@ -7,9 +7,10 @@ import LiveCursors from '@/components/LiveCursors';
 import OnlineUsersDisplay from '@/components/OnlineUsersDisplay';
 import FallbackView from '@/components/FallbackView';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
-import EnterpriseErrorBoundary from '@/components/EnterpriseErrorBoundary';
+import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { NavigationDebug } from '@/components/NavigationDebug';
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
+import { SkipLink } from '@/components/SkipLink';
 
 // Priority 2C: Monitoring & Analytics initialization
 import { initializeSentry, setSentryUser, clearSentryUser } from '@/config/sentry.config';
@@ -80,6 +81,7 @@ import { useProjectCalculations } from '@/hooks/useProjectCalculations';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { useActivityTracker } from '@/hooks/useMonitoring';
 import { Spinner } from '@/components/Spinner';
+import { useAccessibility } from '@/hooks/useAccessibility';
 import Header from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -196,6 +198,9 @@ function AppContent() {
   const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
   const [hasError, setHasError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // Accessibility features
+  const { announceToScreenReader } = useAccessibility();
 
   const { currentUser, loading: authLoading } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
@@ -646,6 +651,7 @@ function AppContent() {
 
   return (
     <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
+      <SkipLink />
       {/* Desktop Sidebar - Hidden on mobile */}
       <div className="hidden md:block">
         <Sidebar
@@ -678,7 +684,7 @@ function AppContent() {
             </div>
           )}
 
-          <EnterpriseErrorBoundary>
+          <EnhancedErrorBoundary>
             <Suspense
               fallback={
                 <div className="flex items-center justify-center h-full">
@@ -705,7 +711,7 @@ function AppContent() {
                 </div>
               )}
             </Suspense>
-          </EnterpriseErrorBoundary>
+          </EnhancedErrorBoundary>
         </div>
       </main>
       <Suspense fallback={null}>
@@ -809,9 +815,9 @@ function App() {
     <RealtimeCollaborationProvider>
       <AuthProvider>
         <ProjectProvider>
-          <EnterpriseErrorBoundary>
+          <EnhancedErrorBoundary>
             <AppContent />
-          </EnterpriseErrorBoundary>
+          </EnhancedErrorBoundary>
         </ProjectProvider>
       </AuthProvider>
     </RealtimeCollaborationProvider>

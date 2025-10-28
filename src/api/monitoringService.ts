@@ -20,6 +20,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { logger } from '@/utils/logger.enhanced';
 
 // ============================================
 // ENHANCED TYPES & INTERFACES
@@ -295,12 +296,12 @@ export class MonitoringService {
     window.addEventListener('online', () => {
       this.isOnline = true;
       this.processRetryQueue();
-      console.log('🌐 Network connection restored');
+      logger.info('Network connection restored');
     });
 
     window.addEventListener('offline', () => {
       this.isOnline = false;
-      console.log('🌐 Network connection lost');
+      logger.info('Network connection lost');
     });
   }
 
@@ -614,7 +615,7 @@ export class MonitoringService {
 
     this.isProcessingQueue = true;
 
-    console.log(`🔄 Processing ${this.retryQueue.length} queued operations`);
+    logger.info(`Processing ${this.retryQueue.length} queued operations`);
 
     const operations = [...this.retryQueue];
     this.retryQueue = [];
@@ -1339,7 +1340,7 @@ export class MonitoringService {
     }
 
     this.startTime = Date.now();
-    console.log('🔍 Starting enhanced system monitoring...');
+    logger.info('Starting enhanced system monitoring...');
 
     // Collect metrics immediately
     this.collectSystemMetrics();
@@ -1363,7 +1364,7 @@ export class MonitoringService {
       clearInterval(this.metricsInterval);
       this.metricsInterval = null;
       this.startTime = null;
-      console.log('🔍 Monitoring stopped');
+      logger.info('Monitoring stopped');
     }
   }
 
