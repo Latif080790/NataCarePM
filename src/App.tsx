@@ -23,6 +23,7 @@ import EnterpriseLoginView from '@/views/EnterpriseLoginView';
 // Context providers
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
+import { MessageProvider } from '@/contexts/MessageContext';
 
 // Lazy-loaded Views (loaded on demand)
 const DashboardView = lazy(() => import('@/views/DashboardView'));
@@ -104,6 +105,7 @@ const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
 const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
+const ChatView = lazy(() => import('@/views/ChatView'));
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
@@ -155,6 +157,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   ai_resource_optimization: AIResourceOptimizationView,
   predictive_analytics: PredictiveAnalyticsView,
   advanced_analytics: AdvancedAnalyticsView,
+  chat: ChatView,
 };
 
 // Views that show fallback "coming soon" page
@@ -334,6 +337,21 @@ function AppContent() {
       });
     }
   };
+
+  // Handle navigation events from custom events (like chat icon click)
+  useEffect(() => {
+    const handleNavigateToView = (event: CustomEvent) => {
+      const viewId = event.detail;
+      if (viewId && typeof viewId === 'string') {
+        handleNavigate(viewId);
+      }
+    };
+
+    window.addEventListener('navigateToView', handleNavigateToView as EventListener);
+    return () => {
+      window.removeEventListener('navigateToView', handleNavigateToView as EventListener);
+    };
+  }, [handleNavigate]);
 
   const itemsWithProgress = useMemo(() => {
     if (!currentProject?.items || !currentProject?.dailyReports) return [];
@@ -820,9 +838,11 @@ function App() {
       <AuthProvider>
         <ProjectProvider>
           <IntegrationProvider>
-            <EnhancedErrorBoundary>
-              <AppContent />
-            </EnhancedErrorBoundary>
+            <MessageProvider>
+              <EnhancedErrorBoundary>
+                <AppContent />
+              </EnhancedErrorBoundary>
+            </MessageProvider>
           </IntegrationProvider>
         </ProjectProvider>
       </AuthProvider>

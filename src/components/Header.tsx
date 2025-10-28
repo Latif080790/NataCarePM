@@ -3,13 +3,14 @@ import { useProject } from '@/contexts/ProjectContext';
 import { Select } from './FormControls';
 import { LogOut } from 'lucide-react';
 import LiveActivityFeed from './LiveActivityFeed';
+import ChatIcon from './ChatIcon';
 
 interface HeaderProps {
   isSidebarCollapsed: boolean;
   children?: React.ReactNode;
 }
 
-export default function Header({ children }: HeaderProps) {
+export default function Header({ children, isSidebarCollapsed }: HeaderProps) {
   const { currentUser, logout } = useAuth();
   const { workspaces, currentProject, setCurrentProjectId, loading } = useProject();
 
@@ -59,6 +60,12 @@ export default function Header({ children }: HeaderProps) {
 
       <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
         {children}
+        
+        {/* Chat Icon */}
+        <ChatIcon onClick={() => {
+          // Dispatch a custom event to navigate to chat view
+          window.dispatchEvent(new CustomEvent('navigateToView', { detail: 'chat' }));
+        }} />
 
         {/* Enhanced Live Activity Feed */}
         <div className="hidden xl:block">

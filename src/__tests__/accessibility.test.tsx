@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { useAccessibility, ScreenReaderOnly, FocusableDiv } from '@/hooks/useAccessibility';
+import { useAccessibility, ScreenReaderOnly, FocusableDiv } from '@/hooks/useAccessibility.tsx';
 import { SkipLink } from '@/components/SkipLink';
+import { vi } from 'vitest';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -27,15 +28,15 @@ Object.defineProperty(window, 'localStorage', {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 
@@ -62,7 +63,7 @@ describe('Accessibility Features', () => {
       expect(hookResult.announcements).toEqual([]);
     });
 
-    it('should toggle high contrast mode', () => {
+    it('should toggle high contrast mode', async () => {
       let hookResult: any;
       
       const TestComponent: React.FC = () => {
@@ -78,6 +79,9 @@ describe('Accessibility Features', () => {
       // Toggle high contrast
       hookResult.toggleHighContrast();
       
+      // Wait for state update
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
       // Should now have high contrast class
       expect(document.documentElement.classList.contains('high-contrast')).toBe(true);
       expect(hookResult.isHighContrast).toBe(true);
@@ -85,12 +89,15 @@ describe('Accessibility Features', () => {
       // Toggle again
       hookResult.toggleHighContrast();
       
+      // Wait for state update
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
       // Should not have high contrast class
       expect(document.documentElement.classList.contains('high-contrast')).toBe(false);
       expect(hookResult.isHighContrast).toBe(false);
     });
 
-    it('should announce messages to screen readers', () => {
+    it('should announce messages to screen readers', async () => {
       let hookResult: any;
       
       const TestComponent: React.FC = () => {
@@ -100,8 +107,17 @@ describe('Accessibility Features', () => {
       
       render(<TestComponent />);
       
+      // Remove any existing announcer to avoid conflicts
+      const existingAnnouncer = document.getElementById('accessibility-announcer');
+      if (existingAnnouncer) {
+        existingAnnouncer.remove();
+      }
+      
       // Announce a message
       hookResult.announceToScreenReader('Test message');
+      
+      // Wait for state update
+      await new Promise(resolve => setTimeout(resolve, 0));
       
       // Should have added to announcements array
       expect(hookResult.announcements).toContain('Test message');
@@ -112,7 +128,7 @@ describe('Accessibility Features', () => {
       expect(liveRegion?.textContent).toBe('Test message');
     });
 
-    it('should focus elements by ID', () => {
+    it('should focus elements by ID', async () => {
       let hookResult: any;
       
       const TestComponent: React.FC = () => {
@@ -128,6 +144,9 @@ describe('Accessibility Features', () => {
       
       // Focus the element
       hookResult.focusElement('test-button');
+      
+      // Wait for state update
+      await new Promise(resolve => setTimeout(resolve, 0));
       
       // Should have focused the element
       expect(document.activeElement?.id).toBe('test-button');
@@ -145,7 +164,7 @@ describe('Accessibility Features', () => {
       
       const element = screen.getByText('Screen reader content');
       expect(element).toBeTruthy();
-      expect(element.className).toContain('sr-only');
+      expect(element.parentElement?.className).toContain('sr-only');
     });
   });
 
