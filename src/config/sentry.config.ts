@@ -12,6 +12,7 @@
  */
 
 import * as Sentry from '@sentry/react';
+import { logger } from '@/utils/logger';
 
 /**
  * Sentry Configuration Interface
@@ -52,10 +53,10 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
 
   // Skip initialization if disabled or no DSN provided
   if (!finalConfig.enabled || !finalConfig.dsn) {
-    console.log(
-      '[Sentry] Initialization skipped:',
-      !finalConfig.enabled ? 'Disabled' : 'No DSN provided'
-    );
+    logger.info('Sentry initialization skipped', {
+      reason: !finalConfig.enabled ? 'Disabled' : 'No DSN provided',
+      config: finalConfig
+    });
     return;
   }
 
@@ -94,7 +95,7 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
     beforeSend(event, hint) {
       // Filter out development errors
       if (finalConfig.environment === 'development') {
-        console.log('[Sentry] Event captured:', event);
+        logger.debug('Sentry event captured', { event });
       }
 
       // Don't send events for network errors in development
@@ -137,7 +138,7 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
     ],
   });
 
-  console.log('[Sentry] Initialized successfully:', {
+  logger.info('Sentry initialized successfully', {
     environment: finalConfig.environment,
     tracesSampleRate: finalConfig.tracesSampleRate,
   });

@@ -91,6 +91,7 @@ import { monitoringService } from '@/api/monitoringService';
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
 import { useRoutePreload } from '@/hooks/useRoutePreload';
+import { logger } from '@/utils/logger.enhanced';
 
 // Lazy-loaded heavy components
 const CommandPalette = lazy(() =>
@@ -211,11 +212,15 @@ function AppContent() {
   // 📊 Initialize monitoring service
   useEffect(() => {
     if (currentUser) {
-      console.log('🔍 Starting system monitoring...');
+      logger.info('System monitoring started', {
+        userId: currentUser.id,
+        interval: 60000,
+      });
       monitoringService.startMonitoring(60000); // 1 minute interval
 
       return () => {
         monitoringService.stopMonitoring();
+        logger.info('System monitoring stopped');
       };
     }
 
@@ -227,13 +232,13 @@ function AppContent() {
     try {
       // Initialize Sentry (Error Tracking)
       initializeSentry();
-      console.log('[Sentry] Error tracking initialized');
+      logger.info('Sentry error tracking initialized');
 
       // Initialize Google Analytics 4
       initializeGA4();
-      console.log('[GA4] Analytics initialized');
+      logger.info('Google Analytics 4 initialized');
     } catch (err) {
-      console.error('Failed to initialize monitoring services:', err);
+      logger.error('Failed to initialize monitoring services', err instanceof Error ? err : new Error(String(err)));
     }
   }, []);
 
@@ -252,17 +257,17 @@ function AppContent() {
         // Set GA4 user ID
         setGA4UserId(currentUser.id);
 
-        console.log('[Monitoring] User context set:', currentUser.id);
+        logger.info('User context set for monitoring', { userId: currentUser.id });
       } catch (err) {
-        console.error('Failed to set user context:', err);
+        logger.error('Failed to set user context', err instanceof Error ? err : new Error(String(err)));
       }
     } else {
       // Clear user context on logout
       try {
         clearSentryUser();
-        console.log('[Monitoring] User context cleared');
+        logger.debug('User context cleared');
       } catch (err) {
-        console.error('Failed to clear user context:', err);
+        logger.error('Failed to clear user context', err instanceof Error ? err : new Error(String(err)));
       }
     }
   }, [currentUser]);
@@ -272,9 +277,9 @@ function AppContent() {
     if (currentUser) {
       try {
         trackPageView(`/${currentView}`, `NataCarePM - ${currentView}`);
-        console.log('[GA4] Page view tracked:', currentView);
+        logger.debug('Page view tracked', { view: currentView });
       } catch (err) {
-        console.error('Failed to track page view:', err);
+        logger.error('Failed to track page view', err instanceof Error ? err : new Error(String(err)), { view: currentView });
       }
     }
   }, [currentView, currentUser]);
@@ -284,7 +289,7 @@ function AppContent() {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         setShowDebug((prev) => !prev);
-        console.log('🐛 Debug panel:', !showDebug ? 'ON' : 'OFF');
+        logger.debug('Debug panel toggled', { enabled: !showDebug });
       }
     };
 
@@ -293,9 +298,10 @@ function AppContent() {
   }, [showDebug]);
 
   const handleNavigate = (viewId: string) => {
-    console.log('🔄 Navigation attempt:', viewId);
-    console.log('📋 Available views:', Object.keys(viewComponents));
-    console.log('✅ View exists:', viewComponents[viewId] ? 'YES' : 'NO');
+    logger.debug('Navigation attempt', {
+      viewId,
+      viewExists: !!viewComponents[viewId],
+    });
 
     if (viewComponents[viewId]) {
       setIsNavigating(true);
@@ -304,7 +310,7 @@ function AppContent() {
       setTimeout(() => {
         setCurrentView(viewId);
         setIsNavigating(false);
-        console.log('✨ Navigated to:', viewId);
+        logger.info('Navigation completed', { viewId });
       }, 150);
 
       // Update presence when navigating to different views
@@ -313,11 +319,10 @@ function AppContent() {
       // 📊 Track navigation activity
       trackActivity('navigate', 'view', viewId, true);
     } else {
-      console.error('❌ View not found:', viewId);
-      console.log(
-        '💡 Did you mean one of these?',
-        Object.keys(viewComponents).filter((v) => v.includes(viewId.split('_')[0]))
-      );
+      logger.warn('View not found', {
+        viewId,
+        suggestions: Object.keys(viewComponents).filter((v) => v.includes(viewId.split('_')[0])),
+      });
     }
   };
 
@@ -341,7 +346,7 @@ function AppContent() {
   // Initialize Failover Manager
   useEffect(() => {
     failoverManager.initialize().catch((error) => {
-      console.error('Failover manager initialization failed:', error);
+      logger.error('Failover manager initialization failed', error);
     });
 
     // Start health monitoring (every 60 seconds)
@@ -365,7 +370,7 @@ function AppContent() {
   // Handle errors
   useEffect(() => {
     if (projectError) {
-      console.error('Project error:', projectError);
+      logger.error('Project loading error', projectError);
       setError(projectError);
       setHasError(true);
     }

@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react()],
 
   test: {
+    typecheck: {
+      tsconfig: './tsconfig.test.json',
+    },
     // Test environment
     environment: 'happy-dom',
 
@@ -61,13 +64,13 @@ export default defineConfig({
     hookTimeout: 10000,
 
     // Reporter
-    reporter: ['verbose', 'html'],
+    reporters: ['verbose', 'html'],
 
     // Watch mode
     watch: false,
 
     // Threads
-    threads: true,
+    pool: 'threads',
 
     // Silent mode (set to false for debugging)
     silent: false,

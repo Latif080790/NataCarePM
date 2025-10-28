@@ -25,6 +25,7 @@ import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 import { getTodayDateString } from '@/constants';
 import { GoogleGenAI } from '@google/genai';
+import { logger } from '@/utils/logger.enhanced';
 
 interface ProjectContextType {
   workspaces: Workspace[];
@@ -98,16 +99,16 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
         ]);
 
         // Extract data from APIResponse wrapper
-        const workspacesData = wsRes.success ? wsRes.data : [];
-        const ahspData = ahspRes.success ? ahspRes.data : ({} as AhspData);
-        const workersData = workersRes.success ? workersRes.data : [];
+        const workspacesData: Workspace[] = wsRes.success ? wsRes.data || [] : [];
+        const ahspData: AhspData | null = ahspRes.success ? ahspRes.data || ({} as AhspData) : null;
+        const workersData: Worker[] = workersRes.success ? workersRes.data || [] : [];
 
         setWorkspaces(workspacesData);
         setAhspData(ahspData);
         setWorkers(workersData);
 
         // Now workspacesData is an array, we can use flatMap
-        const allProjectIds = workspacesData.flatMap((ws) => ws.projects.map((p) => p.id));
+        const allProjectIds = workspacesData.flatMap((ws) => ws.projects?.map((p) => p.id) || []);
         const lastProjectId = localStorage.getItem('lastProjectId');
 
         const projectIdToLoad =
@@ -308,7 +309,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       setCurrentProject((prev) => (prev ? { ...prev, aiInsight: newInsight } : null));
       addToast('AI Insight berhasil diperbarui.', 'success');
     } catch (e) {
-      console.error('Error generating AI insight:', e);
+      logger.error('Error generating AI insight', e instanceof Error ? e : new Error(String(e)));
       addToast('Gagal menghasilkan insight dari AI.', 'error');
     }
   }, [currentProject, getProjectContextForAI, addToast]);

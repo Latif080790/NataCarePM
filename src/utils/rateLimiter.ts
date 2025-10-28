@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import { logger } from '@/utils/logger.enhanced';
 
 /**
  * Rate Limit Configuration
@@ -116,7 +117,7 @@ class RateLimiter {
     const config = this.configs.get(type);
 
     if (!config) {
-      console.warn(`Rate limit config not found for type: ${type}. Allowing by default.`);
+      logger.warn('Rate limit config not found', { type, action: 'allowing by default' });
       return {
         allowed: true,
         remainingAttempts: Infinity,
@@ -301,7 +302,7 @@ class RateLimiter {
     }
 
     if (cleaned > 0) {
-      console.log(`[RateLimiter] Cleaned up ${cleaned} expired entries`);
+      logger.debug('Rate limiter cleanup completed', { cleanedEntries: cleaned });
     }
   }
 
@@ -334,7 +335,7 @@ class RateLimiter {
    */
   clear(): void {
     this.storage.clear();
-    console.warn('[RateLimiter] All entries cleared');
+    logger.warn('Rate limiter entries cleared');
   }
 
   /**

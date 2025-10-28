@@ -13,6 +13,7 @@
 
 import ReactGA from 'react-ga4';
 import { onCLS, onFID, onFCP, onLCP, onTTFB, Metric } from 'web-vitals';
+import { logger } from '@/utils/logger';
 
 /**
  * GA4 Configuration Interface
@@ -43,10 +44,10 @@ export function initializeGA4(config: Partial<GA4Config> = {}): void {
 
   // Skip initialization if disabled or no measurement ID
   if (!finalConfig.enabled || !finalConfig.measurementId) {
-    console.log(
-      '[GA4] Initialization skipped:',
-      !finalConfig.enabled ? 'Disabled' : 'No Measurement ID provided'
-    );
+    logger.info('GA4 initialization skipped', {
+      reason: !finalConfig.enabled ? 'Disabled' : 'No Measurement ID provided',
+      config: finalConfig
+    });
     return;
   }
 
@@ -59,7 +60,7 @@ export function initializeGA4(config: Partial<GA4Config> = {}): void {
     },
   });
 
-  console.log('[GA4] Initialized successfully:', {
+  logger.info('GA4 initialized successfully', {
     measurementId: finalConfig.measurementId,
     debug: finalConfig.debug,
   });
@@ -83,7 +84,7 @@ export function trackPageView(path?: string, title?: string): void {
     title: pageTitle,
   });
 
-  console.log('[GA4] Page view tracked:', { page, title: pageTitle });
+  logger.debug('GA4 page view tracked', { page, title: pageTitle });
 }
 
 /**
@@ -97,7 +98,7 @@ export function trackEvent(category: string, action: string, label?: string, val
     value,
   });
 
-  console.log('[GA4] Event tracked:', { category, action, label, value });
+  logger.debug('GA4 event tracked', { category, action, label, value });
 }
 
 /**
@@ -108,7 +109,7 @@ export function trackLogin(method: string): void {
     method,
   });
 
-  console.log('[GA4] Login tracked:', { method });
+  logger.debug('GA4 login tracked', { method });
 }
 
 /**
@@ -119,7 +120,7 @@ export function trackSignup(method: string): void {
     method,
   });
 
-  console.log('[GA4] Signup tracked:', { method });
+  logger.debug('GA4 signup tracked', { method });
 }
 
 /**
@@ -130,7 +131,7 @@ export function trackSearch(searchTerm: string): void {
     search_term: searchTerm,
   });
 
-  console.log('[GA4] Search tracked:', { searchTerm });
+  logger.debug('GA4 search tracked', { searchTerm });
 }
 
 /**
@@ -138,7 +139,7 @@ export function trackSearch(searchTerm: string): void {
  */
 export function setGA4UserId(userId: string): void {
   ReactGA.set({ user_id: userId });
-  console.log('[GA4] User ID set:', userId);
+  logger.debug('GA4 user ID set', { userId });
 }
 
 /**
@@ -146,7 +147,7 @@ export function setGA4UserId(userId: string): void {
  */
 export function setGA4UserProperties(properties: Record<string, any>): void {
   ReactGA.set(properties);
-  console.log('[GA4] User properties set:', properties);
+  logger.debug('GA4 user properties set', properties);
 }
 
 /**
@@ -285,7 +286,7 @@ function trackWebVitals(): void {
       non_interaction: true,
     });
 
-    console.log('[GA4] Web Vital tracked:', {
+    logger.debug('GA4 web vital tracked', {
       name,
       value: Math.round(name === 'CLS' ? value * 1000 : value),
       id,
@@ -317,7 +318,7 @@ export function trackException(description: string, fatal: boolean = false): voi
     fatal,
   });
 
-  console.log('[GA4] Exception tracked:', { description, fatal });
+  logger.debug('GA4 exception tracked', { description, fatal });
 }
 
 /**
@@ -336,7 +337,7 @@ export function trackTiming(
     event_label: label,
   });
 
-  console.log('[GA4] Timing tracked:', { category, variable, value, label });
+  logger.debug('GA4 timing tracked', { category, variable, value, label });
 }
 
 export default {

@@ -1,0 +1,88 @@
+{
+  "general": {
+    "proxy": {
+      "port": 8080
+    },
+    "api": {
+      "enabled": true,
+      "key": "changeme",
+      "secure": false
+    }
+  },
+  "spider": {
+    "maxDepth": 5,
+    "maxDuration": 10
+  },
+  "ajaxSpider": {
+    "enabled": true,
+    "maxDuration": 30,
+    "maxCrawlState": 1000
+  },
+  "activeScan": {
+    "policy": "Default Policy",
+    "maxRuleDuration": 0,
+    "maxScanDuration": 0,
+    "maxResults": 10000,
+    "attackMode": false,
+    "addQueryParam": false
+  },
+  "contexts": [
+    {
+      "name": "NataCarePM",
+      "urls": [
+        "http://localhost:5173/"
+      ],
+      "excludePaths": [
+        ".*\\.(gif|jpg|png|ico|css|js|woff|woff2|ttf|eot|svg)(\\?.*)?$"
+      ],
+      "users": [
+        {
+          "name": "testUser",
+          "credentials": {
+            "username": "test@example.com",
+            "password": "TestPassword123!"
+          }
+        }
+      ]
+    }
+  ],
+  "authentication": {
+    "method": "formBasedAuthentication",
+    "parameters": {
+      "loginUrl": "http://localhost:5173/login",
+      "loginRequestData": "email={%username%}&password={%password%}"
+    },
+    "verification": {
+      "method": "responseCode",
+      "loggedOutRegex": "401|403|302",
+      "pollFrequency": 60,
+      "pollUnits": "requests",
+      "pollUrl": "http://localhost:5173/dashboard",
+      "pollPostData": ""
+    }
+  },
+  "authorization": {
+    "type": "basic",
+    "basic": {
+      "header": "Authorization: Basic dGVzdDp0ZXN0"
+    }
+  },
+  "reports": [
+    {
+      "name": "NataCarePM Security Report",
+      "template": "traditional-html",
+      "theme": "light",
+      "reportDir": "./security-reports/",
+      "reportFileName": "natacarepm-security-report.html",
+      "reportTitle": "NataCarePM OWASP ZAP Security Report",
+      "reportDescription": "Security testing report for NataCarePM application",
+      "displayReport": true
+    },
+    {
+      "name": "NataCarePM JSON Report",
+      "template": "traditional-json",
+      "reportDir": "./security-reports/",
+      "reportFileName": "natacarepm-security-report.json"
+    }
+  ]
+}

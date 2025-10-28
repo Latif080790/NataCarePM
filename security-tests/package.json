@@ -1,0 +1,43 @@
+{
+  "name": "natacarepm-security-tests",
+  "version": "1.0.0",
+  "description": "Security testing suite for NataCarePM application",
+  "main": "security-suite.js",
+  "scripts": {
+    "test": "node security-suite.js",
+    "test:dependency": "node dependency-scan.js",
+    "test:injection": "node injection-test.js",
+    "test:auth": "node auth-test.js",
+    "test:all": "node security-suite.js",
+    "report": "node security-suite.js && echo 'Security report generated in security-reports/'"
+  },
+  "keywords": [
+    "security",
+    "owasp",
+    "testing",
+    "vulnerability",
+    "scan"
+  ],
+  "author": "NataCarePM Security Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "jsonwebtoken": "^9.0.0"
+  },
+  "devDependencies": {
+    "owasp-dependency-check": "^10.0.0",
+    "snyk": "^1.1267.0",
+    "nyc": "^15.1.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/natacarepm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/natacarepm/issues"
+  },
+  "homepage": "https://github.com/your-org/natacarepm#readme"
+}

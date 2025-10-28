@@ -12,6 +12,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { rateLimiter } from '@/utils/rateLimiter';
 import { twoFactorService } from '@/api/twoFactorService';
 import { authService } from '@/services/authService';
+import { logger } from '@/utils/logger.enhanced';
 
 interface AuthContextType {
   currentUser: AppUser | null;
@@ -76,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
           }
         } catch (err) {
-          console.error('Error getting user data:', err);
+          logger.error('Error getting user data', err instanceof Error ? err : new Error(String(err)));
           setCurrentUser({
             uid: user.uid,
             id: user.uid,

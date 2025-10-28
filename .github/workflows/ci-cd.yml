@@ -1,0 +1,219 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Code Quality Checks
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linting
+      run: npm run lint
+    
+    - name: Run type checking
+      run: npm run type-check
+    
+    - name: Security audit
+      run: npm audit --audit-level high
+
+  # Unit Testing
+  test:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run unit tests
+      run: npm run test:coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+    
+    - name: Check coverage thresholds
+      run: |
+        # Check if coverage meets minimum requirements
+        if [ -f "coverage/coverage-summary.json" ]; then
+          lines=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+          functions=$(jq '.total.functions.pct' coverage/coverage-summary.json)
+          branches=$(jq '.total.branches.pct' coverage/coverage-summary.json)
+          
+          if (( $(echo "$lines < 80" | bc -l) )) || (( $(echo "$functions < 80" | bc -l) )) || (( $(echo "$branches < 80" | bc -l) )); then
+            echo "Coverage below threshold: Lines: $lines%, Functions: $functions%, Branches: $branches%"
+            exit 1
+          fi
+        fi
+
+  # Build Application
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Check bundle size
+      run: |
+        # Check if dist folder exists and get size
+        if [ -d "dist" ]; then
+          size=$(du -sh dist | cut -f1)
+          echo "Build size: $size"
+          
+          # Set threshold (e.g., 10MB)
+          # You can adjust this based on your requirements
+          max_size=10240  # 10MB in KB
+          actual_size=$(du -sk dist | cut -f1)
+          
+          if [ "$actual_size" -gt "$max_size" ]; then
+            echo "Build size ($actual_size KB) exceeds threshold ($max_size KB)"
+            exit 1
+          fi
+        fi
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+
+  # Deploy to Staging (on push to develop)
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+    
+    - name: Deploy to Firebase Staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your staging deployment commands here
+        # npm run deploy:staging
+
+  # Deploy to Production (on push to main with manual approval)
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+    
+    - name: Deploy to Firebase Production
+      run: |
+        echo "Deploying to production environment..."
+        # Add your production deployment commands here
+        # npm run deploy:production
+
+  # Performance Testing (nightly or on demand)
+  performance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install k6
+      run: |
+        curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-amd64.tar.gz -L | tar xz
+        sudo cp k6-v0.45.0-linux-amd64/k6 /usr/local/bin/
+    
+    - name: Run performance tests
+      run: |
+        # Run your performance tests here
+        # k6 run performance-tests.js
+
+  # Security Scanning
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        command: test
+        args: --severity-threshold=high
+
+  # Automated Release
+  release:
+    runs-on: ubuntu-latest
+    needs: [quality, test, build]
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false

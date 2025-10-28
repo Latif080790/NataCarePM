@@ -67,12 +67,7 @@ export class MemoryManager {
 
       // Check for memory threshold
       if (stats.memoryUsagePercent > this.memoryThreshold * 100) {
-        console.warn('⚠️ High memory usage detected:', {
-          usagePercent: stats.memoryUsagePercent.toFixed(2) + '%',
-          usedMB: (stats.usedJSHeapSize / (1024 * 1024)).toFixed(2) + 'MB',
-          limitMB: (stats.jsHeapSizeLimit / (1024 * 1024)).toFixed(2) + 'MB',
-        });
-
+        // High memory usage detected - log and trigger GC
         this.triggerGarbageCollection();
       }
     }, this.checkInterval);
@@ -101,7 +96,6 @@ export class MemoryManager {
   triggerGarbageCollection(): void {
     if ((window as any).gc) {
       (window as any).gc();
-      console.log('🗑️ Garbage collection triggered');
     }
   }
 
@@ -189,7 +183,7 @@ export class PerformanceMonitor {
       fidObserver.observe({ entryTypes: ['first-input'] });
       this.observers.push(fidObserver);
     } catch (error) {
-      console.warn('Performance observers not supported:', error);
+      // Performance observers not supported in this environment
     }
   }
 

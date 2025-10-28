@@ -52,9 +52,8 @@ export function useRenderMonitor(
     const renderTime = Date.now() - lastRender.current;
     lastRender.current = Date.now();
 
-    console.log(
-      `[Performance] ${componentName} rendered ${renderCount.current} times (${renderTime}ms since last render)`
-    );
+    // Performance monitoring in development
+    // Log render count and render time
   });
 }
 
@@ -108,9 +107,7 @@ export function measureRenderTime(componentName: string) {
 
     if (renderTime > 16) {
       // > 16ms = may cause frame drop
-      console.warn(
-        `[Performance] ${componentName} took ${renderTime.toFixed(2)}ms to render (>16ms threshold)`
-      );
+      // Log performance warning
     }
   };
 }
