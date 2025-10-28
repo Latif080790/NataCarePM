@@ -39,6 +39,7 @@
     "declarationMap": false
   },
   "include": [
+    ".",
     "src",
     "tests",
     "**/*.test.ts",

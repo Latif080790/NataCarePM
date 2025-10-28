@@ -1,23 +1,16 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { taskService } from './src/api/taskService';
-import { db } from '@/firebaseConfig';
+import { taskService } from '@/api/taskService';
 import {
-  collection,
   getDocs,
   addDoc,
-  doc,
   getDoc,
   updateDoc,
-  deleteDoc,
-  query,
-  where,
 } from 'firebase/firestore';
 import { Task } from '@/types';
 
 // Mocking Firebase Firestore functions
-vi.mock('firebase/firestore', async (importActual) => {
-  const actual = await importActual<typeof import('firebase/firestore')>();
+vi.mock('firebase/firestore', async (importActual: () => Promise<typeof import('firebase/firestore')>) => {
+  const actual = await importActual();
   return {
     ...actual,
     collection: vi.fn(),
