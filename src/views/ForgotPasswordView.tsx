@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (using automatic JSX runtime)
 import { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';

@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (using automatic JSX runtime)
 import { useState } from 'react';
 import { RabItem, AhspData, EnhancedRabItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';

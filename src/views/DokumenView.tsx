@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (using automatic JSX runtime)
 import { useState, useMemo } from 'react';
 import { Document as DocumentType } from '@/types';
 import { DocumentWithVersions } from '@/types/components';

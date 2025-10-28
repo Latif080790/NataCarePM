@@ -37,8 +37,6 @@ class ExecutiveService {
     projectId?: string,
     customDateRange?: { start: Date; end: Date }
   ): Promise<ExecutiveDashboardData> {
-  // const dateRange = this.getDateRange(timeFrame, customDateRange);
-
     // Fetch all data in parallel for performance
     const [
       kpis,
@@ -84,10 +82,9 @@ class ExecutiveService {
    * Calculate key performance indicators
    */
   private async calculateKPIs(): Promise<ExecutiveKPI[]> {
-    const [financial, schedule, quality, safety, productivity] = await Promise.all([
+    const [financial, schedule, quality, productivity] = await Promise.all([
       this.getFinancialOverview(),
       this.getSchedulePerformance(),
-      this.getQualitySafetySummary(),
       this.getQualitySafetySummary(),
       this.getProductivityMetrics(),
     ]);
@@ -726,10 +723,6 @@ class ExecutiveService {
     ];
   }
 
-  /**
-   * Helper: Get date range for time frame
-   */
-  // Removed unused getDateRange method
 
   /**
    * Helper: Determine KPI trend

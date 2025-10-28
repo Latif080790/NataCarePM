@@ -1,4 +1,4 @@
-import React from 'react';
+// React default import removed (using automatic JSX runtime)
 import { useState, useEffect, useMemo } from 'react';
 import { Project, ProjectMetrics, Notification, AiInsight } from '@/types';
 import { StatCard } from '@/components/StatCard';

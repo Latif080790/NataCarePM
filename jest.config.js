@@ -3,13 +3,14 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
   preset: 'ts-jest/presets/default-esm',
   globals: {
     'ts-jest': {
-      tsconfig: 'tsconfig.test.json',
-    },
+      useESM: true,
+      tsconfig: 'tsconfig.test.json'
+    }
   },
   testMatch: ['<rootDir>/**/__tests__/**/*.(ts|tsx)', '<rootDir>/**/*.(test|spec).(ts|tsx)'],
   collectCoverageFrom: [
