@@ -172,7 +172,7 @@ describe('Authentication Integration Tests', () => {
       });
 
       // Mock 2FA enabled for this user
-      (twoFactorService.isEnabled as jest.Mock).mockResolvedValueOnce(true);
+      (twoFactorService.isEnabled as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true);
 
       // Act
       const result = await authService.login(email, password);
@@ -213,7 +213,7 @@ describe('Authentication Integration Tests', () => {
       const password = 'password123';
       
       // Mock rate limiter to block
-      (rateLimiter.checkLimit as jest.Mock).mockReturnValueOnce({
+      (rateLimiter.checkLimit as ReturnType<typeof vi.fn>).mockReturnValueOnce({
         allowed: false,
         message: 'Too many attempts. Please try again later.',
       });
@@ -358,7 +358,7 @@ describe('Authentication Integration Tests', () => {
       const code = '123456';
       
       // Mock successful 2FA verification
-      (twoFactorService.verifyCode as jest.Mock).mockResolvedValueOnce(true);
+      (twoFactorService.verifyCode as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true);
 
       // Act & Assert
       await expect(twoFactorService.verifyCode(userId, code)).resolves.toBe(true);
@@ -373,7 +373,7 @@ describe('Authentication Integration Tests', () => {
       const invalidCode = '000000';
       
       // Mock failed 2FA verification
-      (twoFactorService.verifyCode as jest.Mock).mockResolvedValueOnce(false);
+      (twoFactorService.verifyCode as ReturnType<typeof vi.fn>).mockResolvedValueOnce(false);
 
       // Act & Assert
       await expect(twoFactorService.verifyCode(userId, invalidCode)).resolves.toBe(false);
