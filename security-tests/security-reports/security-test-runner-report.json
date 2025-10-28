@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-10-28T16:29:02.636Z",
+  "summary": {
+    "totalTests": 5,
+    "passed": 3,
+    "failed": 2
+  },
+  "details": {
+    "Security Tests": true,
+    "Unit Tests": false,
+    "Integration Tests": false,
+    "Dependency Scan": true,
+    "Firestore Rules Tests": true
+  }
+}

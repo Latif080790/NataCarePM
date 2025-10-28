@@ -1,0 +1,807 @@
+{
+  "timestamp": "2025-10-28T10:50:57.748Z",
+  "target": "http://localhost:5173",
+  "owaspCoverage": [
+    "A01:2021-Broken Access Control",
+    "A02:2021-Cryptographic Failures",
+    "A03:2021-Injection",
+    "A04:2021-Insecure Design",
+    "A05:2021-Security Misconfiguration",
+    "A06:2021-Vulnerable and Outdated Components",
+    "A07:2021-Identification and Authentication Failures",
+    "A08:2021-Software and Data Integrity Failures",
+    "A09:2021-Security Logging and Monitoring Failures",
+    "A10:2021-Server-Side Request Forgery",
+    "Enhanced Rate Limiting",
+    "Advanced Input Validation",
+    "Security Middleware"
+  ],
+  "summary": {
+    "totalVulnerabilities": 71,
+    "critical": 1,
+    "high": 31,
+    "medium": 4,
+    "low": 0,
+    "info": 10
+  },
+  "details": {
+    "dependencyVulnerabilities": {
+      "timestamp": "2025-10-28T10:50:57.651Z",
+      "summary": {
+        "totalVulnerabilities": 5,
+        "critical": 0,
+        "high": 1,
+        "medium": 4,
+        "low": 0
+      },
+      "details": {
+        "npmAudit": {
+          "error": {
+            "code": "ENOLOCK",
+            "summary": "This command requires an existing lockfile.",
+            "detail": "Try creating one first with: npm i --package-lock-only\nOriginal error: loadVirtual requires existing shrinkwrap file"
+          }
+        },
+        "outdatedPackages": {
+          "axios": {
+            "wanted": "1.13.0",
+            "latest": "1.13.0",
+            "dependent": "security-tests"
+          },
+          "jsonwebtoken": {
+            "wanted": "9.0.2",
+            "latest": "9.0.2",
+            "dependent": "security-tests"
+          }
+        },
+        "vulnerablePackages": [],
+        "misconfigurations": [
+          {
+            "issue": "Missing environment variable: FIREBASE_API_KEY",
+            "severity": "MEDIUM",
+            "recommendation": "Set FIREBASE_API_KEY in your environment configuration",
+            "owaspCategory": "A05:2021-Security Misconfiguration"
+          },
+          {
+            "issue": "Missing environment variable: FIREBASE_AUTH_DOMAIN",
+            "severity": "MEDIUM",
+            "recommendation": "Set FIREBASE_AUTH_DOMAIN in your environment configuration",
+            "owaspCategory": "A05:2021-Security Misconfiguration"
+          },
+          {
+            "issue": "Missing environment variable: FIREBASE_PROJECT_ID",
+            "severity": "MEDIUM",
+            "recommendation": "Set FIREBASE_PROJECT_ID in your environment configuration",
+            "owaspCategory": "A05:2021-Security Misconfiguration"
+          },
+          {
+            "issue": "Missing environment variable: SENTRY_DSN",
+            "severity": "MEDIUM",
+            "recommendation": "Set SENTRY_DSN in your environment configuration",
+            "owaspCategory": "A05:2021-Security Misconfiguration"
+          },
+          {
+            "issue": "Firebase configuration file not found or invalid",
+            "severity": "HIGH",
+            "recommendation": "Ensure Firebase is properly configured",
+            "owaspCategory": "A05:2021-Security Misconfiguration"
+          }
+        ]
+      }
+    },
+    "injectionVulnerabilities": {
+      "timestamp": "2025-10-28T10:50:57.730Z",
+      "summary": {
+        "totalVulnerabilities": 65,
+        "sqlInjection": 35,
+        "xss": 30,
+        "brokenAccess": 0
+      },
+      "vulnerabilities": [
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "' OR '1'='1",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "'; DROP TABLE users; --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "' UNION SELECT username, password FROM users --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "1'; EXEC xp_cmdshell('dir'); --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "' OR 1=1--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "' OR 'x'='x",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "'; EXEC master..xp_cmdshell 'ping 127.0.0.1'--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "' OR '1'='1",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "'; DROP TABLE users; --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "' UNION SELECT username, password FROM users --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "1'; EXEC xp_cmdshell('dir'); --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "' OR 1=1--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "' OR 'x'='x",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "'; EXEC master..xp_cmdshell 'ping 127.0.0.1'--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "' OR '1'='1",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "'; DROP TABLE users; --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "' UNION SELECT username, password FROM users --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "1'; EXEC xp_cmdshell('dir'); --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "' OR 1=1--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "' OR 'x'='x",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "'; EXEC master..xp_cmdshell 'ping 127.0.0.1'--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "' OR '1'='1",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "'; DROP TABLE users; --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "' UNION SELECT username, password FROM users --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "1'; EXEC xp_cmdshell('dir'); --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "' OR 1=1--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "' OR 'x'='x",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "'; EXEC master..xp_cmdshell 'ping 127.0.0.1'--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "' OR '1'='1",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "'; DROP TABLE users; --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "' UNION SELECT username, password FROM users --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "1'; EXEC xp_cmdshell('dir'); --",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "' OR 1=1--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "' OR 'x'='x",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "'; EXEC master..xp_cmdshell 'ping 127.0.0.1'--",
+          "error": "Error",
+          "vulnerability": "SQL Injection",
+          "owaspCategory": "A03:2021-Injection",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "<script>alert('XSS')</script>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "<img src=x onerror=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "javascript:alert('XSS')",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "<svg/onload=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "';alert(String.fromCharCode(88,83,83))//",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/auth/login",
+          "payload": "<IMG SRC=j&#X41vascript:alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "<script>alert('XSS')</script>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "<img src=x onerror=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "javascript:alert('XSS')",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "<svg/onload=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "';alert(String.fromCharCode(88,83,83))//",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/projects",
+          "payload": "<IMG SRC=j&#X41vascript:alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "<script>alert('XSS')</script>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "<img src=x onerror=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "javascript:alert('XSS')",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "<svg/onload=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "';alert(String.fromCharCode(88,83,83))//",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/users/search",
+          "payload": "<IMG SRC=j&#X41vascript:alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "<script>alert('XSS')</script>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "<img src=x onerror=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "javascript:alert('XSS')",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "<svg/onload=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "';alert(String.fromCharCode(88,83,83))//",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/documents",
+          "payload": "<IMG SRC=j&#X41vascript:alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "<script>alert('XSS')</script>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "<img src=x onerror=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "javascript:alert('XSS')",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "<svg/onload=alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "';alert(String.fromCharCode(88,83,83))//",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        },
+        {
+          "endpoint": "/api/purchase-orders",
+          "payload": "<IMG SRC=j&#X41vascript:alert('XSS')>",
+          "error": "Error",
+          "vulnerability": "Cross-Site Scripting (XSS)",
+          "owaspCategory": "A07:2021-Cross-Site Scripting",
+          "severity": "MEDIUM",
+          "recommendation": "Implement proper error handling"
+        }
+      ]
+    },
+    "authenticationVulnerabilities": {
+      "timestamp": "2025-10-28T10:50:57.747Z",
+      "summary": {
+        "totalVulnerabilities": 1,
+        "weakPasswords": 0,
+        "bruteForce": 0,
+        "sessionManagement": 1,
+        "passwordReset": 0
+      },
+      "vulnerabilities": [
+        {
+          "error": "Error",
+          "vulnerability": "Authentication Endpoint Issues",
+          "owaspCategory": "A07:2021-Identification and Authentication Failures",
+          "severity": "MEDIUM",
+          "recommendation": "Ensure authentication endpoints are properly secured"
+        }
+      ]
+    },
+    "enhancedSecurity": {
+      "timestamp": "2025-10-28T10:50:57.748Z",
+      "target": "http://localhost:5173",
+      "testSuite": "Enhanced Security Tests",
+      "owaspCoverage": [
+        "A01:2021-Broken Access Control",
+        "A03:2021-Injection",
+        "A07:2021-Identification and Authentication Failures"
+      ],
+      "summary": {
+        "totalTests": 10,
+        "passed": 10,
+        "failed": 0,
+        "totalVulnerabilities": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 10
+      },
+      "details": {
+        "rateLimiting": [
+          {
+            "test": "Sliding Window Algorithm",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Sliding window rate limiting algorithm implemented correctly",
+            "recommendation": "Continue monitoring for performance"
+          },
+          {
+            "test": "Configuration Flexibility",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Rate limiter supports custom configurations per endpoint",
+            "recommendation": "Document configuration options"
+          },
+          {
+            "test": "Blocking Mechanism",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Adaptive blocking with progressive duration implemented",
+            "recommendation": "Review blocking duration settings"
+          }
+        ],
+        "inputValidation": [
+          {
+            "test": "String Validation",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Enhanced string validation with sanitization implemented",
+            "recommendation": "Continue testing with various input types"
+          },
+          {
+            "test": "Email Validation",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Advanced email validation with disposable email detection",
+            "recommendation": "Update disposable email list regularly"
+          },
+          {
+            "test": "Password Validation",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Comprehensive password strength checking implemented",
+            "recommendation": "Review password policy requirements"
+          },
+          {
+            "test": "Number Validation",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Enhanced number validation with range checking",
+            "recommendation": "Test with edge cases"
+          }
+        ],
+        "securityMiddleware": [
+          {
+            "test": "Middleware Integration",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Enhanced security middleware integrated successfully",
+            "recommendation": "Monitor middleware performance"
+          },
+          {
+            "test": "Request Validation",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Comprehensive HTTP request validation implemented",
+            "recommendation": "Review validation rules regularly"
+          },
+          {
+            "test": "Security Headers",
+            "status": "PASS",
+            "severity": "INFO",
+            "description": "Enhanced security headers applied correctly",
+            "recommendation": "Keep security headers updated"
+          }
+        ]
+      }
+    }
+  }
+}

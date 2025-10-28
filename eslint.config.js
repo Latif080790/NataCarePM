@@ -128,7 +128,6 @@ export default [
   {
     files: [
       'vite.config.ts',
-      'jest.config.js',
       'eslint.config.js',
       'setup*.js',
       'create*.js',

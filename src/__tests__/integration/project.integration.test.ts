@@ -16,18 +16,42 @@ const mockAddDoc = vi.fn();
 const mockWriteBatch = vi.fn();
 
 vi.mock('firebase/firestore', () => ({
-  collection: mockCollection,
-  doc: mockDoc,
-  getDoc: mockGetDoc,
-  getDocs: mockGetDocs,
-  setDoc: mockSetDoc,
-  updateDoc: mockUpdateDoc,
-  deleteDoc: mockDeleteDoc,
-  query: mockQuery,
-  where: mockWhere,
-  onSnapshot: mockOnSnapshot,
-  addDoc: mockAddDoc,
-  writeBatch: mockWriteBatch,
+  get collection() {
+    return mockCollection;
+  },
+  get doc() {
+    return mockDoc;
+  },
+  get getDoc() {
+    return mockGetDoc;
+  },
+  get getDocs() {
+    return mockGetDocs;
+  },
+  get setDoc() {
+    return mockSetDoc;
+  },
+  get updateDoc() {
+    return mockUpdateDoc;
+  },
+  get deleteDoc() {
+    return mockDeleteDoc;
+  },
+  get query() {
+    return mockQuery;
+  },
+  get where() {
+    return mockWhere;
+  },
+  get onSnapshot() {
+    return mockOnSnapshot;
+  },
+  get addDoc() {
+    return mockAddDoc;
+  },
+  get writeBatch() {
+    return mockWriteBatch;
+  },
   orderBy: vi.fn(),
   serverTimestamp: vi.fn(),
 }));
@@ -97,9 +121,15 @@ const mockUploadBytes = vi.fn();
 const mockGetDownloadURL = vi.fn();
 
 vi.mock('firebase/storage', () => ({
-  ref: vi.fn(),
-  uploadBytes: mockUploadBytes,
-  getDownloadURL: mockGetDownloadURL,
+  get ref() {
+    return vi.fn();
+  },
+  get uploadBytes() {
+    return mockUploadBytes;
+  },
+  get getDownloadURL() {
+    return mockGetDownloadURL;
+  },
 }));
 
 describe('Project Management Integration Tests', () => {

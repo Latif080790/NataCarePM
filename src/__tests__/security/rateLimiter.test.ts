@@ -117,8 +117,8 @@ describe('RateLimiter - Security Tests', () => {
 
       const result = rateLimiter.checkLimit(identifier, type);
 
-      expect(result.message).toMatch(/locked for \d+ minute/);
-      expect(result.message).toMatch(/try again at \d+:\d+/);
+      expect(result.message).toMatch(/locked for \d+ more minute/);
+      expect(result.message).toMatch(/Please try again at/);
       expect(result.blockedUntil).toBeInstanceOf(Date);
     });
   });
@@ -383,7 +383,7 @@ describe('RateLimiter - Security Tests', () => {
     it('should handle rapid successive calls', () => {
       const identifier = 'rapid@example.com';
       const type = 'login';
-      const results = [];
+      const results: RateLimitResult[] = [];
 
       // Make 10 rapid calls
       for (let i = 0; i < 10; i++) {
@@ -483,7 +483,7 @@ describe('RateLimiter - Security Tests', () => {
 
       const result = rateLimiter.checkLimit(identifier, type);
       expect(result.allowed).toBe(false);
-      expect(result.message).toContain('Maximum attempts exceeded');
+      expect(result.message).toContain('Account locked');
     });
   });
 

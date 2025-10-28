@@ -18,6 +18,19 @@ const mockSetDoc = vi.fn();
 const mockUpdateDoc = vi.fn();
 const mockCollection = vi.fn();
 
+// Mock rate limiter
+const mockRateLimiter = {
+  checkLimit: vi.fn().mockReturnValue({ allowed: true }),
+  reset: vi.fn(),
+};
+
+// Mock two-factor service
+const mockTwoFactorService = {
+  isEnabled: vi.fn().mockResolvedValue(false),
+  generateSecret: vi.fn().mockResolvedValue('secret123'),
+  verifyCode: vi.fn().mockResolvedValue(true),
+};
+
 vi.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
   createUserWithEmailAndPassword: mockCreateUserWithEmailAndPassword,
@@ -53,19 +66,16 @@ vi.mock('@/utils/logger', () => ({
 
 // Mock rate limiter
 vi.mock('@/utils/rateLimiter', () => ({
-  rateLimiter: {
-    checkLimit: vi.fn().mockReturnValue({ allowed: true }),
-    reset: vi.fn(),
-  },
+  get rateLimiter() {
+    return mockRateLimiter;
+  }
 }));
 
 // Mock two-factor service
 vi.mock('@/api/twoFactorService', () => ({
-  twoFactorService: {
-    isEnabled: vi.fn().mockResolvedValue(false),
-    generateSecret: vi.fn().mockResolvedValue('secret123'),
-    verifyCode: vi.fn().mockResolvedValue(true),
-  },
+  get twoFactorService() {
+    return mockTwoFactorService;
+  }
 }));
 
 // Mock response wrapper

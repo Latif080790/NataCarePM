@@ -8,10 +8,18 @@ const mockQuery = vi.fn();
 const mockWhere = vi.fn();
 
 vi.mock('firebase/firestore', () => ({
-  collection: mockCollection,
-  getDocs: mockGetDocs,
-  query: mockQuery,
-  where: mockWhere,
+  get collection() {
+    return mockCollection;
+  },
+  get getDocs() {
+    return mockGetDocs;
+  },
+  get query() {
+    return mockQuery;
+  },
+  get where() {
+    return mockWhere;
+  },
   Timestamp: {
     now: vi.fn().mockReturnValue({
       toDate: () => new Date(),

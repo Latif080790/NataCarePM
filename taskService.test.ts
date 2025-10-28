@@ -1,7 +1,6 @@
-/**
- * @jest-environment jsdom
- */
-import { taskService } from '../taskService';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { taskService } from './src/api/taskService';
 import { db } from '@/firebaseConfig';
 import {
   collection,
@@ -17,18 +16,21 @@ import {
 import { Task } from '@/types';
 
 // Mocking Firebase Firestore functions
-jest.mock('firebase/firestore', () => ({
-  ...jest.requireActual('firebase/firestore'),
-  collection: jest.fn(),
-  getDocs: jest.fn(),
-  addDoc: jest.fn(),
-  doc: jest.fn(),
-  getDoc: jest.fn(),
-  updateDoc: jest.fn(),
-  deleteDoc: jest.fn(),
-  query: jest.fn(),
-  where: jest.fn(),
-}));
+vi.mock('firebase/firestore', async (importActual) => {
+  const actual = await importActual<typeof import('firebase/firestore')>();
+  return {
+    ...actual,
+    collection: vi.fn(),
+    getDocs: vi.fn(),
+    addDoc: vi.fn(),
+    doc: vi.fn(),
+    getDoc: vi.fn(),
+    updateDoc: vi.fn(),
+    deleteDoc: vi.fn(),
+    query: vi.fn(),
+    where: vi.fn(),
+  };
+});
 
 const mockTask: Task = {
   id: 'task-123',
@@ -50,12 +52,12 @@ const mockTask: Task = {
 
 describe('taskService', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // Test 1: Get Tasks by Project
   it('should fetch tasks for a given project ID', async () => {
-    (getDocs as jest.Mock).mockResolvedValue({
+    (getDocs as import('vitest').Mock).mockResolvedValue({
       docs: [{ id: 'task-123', data: () => ({ ...mockTask, id: undefined }) }],
     });
 
@@ -69,7 +71,7 @@ describe('taskService', () => {
 
   // Test 2: Get Task by ID
   it('should fetch a single task by its ID', async () => {
-    (getDoc as jest.Mock).mockResolvedValue({
+    (getDoc as import('vitest').Mock).mockResolvedValue({
       exists: () => true,
       id: 'task-123',
       data: () => ({ ...mockTask, id: undefined }),
@@ -84,7 +86,7 @@ describe('taskService', () => {
 
   // Test 3: Create Task
   it('should create a new task and return its ID', async () => {
-    (addDoc as jest.Mock).mockResolvedValue({ id: 'new-task-456' });
+    (addDoc as import('vitest').Mock).mockResolvedValue({ id: 'new-task-456' });
     const newTaskData = { ...mockTask, id: undefined, title: 'New Task' };
 
     const result = await taskService.createTask('proj-abc', newTaskData as any, {
@@ -98,7 +100,7 @@ describe('taskService', () => {
 
   // Test 4: Update Task
   it('should update an existing task', async () => {
-    (updateDoc as jest.Mock).mockResolvedValue(undefined);
+    (updateDoc as import('vitest').Mock).mockResolvedValue(undefined);
     const updates = { status: 'in-progress' as const, progress: 50 };
 
     const result = await taskService.updateTask('proj-abc', 'task-123', updates, {
@@ -111,7 +113,7 @@ describe('taskService', () => {
 
   // Test 5: Handle Error on Fetch
   it('should return an error object when fetching tasks fails', async () => {
-    (getDocs as jest.Mock).mockRejectedValue(new Error('Firestore permission denied'));
+    (getDocs as import('vitest').Mock).mockRejectedValue(new Error('Firestore permission denied'));
     const result = await taskService.getTasksByProject('proj-abc');
     expect(result.success).toBe(false);
     expect(result.error?.message).toContain('Firestore permission denied');

@@ -196,11 +196,21 @@ export function sanitizeForSecurity(input: string, context: string): string {
   if (!input) return '';
 
   try {
-    // First pass: DOMPurify for HTML content
-    let sanitized = DOMPurify.sanitize(input, {
-      ALLOWED_TAGS: [], // Strip all HTML by default
-      KEEP_CONTENT: true,
-    });
+    // Context-specific sanitization
+    let sanitized = '';
+    const lowerContext = context.toLowerCase();
+
+    if (lowerContext === 'html') {
+      // For 'html' context, use default DOMPurify which removes <script> AND its content
+      // This will make '<script>alert("xss")</script>Hello' become 'Hello'
+      sanitized = DOMPurify.sanitize(input);
+    } else {
+      // For other contexts, use the logic to strip tags but keep content
+      sanitized = DOMPurify.sanitize(input, {
+        ALLOWED_TAGS: [], // Strip all HTML by default
+        KEEP_CONTENT: true,
+      });
+    }
 
     // Second pass: Remove potentially dangerous characters
     sanitized = sanitized
@@ -213,7 +223,8 @@ export function sanitizeForSecurity(input: string, context: string): string {
       .trim();
 
     // Context-specific sanitization
-    switch (context.toLowerCase()) {
+    // We keep the switch for non-'html' contexts
+    switch (lowerContext) {
       case 'filename':
         // Remove path traversal attempts and invalid characters
         sanitized = sanitized
@@ -282,9 +293,16 @@ export function validateFileUpload(
     riskLevel = riskLevel === 'low' ? 'medium' : riskLevel;
   }
 
-  // Check filename
+  // Check filename - only flag as error if dangerous characters were actually removed
   const sanitizedFilename = sanitizeForSecurity(file.name, 'filename');
-  if (sanitizedFilename !== file.name) {
+  // Only consider it an error if potentially dangerous characters were removed
+  const hasDangerousChars = file.name !== sanitizedFilename && (
+    file.name.includes('..') || 
+    /[<>:"/\\|?*\x00-\x1F]/.test(file.name) ||
+    file.name.startsWith('.')
+  );
+  
+  if (hasDangerousChars) {
     errors.push('Filename contains invalid characters');
     riskLevel = riskLevel === 'low' ? 'medium' : riskLevel;
   }
@@ -349,4 +367,3 @@ export function generateSecurityHeaders(): Record<string, string> {
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
   };
 }
-
