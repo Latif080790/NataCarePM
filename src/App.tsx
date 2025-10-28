@@ -81,8 +81,9 @@ import { useProjectCalculations } from '@/hooks/useProjectCalculations';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { useActivityTracker } from '@/hooks/useMonitoring';
 import { Spinner } from '@/components/Spinner';
-import { useAccessibility } from '@/hooks/useAccessibility';
 import Header from '@/components/Header';
+import { IntegrationProvider } from '@/contexts/IntegrationContext';
+import PerformanceMonitor from '@/components/PerformanceMonitor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import {
@@ -102,6 +103,7 @@ const CommandPalette = lazy(() =>
 const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
+const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
@@ -152,6 +154,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   // Phase 4: AI & Analytics
   ai_resource_optimization: AIResourceOptimizationView,
   predictive_analytics: PredictiveAnalyticsView,
+  advanced_analytics: AdvancedAnalyticsView,
 };
 
 // Views that show fallback "coming soon" page
@@ -200,7 +203,8 @@ function AppContent() {
   const [error, setError] = useState<Error | null>(null);
 
   // Accessibility features
-  const { announceToScreenReader } = useAccessibility();
+  // const accessibility = useAccessibility();
+  // const { announceToScreenReader } = accessibility;
 
   const { currentUser, loading: authLoading } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
@@ -490,7 +494,6 @@ function AppContent() {
   // Safe view props with comprehensive null safety and error handling
   const getViewProps = (viewId: string): any => {
     const safeProject = (currentProject as any) || {};
-    const safeActions = {} as any; // Simplified for now
 
     // Common safe props for all views
     const commonProps = {
@@ -729,6 +732,7 @@ function AppContent() {
       <OfflineIndicator />
       <LiveCursors containerId="app-container" showLabels />
       <FailoverStatusIndicator />
+      <PerformanceMonitor />
 
       {/* Debug Panel (Ctrl+Shift+D to toggle) */}
       {showDebug && (
@@ -815,9 +819,11 @@ function App() {
     <RealtimeCollaborationProvider>
       <AuthProvider>
         <ProjectProvider>
-          <EnhancedErrorBoundary>
-            <AppContent />
-          </EnhancedErrorBoundary>
+          <IntegrationProvider>
+            <EnhancedErrorBoundary>
+              <AppContent />
+            </EnhancedErrorBoundary>
+          </IntegrationProvider>
         </ProjectProvider>
       </AuthProvider>
     </RealtimeCollaborationProvider>

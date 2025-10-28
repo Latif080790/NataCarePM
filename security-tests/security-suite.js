@@ -13,6 +13,7 @@ const path = require('path');
 const { runNpmAudit, checkOutdatedDependencies, scanVulnerablePackages, checkSecurityMisconfigurations, generateSecurityReport } = require('./dependency-scan');
 const { testSQLInjection, testXSS, testBrokenAccessControl, generateInjectionReport } = require('./injection-test');
 const { testWeakPasswordPolicies, testBruteForceProtection, testSessionManagement, testPasswordReset, generateAuthReport } = require('./auth-test');
+const { testEnhancedRateLimiting, testEnhancedInputValidation, testEnhancedSecurityMiddleware, generateEnhancedSecurityReport } = require('./enhanced-security-test');
 
 // OWASP Top 10 Categories
 const OWASP_TOP_10 = {
@@ -150,7 +151,12 @@ function generateComprehensiveReport(dependencyReport, injectionReport, authRepo
   const report = {
     timestamp: new Date().toISOString(),
     target: process.env.TEST_BASE_URL || 'http://localhost:5173',
-    owaspCoverage: Object.keys(OWASP_TOP_10),
+    owaspCoverage: [
+    ...Object.keys(OWASP_TOP_10),
+    'Enhanced Rate Limiting',
+    'Advanced Input Validation',
+    'Security Middleware'
+  ],
     summary: {
       totalVulnerabilities: 0,
       critical: 0,
@@ -234,8 +240,34 @@ async function main() {
   const injectionReport = await runInjectionTests(baseUrl);
   const authReport = await runAuthTests(baseUrl);
   
+  // Run enhanced security tests
+  console.log('\n🔍 Running enhanced security tests...');
+  const enhancedRateLimitResults = await testEnhancedRateLimiting(baseUrl);
+  const enhancedInputValidationResults = await testEnhancedInputValidation(baseUrl);
+  const enhancedMiddlewareResults = await testEnhancedSecurityMiddleware(baseUrl);
+  
+  // Generate enhanced security report
+  const enhancedReport = generateEnhancedSecurityReport(
+    enhancedRateLimitResults,
+    enhancedInputValidationResults,
+    enhancedMiddlewareResults
+  );
+  
   // Generate comprehensive report
   const comprehensiveReport = generateComprehensiveReport(dependencyReport, injectionReport, authReport);
+  
+  // Add enhanced security results to comprehensive report
+  if (enhancedReport && enhancedReport.summary) {
+    comprehensiveReport.summary.totalVulnerabilities += enhancedReport.summary.totalVulnerabilities || 0;
+    comprehensiveReport.summary.critical += enhancedReport.summary.critical || 0;
+    comprehensiveReport.summary.high += enhancedReport.summary.high || 0;
+    comprehensiveReport.summary.medium += enhancedReport.summary.medium || 0;
+    comprehensiveReport.summary.low += enhancedReport.summary.low || 0;
+    comprehensiveReport.summary.info += enhancedReport.summary.info || 0;
+    
+    // Add enhanced security details
+    comprehensiveReport.details.enhancedSecurity = enhancedReport;
+  }
   
   // Save comprehensive report
   fs.writeFileSync(
@@ -269,5 +301,9 @@ module.exports = {
   runInjectionTests,
   runAuthTests,
   generateComprehensiveReport,
-  printSecuritySummary
+  printSecuritySummary,
+  testEnhancedRateLimiting,
+  testEnhancedInputValidation,
+  testEnhancedSecurityMiddleware,
+  generateEnhancedSecurityReport
 };

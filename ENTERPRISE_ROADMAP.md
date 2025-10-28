@@ -129,9 +129,9 @@ Untuk mencapai level enterprise yang sesungguhnya, NataCarePM perlu mengembangka
 
 ---
 
-## 📈 **FASE 3: Advanced Analytics & Business Intelligence (Bulan 3-4)**
+## ✅ **FASE 3: Advanced Analytics & Business Intelligence (Bulan 3-4)**
 
-### 3.1 **Enterprise Analytics Platform**
+### ✅ 3.1 **Enterprise Analytics Platform**
 
 #### Data Warehouse Architecture
 
@@ -157,7 +157,7 @@ Untuk mencapai level enterprise yang sesungguhnya, NataCarePM perlu mengembangka
 - **Automated Insights** generation
 - **Custom KPI Frameworks**
 
-### 3.2 **Business Intelligence Suite**
+### ✅ 3.2 **Business Intelligence Suite**
 
 #### Executive Dashboards
 
@@ -170,7 +170,7 @@ Untuk mencapai level enterprise yang sesungguhnya, NataCarePM perlu mengembangka
 
 ---
 
-## 🔗 **FASE 4: Enterprise Integration Ecosystem (Bulan 4-5)**
+## 🚀 **FASE 4: Enterprise Integration Ecosystem (Bulan 4-5)**
 
 ### 4.1 **Integration Architecture**
 

@@ -36,8 +36,8 @@ if (container) {
 // Register Service Worker for PWA functionality
 if (process.env.NODE_ENV === 'production') {
   registerServiceWorker({
-    onSuccess: (registration) => {
-      console.log('[PWA] Service Worker registered successfully:', registration.scope);
+    onSuccess: (_registration) => {
+      console.log('[PWA] Service Worker registered successfully');
     },
     onUpdate: (registration) => {
       console.log('[PWA] New content available, please refresh.');
