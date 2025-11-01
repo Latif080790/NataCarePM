@@ -28,3 +28,17 @@ export { default as EmailService } from './emailService';
 // Priority 3F: Advanced Search
 export { searchService } from './searchService';
 export { default as SearchService } from './searchService';
+
+// Priority 4.2: Enhanced Predictive Analytics
+export { enhancedPredictiveAnalyticsService } from './enhancedPredictiveAnalyticsService';
+
+// Priority 4.3: Advanced Encryption
+export { advancedEncryptionService } from './advancedEncryptionService';
+
+// Priority 4.4: Third-Party Integrations
+export * from './integrationConnectors';
+
+// Priority 4.5: Enhanced Reporting & Dashboards
+export { enhancedReportingService } from './enhancedReportingService';
+export { dashboardService } from './dashboardService';
+export { KPIService } from './kpiService';

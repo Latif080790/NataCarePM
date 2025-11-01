@@ -28,3 +28,7 @@ export type { default as EmailNotification } from './email.types';
 // Priority 3F: Advanced Search
 export * from './search.types';
 export type { default as SearchQuery } from './search.types';
+
+// Construction Domain Types (RFI, Submittals, Daily Logs)
+export * from './construction.types';
+export type { default as Rfi } from './construction.types';

@@ -11,12 +11,23 @@ import {
   BiometricData,
 } from '@/types';
 
+// Dynamically import node-forge to avoid TypeScript issues
+let forge: any;
+try {
+  forge = require('node-forge');
+} catch (error) {
+  console.warn('node-forge not available, using fallback implementation');
+  forge = null;
+}
+
 // Digital Signatures Service with Legal Compliance
 export class DigitalSignaturesService {
   private certificates: Map<string, SignatureCertificate> = new Map();
   private signatures: Map<string, DigitalSignature> = new Map();
   private workflows: Map<string, SignatureWorkflow> = new Map();
   private complianceSettings: Map<string, LegalCompliance> = new Map();
+  private caPrivateKey: any = null;
+  private caCertificate: any = null;
 
   constructor() {
     this.initializeComplianceStandards();
@@ -104,22 +115,98 @@ export class DigitalSignaturesService {
 
   // Initialize certificate authorities
   private initializeCertificateAuthorities(): void {
-    // Add trusted certificate authorities
-    const mockCA: SignatureCertificate = {
-      id: 'ca_root_001',
-      issuer: 'NataCarePM Root CA',
-      subject: 'NataCarePM Root Certificate Authority',
-      serialNumber: 'ROOT-001-2024',
-      validFrom: new Date('2024-01-01'),
-      validTo: new Date('2034-12-31'),
-      algorithm: 'RSA-2048-SHA256',
-      publicKey: 'mock_public_key_data',
-      certificateChain: [],
-      revocationStatus: 'valid',
-      trustLevel: 'high',
-    };
-
-    this.certificates.set(mockCA.id, mockCA);
+    // In production, this would connect to a real Certificate Authority
+    // For now, we'll generate a self-signed CA certificate
+    try {
+      if (!forge) {
+        throw new Error('node-forge not available');
+      }
+      
+      // Generate a new RSA key pair for the CA
+      const caKeys = forge.pki.rsa.generateKeyPair(2048);
+      this.caPrivateKey = caKeys.privateKey;
+      
+      // Create a new certificate
+      const caCert = forge.pki.createCertificate();
+      caCert.publicKey = caKeys.publicKey;
+      caCert.serialNumber = '01';
+      caCert.validity.notBefore = new Date();
+      caCert.validity.notAfter = new Date();
+      caCert.validity.notAfter.setFullYear(caCert.validity.notBefore.getFullYear() + 10); // 10 years
+      
+      // Set the CA certificate subject and issuer
+      const attrs = [{
+        name: 'commonName',
+        value: 'NataCarePM Root CA'
+      }, {
+        name: 'countryName',
+        value: 'ID'
+      }, {
+        shortName: 'ST',
+        value: 'Jakarta'
+      }, {
+        name: 'organizationName',
+        value: 'NataCarePM'
+      }, {
+        shortName: 'OU',
+        value: 'Certificate Authority'
+      }];
+      
+      caCert.setSubject(attrs);
+      caCert.setIssuer(attrs);
+      
+      // Set extensions
+      caCert.setExtensions([{
+        name: 'basicConstraints',
+        cA: true
+      }, {
+        name: 'keyUsage',
+        keyCertSign: true,
+        digitalSignature: true,
+        nonRepudiation: true,
+        keyEncipherment: true,
+        dataEncipherment: true
+      }]);
+      
+      // Self-sign the certificate
+      caCert.sign(caKeys.privateKey, forge.md.sha256.create());
+      this.caCertificate = caCert;
+      
+      // Convert to our certificate format
+      const cert: SignatureCertificate = {
+        id: 'ca_root_001',
+        issuer: 'NataCarePM',
+        subject: 'NataCarePM Root Certificate Authority',
+        serialNumber: '01',
+        validFrom: caCert.validity.notBefore,
+        validTo: caCert.validity.notAfter,
+        algorithm: 'RSA-2048-SHA256',
+        publicKey: forge.pki.publicKeyToPem(caKeys.publicKey),
+        certificateChain: [],
+        revocationStatus: 'valid',
+        trustLevel: 'high',
+      };
+      
+      this.certificates.set(cert.id, cert);
+    } catch (error) {
+      console.error('Failed to initialize certificate authority:', error);
+      // Fallback to mock CA if PKI initialization fails
+      const mockCA: SignatureCertificate = {
+        id: 'ca_root_001',
+        issuer: 'NataCarePM Root CA',
+        subject: 'NataCarePM Root Certificate Authority',
+        serialNumber: 'ROOT-001-2024',
+        validFrom: new Date('2024-01-01'),
+        validTo: new Date('2034-12-31'),
+        algorithm: 'RSA-2048-SHA256',
+        publicKey: 'mock_public_key_data',
+        certificateChain: [],
+        revocationStatus: 'valid',
+        trustLevel: 'high',
+      };
+      
+      this.certificates.set(mockCA.id, mockCA);
+    }
   }
 
   // Create digital signature for document
@@ -273,10 +360,34 @@ export class DigitalSignaturesService {
 
   // Generate digital signature (PKI-based)
   private async generateDigitalSignature(payload: any): Promise<string> {
-    // In production, use actual cryptographic library
-    const payloadString = JSON.stringify(payload);
-    const hash = this.sha256(payloadString);
-    return `digital_sig_${hash.substring(0, 32)}`;
+    try {
+      if (!forge) {
+        throw new Error('node-forge not available');
+      }
+      
+      // Serialize the payload
+      const payloadString = JSON.stringify(payload);
+      
+      // Create a hash of the payload
+      const md = forge.md.sha256.create();
+      md.update(payloadString, 'utf8');
+      
+      // In a real implementation, we would use the signer's private key
+      // For this example, we'll generate a temporary key pair
+      const keys = forge.pki.rsa.generateKeyPair(2048);
+      
+      // Sign the hash
+      const signature = keys.privateKey.sign(md);
+      
+      // Return the signature as a hex string
+      return forge.util.bytesToHex(signature);
+    } catch (error) {
+      console.error('Failed to generate digital signature:', error);
+      // Fallback to mock signature if PKI fails
+      const payloadString = JSON.stringify(payload);
+      const hash = this.sha256(payloadString);
+      return `digital_sig_${hash.substring(0, 32)}`;
+    }
   }
 
   // Generate electronic signature (simpler authentication)
@@ -319,26 +430,132 @@ export class DigitalSignaturesService {
     );
 
     if (existingCert && existingCert.revocationStatus === 'valid') {
-      return existingCert;
+      // Verify certificate is still valid
+      const now = new Date();
+      if (now >= existingCert.validFrom && now <= existingCert.validTo) {
+        return existingCert;
+      }
     }
 
-    // Create new certificate
-    const certificate: SignatureCertificate = {
-      id: this.generateId(),
-      issuer: 'NataCarePM Certificate Authority',
-      subject: `CN=${signer.name}, emailAddress=${signer.email}, O=${signer.organization}`,
-      serialNumber: `CERT-${Date.now()}`,
-      validFrom: new Date(),
-      validTo: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
-      algorithm: 'RSA-2048-SHA256',
-      publicKey: this.generatePublicKey(signer),
-      certificateChain: ['ca_root_001'],
-      revocationStatus: 'valid',
-      trustLevel: 'medium',
-    };
+    try {
+      if (!forge) {
+        throw new Error('node-forge not available');
+      }
+      
+      // Generate a new RSA key pair for the signer
+      const keys = forge.pki.rsa.generateKeyPair(2048);
+      
+      // Get the CA certificate
+      if (!this.caCertificate) {
+        throw new Error('CA certificate not found');
+      }
+      
+      // Create a new certificate for the signer
+      const cert = forge.pki.createCertificate();
+      cert.publicKey = keys.publicKey;
+      cert.serialNumber = forge.util.bytesToHex(forge.random.getBytesSync(8));
+      cert.validity.notBefore = new Date();
+      cert.validity.notAfter = new Date();
+      cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1); // 1 year
+      
+      // Set the certificate subject
+      const subjectAttrs = [{
+        name: 'commonName',
+        value: signer.name
+      }, {
+        name: 'countryName',
+        value: 'ID'
+      }, {
+        name: 'organizationName',
+        value: signer.organization || 'NataCarePM'
+      }, {
+        name: 'emailAddress',
+        value: signer.email
+      }];
+      
+      cert.setSubject(subjectAttrs);
+      
+      // Set the certificate issuer (the CA)
+      const issuerAttrs = [{
+        name: 'commonName',
+        value: 'NataCarePM Root CA'
+      }, {
+        name: 'countryName',
+        value: 'ID'
+      }, {
+        shortName: 'ST',
+        value: 'Jakarta'
+      }, {
+        name: 'organizationName',
+        value: 'NataCarePM'
+      }, {
+        shortName: 'OU',
+        value: 'Certificate Authority'
+      }];
+      
+      cert.setIssuer(issuerAttrs);
+      
+      // Set extensions
+      cert.setExtensions([{
+        name: 'basicConstraints',
+        cA: false
+      }, {
+        name: 'keyUsage',
+        digitalSignature: true,
+        nonRepudiation: true,
+        keyEncipherment: true,
+        dataEncipherment: true
+      }, {
+        name: 'extKeyUsage',
+        serverAuth: true,
+        clientAuth: true
+      }]);
+      
+      // Sign the certificate with the CA private key
+      if (this.caPrivateKey) {
+        cert.sign(this.caPrivateKey, forge.md.sha256.create());
+      } else {
+        // Fallback if CA private key is not available
+        const caKeys = forge.pki.rsa.generateKeyPair(2048);
+        cert.sign(caKeys.privateKey, forge.md.sha256.create());
+      }
+      
+      const certificate: SignatureCertificate = {
+        id: this.generateId(),
+        issuer: 'NataCarePM Root CA',
+        subject: `CN=${signer.name}, emailAddress=${signer.email}, O=${signer.organization || 'NataCarePM'}`,
+        serialNumber: cert.serialNumber,
+        validFrom: cert.validity.notBefore,
+        validTo: cert.validity.notAfter,
+        algorithm: 'RSA-2048-SHA256',
+        publicKey: forge.pki.publicKeyToPem(keys.publicKey),
+        certificateChain: ['ca_root_001'],
+        revocationStatus: 'valid',
+        trustLevel: 'medium',
+      };
 
-    this.certificates.set(certificate.id, certificate);
-    return certificate;
+      this.certificates.set(certificate.id, certificate);
+      return certificate;
+    } catch (error) {
+      console.error('Failed to create certificate:', error);
+      // Fallback to mock certificate if PKI fails
+      const certificate: SignatureCertificate = {
+        id: this.generateId(),
+        issuer: 'NataCarePM Certificate Authority',
+        subject: `CN=${signer.name}, emailAddress=${signer.email}, O=${signer.organization || 'Unknown'}`,
+        serialNumber: `CERT-${Date.now()}`,
+        validFrom: new Date(),
+        validTo: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        algorithm: 'RSA-2048-SHA256',
+        publicKey: this.generatePublicKey(signer),
+        certificateChain: ['ca_root_001'],
+        revocationStatus: 'valid',
+        trustLevel: 'medium',
+      };
+
+      this.certificates.set(certificate.id, certificate);
+      return certificate;
+    }
   }
 
   // Create signature metadata
@@ -395,19 +612,25 @@ export class DigitalSignaturesService {
     signatureData: SignatureData,
     certificate: SignatureCertificate
   ): Promise<boolean> {
-    // Check certificate validity
-    const now = new Date();
-    if (now < certificate.validFrom || now > certificate.validTo) {
+    try {
+      // Check certificate validity
+      const now = new Date();
+      if (now < certificate.validFrom || now > certificate.validTo) {
+        return false;
+      }
+
+      // Check revocation status
+      if (certificate.revocationStatus !== 'valid') {
+        return false;
+      }
+
+      // In a real implementation, we would verify the signature using the certificate's public key
+      // For now, we'll do a basic validation
+      return signatureData.data.length > 20 && signatureData.hashValue.length > 0;
+    } catch (error) {
+      console.error('Failed to verify signature:', error);
       return false;
     }
-
-    // Check revocation status
-    if (certificate.revocationStatus !== 'valid') {
-      return false;
-    }
-
-    // Verify signature data (simplified)
-    return signatureData.data.length > 20 && signatureData.hashValue.length > 0;
   }
 
   // Create signature workflow

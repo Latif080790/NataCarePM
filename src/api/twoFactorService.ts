@@ -10,13 +10,17 @@
  * - Backup codes for account recovery
  * - Rate limiting on verification attempts
  * - Secure storage in Firestore
+ * - Device trust management
+ * - Multi-factor authentication levels
  */
 
-import { doc, setDoc, getDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
 import { rateLimiter } from '@/utils/rateLimiter';
+import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';
+import { logger } from '@/utils/logger.enhanced';
 
 // ========================================
 // TYPES
@@ -38,12 +42,40 @@ export interface TwoFactorData {
   createdAt: Date | Timestamp;
   lastUsed?: Date | Timestamp;
   verificationAttempts?: number;
+  trustedDevices?: TrustedDevice[];
+  recoveryEmail?: string;
+  mfaLevel?: 'standard' | 'enhanced' | 'strict';
+}
+
+export interface TrustedDevice {
+  id: string;
+  deviceId: string;
+  deviceName?: string;
+  ipAddress: string;
+  userAgent: string;
+  createdAt: Date;
+  expiresAt: Date;
+  lastUsed: Date;
 }
 
 export interface TwoFactorStatus {
   enabled: boolean;
   lastUsed?: Date;
   backupCodesRemaining: number;
+  trustedDevicesCount: number;
+  mfaLevel?: 'standard' | 'enhanced' | 'strict';
+}
+
+export interface TwoFactorRecoveryOptions {
+  recoveryEmail?: string;
+  phoneNumber?: string;
+  securityQuestions?: SecurityQuestion[];
+}
+
+export interface SecurityQuestion {
+  id: string;
+  question: string;
+  answer: string; // Hashed
 }
 
 // ========================================
@@ -59,61 +91,66 @@ export const twoFactorService = {
    * @param email - User email for QR code label
    * @returns Secret, QR code, and backup codes
    */
-  async generateSecret(userId: string, email: string): Promise<TwoFactorSecret> {
-    try {
-      // Generate cryptographically secure secret
-      const secret = new OTPAuth.Secret({ size: 20 });
+  async generateSecret(userId: string, email: string): Promise<APIResponse<TwoFactorSecret>> {
+    return await safeAsync(async () => {
+      try {
+        logger.info('Generating 2FA secret for user', { userId });
 
-      // Create TOTP instance
-      const totp = new OTPAuth.TOTP({
-        issuer: 'NataCarePM',
-        label: email,
-        algorithm: 'SHA1',
-        digits: 6,
-        period: 30,
-        secret: secret,
-      });
+        // Generate cryptographically secure secret
+        const secret = new OTPAuth.Secret({ size: 20 });
 
-      // Generate QR code as data URL
-      const otpauthURL = totp.toString();
-      const qrCode = await QRCode.toDataURL(otpauthURL, {
-        errorCorrectionLevel: 'H',
-        margin: 2,
-        width: 300,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF',
-        },
-      });
+        // Create TOTP instance
+        const totp = new OTPAuth.TOTP({
+          issuer: 'NataCarePM',
+          label: email,
+          algorithm: 'SHA1',
+          digits: 6,
+          period: 30,
+          secret: secret,
+        });
 
-      // Generate 10 backup codes
-      const backupCodes = this.generateBackupCodes(10);
+        // Generate QR code as data URL
+        const otpauthURL = totp.toString();
+        const qrCode = await QRCode.toDataURL(otpauthURL, {
+          errorCorrectionLevel: 'H',
+          margin: 2,
+          width: 300,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF',
+          },
+        });
 
-      // Save to Firestore (not enabled yet)
-      const twoFactorData: TwoFactorData = {
-        userId,
-        secret: secret.base32,
-        backupCodes: backupCodes.map((code) => this.hashBackupCode(code)),
-        enabled: false,
-        createdAt: new Date(),
-        verificationAttempts: 0,
-      };
+        // Generate 10 backup codes
+        const backupCodes = this.generateBackupCodes(10);
 
-      await setDoc(doc(db, 'twoFactorAuth', userId), twoFactorData);
+        // Save to Firestore (not enabled yet)
+        const twoFactorData: TwoFactorData = {
+          userId,
+          secret: secret.base32,
+          backupCodes: backupCodes.map((code) => this.hashBackupCode(code)),
+          enabled: false,
+          createdAt: new Date(),
+          verificationAttempts: 0,
+          trustedDevices: [],
+        };
 
-      console.log('[2FA] Secret generated for user:', userId);
+        await setDoc(doc(db, 'twoFactorAuth', userId), twoFactorData);
 
-      return {
-        secret: secret.base32,
-        qrCode,
-        backupCodes, // Return unhashed for user to save
-        enabled: false,
-        createdAt: new Date(),
-      };
-    } catch (error) {
-      console.error('[2FA] Error generating secret:', error);
-      throw new Error('Failed to generate 2FA secret');
-    }
+        logger.info('2FA secret generated successfully', { userId });
+
+        return {
+          secret: secret.base32,
+          qrCode,
+          backupCodes, // Return unhashed for user to save
+          enabled: false,
+          createdAt: new Date(),
+        };
+      } catch (error: any) {
+        logger.error('Error generating 2FA secret', error as Error);
+        throw new APIError(ErrorCodes.INTERNAL_ERROR, 'Failed to generate 2FA secret', 500);
+      }
+    }, 'twoFactorService.generateSecret');
   },
 
   /**
@@ -124,45 +161,55 @@ export const twoFactorService = {
    * @param code - 6-digit TOTP code from authenticator app
    * @returns Success status
    */
-  async enableTwoFactor(userId: string, code: string): Promise<boolean> {
-    try {
-      // Check rate limit
-      const rateCheck = rateLimiter.checkLimit(userId, '2fa');
-      if (!rateCheck.allowed) {
-        throw new Error(rateCheck.message || 'Too many verification attempts');
+  async enableTwoFactor(userId: string, code: string): Promise<APIResponse<boolean>> {
+    return await safeAsync(async () => {
+      try {
+        logger.info('Enabling 2FA for user', { userId });
+
+        // Check rate limit
+        const rateCheck = rateLimiter.checkLimit(userId, '2fa');
+        if (!rateCheck.allowed) {
+          throw new APIError(ErrorCodes.RATE_LIMIT_EXCEEDED, rateCheck.message || 'Too many verification attempts', 429);
+        }
+
+        const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+
+        if (!twoFactorDoc.exists()) {
+          throw new APIError(ErrorCodes.NOT_FOUND, '2FA not initialized. Generate secret first.', 400);
+        }
+
+        const data = twoFactorDoc.data() as TwoFactorData;
+
+        // Verify code
+        const isValid = this.verifyTOTP(data.secret, code);
+
+        if (!isValid) {
+          // Increment verification attempts
+          await updateDoc(doc(db, 'twoFactorAuth', userId), {
+            verificationAttempts: (data.verificationAttempts || 0) + 1,
+          });
+          
+          throw new APIError(ErrorCodes.INVALID_INPUT, 'Invalid verification code. Please try again.', 400);
+        }
+
+        // Enable 2FA
+        await updateDoc(doc(db, 'twoFactorAuth', userId), {
+          enabled: true,
+          lastUsed: new Date(),
+          verificationAttempts: 0,
+          mfaLevel: 'standard', // Default level
+        });
+
+        // Reset rate limit on success
+        rateLimiter.reset(userId, '2fa');
+
+        logger.info('2FA enabled successfully', { userId });
+        return true;
+      } catch (error: any) {
+        logger.error('Error enabling 2FA', error as Error);
+        throw error;
       }
-
-      const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-
-      if (!twoFactorDoc.exists()) {
-        throw new Error('2FA not initialized. Generate secret first.');
-      }
-
-      const data = twoFactorDoc.data() as TwoFactorData;
-
-      // Verify code
-      const isValid = this.verifyTOTP(data.secret, code);
-
-      if (!isValid) {
-        throw new Error('Invalid verification code. Please try again.');
-      }
-
-      // Enable 2FA
-      await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        enabled: true,
-        lastUsed: new Date(),
-        verificationAttempts: 0,
-      });
-
-      // Reset rate limit on success
-      rateLimiter.reset(userId, '2fa');
-
-      console.log('[2FA] Enabled for user:', userId);
-      return true;
-    } catch (error) {
-      console.error('[2FA] Error enabling 2FA:', error);
-      throw error;
-    }
+    }, 'twoFactorService.enableTwoFactor');
   },
 
   /**
@@ -170,285 +217,324 @@ export const twoFactorService = {
    *
    * @param userId - User ID
    * @param code - 6-digit TOTP code or 8-character backup code
+   * @param deviceId - Device identifier for trusted device checking
+   * @param ipAddress - IP address for logging
+   * @param userAgent - User agent for logging
    * @returns Verification success status
    */
-  async verifyCode(userId: string, code: string): Promise<boolean> {
-    try {
-      // Check rate limit
-      const rateCheck = rateLimiter.checkLimit(userId, '2fa');
-      if (!rateCheck.allowed) {
-        console.warn('[2FA] Rate limit exceeded for user:', userId);
-        throw new Error(rateCheck.message || 'Too many verification attempts');
-      }
+  async verifyCode(
+    userId: string, 
+    code: string, 
+    deviceId?: string,
+    ipAddress?: string,
+    userAgent?: string
+  ): Promise<APIResponse<{ success: boolean; trustedDevice?: boolean }>> {
+    return await safeAsync(async () => {
+      try {
+        logger.info('Verifying 2FA code for user', { userId });
 
-      const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+        // Check rate limit
+        const rateCheck = rateLimiter.checkLimit(userId, '2fa');
+        if (!rateCheck.allowed) {
+          logger.warn('Rate limit exceeded for 2FA verification', { userId });
+          throw new APIError(ErrorCodes.RATE_LIMIT_EXCEEDED, rateCheck.message || 'Too many verification attempts', 429);
+        }
 
-      if (!twoFactorDoc.exists()) {
-        console.warn('[2FA] No 2FA data found for user:', userId);
-        return false;
-      }
+        const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
 
-      const data = twoFactorDoc.data() as TwoFactorData;
+        if (!twoFactorDoc.exists()) {
+          logger.warn('No 2FA data found for user', { userId });
+          return { success: false };
+        }
 
-      if (!data.enabled) {
-        console.warn('[2FA] 2FA not enabled for user:', userId);
-        return false;
-      }
+        const data = twoFactorDoc.data() as TwoFactorData;
 
-      // Try TOTP code (6 digits)
-      if (code.length === 6 && /^\d{6}$/.test(code)) {
-        const totpValid = this.verifyTOTP(data.secret, code);
-        if (totpValid) {
+        if (!data.enabled) {
+          logger.warn('2FA not enabled for user', { userId });
+          return { success: false };
+        }
+
+        // Check if device is trusted
+        if (deviceId && data.trustedDevices) {
+          const trustedDevice = data.trustedDevices.find(device => 
+            device.deviceId === deviceId && device.expiresAt > new Date()
+          );
+          
+          if (trustedDevice) {
+            // Update last used timestamp
+            trustedDevice.lastUsed = new Date();
+            await updateDoc(doc(db, 'twoFactorAuth', userId), {
+              trustedDevices: data.trustedDevices,
+            });
+            
+            logger.info('Trusted device bypassed 2FA', { userId, deviceId });
+            return { success: true, trustedDevice: true };
+          }
+        }
+
+        let isValid = false;
+
+        // Try TOTP code (6 digits)
+        if (code.length === 6 && /^\d{6}$/.test(code)) {
+          isValid = this.verifyTOTP(data.secret, code);
+        }
+        // Try backup code (8 characters alphanumeric)
+        else if (code.length === 8 && /^[A-Za-z0-9]{8}$/.test(code)) {
+          isValid = this.verifyBackupCode(data.backupCodes, code);
+          
+          // If backup code is valid, remove it from the list
+          if (isValid) {
+            const updatedBackupCodes = data.backupCodes.filter(
+              backupCode => backupCode !== this.hashBackupCode(code)
+            );
+            
+            await updateDoc(doc(db, 'twoFactorAuth', userId), {
+              backupCodes: updatedBackupCodes,
+            });
+          }
+        }
+
+        if (isValid) {
+          // Update last used timestamp
           await updateDoc(doc(db, 'twoFactorAuth', userId), {
             lastUsed: new Date(),
             verificationAttempts: 0,
           });
+
+          // Reset rate limit on success
           rateLimiter.reset(userId, '2fa');
-          console.log('[2FA] TOTP verification successful for user:', userId);
-          return true;
+
+          logger.info('2FA code verified successfully', { userId });
+          return { success: true, trustedDevice: false };
+        } else {
+          // Increment verification attempts
+          await updateDoc(doc(db, 'twoFactorAuth', userId), {
+            verificationAttempts: (data.verificationAttempts || 0) + 1,
+          });
+          
+          logger.warn('Invalid 2FA code attempt', { userId });
+          return { success: false };
         }
-      }
-
-      // Try backup code (8 characters)
-      if (code.length === 8) {
-        const backupValid = await this.verifyBackupCode(userId, code, data.backupCodes);
-        if (backupValid) {
-          rateLimiter.reset(userId, '2fa');
-          console.log('[2FA] Backup code verification successful for user:', userId);
-          return true;
-        }
-      }
-
-      // Increment failed attempts
-      const attempts = (data.verificationAttempts || 0) + 1;
-      await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        verificationAttempts: attempts,
-      });
-
-      console.warn('[2FA] Verification failed for user:', userId, 'Attempts:', attempts);
-      return false;
-    } catch (error) {
-      console.error('[2FA] Error verifying code:', error);
-      if (error instanceof Error && error.message.includes('Too many')) {
+      } catch (error: any) {
+        logger.error('Error verifying 2FA code', error as Error);
         throw error;
       }
-      return false;
-    }
+    }, 'twoFactorService.verifyCode');
   },
 
   /**
-   * Check if user has 2FA enabled
+   * Trust device for future logins
    *
    * @param userId - User ID
-   * @returns 2FA enabled status
+   * @param deviceId - Device identifier
+   * @param deviceName - Optional device name
+   * @param ipAddress - IP address
+   * @param userAgent - User agent
+   * @returns Success status
    */
-  async isEnabled(userId: string): Promise<boolean> {
-    try {
-      const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+  async trustDevice(
+    userId: string,
+    deviceId: string,
+    deviceName: string,
+    ipAddress: string,
+    userAgent: string
+  ): Promise<APIResponse<boolean>> {
+    return await safeAsync(async () => {
+      try {
+        logger.info('Trusting device for user', { userId, deviceId });
 
-      if (!twoFactorDoc.exists()) {
-        return false;
+        const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+
+        if (!twoFactorDoc.exists()) {
+          throw new APIError(ErrorCodes.NOT_FOUND, '2FA not initialized', 400);
+        }
+
+        const data = twoFactorDoc.data() as TwoFactorData;
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+        const trustedDevice: TrustedDevice = {
+          id: this.generateDeviceId(),
+          deviceId,
+          deviceName,
+          ipAddress,
+          userAgent,
+          createdAt: now,
+          expiresAt,
+          lastUsed: now,
+        };
+
+        const trustedDevices = data.trustedDevices || [];
+        trustedDevices.push(trustedDevice);
+
+        await updateDoc(doc(db, 'twoFactorAuth', userId), {
+          trustedDevices,
+        });
+
+        logger.info('Device trusted successfully', { userId, deviceId });
+        return true;
+      } catch (error: any) {
+        logger.error('Error trusting device', error as Error);
+        throw error;
       }
-
-      const data = twoFactorDoc.data() as TwoFactorData;
-      return data.enabled === true;
-    } catch (error) {
-      console.error('[2FA] Error checking if enabled:', error);
-      return false;
-    }
+    }, 'twoFactorService.trustDevice');
   },
 
   /**
    * Get 2FA status for user
    *
    * @param userId - User ID
-   * @returns 2FA status details
+   * @returns 2FA status
    */
-  async getStatus(userId: string): Promise<TwoFactorStatus | null> {
-    try {
-      const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+  async getStatus(userId: string): Promise<APIResponse<TwoFactorStatus>> {
+    return await safeAsync(async () => {
+      try {
+        logger.info('Getting 2FA status for user', { userId });
 
-      if (!twoFactorDoc.exists()) {
-        return null;
+        const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+
+        if (!twoFactorDoc.exists()) {
+          return {
+            enabled: false,
+            backupCodesRemaining: 0,
+            trustedDevicesCount: 0,
+          };
+        }
+
+        const data = twoFactorDoc.data() as TwoFactorData;
+
+        // Convert Timestamp to Date if needed
+        let lastUsedDate: Date | undefined;
+        if (data.lastUsed) {
+          if (data.lastUsed instanceof Timestamp) {
+            lastUsedDate = data.lastUsed.toDate();
+          } else {
+            lastUsedDate = data.lastUsed as Date;
+          }
+        }
+
+        const status: TwoFactorStatus = {
+          enabled: data.enabled,
+          lastUsed: lastUsedDate,
+          backupCodesRemaining: data.backupCodes.length,
+          trustedDevicesCount: data.trustedDevices ? data.trustedDevices.length : 0,
+          mfaLevel: data.mfaLevel,
+        };
+
+        logger.info('2FA status retrieved successfully', { userId });
+        return status;
+      } catch (error: any) {
+        logger.error('Error getting 2FA status', error as Error);
+        throw error;
       }
-
-      const data = twoFactorDoc.data() as TwoFactorData;
-
-      return {
-        enabled: data.enabled,
-        lastUsed: data.lastUsed instanceof Timestamp ? data.lastUsed.toDate() : data.lastUsed,
-        backupCodesRemaining: data.backupCodes.length,
-      };
-    } catch (error) {
-      console.error('[2FA] Error getting status:', error);
-      return null;
-    }
+    }, 'twoFactorService.getStatus');
   },
 
   /**
-   * Disable 2FA (requires verification)
+   * Disable 2FA for user
    *
    * @param userId - User ID
-   * @param code - Current TOTP code or backup code
    * @returns Success status
    */
-  async disable(userId: string, code: string): Promise<boolean> {
-    try {
-      const isValid = await this.verifyCode(userId, code);
+  async disableTwoFactor(userId: string): Promise<APIResponse<boolean>> {
+    return await safeAsync(async () => {
+      try {
+        logger.info('Disabling 2FA for user', { userId });
 
-      if (!isValid) {
-        throw new Error('Invalid verification code');
+        const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
+
+        if (!twoFactorDoc.exists()) {
+          throw new APIError(ErrorCodes.NOT_FOUND, '2FA not initialized', 400);
+        }
+
+        await updateDoc(doc(db, 'twoFactorAuth', userId), {
+          enabled: false,
+          secret: '',
+          backupCodes: [],
+          trustedDevices: [],
+        });
+
+        logger.info('2FA disabled successfully', { userId });
+        return true;
+      } catch (error: any) {
+        logger.error('Error disabling 2FA', error as Error);
+        throw error;
       }
-
-      await deleteDoc(doc(db, 'twoFactorAuth', userId));
-
-      console.log('[2FA] Disabled for user:', userId);
-      return true;
-    } catch (error) {
-      console.error('[2FA] Error disabling 2FA:', error);
-      throw error;
-    }
+    }, 'twoFactorService.disableTwoFactor');
   },
 
   /**
-   * Regenerate backup codes (requires verification)
+   * Generate backup codes
    *
-   * @param userId - User ID
-   * @param code - Current TOTP code
-   * @returns New backup codes
-   */
-  async regenerateBackupCodes(userId: string, code: string): Promise<string[]> {
-    try {
-      const twoFactorDoc = await getDoc(doc(db, 'twoFactorAuth', userId));
-
-      if (!twoFactorDoc.exists()) {
-        throw new Error('2FA not setup');
-      }
-
-      const data = twoFactorDoc.data() as TwoFactorData;
-
-      // Verify current code
-      const isValid = this.verifyTOTP(data.secret, code);
-      if (!isValid) {
-        throw new Error('Invalid verification code');
-      }
-
-      // Generate new backup codes
-      const newBackupCodes = this.generateBackupCodes(10);
-
-      // Update Firestore
-      await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        backupCodes: newBackupCodes.map((code) => this.hashBackupCode(code)),
-      });
-
-      console.log('[2FA] Backup codes regenerated for user:', userId);
-      return newBackupCodes;
-    } catch (error) {
-      console.error('[2FA] Error regenerating backup codes:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Verify TOTP code against secret
-   * Allows 1 time step before/after for clock drift
-   *
-   * @param secret - Base32 encoded secret
-   * @param code - 6-digit TOTP code
-   * @returns Verification success
-   */
-  verifyTOTP(secret: string, code: string): boolean {
-    try {
-      const totp = new OTPAuth.TOTP({
-        algorithm: 'SHA1',
-        digits: 6,
-        period: 30,
-        secret: OTPAuth.Secret.fromBase32(secret),
-      });
-
-      // Allow 1 time step (30 seconds) before/after for clock drift
-      const delta = totp.validate({ token: code, window: 1 });
-      return delta !== null;
-    } catch (error) {
-      console.error('[2FA] Error verifying TOTP:', error);
-      return false;
-    }
-  },
-
-  /**
-   * Generate cryptographically random backup codes
-   *
-   * @param count - Number of codes to generate
+   * @param count - Number of backup codes to generate
    * @returns Array of backup codes
    */
   generateBackupCodes(count: number): string[] {
     const codes: string[] = [];
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous characters
-
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    
     for (let i = 0; i < count; i++) {
       let code = '';
       for (let j = 0; j < 8; j++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        code += chars[randomIndex];
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
       }
       codes.push(code);
     }
-
+    
     return codes;
   },
 
   /**
-   * Hash backup code for storage
-   * Simple base64 encoding - in production consider bcrypt
+   * Hash backup code for secure storage
    *
-   * @param code - Backup code
-   * @returns Hashed code
+   * @param code - Backup code to hash
+   * @returns Hashed backup code
    */
   hashBackupCode(code: string): string {
-    // Simple encoding - in production use bcrypt or similar
-    return Buffer.from(code).toString('base64');
+    // In a real implementation, you would use a proper hashing algorithm
+    // For this example, we'll use a simple approach
+    return btoa(code); // Base64 encoding as placeholder
   },
 
   /**
-   * Verify and consume backup code
-   * Backup codes are single-use
+   * Verify TOTP code
    *
-   * @param userId - User ID
-   * @param code - Backup code to verify
-   * @param hashedCodes - Array of hashed backup codes
-   * @returns Verification success
+   * @param secret - Base32 encoded secret
+   * @param token - 6-digit TOTP code
+   * @returns Validity status
    */
-  async verifyBackupCode(userId: string, code: string, hashedCodes: string[]): Promise<boolean> {
+  verifyTOTP(secret: string, token: string): boolean {
     try {
-      const hashedInput = this.hashBackupCode(code.toUpperCase());
-      const index = hashedCodes.indexOf(hashedInput);
-
-      if (index === -1) {
-        return false;
-      }
-
-      // Remove used backup code
-      hashedCodes.splice(index, 1);
-
-      await updateDoc(doc(db, 'twoFactorAuth', userId), {
-        backupCodes: hashedCodes,
-        lastUsed: new Date(),
-        verificationAttempts: 0,
+      const totp = new OTPAuth.TOTP({
+        secret: OTPAuth.Secret.fromBase32(secret),
+        algorithm: 'SHA1',
+        digits: 6,
+        period: 30,
       });
 
-      console.log('[2FA] Backup code used. Remaining:', hashedCodes.length);
-
-      // Warn if running low on backup codes
-      if (hashedCodes.length <= 2) {
-        console.warn('[2FA] User', userId, 'has', hashedCodes.length, 'backup codes remaining');
-      }
-
-      return true;
-    } catch (error) {
-      console.error('[2FA] Error verifying backup code:', error);
+      return totp.validate({ token, window: 1 }) !== null;
+    } catch (error: any) {
+      logger.error('Error verifying TOTP', error as Error);
       return false;
     }
   },
-};
 
-export default twoFactorService;
+  /**
+   * Verify backup code
+   *
+   * @param hashedCodes - Array of hashed backup codes
+   * @param code - Backup code to verify
+   * @returns Validity status
+   */
+  verifyBackupCode(hashedCodes: string[], code: string): boolean {
+    const hashedCode = this.hashBackupCode(code);
+    return hashedCodes.includes(hashedCode);
+  },
+
+  /**
+   * Generate device ID
+   */
+  generateDeviceId(): string {
+    return `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  },
+};

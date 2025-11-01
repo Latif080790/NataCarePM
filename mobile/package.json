@@ -1,0 +1,46 @@
+{
+  "name": "natacare-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "eject": "expo eject",
+    "test": "jest"
+  },
+  "dependencies": {
+    "expo": "^53.0.0",
+    "expo-status-bar": "~2.1.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.78.0",
+    "react-native-web": "~0.19.13",
+    "react-native-screens": "4.4.0",
+    "react-native-safe-area-context": "4.15.10",
+    "react-navigation": "^5.0.0",
+    "react-navigation-stack": "^2.10.4",
+    "react-navigation-tabs": "^2.11.2",
+    "react-navigation-drawer": "^2.7.2",
+    "@react-navigation/native": "^7.2.0",
+    "@react-navigation/stack": "^7.1.1",
+    "@react-navigation/bottom-tabs": "^7.2.1",
+    "@react-navigation/drawer": "^7.1.1",
+    "react-native-gesture-handler": "~2.25.1",
+    "react-native-reanimated": "~3.19.1",
+    "react-native-vector-icons": "^10.2.0",
+    "react-native-paper": "^5.12.5",
+    "@expo/vector-icons": "^15.1.3",
+    "firebase": "^12.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@types/react": "~19.0.1",
+    "@types/react-native": "^0.73.0",
+    "jest": "^29.7.0",
+    "jest-expo": "~53.0.0",
+    "react-test-renderer": "19.0.0",
+    "typescript": "~5.8.2"
+  }
+}
