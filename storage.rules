@@ -107,8 +107,10 @@ service firebase.storage {
                       isImage() &&
                       isValidSize(10); // Max 10MB per photo
       
-      // Project members can update/delete photos
-      allow update, delete: if isProjectMember(projectId);
+      // Only admins or document uploader can update/delete
+      allow update, delete: if isProjectMember(projectId) && 
+                            (request.auth.uid == resource.data.uploadedBy || 
+                             hasProjectRole(projectId, 'admin'));
     }
     
     // ============================================
@@ -123,8 +125,11 @@ service firebase.storage {
                       isImage() &&
                       isValidSize(10); // Max 10MB per photo
       
-      // Only incident reporter or admins can update/delete
-      allow update, delete: if isProjectMember(projectId);
+      // Only admins, safety officer, or incident reporter can update/delete
+      allow update, delete: if isProjectMember(projectId) && 
+                            (request.auth.uid == resource.data.reportedBy || 
+                             hasProjectRole(projectId, 'admin') ||
+                             hasProjectRole(projectId, 'safety'));
     }
     
     // ============================================
@@ -171,8 +176,11 @@ service firebase.storage {
                       isAllowedDocumentType() &&
                       isValidSize(20); // Max 20MB
       
-      // Project members can update/delete attachments
-      allow update, delete: if isProjectMember(projectId);
+      // Only admins or PO creator can update/delete
+      allow update, delete: if isProjectMember(projectId) && 
+                            (request.auth.uid == resource.data.createdBy || 
+                             hasProjectRole(projectId, 'admin') ||
+                             hasProjectRole(projectId, 'procurement'));
     }
     
     // ============================================
@@ -187,8 +195,10 @@ service firebase.storage {
                       isImage() &&
                       isValidSize(10); // Max 10MB per photo
       
-      // Project members can update/delete photos
-      allow update, delete: if isProjectMember(projectId);
+      // Only admins or document uploader can update/delete
+      allow update, delete: if isProjectMember(projectId) && 
+                            (request.auth.uid == resource.data.uploadedBy || 
+                             hasProjectRole(projectId, 'admin'));
     }
     
     // ============================================

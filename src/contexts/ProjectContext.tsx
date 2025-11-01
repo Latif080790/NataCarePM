@@ -18,13 +18,12 @@ import {
   POItem,
   Attendance,
   WorkProgress,
-  AiInsight,
   Document,
 } from '@/types';
 import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
 import { getTodayDateString } from '@/constants';
-import { GoogleGenAI } from '@google/genai';
+
 import { logger } from '@/utils/logger.enhanced';
 
 interface ProjectContextType {
@@ -276,43 +275,39 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [currentProject]);
 
   const handleUpdateAiInsight = useCallback(async () => {
-    if (!currentProject) return;
-    // This is a client-side update only, as it doesn't persist.
-    // In a real app, this would be a server-side function and saved to the DB.
+    if (!currentProject || !currentUser) return;
+    
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('VITE_GEMINI_API_KEY not configured');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      const context = getProjectContextForAI();
-      const prompt = `Based on the following project data, provide a short executive summary, identify the top 3 potential risks, and give a brief prediction of project outcome (cost and schedule). Format the response as a JSON object with keys: "summary", "risks" (an array of strings), and "predictions". Project data: ${context}`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
+      // Call Firebase Function to generate AI insight
+      // This is a placeholder - in a real implementation, you would use Firebase Functions
+      const response = await fetch('/api/generate-ai-insight', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: currentProject.id,
+          userId: currentUser.id,
+        }),
       });
 
-      const responseText = response.text || '';
-      const parsedText = responseText
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
-      const aiResponse = JSON.parse(parsedText);
+      if (!response.ok) {
+        throw new Error('Failed to generate AI insight');
+      }
 
-      const newInsight: AiInsight = {
-        ...aiResponse,
-        generatedAt: new Date().toISOString(),
-      };
-
-      setCurrentProject((prev) => (prev ? { ...prev, aiInsight: newInsight } : null));
-      addToast('AI Insight berhasil diperbarui.', 'success');
+      const result = await response.json();
+      
+      if (result.success) {
+        setCurrentProject((prev) => (prev ? { ...prev, aiInsight: result.data } : null));
+        addToast('AI Insight berhasil diperbarui.', 'success');
+      } else {
+        throw new Error(result.message || 'Failed to generate AI insight');
+      }
     } catch (e) {
       logger.error('Error generating AI insight', e instanceof Error ? e : new Error(String(e)));
       addToast('Gagal menghasilkan insight dari AI.', 'error');
     }
-  }, [currentProject, getProjectContextForAI, addToast]);
+  }, [currentProject, currentUser, addToast]);
 
   return (
     <ProjectContext.Provider

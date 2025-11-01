@@ -50,8 +50,8 @@ service cloud.firestore {
     // USERS COLLECTION
     // ============================================
     match /users/{userId} {
-      // Users can read their own profile and other users (for team visibility)
-      allow read: if isAuthenticated();
+      // Users can only read their own profile or admins can read all
+      allow read: if isOwner(userId) || isAdmin();
       
       // Users can only update their own profile
       allow update: if isOwner(userId) && 
@@ -134,7 +134,9 @@ service cloud.firestore {
       // Inventory
       match /inventory/{inventoryId} {
         allow read: if isProjectMember(projectId);
-        allow write: if isProjectMember(projectId);
+        allow write: if hasProjectRole(projectId, 'admin') || 
+                       hasProjectRole(projectId, 'logistics') ||
+                       hasProjectRole(projectId, 'procurement');
       }
       
       // Documents
@@ -160,7 +162,9 @@ service cloud.firestore {
       // Attendances
       match /attendances/{attendanceId} {
         allow read: if isProjectMember(projectId);
-        allow write: if isProjectMember(projectId);
+        allow write: if hasProjectRole(projectId, 'admin') || 
+                       hasProjectRole(projectId, 'supervisor') ||
+                       hasProjectRole(projectId, 'hr');
       }
       
       // Termins (Payment Terms)
@@ -189,7 +193,9 @@ service cloud.firestore {
       // PPE Inventory
       match /ppeInventory/{ppeId} {
         allow read: if isProjectMember(projectId);
-        allow write: if isProjectMember(projectId);
+        allow write: if hasProjectRole(projectId, 'admin') || 
+                       hasProjectRole(projectId, 'safety') ||
+                       hasProjectRole(projectId, 'logistics');
       }
       
       // Training Records

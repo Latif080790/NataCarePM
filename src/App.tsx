@@ -353,22 +353,7 @@ function AppContent() {
     };
   }, [handleNavigate]);
 
-  const itemsWithProgress = useMemo(() => {
-    if (!currentProject?.items || !currentProject?.dailyReports) return [];
 
-    const completedVolumeMap = new Map<number, number>();
-    currentProject.dailyReports.forEach((report) => {
-      report.workProgress?.forEach((progress) => {
-        const currentVolume = completedVolumeMap.get(progress.rabItemId) || 0;
-        completedVolumeMap.set(progress.rabItemId, currentVolume + progress.completedVolume);
-      });
-    });
-
-    return currentProject.items.map((item) => ({
-      ...item,
-      completedVolume: completedVolumeMap.get(item.id) || 0,
-    }));
-  }, [currentProject]);
 
   // Initialize Failover Manager
   useEffect(() => {
@@ -509,164 +494,15 @@ function AppContent() {
     );
   }
 
-  // Safe view props with comprehensive null safety and error handling
-  const getViewProps = (viewId: string): any => {
-    const safeProject = (currentProject as any) || {};
-
-    // Common safe props for all views
-    const commonProps = {
-      project: currentProject,
-      projectMetrics: projectMetrics,
-      loading: projectLoading,
-      error: projectError,
-    };
-
-    // View-specific props with comprehensive safety checks
-    const viewPropsMap: { [key: string]: any } = {
-      dashboard: {
-        ...commonProps,
-        projects: currentProject ? [currentProject] : [],
-        tasks: safeProject.tasks || [],
-        expenses: safeProject.expenses || [],
-        purchaseOrders: safeProject.purchaseOrders || [],
-        users: safeProject.members || [],
-        recentReports: safeProject.dailyReports?.slice(-5) || [],
-        notifications: [], // Will be populated by the view
-        updateAiInsight: () => console.log('AI Insight update feature coming soon'),
-        onNavigate: handleNavigate,
-      },
-      enhanced_dashboard: {
-        ...commonProps,
-        projectMetrics: projectMetrics,
-        recentReports: safeProject.dailyReports || [],
-        notifications: [],
-        updateAiInsight: () => console.log('AI Insight update feature coming soon'),
-      },
-      rab_ahsp: {
-        ...commonProps,
-        items: safeProject.items || [],
-        ahspData: {}, // Will be populated by the view
-        projectLocation: safeProject.location || 'Jakarta',
-      },
-      jadwal: {
-        ...commonProps,
-        projectId: safeProject.id || '',
-        tasks: safeProject.tasks || [],
-        timeline: safeProject.timeline || {},
-      },
-      tasks: {
-        ...commonProps,
-        tasks: safeProject.tasks || [],
-        users: safeProject.members || [],
-        onCreateTask: () => console.log('Create task feature coming soon'),
-        onUpdateTask: () => console.log('Update task feature coming soon'),
-        onDeleteTask: () => console.log('Delete task feature coming soon'),
-      },
-      task_list: {
-        ...commonProps,
-        projectId: safeProject.id || '',
-        tasks: safeProject.tasks || [],
-      },
-      kanban: {
-        ...commonProps,
-        tasks: safeProject.tasks || [],
-        users: safeProject.members || [],
-        onCreateTask: () => console.log('Create task feature coming soon'),
-        onUpdateTask: () => console.log('Update task feature coming soon'),
-        onDeleteTask: () => console.log('Delete task feature coming soon'),
-      },
-      kanban_board: {
-        ...commonProps,
-        projectId: safeProject.id || '',
-        tasks: safeProject.tasks || [],
-      },
-      dependencies: {
-        ...commonProps,
-        projectId: safeProject.id || '',
-        tasks: safeProject.tasks || [],
-        dependencies: safeProject.dependencies || [],
-      },
-      notifications: {
-        ...commonProps,
-        projectId: safeProject.id || '',
-        notifications: [],
-      },
-      laporan_harian: {
-        ...commonProps,
-        dailyReports: safeProject.dailyReports || [],
-        rabItems: safeProject.items || [],
-        workers: [],
-        onAddReport: () => console.log('Add report feature coming soon'),
-      },
-      progres: {
-        ...commonProps,
-        itemsWithProgress: itemsWithProgress || [],
-        onUpdateProgress: () => console.log('Update progress feature coming soon'),
-      },
-      absensi: {
-        ...commonProps,
-        attendances: safeProject.attendances || [],
-        workers: [],
-        onUpdateAttendance: () => console.log('Update attendance feature coming soon'),
-      },
-      biaya_proyek: {
-        ...commonProps,
-        expenses: safeProject.expenses || [],
-        budget: safeProject.budget || {},
-        costs: safeProject.costs || [],
-      },
-      arus_kas: {
-        ...commonProps,
-        termins: safeProject.termins || [],
-        expenses: safeProject.expenses || [],
-        cashflow: safeProject.cashflow || [],
-      },
-      strategic_cost: {
-        ...commonProps,
-        strategicCosts: safeProject.strategicCosts || [],
-      },
-      logistik: {
-        ...commonProps,
-        purchaseOrders: safeProject.purchaseOrders || [],
-        inventory: safeProject.inventory || [],
-        onUpdatePOStatus: () => console.log('Update PO status feature coming soon'),
-        ahspData: {},
-        onAddPO: () => console.log('Add PO feature coming soon'),
-      },
-      dokumen: {
-        ...commonProps,
-        documents: safeProject.documents || [],
-        folders: safeProject.folders || [],
-      },
-      laporan: {
-        ...commonProps,
-        reports: safeProject.reports || [],
-      },
-      user_management: {
-        ...commonProps,
-        users: safeProject.members || [],
-        roles: safeProject.roles || [],
-      },
-      master_data: {
-        ...commonProps,
-        workers: [],
-        materials: safeProject.materials || [],
-        equipment: safeProject.equipment || [],
-      },
-      audit_trail: {
-        ...commonProps,
-        auditLog: safeProject.auditLog || [],
-        activities: safeProject.activities || [],
-      },
-      profile: {
-        ...commonProps,
-        user: currentUser,
-        preferences: (currentUser as any)?.preferences || {},
-      },
-    };
-
-    return viewPropsMap[viewId] || commonProps;
-  };
+  // Simplified view props - each view will fetch its own data
+  const getViewProps = (viewId: string): any => ({
+    project: currentProject,
+    projectMetrics: projectMetrics,
+    loading: projectLoading,
+    error: projectError,
+    user: currentUser,
+    onNavigate: handleNavigate,
+  });
 
   const viewProps = getViewProps(currentView);
 

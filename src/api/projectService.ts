@@ -108,49 +108,8 @@ export const projectService = {
             if (docSnapshot.exists()) {
               const projectData = docToType<Project>(docSnapshot);
 
-              // Fetch subcollections with retry
-              const subCollections = [
-                'dailyReports',
-                'attendances',
-                'expenses',
-                'documents',
-                'purchaseOrders',
-                'inventory',
-                'termins',
-                'auditLog',
-              ];
-
-              for (const sc of subCollections) {
-                try {
-                  const scQuery = query(
-                    collection(db, `projects/${projectId}/${sc}`),
-                    orderBy('timestamp', 'desc')
-                  );
-
-                  const scSnapshot = await withRetry(() => getDocs(scQuery), {
-                    maxAttempts: 2,
-                    onRetry: (attempt: number, error: Error) => {
-                      logger.warn(
-                        'projectService:streamProjectById',
-                        `Retrying fetch for ${sc} (attempt ${attempt})`,
-                        { projectId, subcollection: sc, error: error.message }
-                      );
-                    },
-                  });
-
-                  (projectData as any)[sc] = scSnapshot.docs.map(
-                    (d: QueryDocumentSnapshot<DocumentData>) => docToType(d)
-                  );
-                } catch (error) {
-                  // Non-blocking: if subcollection fails, continue with empty array
-                  logger.warn(
-                    'projectService:streamProjectById',
-                    `Failed to fetch subcollection: ${sc}`,
-                    { projectId, error }
-                  );
-                  (projectData as any)[sc] = [];
-                }
-              }
+              // Only fetch the main project document, not subcollections
+              // Subcollections will be fetched by individual views as needed
 
               callback(projectData);
 
