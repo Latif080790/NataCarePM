@@ -42,3 +42,8 @@ export * from './integrationConnectors';
 export { enhancedReportingService } from './enhancedReportingService';
 export { dashboardService } from './dashboardService';
 export { KPIService } from './kpiService';
+
+// Construction Domain Services
+export { rfiService } from './rfiService';
+export { submittalService } from './submittalService';
+export { dailyLogService } from './dailyLogService';

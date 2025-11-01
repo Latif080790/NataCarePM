@@ -10,7 +10,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Screens
-import { DashboardScreen, ProjectsScreen, LoginScreen } from '../screens';
+import { 
+  DashboardScreen, 
+  ProjectsScreen, 
+  LoginScreen,
+  TasksScreen,
+  ResourcesScreen,
+  ReportsScreen
+} from '../screens';
 import ProjectDetailScreen from '../screens/ProjectDetailScreen';
 
 // Types
@@ -63,9 +70,9 @@ function MainTabs() {
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Projects" component={ProjectsScreen} />
-      <Tab.Screen name="Tasks" component={DashboardScreen} />
-      <Tab.Screen name="Resources" component={DashboardScreen} />
-      <Tab.Screen name="Reports" component={DashboardScreen} />
+      <Tab.Screen name="Tasks" component={TasksScreen} />
+      <Tab.Screen name="Resources" component={ResourcesScreen} />
+      <Tab.Screen name="Reports" component={ReportsScreen} />
     </Tab.Navigator>
   );
 }
