@@ -1159,6 +1159,251 @@ class AIResourceService {
       computedAt: Timestamp.fromDate(result.computedAt),
     });
   }
+
+  /**
+   * Update Model with Real Results (Continuous Learning)
+   */
+  public async updateModelWithRealResults(projectId: string): Promise<void> {
+    try {
+      // Collect actual vs predicted results
+      const actualResults = await this.collectActualProjectResults(projectId);
+      const trainingDataPoints = this.convertToTrainingData(actualResults);
+      
+      if (trainingDataPoints.length === 0) {
+        console.log('No actual results to learn from');
+        return;
+      }
+      
+      // Get current training data
+      const currentDataset = await this.loadTrainingData();
+      
+      // Combine with new data
+      const updatedDataPoints = [...currentDataset.dataPoints, ...trainingDataPoints];
+      
+      // Create updated dataset
+      const updatedDataset: TrainingDataset = {
+        ...currentDataset,
+        dataPoints: updatedDataPoints,
+        updatedAt: new Date()
+      };
+      
+      // Save updated training data
+      await this.saveTrainingData(updatedDataset);
+      
+      // Retrain model with updated data if we have sufficient data
+      if (this.modelManager && updatedDataPoints.length > 50) {
+        const model = await this.modelManager.buildResourceAllocationModel();
+        await this.modelManager.trainModel('resource_allocation_v1', model, updatedDataset);
+        console.log(`Model updated with ${trainingDataPoints.length} new data points`);
+      }
+    } catch (error) {
+      console.error('Error updating model with real results:', error);
+    }
+  }
+
+  /**
+   * Collect Actual Project Results for Continuous Learning
+   */
+  private async collectActualProjectResults(projectId: string): Promise<any[]> {
+    // Fetch actual project outcomes
+    const projectSnapshot = await getDocs(
+      query(collection(db, 'projects'), where('__name__', '==', projectId))
+    );
+    
+    if (projectSnapshot.empty) return [];
+    
+    const project = projectSnapshot.docs[0].data() as Project;
+    
+    // Fetch actual resource allocations
+    const allocationsSnapshot = await getDocs(
+      query(collection(db, 'resource_allocations'), where('projectId', '==', projectId))
+    );
+    
+    const actualAllocations = allocationsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Fetch actual task completions
+    const tasksSnapshot = await getDocs(
+      query(collection(db, 'tasks'), where('projectId', '==', projectId))
+    );
+    
+    const actualTasks = tasksSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    return [{
+      project,
+      actualAllocations,
+      actualTasks,
+      timestamp: new Date()
+    }];
+  }
+
+  /**
+   * Convert Actual Results to Training Data
+   */
+  private convertToTrainingData(actualResults: any[]): TrainingDataPoint[] {
+    return actualResults.map(result => {
+      // Extract features from actual results
+      const features = {
+        taskComplexity: result.project.complexity || 5,
+        taskDuration: this.calculateActualDuration(result.actualTasks),
+        requiredSkills: result.project.requiredSkills || [],
+        budgetAmount: result.project.budget || 0,
+        workerExperienceYears: this.calculateAverageExperience(result.actualAllocations),
+        workerProficiencyLevel: this.calculateAverageProficiency(result.actualAllocations),
+        equipmentAge: this.calculateAverageEquipmentAge(result.actualAllocations),
+        equipmentCondition: this.calculateAverageEquipmentCondition(result.actualAllocations),
+        season: this.getCurrentSeason(),
+        weatherConditions: result.project.weatherConditions || 'normal',
+        siteAccessibility: result.project.siteAccessibility || 4,
+        previousProjectsCount: this.calculatePreviousProjectsCount(result.project),
+        averageDelayDays: this.calculateAverageDelay(result.actualTasks),
+        averageCostOverrun: this.calculateAverageCostOverrun(result.project, result.actualAllocations)
+      };
+      
+      // Extract labels from actual results
+      const labels = {
+        actualDuration: this.calculateActualDuration(result.actualTasks),
+        actualCost: this.calculateActualCost(result.actualAllocations),
+        qualityScore: result.project.qualityScore || 85,
+        successRate: this.calculateSuccessRate(result.project, result.actualTasks),
+        delayDays: this.calculateTotalDelay(result.actualTasks),
+        costOverrunPercentage: this.calculateCostOverrunPercentage(result.project, result.actualAllocations)
+      };
+      
+      return {
+        dataId: `data_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        projectId: result.project.id,
+        features,
+        labels,
+        timestamp: result.timestamp
+      };
+    });
+  }
+
+  /**
+   * Save Training Data
+   */
+  private async saveTrainingData(dataset: TrainingDataset): Promise<void> {
+    // In a real implementation, you would save to Firestore
+    // For now, we'll just log the action
+    console.log(`Saving training dataset with ${dataset.dataPoints.length} data points`);
+  }
+
+  /**
+   * Helper Methods for Feature Extraction
+   */
+  private calculateActualDuration(tasks: any[]): number {
+    return tasks.reduce((sum, task) => sum + (task.actualDuration || task.estimatedDuration || 0), 0);
+  }
+  
+  private calculateAverageExperience(allocations: any[]): number {
+    const experiences = allocations
+      .filter(alloc => alloc.workerExperience)
+      .map(alloc => alloc.workerExperience);
+    
+    if (experiences.length === 0) return 3;
+    
+    return experiences.reduce((sum, exp) => sum + exp, 0) / experiences.length;
+  }
+  
+  private calculateAverageProficiency(allocations: any[]): number {
+    const proficiencies = allocations
+      .filter(alloc => alloc.workerProficiency)
+      .map(alloc => alloc.workerProficiency);
+    
+    if (proficiencies.length === 0) return 3;
+    
+    return proficiencies.reduce((sum, prof) => sum + prof, 0) / proficiencies.length;
+  }
+  
+  private calculateAverageEquipmentAge(allocations: any[]): number {
+    const ages = allocations
+      .filter(alloc => alloc.equipmentAge)
+      .map(alloc => alloc.equipmentAge);
+    
+    if (ages.length === 0) return 2;
+    
+    return ages.reduce((sum, age) => sum + age, 0) / ages.length;
+  }
+  
+  private calculateAverageEquipmentCondition(allocations: any[]): number {
+    const conditions = allocations
+      .filter(alloc => alloc.equipmentCondition)
+      .map(alloc => alloc.equipmentCondition);
+    
+    if (conditions.length === 0) return 4;
+    
+    return conditions.reduce((sum, cond) => sum + cond, 0) / conditions.length;
+  }
+  
+  private getCurrentSeason(): 'spring' | 'summer' | 'fall' | 'winter' {
+    const month = new Date().getMonth();
+    if (month >= 2 && month <= 4) return 'spring';
+    if (month >= 5 && month <= 7) return 'summer';
+    if (month >= 8 && month <= 10) return 'fall';
+    return 'winter';
+  }
+  
+  private calculatePreviousProjectsCount(project: any): number {
+    return project.previousProjectsCount || 10;
+  }
+  
+  private calculateAverageDelay(tasks: any[]): number {
+    const delays = tasks
+      .filter(task => task.actualEndDate && task.plannedEndDate)
+      .map(task => {
+        const actual = new Date(task.actualEndDate).getTime();
+        const planned = new Date(task.plannedEndDate).getTime();
+        return Math.max(0, (actual - planned) / (1000 * 60 * 60 * 24)); // days
+      });
+    
+    if (delays.length === 0) return 2;
+    
+    return delays.reduce((sum, delay) => sum + delay, 0) / delays.length;
+  }
+  
+  private calculateActualCost(allocations: any[]): number {
+    return allocations.reduce((sum, alloc) => sum + (alloc.actualCost || alloc.estimatedCost || 0), 0);
+  }
+  
+  private calculateAverageCostOverrun(project: any, allocations: any[]): number {
+    const estimated = allocations.reduce((sum, alloc) => sum + (alloc.estimatedCost || 0), 0);
+    const actual = this.calculateActualCost(allocations);
+    
+    if (estimated === 0) return 5;
+    
+    return ((actual - estimated) / estimated) * 100;
+  }
+  
+  private calculateSuccessRate(project: any, tasks: any[]): number {
+    const completedTasks = tasks.filter(task => task.status === 'completed').length;
+    return tasks.length > 0 ? completedTasks / tasks.length : 0.9;
+  }
+  
+  private calculateTotalDelay(tasks: any[]): number {
+    return tasks.reduce((sum, task) => {
+      if (task.actualEndDate && task.plannedEndDate) {
+        const actual = new Date(task.actualEndDate).getTime();
+        const planned = new Date(task.plannedEndDate).getTime();
+        return sum + Math.max(0, (actual - planned) / (1000 * 60 * 60 * 24)); // days
+      }
+      return sum;
+    }, 0);
+  }
+  
+  private calculateCostOverrunPercentage(project: any, allocations: any[]): number {
+    const estimated = project.budget || allocations.reduce((sum, alloc) => sum + (alloc.estimatedCost || 0), 0);
+    const actual = this.calculateActualCost(allocations);
+    
+    if (estimated === 0) return 10;
+    
+    return ((actual - estimated) / estimated) * 100;
+  }
 }
 
 // ============================================================================

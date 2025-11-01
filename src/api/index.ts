@@ -43,6 +43,12 @@ export { enhancedReportingService } from './enhancedReportingService';
 export { dashboardService } from './dashboardService';
 export { KPIService } from './kpiService';
 
+// Priority 4.8: Advanced Reporting and Benchmarking System
+export { advancedBenchmarkingService } from './advancedBenchmarkingService';
+
+// Priority 4.9: Conflict Resolution for Data Sync
+export { conflictResolutionService } from './conflictResolutionService';
+
 // Construction Domain Services
 export { rfiService } from './rfiService';
 export { submittalService } from './submittalService';

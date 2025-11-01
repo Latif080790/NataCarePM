@@ -306,4 +306,11 @@ export abstract class BaseIntegrationConnector {
       data: true
     };
   }
+
+  /**
+   * Get connector configuration
+   */
+  getConfig(): IntegrationConfig {
+    return this.config;
+  }
 }

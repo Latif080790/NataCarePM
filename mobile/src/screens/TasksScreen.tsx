@@ -3,7 +3,7 @@
  * NataCarePM Mobile App
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -18,15 +18,15 @@ import {
   Searchbar,
   IconButton,
   Chip,
+  Snackbar,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useOffline } from '../hooks';
 
 const TasksScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const navigation = useNavigation();
-
-  const tasks = [
+  const [tasks, setTasks] = useState<any[]>([
     {
       id: '1',
       title: 'Excavate Foundation',
@@ -63,7 +63,21 @@ const TasksScreen = () => {
       dueDate: '2023-05-30',
       assignee: 'Alice Brown',
     },
-  ];
+  ]);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const navigation = useNavigation();
+  
+  const { isOnline, isInitialized, saveOfflineData, addToSyncQueue } = useOffline();
+
+  useEffect(() => {
+    if (!isOnline && isInitialized) {
+      setSnackbarMessage('Working offline - changes will sync when online');
+      setSnackbarVisible(true);
+    }
+  }, [isOnline, isInitialized]);
+
+  // Tasks are now loaded from state
 
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -176,11 +190,48 @@ const TasksScreen = () => {
       
       <Button
         mode="contained"
-        onPress={() => {}}
+        onPress={async () => {
+          // Create a new task
+          const newTask = {
+            id: `task_${Date.now()}`,
+            title: 'New Task',
+            project: 'Current Project',
+            status: 'pending',
+            priority: 'medium',
+            dueDate: new Date().toISOString().split('T')[0],
+            assignee: 'Current User',
+          };
+          
+          // Add to local state
+          setTasks(prev => [...prev, newTask]);
+          
+          // Save offline and add to sync queue
+          try {
+            await saveOfflineData(newTask.id, newTask, 'task');
+            await addToSyncQueue('create', 'task', newTask);
+            
+            if (!isOnline) {
+              setSnackbarMessage('Task saved offline - will sync when online');
+              setSnackbarVisible(true);
+            }
+          } catch (error) {
+            console.error('Failed to save task:', error);
+            setSnackbarMessage('Failed to save task');
+            setSnackbarVisible(true);
+          }
+        }}
         style={styles.fab}
       >
         New Task
       </Button>
+      
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={Snackbar.DURATION_SHORT}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 };
