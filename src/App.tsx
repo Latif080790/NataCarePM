@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import '@/styles/enterprise-design-system.css';
 import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
