@@ -313,14 +313,21 @@ function AppContent() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [showDebug]);
 
-  const handleNavigate = (viewId: string) => {
+  const handleNavigate = (viewId: string, params?: any) => {
     logger.debug('Navigation attempt', {
       viewId,
       viewExists: !!viewComponents[viewId],
+      params,
     });
 
     if (viewComponents[viewId]) {
       setIsNavigating(true);
+
+      // Store params in a ref or state if needed
+      // For now, we'll just log them
+      if (params) {
+        logger.debug('Navigation params', params);
+      }
 
       // Smooth transition
       setTimeout(() => {

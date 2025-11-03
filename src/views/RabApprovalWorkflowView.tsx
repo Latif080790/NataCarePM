@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 
 interface RabApprovalWorkflowViewProps {
-  rabItemId: number;
+  rabItemId?: number; // Make this prop optional
 }
 
 // Define types for RAB approval workflow
@@ -75,7 +75,8 @@ interface RabApprovalWorkflow {
 
 const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabItemId }) => {
   const { currentProject } = useProject();
-  const [rabItem, setRabItem] = useState<EnhancedRabItem | null>(null);
+  const [rabItems, setRabItems] = useState<EnhancedRabItem[]>([]);
+  const [selectedRabItem, setSelectedRabItem] = useState<EnhancedRabItem | null>(null);
   const [approvalWorkflow, setApprovalWorkflow] = useState<RabApprovalWorkflow | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,87 +87,104 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
   const [processing, setProcessing] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
 
-  // Fetch RAB item and approval workflow on mount
+  // Fetch RAB items and approval workflow on mount
   useEffect(() => {
     const fetchData = async () => {
-      if (!currentProject?.id || !rabItemId) return;
+      if (!currentProject?.id) {
+        setError('Project ID is required');
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
-        // Fetch RAB item
-        const rabItemResult = await rabAhspService.getRabItemById(currentProject.id, rabItemId);
-        if (rabItemResult.success && rabItemResult.data) {
-          const enhancedRabItem = EnhancedRabService.createEnhancedRabItem(rabItemResult.data);
-          setRabItem(enhancedRabItem);
-        }
+        
+        // If rabItemId is provided, fetch specific RAB item and its approval workflow
+        if (rabItemId !== undefined) {
+          // Fetch RAB item
+          const rabItemResult = await rabAhspService.getRabItemById(currentProject.id, rabItemId);
+          if (rabItemResult.success && rabItemResult.data) {
+            const enhancedRabItem = EnhancedRabService.createEnhancedRabItem(rabItemResult.data);
+            setSelectedRabItem(enhancedRabItem);
+            
+            // Fetch approval workflow
+            try {
+              const approvalResult = await rabApprovalService.getRabApprovalByRabItemId(currentProject.id, rabItemId);
+              if (approvalResult.success && approvalResult.data) {
+                setApprovalWorkflow(approvalResult.data);
+              }
+            } catch (err) {
+              // If no approval workflow exists, we'll create a mock one for demonstration
+              console.log('No existing approval workflow found, creating mock workflow');
+              const mockWorkflow: RabApprovalWorkflow = {
+                id: `rab-approval-${rabItemId}`,
+                rabItemId: rabItemId,
+                projectId: currentProject.id,
+                title: `Approval for ${rabItemResult.data?.uraian || 'RAB Item'}`,
+                description: `Approval workflow for RAB item #${rabItemId}`,
+                status: 'in_review',
+                currentApproverLevel: 1,
+                approvalWorkflow: [
+                  {
+                    stepNumber: 1,
+                    approverRole: 'Project Manager',
+                    approverName: 'John Doe',
+                    approverUserId: 'user1',
+                    status: 'approved',
+                    comments: 'Looks good, approved.',
+                    decidedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+                  },
+                  {
+                    stepNumber: 2,
+                    approverRole: 'Finance Manager',
+                    approverName: 'Jane Smith',
+                    approverUserId: 'user2',
+                    status: 'pending',
+                    requiredBy: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+                  },
+                  {
+                    stepNumber: 3,
+                    approverRole: 'Site Manager',
+                    approverName: 'Robert Johnson',
+                    approverUserId: 'user3',
+                    status: 'pending',
+                  },
+                ],
+                approvalHistory: [
+                  {
+                    approverName: 'John Doe',
+                    approverRole: 'Project Manager',
+                    approverUserId: 'user1',
+                    decision: 'approve',
+                    comments: 'Looks good, approved.',
+                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+                  },
+                ],
+                submittedBy: 'user1',
+                submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+                updatedAt: new Date(),
+                createdBy: 'user1',
+                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+                isCancelled: false,
+                isCompleted: false,
+              };
 
-        // Fetch approval workflow
-        try {
-          const approvalResult = await rabApprovalService.getRabApprovalByRabItemId(currentProject.id, rabItemId);
-          if (approvalResult.success && approvalResult.data) {
-            setApprovalWorkflow(approvalResult.data);
+              setApprovalWorkflow(mockWorkflow);
+            }
           }
-        } catch (err) {
-          // If no approval workflow exists, we'll create a mock one for demonstration
-          console.log('No existing approval workflow found, creating mock workflow');
-          const mockWorkflow: RabApprovalWorkflow = {
-            id: `rab-approval-${rabItemId}`,
-            rabItemId: rabItemId,
-            projectId: currentProject.id,
-            title: `Approval for ${rabItemResult.data?.uraian || 'RAB Item'}`,
-            description: `Approval workflow for RAB item #${rabItemId}`,
-            status: 'in_review',
-            currentApproverLevel: 1,
-            approvalWorkflow: [
-              {
-                stepNumber: 1,
-                approverRole: 'Project Manager',
-                approverName: 'John Doe',
-                approverUserId: 'user1',
-                status: 'approved',
-                comments: 'Looks good, approved.',
-                decidedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-              },
-              {
-                stepNumber: 2,
-                approverRole: 'Finance Manager',
-                approverName: 'Jane Smith',
-                approverUserId: 'user2',
-                status: 'pending',
-                requiredBy: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-              },
-              {
-                stepNumber: 3,
-                approverRole: 'Site Manager',
-                approverName: 'Robert Johnson',
-                approverUserId: 'user3',
-                status: 'pending',
-              },
-            ],
-            approvalHistory: [
-              {
-                approverName: 'John Doe',
-                approverRole: 'Project Manager',
-                approverUserId: 'user1',
-                decision: 'approve',
-                comments: 'Looks good, approved.',
-                timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-              },
-            ],
-            submittedBy: 'user1',
-            submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            updatedAt: new Date(),
-            createdBy: 'user1',
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            isCancelled: false,
-            isCompleted: false,
-          };
-
-          setApprovalWorkflow(mockWorkflow);
+        } else {
+          // If no rabItemId is provided, fetch all RAB items for the project
+          const rabItemsResult = await rabAhspService.getRabItemsByProject(currentProject.id);
+          if (rabItemsResult.success && rabItemsResult.data) {
+            const enhancedRabItems = rabItemsResult.data.map(item => 
+              EnhancedRabService.createEnhancedRabItem(item)
+            );
+            setRabItems(enhancedRabItems);
+          }
         }
       } catch (err) {
-        console.error('Failed to fetch RAB item or approval workflow:', err);
-        setError('Failed to load RAB item or approval workflow');
+        console.error('Failed to fetch RAB items or approval workflow:', err);
+        setError('Failed to load RAB items or approval workflow');
       } finally {
         setLoading(false);
       }
@@ -256,6 +274,83 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
     setExpandedItems(newExpanded);
   };
 
+  // Handle RAB item selection
+  const handleSelectRabItem = async (rabItem: EnhancedRabItem) => {
+    if (!currentProject?.id) return;
+
+    try {
+      setSelectedRabItem(rabItem);
+      
+      // Fetch approval workflow for selected RAB item
+      try {
+        const approvalResult = await rabApprovalService.getRabApprovalByRabItemId(currentProject.id, rabItem.id);
+        if (approvalResult.success && approvalResult.data) {
+          setApprovalWorkflow(approvalResult.data);
+        }
+      } catch (err) {
+        // If no approval workflow exists, we'll create a mock one for demonstration
+        console.log('No existing approval workflow found, creating mock workflow');
+        const mockWorkflow: RabApprovalWorkflow = {
+          id: `rab-approval-${rabItem.id}`,
+          rabItemId: rabItem.id,
+          projectId: currentProject.id,
+          title: `Approval for ${rabItem.uraian || 'RAB Item'}`,
+          description: `Approval workflow for RAB item #${rabItem.id}`,
+          status: 'in_review',
+          currentApproverLevel: 1,
+          approvalWorkflow: [
+            {
+              stepNumber: 1,
+              approverRole: 'Project Manager',
+              approverName: 'John Doe',
+              approverUserId: 'user1',
+              status: 'approved',
+              comments: 'Looks good, approved.',
+              decidedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+            },
+            {
+              stepNumber: 2,
+              approverRole: 'Finance Manager',
+              approverName: 'Jane Smith',
+              approverUserId: 'user2',
+              status: 'pending',
+              requiredBy: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+            },
+            {
+              stepNumber: 3,
+              approverRole: 'Site Manager',
+              approverName: 'Robert Johnson',
+              approverUserId: 'user3',
+              status: 'pending',
+            },
+          ],
+          approvalHistory: [
+            {
+              approverName: 'John Doe',
+              approverRole: 'Project Manager',
+              approverUserId: 'user1',
+              decision: 'approve',
+              comments: 'Looks good, approved.',
+              timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+            },
+          ],
+          submittedBy: 'user1',
+          submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+          updatedAt: new Date(),
+          createdBy: 'user1',
+          createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+          isCancelled: false,
+          isCompleted: false,
+        };
+
+        setApprovalWorkflow(mockWorkflow);
+      }
+    } catch (err) {
+      console.error('Failed to fetch approval workflow:', err);
+      setError('Failed to load approval workflow');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -264,7 +359,40 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
     );
   }
 
-  if (error || !approvalWorkflow || !rabItem) {
+  // If no rabItemId is provided, show list of RAB items to select from
+  if (rabItemId === undefined && rabItems.length > 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Select RAB Item for Approval</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rabItems.map((item) => (
+              <div 
+                key={item.id} 
+                className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => handleSelectRabItem(item)}
+              >
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{item.uraian}</h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  {item.volume} {item.satuan} @ {formatCurrency(item.hargaSatuan)}
+                </p>
+                <div className="flex justify-between items-center">
+                  <span className="text-persimmon font-medium">
+                    {formatCurrency(item.volume * item.hargaSatuan)}
+                  </span>
+                  <Button variant="outline" size="sm">
+                    View Approval
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || (!approvalWorkflow && !selectedRabItem)) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
@@ -276,7 +404,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
     );
   }
 
-  const isExpanded = expandedItems.has(rabItem.id);
+  const isExpanded = selectedRabItem ? expandedItems.has(selectedRabItem.id) : false;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -285,15 +413,15 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div>
             <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
-              <span className="font-mono">RAB-{approvalWorkflow.rabItemId}</span>
+              <span className="font-mono">RAB-{approvalWorkflow?.rabItemId}</span>
               <span>•</span>
-              <span className="capitalize">{approvalWorkflow.status.replace('_', ' ')}</span>
+              <span className="capitalize">{approvalWorkflow?.status?.replace('_', ' ')}</span>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {approvalWorkflow.title}
+              {approvalWorkflow?.title}
             </h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {approvalWorkflow.description}
+              {approvalWorkflow?.description}
             </p>
           </div>
         </div>
@@ -306,7 +434,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">RAB Item Details</h2>
             <button
-              onClick={() => toggleItemExpansion(rabItem.id)}
+              onClick={() => selectedRabItem && toggleItemExpansion(selectedRabItem.id)}
               className="text-persimmon hover:text-persimmon/80"
             >
               {isExpanded ? (
@@ -320,17 +448,17 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Item Description</p>
-              <p className="font-medium">{rabItem.uraian}</p>
+              <p className="font-medium">{selectedRabItem?.uraian}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Volume & Unit</p>
               <p className="font-medium">
-                {rabItem.volume} {rabItem.satuan}
+                {selectedRabItem?.volume} {selectedRabItem?.satuan}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Unit Price</p>
-              <p className="font-medium">{formatCurrency(rabItem.hargaSatuan)}</p>
+              <p className="font-medium">{selectedRabItem && formatCurrency(selectedRabItem.hargaSatuan)}</p>
             </div>
           </div>
 
@@ -340,28 +468,28 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Labor</p>
-                  <p className="font-medium">{formatCurrency(rabItem.costBreakdown.laborCost)}</p>
-                  <p className="text-xs text-gray-500">{rabItem.costBreakdown.laborPercentage}%</p>
+                  <p className="font-medium">{selectedRabItem && formatCurrency(selectedRabItem.costBreakdown.laborCost)}</p>
+                  <p className="text-xs text-gray-500">{selectedRabItem?.costBreakdown.laborPercentage}%</p>
                 </div>
                 <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Materials</p>
-                  <p className="font-medium">{formatCurrency(rabItem.costBreakdown.materialCost)}</p>
-                  <p className="text-xs text-gray-500">{rabItem.costBreakdown.materialPercentage}%</p>
+                  <p className="font-medium">{selectedRabItem && formatCurrency(selectedRabItem.costBreakdown.materialCost)}</p>
+                  <p className="text-xs text-gray-500">{selectedRabItem?.costBreakdown.materialPercentage}%</p>
                 </div>
                 <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Equipment</p>
-                  <p className="font-medium">{formatCurrency(rabItem.costBreakdown.equipmentCost)}</p>
-                  <p className="text-xs text-gray-500">{rabItem.costBreakdown.equipmentPercentage}%</p>
+                  <p className="font-medium">{selectedRabItem && formatCurrency(selectedRabItem.costBreakdown.equipmentCost)}</p>
+                  <p className="text-xs text-gray-500">{selectedRabItem?.costBreakdown.equipmentPercentage}%</p>
                 </div>
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Overhead</p>
-                  <p className="font-medium">{formatCurrency(rabItem.costBreakdown.overheadCost)}</p>
-                  <p className="text-xs text-gray-500">{rabItem.costBreakdown.overheadPercentage}%</p>
+                  <p className="font-medium">{selectedRabItem && formatCurrency(selectedRabItem.costBreakdown.overheadCost)}</p>
+                  <p className="text-xs text-gray-500">{selectedRabItem?.costBreakdown.overheadPercentage}%</p>
                 </div>
                 <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded">
                   <p className="text-xs text-gray-500 dark:text-gray-400">Profit</p>
-                  <p className="font-medium">{formatCurrency(rabItem.costBreakdown.profitMargin)}</p>
-                  <p className="text-xs text-gray-500">{rabItem.costBreakdown.profitPercentage}%</p>
+                  <p className="font-medium">{selectedRabItem && formatCurrency(selectedRabItem.costBreakdown.profitMargin)}</p>
+                  <p className="text-xs text-gray-500">{selectedRabItem?.costBreakdown.profitPercentage}%</p>
                 </div>
               </div>
             </div>
@@ -372,12 +500,12 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Value</p>
                 <p className="text-xl font-bold text-persimmon">
-                  {formatCurrency(rabItem.volume * rabItem.hargaSatuan)}
+                  {selectedRabItem && formatCurrency(selectedRabItem.volume * selectedRabItem.hargaSatuan)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Escalation Rate</p>
-                <p className="font-medium">{rabItem.escalationRate}%</p>
+                <p className="font-medium">{selectedRabItem?.escalationRate}%</p>
               </div>
             </div>
           </div>
@@ -391,10 +519,10 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
 
           <div className="flow-root">
             <ul className="-mb-8">
-              {approvalWorkflow.approvalWorkflow.map((step, stepIdx) => (
+              {approvalWorkflow?.approvalWorkflow?.map((step, stepIdx) => (
                 <li key={step.stepNumber}>
                   <div className="relative pb-8">
-                    {stepIdx !== approvalWorkflow.approvalWorkflow.length - 1 && (
+                    {stepIdx !== (approvalWorkflow?.approvalWorkflow?.length || 0) - 1 && (
                       <span
                         className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700"
                         aria-hidden="true"
@@ -440,7 +568,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStepStatusColor(step.status)}`}
                           >
                             {step.status === 'pending' &&
-                            approvalWorkflow.currentApproverLevel === step.stepNumber
+                            approvalWorkflow?.currentApproverLevel === step.stepNumber
                               ? 'Current'
                               : step.status}
                           </span>
@@ -450,7 +578,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
                             </p>
                           )}
                           {step.status === 'pending' &&
-                            approvalWorkflow.currentApproverLevel === step.stepNumber && (
+                            approvalWorkflow?.currentApproverLevel === step.stepNumber && (
                               <div className="mt-2">
                                 <Button
                                   onClick={() => {
@@ -474,7 +602,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
         </div>
 
         {/* Approval History */}
-        {approvalWorkflow.approvalHistory.length > 0 && (
+        {approvalWorkflow?.approvalHistory && approvalWorkflow.approvalHistory.length > 0 && (
           <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
               Approval History
@@ -532,19 +660,19 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Submitted Date</dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                {formatDate(approvalWorkflow.submittedAt)}
+                {approvalWorkflow && formatDate(approvalWorkflow.submittedAt)}
               </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white capitalize">
-                {approvalWorkflow.status.replace('_', ' ')}
+                {approvalWorkflow?.status?.replace('_', ' ')}
               </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Current Step</dt>
               <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                Step {approvalWorkflow.currentApproverLevel}
+                Step {approvalWorkflow?.currentApproverLevel}
               </dd>
             </div>
           </dl>

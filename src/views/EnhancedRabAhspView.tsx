@@ -15,6 +15,7 @@ import {
   Target,
   ChevronRight,
   ChevronDown,
+  CheckSquare,
 } from 'lucide-react';
 import PriceEscalationManager from '@/components/PriceEscalationManager';
 import VarianceAnalysisComponent from '@/components/VarianceAnalysisComponent';
@@ -26,6 +27,7 @@ interface EnhancedRabAhspViewProps {
   items: RabItem[];
   ahspData: AhspData;
   projectLocation?: string;
+  onNavigate?: (viewId: string, params?: any) => void;
 }
 
 type AnalysisTab = 'overview' | 'escalation' | 'variance' | 'sensitivity' | 'regional';
@@ -34,6 +36,7 @@ export default function EnhancedRabAhspView({
   items,
   ahspData,
   projectLocation,
+  onNavigate,
 }: EnhancedRabAhspViewProps) {
   const [selectedItem, setSelectedItem] = useState<RabItem | null>(null);
   const [activeTab, setActiveTab] = useState<AnalysisTab>('overview');
@@ -250,6 +253,7 @@ export default function EnhancedRabAhspView({
                   <th className="p-3 text-center">Risk Level</th>
                   <th className="p-3 text-right">Final Price</th>
                   <th className="p-3 text-right">Total Value</th>
+                  <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -334,12 +338,22 @@ export default function EnhancedRabAhspView({
                         <td className="p-3 text-right font-semibold">
                           {formatCurrency((item.volume || 0) * projectedPrice)}
                         </td>
+                        <td className="p-3 text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => onNavigate && onNavigate('rab_approval', { rabItemId: item.id })}
+                          >
+                            <CheckSquare className="w-4 h-4 mr-1" />
+                            Approval
+                          </Button>
+                        </td>
                       </tr>
 
                       {/* Expanded Details */}
                       {isExpanded && (
                         <tr className="bg-violet-essence/10">
-                          <td colSpan={8} className="p-4">
+                          <td colSpan={9} className="p-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                               <div>
                                 <h5 className="font-medium mb-2">Cost Breakdown Detail</h5>
@@ -413,7 +427,7 @@ export default function EnhancedRabAhspView({
               </tbody>
               <tfoot>
                 <tr className="font-bold bg-violet-essence/50 text-base">
-                  <td colSpan={6} className="p-4 text-right">
+                  <td colSpan={7} className="p-4 text-right">
                     Total Enhanced Project Budget
                   </td>
                   <td className="p-4 text-right text-persimmon">

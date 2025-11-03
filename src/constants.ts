@@ -158,12 +158,6 @@ export const navLinksConfig = [
         requiredPermission: 'view_dashboard',
       },
       { id: 'rab_ahsp', name: 'RAB & AHSP', icon: FileText, requiredPermission: 'view_rab' },
-      { 
-        id: 'rab_approval', 
-        name: 'RAB Approval', 
-        icon: CheckSquare, 
-        requiredPermission: 'approve_rab' 
-      },
       {
         id: 'wbs_management',
         name: 'WBS Structure',
