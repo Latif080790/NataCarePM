@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import MobileNavigation from '@/components/MobileNavigation';
@@ -29,61 +29,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   setIsSidebarCollapsed,
   children 
 }) => {
-  const [currentView, setCurrentView] = useState('dashboard');
-
-  const handleNavigate = (viewId: string) => {
-    // Map view IDs to routes
-    const routeMap: Record<string, string> = {
-      dashboard: '/',
-      analytics: '/analytics',
-      rab_ahsp: '/rab',
-      rab_basic: '/rab/basic',
-      rab_approval: '/rab/approval',
-      jadwal: '/schedule',
-      tasks: '/tasks',
-      task_list: '/tasks/list',
-      kanban: '/tasks/kanban',
-      kanban_board: '/tasks/kanban/board',
-      dependencies: '/tasks/dependencies',
-      notifications: '/notifications',
-      monitoring: '/monitoring',
-      laporan_harian: '/reports/daily',
-      progres: '/reports/progress',
-      absensi: '/attendance',
-      biaya_proyek: '/finance',
-      arus_kas: '/finance/cashflow',
-      strategic_cost: '/finance/strategic',
-      chart_of_accounts: '/finance/chart-of-accounts',
-      journal_entries: '/finance/journal-entries',
-      accounts_payable: '/finance/accounts-payable',
-      accounts_receivable: '/finance/accounts-receivable',
-      wbs_management: '/wbs',
-      goods_receipt: '/logistics/goods-receipt',
-      material_request: '/logistics/material-request',
-      vendor_management: '/logistics/vendor-management',
-      inventory_management: '/logistics/inventory',
-      integration_dashboard: '/logistics/integration',
-      cost_control: '/finance/cost-control',
-      logistik: '/logistics',
-      dokumen: '/documents',
-      documents: '/documents/intelligent',
-      laporan: '/reports',
-      user_management: '/settings/users',
-      master_data: '/settings/master-data',
-      audit_trail: '/settings/audit-trail',
-      profile: '/profile',
-      ai_resource_optimization: '/ai/resource-optimization',
-      predictive_analytics: '/ai/predictive-analytics',
-      advanced_analytics: '/analytics/advanced',
-      chat: '/chat',
-      custom_report_builder: '/reports/custom-builder',
-    };
-
-    const route = routeMap[viewId] || '/';
-    window.location.hash = route;
-    setCurrentView(viewId);
-  };
-
   return (
     <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
       <SkipLink />
@@ -97,8 +42,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 
       {/* Mobile Navigation - Only shown on mobile */}
       <MobileNavigation
-        currentView={currentView}
-        onNavigate={handleNavigate}
         showBottomNav={true}
       />
 

@@ -11,61 +11,47 @@
  */
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { BarChart3, CheckSquare, FileArchive, Bell, Menu } from 'lucide-react';
 
 interface BottomNavItem {
   id: string;
   name: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
+  path: string;
 }
 
 interface BottomNavProps {
-  currentView: string;
-  onNavigate: (viewId: string) => void;
   onMenuClick: () => void;
 }
 
 const NAV_ITEMS: BottomNavItem[] = [
-  { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
-  { id: 'tasks', name: 'Tasks', icon: CheckSquare },
-  { id: 'dokumen', name: 'Documents', icon: FileArchive },
-  { id: 'notifications', name: 'Alerts', icon: Bell },
+  { id: 'dashboard', name: 'Dashboard', icon: BarChart3, path: '/' },
+  { id: 'tasks', name: 'Tasks', icon: CheckSquare, path: '/tasks' },
+  { id: 'dokumen', name: 'Documents', icon: FileArchive, path: '/documents' },
+  { id: 'notifications', name: 'Alerts', icon: Bell, path: '/notifications' },
 ];
 
-export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate, onMenuClick }) => {
-  const navigate = useNavigate();
-
-  const handleNavigate = (viewId: string) => {
-    // Map view IDs to routes
-    const routeMap: Record<string, string> = {
-      dashboard: '/',
-      tasks: '/tasks',
-      dokumen: '/documents',
-      notifications: '/notifications',
-    };
-
-    const route = routeMap[viewId] || '/';
-    navigate(route);
-  };
+export const BottomNav: React.FC<BottomNavProps> = ({ onMenuClick }) => {
+  // Helper function for NavLink className
+  const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `mobile-bottom-nav-item ${isActive ? 'active' : ''}`;
 
   return (
     <nav className="mobile-bottom-nav" role="navigation" aria-label="Bottom navigation">
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
-        const isActive = currentView === item.id;
 
         return (
-          <button
+          <NavLink
             key={item.id}
-            onClick={() => handleNavigate(item.id)}
-            className={`mobile-bottom-nav-item ${isActive ? 'active' : ''}`}
+            to={item.path}
+            className={getNavLinkClass}
             aria-label={`Navigate to ${item.name}`}
-            aria-current={isActive ? 'page' : undefined}
           >
             <Icon size={24} className="mobile-bottom-nav-icon" />
             <span className="mobile-bottom-nav-label">{item.name}</span>
-          </button>
+          </NavLink>
         );
       })}
 

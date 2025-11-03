@@ -7,29 +7,21 @@
  * - Bottom navigation bar
  *
  * Usage:
- * <MobileNavigation
- *   currentView={currentView}
- *   onNavigate={handleNavigate}
- * />
+ * <MobileNavigation />
  */
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import HamburgerButton from './HamburgerButton';
 import MobileDrawer from './MobileDrawer';
 import BottomNav from './BottomNav';
 import { useIsMobile } from '@/constants/responsive';
 
 interface MobileNavigationProps {
-  currentView: string;
-  onNavigate: (viewId: string) => void;
   showBottomNav?: boolean;
   className?: string;
 }
 
 export const MobileNavigation: React.FC<MobileNavigationProps> = ({
-  currentView,
-  onNavigate,
   showBottomNav = true,
   className = '',
 }) => {
@@ -62,15 +54,11 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({
       <MobileDrawer
         isOpen={isDrawerOpen}
         onClose={handleDrawerClose}
-        currentView={currentView}
-        onNavigate={onNavigate}
       />
 
       {/* Bottom Navigation Bar */}
       {showBottomNav && (
         <BottomNav
-          currentView={currentView}
-          onNavigate={onNavigate}
           onMenuClick={handleDrawerToggle}
         />
       )}
