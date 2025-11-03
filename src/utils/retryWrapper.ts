@@ -4,7 +4,7 @@
  * Handles transient failures gracefully
  */
 
-// import { monitoringService } from '../monitoringService'; // File does not exist, import commented out
+import { monitoringService } from '@/api/monitoringService';
 
 /**
  * Retry configuration options

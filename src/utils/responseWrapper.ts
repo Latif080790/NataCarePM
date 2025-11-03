@@ -4,7 +4,7 @@
  * Ensures consistent error handling and logging
  */
 
-// import { monitoringService } from '../monitoringService'; // File does not exist, import commented out
+import { monitoringService } from '@/api/monitoringService';
 
 /**
  * Standard API Response Interface

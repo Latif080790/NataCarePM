@@ -7,6 +7,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import { AIResourceProvider } from '@/contexts/AIResourceContext';
 import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
+import { RealtimeCollaborationProvider } from '@/contexts/RealtimeCollaborationContext';
 import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { registerServiceWorker } from '@/utils/pwa';
 
@@ -21,9 +22,16 @@ if (container) {
             <ProjectProvider>
               <AIResourceProvider>
                 <PredictiveAnalyticsProvider>
-                  <BrowserRouter>
-                    <App />
-                  </BrowserRouter>
+                  {/* Urutan sangat penting:
+                      Pastikan provider yang dibutuhkan (misalnya Auth/Project)
+                      sudah di atas RealtimeCollaborationProvider jika ia memerlukannya.
+                      Saya berasumsi RealtimeCollaboration bisa memerlukan Auth/Project data.
+                  */}
+                  <RealtimeCollaborationProvider>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </RealtimeCollaborationProvider>
                 </PredictiveAnalyticsProvider>
               </AIResourceProvider>
             </ProjectProvider>

@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import '@/styles/enterprise-design-system.css';
 import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import LiveCursors from '@/components/LiveCursors';
-import OnlineUsersDisplay from '@/components/OnlineUsersDisplay';
-import FallbackView from '@/components/FallbackView';
 import { EnterpriseAuthLoader, EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
 import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { NavigationDebug } from '@/components/NavigationDebug';
@@ -85,8 +83,6 @@ import { useProjectCalculations } from '@/hooks/useProjectCalculations';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { useActivityTracker } from '@/hooks/useMonitoring';
 import { Spinner } from '@/components/Spinner';
-import Header from '@/components/Header';
-import { IntegrationProvider } from '@/contexts/IntegrationContext';
 import PerformanceMonitor from '@/components/PerformanceMonitor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -145,18 +141,14 @@ function ErrorFallback({ error, resetError }: { error: Error; resetError: () => 
   );
 }
 
-function AppContent() {
+/**
+ * Komponen ini menangani rute yang dilindungi (setelah login)
+ * dan memastikan data proyek dimuat.
+ */
+function ProtectedApp() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
-  const [hasError, setHasError] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const navigate = useNavigate();
-
-  // Accessibility features
-  // const accessibility = useAccessibility();
-  // const { announceToScreenReader } = accessibility;
-
-  const { currentUser, loading: authLoading } = useAuth();
+  const { currentUser } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
   const { updatePresence } = useRealtimeCollaboration();
 
@@ -279,34 +271,6 @@ function AppContent() {
     };
   }, []);
 
-  // Error boundary reset function
-  const resetError = () => {
-    setHasError(false);
-    setError(null);
-  };
-
-  // Handle errors
-  useEffect(() => {
-    if (projectError) {
-      logger.error('Project loading error', projectError);
-      setError(projectError);
-      setHasError(true);
-    }
-  }, [projectError]);
-
-  // Show error boundary if there's an error
-  if (hasError && error) {
-    return <ErrorFallback error={error} resetError={resetError} />;
-  }
-
-  if (authLoading && !currentUser) {
-    return <EnterpriseAuthLoader />;
-  }
-
-  if (!currentUser) {
-    return <EnterpriseLoginView />;
-  }
-
   if (projectLoading || (!currentProject && !projectError)) {
     return <EnterpriseProjectLoader />;
   }
@@ -314,11 +278,8 @@ function AppContent() {
   if (projectError || !currentProject) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-red-50 text-red-700 p-4 text-center">
-        <p className="font-bold text-lg mb-2">Gagal Memuat Aplikasi</p>
-        <p>
-          {projectError?.message ||
-            'Tidak dapat memuat data proyek yang diperlukan. Coba muat ulang halaman.'}
-        </p>
+        <p className="font-bold text-lg mb-2">Gagal Memuat Proyek</p>
+        <p>{projectError?.message || 'Tidak dapat memuat data proyek.'}</p>
         <button
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -340,59 +301,6 @@ function AppContent() {
 
   const viewProps = getViewProps();
 
-  // Wrapper function for CommandPalette navigation
-  const handleCommandPaletteNavigate = (viewId: string) => {
-    // Map view IDs to routes
-    const routeMap: Record<string, string> = {
-      dashboard: '/',
-      analytics: '/analytics',
-      rab_ahsp: '/rab',
-      rab_basic: '/rab/basic',
-      rab_approval: '/rab/approval',
-      jadwal: '/schedule',
-      tasks: '/tasks',
-      task_list: '/tasks/list',
-      kanban: '/tasks/kanban',
-      kanban_board: '/tasks/kanban/board',
-      dependencies: '/tasks/dependencies',
-      notifications: '/notifications',
-      monitoring: '/monitoring',
-      laporan_harian: '/reports/daily',
-      progres: '/reports/progress',
-      absensi: '/attendance',
-      biaya_proyek: '/finance',
-      arus_kas: '/finance/cashflow',
-      strategic_cost: '/finance/strategic',
-      chart_of_accounts: '/finance/chart-of-accounts',
-      journal_entries: '/finance/journal-entries',
-      accounts_payable: '/finance/accounts-payable',
-      accounts_receivable: '/finance/accounts-receivable',
-      wbs_management: '/wbs',
-      goods_receipt: '/logistics/goods-receipt',
-      material_request: '/logistics/material-request',
-      vendor_management: '/logistics/vendor-management',
-      inventory_management: '/logistics/inventory',
-      integration_dashboard: '/logistics/integration',
-      cost_control: '/finance/cost-control',
-      logistik: '/logistics',
-      dokumen: '/documents',
-      documents: '/documents/intelligent',
-      laporan: '/reports',
-      user_management: '/settings/users',
-      master_data: '/settings/master-data',
-      audit_trail: '/settings/audit-trail',
-      profile: '/profile',
-      ai_resource_optimization: '/ai/resource-optimization',
-      predictive_analytics: '/ai/predictive-analytics',
-      advanced_analytics: '/analytics/advanced',
-      chat: '/chat',
-      custom_report_builder: '/reports/custom-builder',
-    };
-
-    const route = routeMap[viewId] || '/';
-    navigate(route);
-  };
-
   return (
     <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>
       <EnhancedErrorBoundary>
@@ -407,7 +315,8 @@ function AppContent() {
           }
         >
           <Routes>
-            <Route index element={<DashboardView {...viewProps} />} />
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardView {...viewProps} />} />
             <Route path="/analytics" element={<IntegratedAnalyticsView {...viewProps} />} />
             <Route path="/rab" element={<EnhancedRabAhspView {...viewProps} />} />
             <Route path="/rab/basic" element={<RabAhspView {...viewProps} />} />
@@ -476,7 +385,7 @@ function AppContent() {
       </EnhancedErrorBoundary>
       
       <Suspense fallback={null}>
-        <CommandPalette onNavigate={handleCommandPaletteNavigate} />
+        <CommandPalette />
       </Suspense>
       <Suspense fallback={null}>
         <AiAssistantChat />
@@ -569,24 +478,28 @@ function App() {
     );
   }
 
-  if (!currentUser) {
-    return <LoginView />;
-  }
-
   return (
-    <RealtimeCollaborationProvider>
-      <AuthProvider>
-        <ProjectProvider>
-          <IntegrationProvider>
-            <MessageProvider>
-              <EnhancedErrorBoundary>
-                <AppContent />
-              </EnhancedErrorBoundary>
-            </MessageProvider>
-          </IntegrationProvider>
-        </ProjectProvider>
-      </AuthProvider>
-    </RealtimeCollaborationProvider>
+    <Routes>
+      {!currentUser ? (
+        // --- Rute Publik (Belum Login) ---
+        <>
+          <Route path="/login" element={<EnterpriseLoginView />} />
+          {/* Paksa semua rute lain ke halaman login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
+      ) : (
+        // --- Rute Privat (Sudah Login) ---
+        // Kita bungkus dengan ProjectProvider di sini agar hanya aktif setelah login
+        <Route
+          path="/*" // Gunakan "/*" untuk menangani semua rute turunan
+          element={
+            <ProjectProvider>
+              <ProtectedApp />
+            </ProjectProvider>
+          }
+        />
+      )}
+    </Routes>
   );
 }
 
