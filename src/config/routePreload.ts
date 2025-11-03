@@ -12,6 +12,7 @@ export const lazyViews = {
   dashboard: () => import('@/views/DashboardView'),
   analytics: () => import('@/views/IntegratedAnalyticsView').then((m) => ({ default: m.IntegratedAnalyticsView })),
   rabAhsp: () => import('@/views/EnhancedRabAhspView'),
+  rabApproval: () => import('@/views/RabApprovalWorkflowView'), // Adding RAB approval workflow view
   gantt: () => import('@/views/GanttChartView'),
   tasks: () => import('@/views/TasksView'),
   kanban: () => import('@/views/KanbanView'),
@@ -32,6 +33,7 @@ export const lazyViews = {
   inventory: () => import('@/views/InventoryManagementView'),
   documents: () => import('@/views/IntelligentDocumentSystem'),
   reports: () => import('@/views/ReportView'),
+  custom_report_builder: () => import('@/views/CustomReportBuilderView'),
   userManagement: () => import('@/views/UserManagementView'),
   masterData: () => import('@/views/MasterDataView'),
   auditTrail: () => import('@/views/AuditTrailView'),

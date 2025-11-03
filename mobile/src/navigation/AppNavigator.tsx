@@ -19,6 +19,9 @@ import {
   ReportsScreen
 } from '../screens';
 import ProjectDetailScreen from '../screens/ProjectDetailScreen';
+import RfiScreen from '../screens/RfiScreen';
+import SubmittalsScreen from '../screens/SubmittalsScreen';
+import DailyLogsScreen from '../screens/DailyLogsScreen';
 
 // Types
 type RootStackParamList = {
@@ -33,6 +36,9 @@ type MainTabParamList = {
   Tasks: undefined;
   Resources: undefined;
   Reports: undefined;
+  RFIs: undefined;
+  Submittals: undefined;
+  DailyLogs: undefined;
 };
 
 // Navigators
@@ -57,6 +63,12 @@ function MainTabs() {
             iconName = focused ? 'account-group' : 'account-group-outline';
           } else if (route.name === 'Reports') {
             iconName = focused ? 'chart-bar' : 'chart-bar-stacked';
+          } else if (route.name === 'RFIs') {
+            iconName = focused ? 'file-question' : 'file-question-outline';
+          } else if (route.name === 'Submittals') {
+            iconName = focused ? 'file-document' : 'file-document-outline';
+          } else if (route.name === 'DailyLogs') {
+            iconName = focused ? 'calendar-text' : 'calendar-text-outline';
           } else {
             iconName = 'help-circle-outline';
           }
@@ -73,6 +85,9 @@ function MainTabs() {
       <Tab.Screen name="Tasks" component={TasksScreen} />
       <Tab.Screen name="Resources" component={ResourcesScreen} />
       <Tab.Screen name="Reports" component={ReportsScreen} />
+      <Tab.Screen name="RFIs" component={RfiScreen} />
+      <Tab.Screen name="Submittals" component={SubmittalsScreen} />
+      <Tab.Screen name="DailyLogs" component={DailyLogsScreen} />
     </Tab.Navigator>
   );
 }

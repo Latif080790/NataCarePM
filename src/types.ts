@@ -2,6 +2,7 @@ export type Permission =
   | 'view_dashboard'
   | 'view_rab'
   | 'edit_rab'
+  | 'approve_rab'  // Adding RAB approval permission
   | 'view_gantt'
   | 'view_daily_reports'
   | 'create_daily_reports'
@@ -60,13 +61,11 @@ export interface EnhancedRabItem extends RabItem {
   // Variance analysis
   budgetVariance: VarianceAnalysis;
 
-  // Sensitivity analysis
+  // Risk analysis
   sensitivityFactors: SensitivityFactor[];
-
-  // Regional adjustments
   regionalFactors: RegionalPriceFactor[];
 
-  // Enhanced metadata
+  // Metadata
   lastUpdated: string;
   updatedBy: string;
   dataSource: string;
@@ -2058,3 +2057,6 @@ export interface MilestoneProgressUpdate {
   status?: 'pending' | 'in-progress' | 'completed' | 'delayed';
   notes?: string;
 }
+
+// Approval workflow types
+export type ApprovalDecision = 'approve' | 'reject' | 'request_revision';

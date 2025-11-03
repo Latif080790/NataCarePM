@@ -1,6 +1,8 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import bcrypt from 'bcryptjs';
+import { generateAIInsight } from './aiInsightService';
+import { digitalSignatureService } from './digitalSignatureService';
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -239,7 +241,7 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
     );
   }
 
-  const { projectId } = data;
+  const { projectId, geminiApiKey } = data;
   const userId = context.auth.uid;
 
   // Check if user has access to the project
@@ -295,22 +297,8 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
       inventoryStatus: inventory.slice(0, 5),
     };
 
-    // In a real implementation, you would call the Gemini API here
-    // For now, we'll return a mock response
-    const aiResponse = {
-      summary: `Project ${name} is progressing with a budget of ${summary.totalBudget} and actual cost of ${summary.totalActualCost}.`,
-      risks: [
-        "Potential delay in material delivery",
-        "Weather conditions may affect schedule",
-        "Resource allocation needs optimization"
-      ],
-      predictions: {
-        completionDate: "2026-03-15",
-        finalCost: summary.totalActualCost * 1.15,
-        riskLevel: "Medium"
-      },
-      generatedAt: new Date().toISOString()
-    };
+    // Generate AI insight using the helper function
+    const aiResponse = await generateAIInsight(summary, geminiApiKey);
 
     // Update project with AI insight
     await db.collection('projects').doc(projectId).update({
@@ -332,6 +320,126 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
     throw new functions.https.HttpsError(
       'internal',
       'Failed to generate AI insight'
+    );
+  }
+});
+
+// Callable function to process OCR
+export const processOCR = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+  // Check if user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'User must be authenticated'
+    );
+  }
+
+  const { imageData, mimeType } = data;
+  const userId = context.auth.uid;
+
+  try {
+    // In a real implementation, you would process the image data with OCR here
+    // For now, we'll return a mock response
+    const ocrResult = {
+      extractedText: "This is a sample OCR result",
+      confidence: 0.95,
+      boundingBoxes: [],
+      processingTime: 1200,
+      timestamp: new Date().toISOString()
+    };
+
+    // Log the OCR processing
+    await db.collection('ocrLogs').add({
+      userId,
+      imageData,
+      mimeType,
+      result: ocrResult,
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    return {
+      success: true,
+      data: ocrResult,
+      message: 'OCR processing completed successfully'
+    };
+  } catch (error: any) {
+    console.error('Error processing OCR:', error);
+    
+    throw new functions.https.HttpsError(
+      'internal',
+      'Failed to process OCR'
+    );
+  }
+});
+
+// Callable function to create digital signature
+export const createDigitalSignature = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+  // Check if user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'User must be authenticated'
+    );
+  }
+
+  const { documentId, documentVersionId, signerInfo, signatureType } = data;
+  const userId = context.auth.uid;
+
+  try {
+    // Create digital signature using the service
+    const signature = await digitalSignatureService.createSignature(
+      documentId,
+      documentVersionId,
+      signerInfo,
+      signatureType
+    );
+
+    return {
+      success: true,
+      data: signature,
+      message: 'Digital signature created successfully'
+    };
+  } catch (error: any) {
+    console.error('Error creating digital signature:', error);
+    
+    throw new functions.https.HttpsError(
+      'internal',
+      'Failed to create digital signature'
+    );
+  }
+});
+
+// Callable function to verify digital signature
+export const verifyDigitalSignature = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+  // Check if user is authenticated
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'User must be authenticated'
+    );
+  }
+
+  const { signatureData, certificate } = data;
+  const userId = context.auth.uid;
+
+  try {
+    // Verify digital signature using the service
+    const verification = await digitalSignatureService.verifySignature(
+      signatureData,
+      certificate
+    );
+
+    return {
+      success: true,
+      data: { isValid: verification },
+      message: 'Digital signature verification completed'
+    };
+  } catch (error: any) {
+    console.error('Error verifying digital signature:', error);
+    
+    throw new functions.https.HttpsError(
+      'internal',
+      'Failed to verify digital signature'
     );
   }
 });

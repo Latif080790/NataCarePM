@@ -106,12 +106,15 @@ const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
 const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
 const ChatView = lazy(() => import('@/views/ChatView'));
+const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderView'));
+const RabApprovalWorkflowView = lazy(() => import('@/views/RabApprovalWorkflowView'));
 
 const viewComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: DashboardView,
   analytics: IntegratedAnalyticsView, // Enhanced Analytics Dashboard
   rab_ahsp: EnhancedRabAhspView, // Using enhanced version
   rab_basic: RabAhspView, // Keep basic version available
+  rab_approval: RabApprovalWorkflowView, // Adding RAB approval workflow view
   jadwal: GanttChartView,
   tasks: TasksView,
   task_list: TaskListView,
@@ -158,6 +161,7 @@ const viewComponents: { [key: string]: React.ComponentType<any> } = {
   predictive_analytics: PredictiveAnalyticsView,
   advanced_analytics: AdvancedAnalyticsView,
   chat: ChatView,
+  custom_report_builder: CustomReportBuilderView,
 };
 
 // Views that show fallback "coming soon" page

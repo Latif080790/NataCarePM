@@ -11,6 +11,22 @@ const logger = {
   warn: console.warn,
 };
 
+// Import construction types
+import type { Rfi, Submittal, DailyLog } from '../../../src/types/construction.types';
+
+// Extended interfaces with sync status
+interface OfflineRfi extends Rfi {
+  syncStatus?: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
+}
+
+interface OfflineSubmittal extends Submittal {
+  syncStatus?: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
+}
+
+interface OfflineDailyLog extends DailyLog {
+  syncStatus?: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
+}
+
 // Define database schema
 interface NataCarePMDB extends DBSchema {
   offline_data: {
@@ -37,6 +53,40 @@ interface NataCarePMDB extends DBSchema {
     };
     indexes: { 'by-timestamp': number; 'by-project': string };
   };
+  // Construction-specific stores
+  offline_rfis: {
+    key: string;
+    value: {
+      id: string;
+      data: Rfi;
+      timestamp: number;
+      projectId: string;
+      syncStatus: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
+    };
+    indexes: { 'by-project': string; 'by-timestamp': number; 'by-sync-status': string };
+  };
+  offline_submittals: {
+    key: string;
+    value: {
+      id: string;
+      data: Submittal;
+      timestamp: number;
+      projectId: string;
+      syncStatus: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
+    };
+    indexes: { 'by-project': string; 'by-timestamp': number; 'by-sync-status': string };
+  };
+  offline_daily_logs: {
+    key: string;
+    value: {
+      id: string;
+      data: DailyLog;
+      timestamp: number;
+      projectId: string;
+      syncStatus: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
+    };
+    indexes: { 'by-project': string; 'by-timestamp': number; 'by-sync-status': string };
+  };
 }
 
 class OfflineService {
@@ -53,18 +103,44 @@ class OfflineService {
    */
   async initialize(): Promise<void> {
     try {
-      this.db = await openDB<NataCarePMDB>('NataCarePM-Mobile', 1, {
-        upgrade(db) {
+      this.db = await openDB<NataCarePMDB>('NataCarePM-Mobile', 2, {
+        upgrade(db, oldVersion, newVersion) {
           // Create offline data store
-          const offlineStore = db.createObjectStore('offline_data', { keyPath: 'key' });
-          offlineStore.createIndex('by-type', 'type');
-          offlineStore.createIndex('by-project', 'projectId');
-          offlineStore.createIndex('by-timestamp', 'timestamp');
+          if (!db.objectStoreNames.contains('offline_data')) {
+            const offlineStore = db.createObjectStore('offline_data', { keyPath: 'key' });
+            offlineStore.createIndex('by-type', 'type');
+            offlineStore.createIndex('by-project', 'projectId');
+            offlineStore.createIndex('by-timestamp', 'timestamp');
+          }
 
           // Create sync queue store
-          const syncStore = db.createObjectStore('sync_queue', { keyPath: 'id' });
-          syncStore.createIndex('by-timestamp', 'timestamp');
-          syncStore.createIndex('by-project', 'projectId');
+          if (!db.objectStoreNames.contains('sync_queue')) {
+            const syncStore = db.createObjectStore('sync_queue', { keyPath: 'id' });
+            syncStore.createIndex('by-timestamp', 'timestamp');
+            syncStore.createIndex('by-project', 'projectId');
+          }
+
+          // Create construction-specific stores for version 2
+          if (!db.objectStoreNames.contains('offline_rfis')) {
+            const rfiStore = db.createObjectStore('offline_rfis', { keyPath: 'id' });
+            rfiStore.createIndex('by-project', 'projectId');
+            rfiStore.createIndex('by-timestamp', 'timestamp');
+            rfiStore.createIndex('by-sync-status', 'syncStatus');
+          }
+
+          if (!db.objectStoreNames.contains('offline_submittals')) {
+            const submittalStore = db.createObjectStore('offline_submittals', { keyPath: 'id' });
+            submittalStore.createIndex('by-project', 'projectId');
+            submittalStore.createIndex('by-timestamp', 'timestamp');
+            submittalStore.createIndex('by-sync-status', 'syncStatus');
+          }
+
+          if (!db.objectStoreNames.contains('offline_daily_logs')) {
+            const dailyLogStore = db.createObjectStore('offline_daily_logs', { keyPath: 'id' });
+            dailyLogStore.createIndex('by-project', 'projectId');
+            dailyLogStore.createIndex('by-timestamp', 'timestamp');
+            dailyLogStore.createIndex('by-sync-status', 'syncStatus');
+          }
         },
       });
 
@@ -372,6 +448,178 @@ class OfflineService {
     } catch (error) {
       logger.error('Failed to get offline data size', error);
       return 0;
+    }
+  }
+
+  // ==================== CONSTRUCTION MODULE SPECIFIC METHODS ====================
+
+  /**
+   * Save RFI offline
+   */
+  async saveRfiOffline(rfi: Rfi): Promise<void> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      await this.db.put('offline_rfis', {
+        id: rfi.id,
+        data: rfi,
+        timestamp: Date.now(),
+        projectId: rfi.projectId,
+        syncStatus: 'pending'
+      });
+
+      logger.info(`RFI saved offline: ${rfi.id}`, { projectId: rfi.projectId });
+    } catch (error) {
+      logger.error(`Failed to save RFI offline: ${rfi.id}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get offline RFIs for a project
+   */
+  async getOfflineRfis(projectId: string): Promise<Rfi[]> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      const records = await this.db.getAllFromIndex('offline_rfis', 'by-project', projectId);
+      return records.map(record => record.data);
+    } catch (error) {
+      logger.error(`Failed to retrieve offline RFIs for project: ${projectId}`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Save Submittal offline
+   */
+  async saveSubmittalOffline(submittal: Submittal): Promise<void> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      await this.db.put('offline_submittals', {
+        id: submittal.id,
+        data: submittal,
+        timestamp: Date.now(),
+        projectId: submittal.projectId,
+        syncStatus: 'pending'
+      });
+
+      logger.info(`Submittal saved offline: ${submittal.id}`, { projectId: submittal.projectId });
+    } catch (error) {
+      logger.error(`Failed to save Submittal offline: ${submittal.id}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get offline Submittals for a project
+   */
+  async getOfflineSubmittals(projectId: string): Promise<Submittal[]> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      const records = await this.db.getAllFromIndex('offline_submittals', 'by-project', projectId);
+      return records.map(record => record.data);
+    } catch (error) {
+      logger.error(`Failed to retrieve offline Submittals for project: ${projectId}`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Save Daily Log offline
+   */
+  async saveDailyLogOffline(dailyLog: DailyLog): Promise<void> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      await this.db.put('offline_daily_logs', {
+        id: dailyLog.id,
+        data: dailyLog,
+        timestamp: Date.now(),
+        projectId: dailyLog.projectId,
+        syncStatus: 'pending'
+      });
+
+      logger.info(`Daily Log saved offline: ${dailyLog.id}`, { projectId: dailyLog.projectId });
+    } catch (error) {
+      logger.error(`Failed to save Daily Log offline: ${dailyLog.id}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get offline Daily Logs for a project
+   */
+  async getOfflineDailyLogs(projectId: string): Promise<DailyLog[]> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      const records = await this.db.getAllFromIndex('offline_daily_logs', 'by-project', projectId);
+      return records.map(record => record.data);
+    } catch (error) {
+      logger.error(`Failed to retrieve offline Daily Logs for project: ${projectId}`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Update sync status for an offline entity
+   */
+  async updateSyncStatus(
+    entityType: 'rfi' | 'submittal' | 'dailyLog',
+    entityId: string,
+    status: 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict'
+  ): Promise<void> {
+    if (!this.db) {
+      throw new Error('Offline service not initialized');
+    }
+
+    try {
+      let storeName: 'offline_rfis' | 'offline_submittals' | 'offline_daily_logs';
+      
+      switch (entityType) {
+        case 'rfi':
+          storeName = 'offline_rfis';
+          break;
+        case 'submittal':
+          storeName = 'offline_submittals';
+          break;
+        case 'dailyLog':
+          storeName = 'offline_daily_logs';
+          break;
+        default:
+          throw new Error(`Unknown entity type: ${entityType}`);
+      }
+
+      const tx = this.db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      const record = await store.get(entityId);
+      
+      if (record) {
+        record.syncStatus = status;
+        record.timestamp = Date.now();
+        await store.put(record);
+        logger.info(`Updated sync status for ${entityType} ${entityId} to ${status}`);
+      }
+      
+      await tx.done;
+    } catch (error) {
+      logger.error(`Failed to update sync status for ${entityType} ${entityId}`, error);
+      throw error;
     }
   }
 }

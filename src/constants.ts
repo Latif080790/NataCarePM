@@ -38,6 +38,7 @@ export const ROLES_CONFIG: Role[] = [
       'view_dashboard',
       'view_rab',
       'edit_rab',
+      'approve_rab',  // Adding RAB approval permission
       'view_gantt',
       'view_daily_reports',
       'create_daily_reports',
@@ -72,6 +73,7 @@ export const ROLES_CONFIG: Role[] = [
       'view_dashboard',
       'view_rab',
       'edit_rab',
+      'approve_rab',  // Adding RAB approval permission
       'view_gantt',
       'view_daily_reports',
       'create_daily_reports',
@@ -156,6 +158,12 @@ export const navLinksConfig = [
         requiredPermission: 'view_dashboard',
       },
       { id: 'rab_ahsp', name: 'RAB & AHSP', icon: FileText, requiredPermission: 'view_rab' },
+      { 
+        id: 'rab_approval', 
+        name: 'RAB Approval', 
+        icon: CheckSquare, 
+        requiredPermission: 'approve_rab' 
+      },
       {
         id: 'wbs_management',
         name: 'WBS Structure',
@@ -327,6 +335,12 @@ export const navLinksConfig = [
         name: 'Intelligent Documents',
         icon: Brain,
         requiredPermission: 'view_documents',
+      },
+      {
+        id: 'custom_report_builder',
+        name: 'Custom Report Builder',
+        icon: FileText,
+        requiredPermission: 'view_reports',
       },
       { id: 'laporan', name: 'Laporan Proyek', icon: FileText, requiredPermission: 'view_reports' },
     ],

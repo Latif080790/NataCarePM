@@ -71,6 +71,7 @@ export const ROLE_DEFINITIONS: Record<string, Role> = {
       'view_dashboard',
       'view_rab',
       'edit_rab',
+      'approve_rab',  // Adding RAB approval permission
       'view_gantt',
       'view_daily_reports',
       'create_daily_reports',
@@ -107,6 +108,7 @@ export const ROLE_DEFINITIONS: Record<string, Role> = {
       'view_dashboard',
       'view_rab',
       'edit_rab',
+      'approve_rab',  // Adding RAB approval permission
       'view_gantt',
       'view_daily_reports',
       'create_daily_reports',
@@ -238,6 +240,10 @@ export const PERMISSION_MAPPING: Record<Permission, { resource: ResourceType; ac
       { resource: 'rab_item', action: 'create' },
       { resource: 'rab_item', action: 'update' },
       { resource: 'rab_item', action: 'delete' },
+    ],
+    approve_rab: [
+      { resource: 'rab_item', action: 'approve' },
+      { resource: 'rab_item', action: 'update' },
     ],
     view_gantt: [{ resource: 'task', action: 'read' }],
     view_daily_reports: [{ resource: 'report', action: 'read' }],
