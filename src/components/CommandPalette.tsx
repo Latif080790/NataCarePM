@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import { Modal } from './Modal';
 import { Input } from './FormControls';
 import { useHotkeys } from '@/hooks/useHotkeys';
@@ -7,12 +7,13 @@ import { navLinksConfig } from '@/constants';
 import { Search } from 'lucide-react';
 
 interface CommandPaletteProps {
-  onNavigate: (viewId: string) => void;
+  // Remove onNavigate prop since we'll use useNavigate hook
 }
 
-export function CommandPalette({ onNavigate }: CommandPaletteProps) {
+export function CommandPalette({}: CommandPaletteProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const allCommands = useMemo(() => {
     return navLinksConfig.flatMap((group) =>
@@ -45,8 +46,56 @@ export function CommandPalette({ onNavigate }: CommandPaletteProps) {
     }
   }, [isOpen]);
 
+  // Map view IDs to routes
+  const routeMap: Record<string, string> = {
+    dashboard: '/',
+    analytics: '/analytics',
+    rab_ahsp: '/rab',
+    rab_basic: '/rab/basic',
+    rab_approval: '/rab/approval',
+    jadwal: '/schedule',
+    tasks: '/tasks',
+    task_list: '/tasks/list',
+    kanban: '/tasks/kanban',
+    kanban_board: '/tasks/kanban/board',
+    dependencies: '/tasks/dependencies',
+    notifications: '/notifications',
+    monitoring: '/monitoring',
+    laporan_harian: '/reports/daily',
+    progres: '/reports/progress',
+    absensi: '/attendance',
+    biaya_proyek: '/finance',
+    arus_kas: '/finance/cashflow',
+    strategic_cost: '/finance/strategic',
+    chart_of_accounts: '/finance/chart-of-accounts',
+    journal_entries: '/finance/journal-entries',
+    accounts_payable: '/finance/accounts-payable',
+    accounts_receivable: '/finance/accounts-receivable',
+    wbs_management: '/wbs',
+    goods_receipt: '/logistics/goods-receipt',
+    material_request: '/logistics/material-request',
+    vendor_management: '/logistics/vendor-management',
+    inventory_management: '/logistics/inventory',
+    integration_dashboard: '/logistics/integration',
+    cost_control: '/finance/cost-control',
+    logistik: '/logistics',
+    dokumen: '/documents',
+    documents: '/documents/intelligent',
+    laporan: '/reports',
+    user_management: '/settings/users',
+    master_data: '/settings/master-data',
+    audit_trail: '/settings/audit-trail',
+    profile: '/profile',
+    ai_resource_optimization: '/ai/resource-optimization',
+    predictive_analytics: '/ai/predictive-analytics',
+    advanced_analytics: '/analytics/advanced',
+    chat: '/chat',
+    custom_report_builder: '/reports/custom-builder',
+  };
+
   const handleSelect = (viewId: string) => {
-    onNavigate(viewId);
+    const route = routeMap[viewId] || '/';
+    navigate(route);
     setIsOpen(false);
   };
 

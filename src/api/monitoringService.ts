@@ -262,7 +262,7 @@ export class MonitoringValidator {
 
 export class MonitoringService {
   private static instance: MonitoringService;
-  private metricsInterval: NodeJS.Timeout | null = null;
+  private metricsInterval: number | null = null;
   private isOnline: boolean = navigator.onLine;
   private config: MonitoringConfig;
   private retryQueue: Array<() => Promise<void>> = [];
@@ -1349,7 +1349,7 @@ export class MonitoringService {
     // Then collect periodically
     this.metricsInterval = setInterval(() => {
       this.collectSystemMetrics();
-    }, intervalMs);
+    }, intervalMs) as unknown as number;
 
     // Process any queued operations
     if (this.isOnline) {

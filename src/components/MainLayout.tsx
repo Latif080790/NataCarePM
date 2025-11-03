@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import MobileNavigation from '@/components/MobileNavigation';
 import Header from '@/components/Header';
 import OnlineUsersDisplay from '@/components/OnlineUsersDisplay';
 import { SkipLink } from '@/components/SkipLink';
-import { useNavigate } from 'react-router-dom';
+import OfflineIndicator from '@/components/OfflineIndicator';
+import LiveCursors from '@/components/LiveCursors';
+import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
+import PerformanceMonitor from '@/components/PerformanceMonitor';
+
+// Lazy load heavy components
+const CommandPalette = lazy(() =>
+  import('@/components/CommandPalette').then((module) => ({ default: module.CommandPalette }))
+);
+const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
+const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
+const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
 
 interface MainLayoutProps {
   isSidebarCollapsed: boolean;
@@ -18,7 +29,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   setIsSidebarCollapsed,
   children 
 }) => {
-  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('dashboard');
 
   const handleNavigate = (viewId: string) => {
@@ -70,7 +80,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     };
 
     const route = routeMap[viewId] || '/';
-    navigate(route);
+    window.location.hash = route;
     setCurrentView(viewId);
   };
 
@@ -80,8 +90,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       {/* Desktop Sidebar - Hidden on mobile */}
       <div className="hidden md:block">
         <Sidebar
-          currentView={currentView}
-          onNavigate={handleNavigate}
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}
         />
@@ -102,6 +110,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           {children || <Outlet />}
         </div>
       </main>
+
+      {/* Lazy loaded components */}
+      <Suspense fallback={null}>
+        <CommandPalette />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AiAssistantChat />
+      </Suspense>
+      <Suspense fallback={null}>
+        <PWAInstallPrompt />
+      </Suspense>
+      <Suspense fallback={null}>
+        <UserFeedbackWidget position="bottom-right" />
+      </Suspense>
+
+      <OfflineIndicator />
+      <LiveCursors containerId="app-container" showLabels />
+      <FailoverStatusIndicator />
+      <PerformanceMonitor />
     </div>
   );
 };

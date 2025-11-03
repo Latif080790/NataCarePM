@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   ChevronsLeft,
   ChevronsRight,
@@ -30,15 +30,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import { navLinksConfig, hasPermission } from '@/constants';
 
 interface SidebarProps {
-  currentView: string;
-  onNavigate: (viewId: string) => void;
   isCollapsed: boolean;
   setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
+// Helper function for NavLink className
+const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `w-full flex items-center space-x-3 p-3 rounded-xl 
+  transition-all duration-300 text-left relative overflow-hidden
+  ${
+    isActive
+      ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white shadow-lg'
+      : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border border-transparent hover:border-slate-600/30'
+  }`;
+
 export default function Sidebar({
-  currentView,
-  onNavigate,
   isCollapsed,
   setIsCollapsed,
 }: SidebarProps) {
@@ -84,57 +90,14 @@ export default function Sidebar({
     return iconMap[viewId] || Activity;
   };
 
-  const handleNavigate = (viewId: string) => {
-    // Map view IDs to routes
-    const routeMap: Record<string, string> = {
-      dashboard: '/',
-      analytics: '/analytics',
-      rab_ahsp: '/rab',
-      rab_basic: '/rab/basic',
-      rab_approval: '/rab/approval',
-      jadwal: '/schedule',
-      tasks: '/tasks',
-      task_list: '/tasks/list',
-      kanban: '/tasks/kanban',
-      kanban_board: '/tasks/kanban/board',
-      dependencies: '/tasks/dependencies',
-      notifications: '/notifications',
-      monitoring: '/monitoring',
-      laporan_harian: '/reports/daily',
-      progres: '/reports/progress',
-      absensi: '/attendance',
-      biaya_proyek: '/finance',
-      arus_kas: '/finance/cashflow',
-      strategic_cost: '/finance/strategic',
-      chart_of_accounts: '/finance/chart-of-accounts',
-      journal_entries: '/finance/journal-entries',
-      accounts_payable: '/finance/accounts-payable',
-      accounts_receivable: '/finance/accounts-receivable',
-      wbs_management: '/wbs',
-      goods_receipt: '/logistics/goods-receipt',
-      material_request: '/logistics/material-request',
-      vendor_management: '/logistics/vendor-management',
-      inventory_management: '/logistics/inventory',
-      integration_dashboard: '/logistics/integration',
-      cost_control: '/finance/cost-control',
-      logistik: '/logistics',
-      dokumen: '/documents',
-      documents: '/documents/intelligent',
-      laporan: '/reports',
-      user_management: '/settings/users',
-      master_data: '/settings/master-data',
-      audit_trail: '/settings/audit-trail',
-      profile: '/profile',
-      ai_resource_optimization: '/ai/resource-optimization',
-      predictive_analytics: '/ai/predictive-analytics',
-      advanced_analytics: '/analytics/advanced',
-      chat: '/chat',
-      custom_report_builder: '/reports/custom-builder',
-    };
-
-    const route = routeMap[viewId] || '/';
-    navigate(route);
-    setShowUserMenu(false);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+      setShowUserMenu(false);
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
   };
 
   const toggleGroup = (groupId: string) => {
@@ -263,49 +226,91 @@ export default function Sidebar({
 
                   return filteredChildren;
                 })().map((item: any, itemIndex: number) => {
-                  const isActive = currentView === item.id;
                   const Icon = getIconForView(item.id);
+                  
+                  // Map view IDs to routes
+                  const routeMap: Record<string, string> = {
+                    dashboard: '/',
+                    analytics: '/analytics',
+                    rab_ahsp: '/rab',
+                    rab_basic: '/rab/basic',
+                    rab_approval: '/rab/approval',
+                    jadwal: '/schedule',
+                    tasks: '/tasks',
+                    task_list: '/tasks/list',
+                    kanban: '/tasks/kanban',
+                    kanban_board: '/tasks/kanban/board',
+                    dependencies: '/tasks/dependencies',
+                    notifications: '/notifications',
+                    monitoring: '/monitoring',
+                    laporan_harian: '/reports/daily',
+                    progres: '/reports/progress',
+                    absensi: '/attendance',
+                    biaya_proyek: '/finance',
+                    arus_kas: '/finance/cashflow',
+                    strategic_cost: '/finance/strategic',
+                    chart_of_accounts: '/finance/chart-of-accounts',
+                    journal_entries: '/finance/journal-entries',
+                    accounts_payable: '/finance/accounts-payable',
+                    accounts_receivable: '/finance/accounts-receivable',
+                    wbs_management: '/wbs',
+                    goods_receipt: '/logistics/goods-receipt',
+                    material_request: '/logistics/material-request',
+                    vendor_management: '/logistics/vendor-management',
+                    inventory_management: '/logistics/inventory',
+                    integration_dashboard: '/logistics/integration',
+                    cost_control: '/finance/cost-control',
+                    logistik: '/logistics',
+                    dokumen: '/documents',
+                    documents: '/documents/intelligent',
+                    laporan: '/reports',
+                    user_management: '/settings/users',
+                    master_data: '/settings/master-data',
+                    audit_trail: '/settings/audit-trail',
+                    profile: '/profile',
+                    ai_resource_optimization: '/ai/resource-optimization',
+                    predictive_analytics: '/ai/predictive-analytics',
+                    advanced_analytics: '/analytics/advanced',
+                    chat: '/chat',
+                    custom_report_builder: '/reports/custom-builder',
+                  };
+
+                  const path = routeMap[item.id] || '/';
 
                   return (
                     <div key={item.id || itemIndex} className="relative group/item">
-                      <button
-                        onClick={() => handleNavigate(item.id)}
-                        className={`
-                            w-full flex items-center space-x-3 p-3 rounded-xl 
-                            transition-all duration-300 text-left relative overflow-hidden
-                            ${
-                              isActive
-                                ? 'bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 text-white shadow-lg'
-                                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border border-transparent hover:border-slate-600/30'
-                            }
-                          `}
+                      <NavLink
+                        to={path}
+                        className={getNavLinkClass}
                         title={isCollapsed ? item.name : undefined}
-                        aria-label={`Navigate to ${item.name}`}
-                        aria-current={isActive ? 'page' : undefined}
                       >
-                        {isActive && (
-                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 to-red-500"></div>
+                        {({ isActive }) => (
+                          <>
+                            {isActive && (
+                              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 to-red-500"></div>
+                            )}
+
+                            <Icon
+                              size={16}
+                              className={`flex-shrink-0 ${isActive ? 'text-orange-400' : 'text-slate-500 group-hover/item:text-slate-300'}`}
+                            />
+
+                            {!isCollapsed && (
+                              <span
+                                className={`text-[13px] flex-1 ${isActive ? 'font-semibold' : 'font-medium'}`}
+                              >
+                                {item.name}
+                              </span>
+                            )}
+
+                            {isActive && !isCollapsed && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></div>
+                            )}
+
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/3 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                          </>
                         )}
-
-                        <Icon
-                          size={16}
-                          className={`flex-shrink-0 ${isActive ? 'text-orange-400' : 'text-slate-500 group-hover/item:text-slate-300'}`}
-                        />
-
-                        {!isCollapsed && (
-                          <span
-                            className={`text-[13px] flex-1 ${isActive ? 'font-semibold' : 'font-medium'}`}
-                          >
-                            {item.name}
-                          </span>
-                        )}
-
-                        {isActive && !isCollapsed && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0"></div>
-                        )}
-
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/3 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                      </button>
+                      </NavLink>
 
                       {isCollapsed && (
                         <div
@@ -376,43 +381,28 @@ export default function Sidebar({
             "
             >
               <div className="p-1.5 space-y-0.5">
-                <button
-                  onClick={() => {
-                    handleNavigate('profile');
-                    setShowUserMenu(false);
-                  }}
-                  className="
-                    w-full flex items-center space-x-2.5 px-3 py-2 rounded-md 
-                    text-slate-300 hover:bg-slate-700/50 hover:text-white 
-                    transition-all duration-200 text-left text-[13px] font-medium
-                  "
+                <NavLink
+                  to="/profile"
+                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-md text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all duration-200 text-left text-[13px] font-medium"
+                  onClick={() => setShowUserMenu(false)}
                 >
                   <User size={14} />
                   <span>Profile</span>
-                </button>
+                </NavLink>
 
-                <button
-                  onClick={() => {
-                    handleNavigate('master_data');
-                    setShowUserMenu(false);
-                  }}
-                  className="
-                    w-full flex items-center space-x-2.5 px-3 py-2 rounded-md 
-                    text-slate-300 hover:bg-slate-700/50 hover:text-white 
-                    transition-all duration-200 text-left text-[13px] font-medium
-                  "
+                <NavLink
+                  to="/settings/master-data"
+                  className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-md text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all duration-200 text-left text-[13px] font-medium"
+                  onClick={() => setShowUserMenu(false)}
                 >
                   <Settings size={14} />
                   <span>Settings</span>
-                </button>
+                </NavLink>
 
                 <div className="border-t border-slate-600/20 my-1"></div>
 
                 <button
-                  onClick={() => {
-                    logout();
-                    setShowUserMenu(false);
-                  }}
+                  onClick={handleLogout}
                   className="
                     w-full flex items-center space-x-2.5 px-3 py-2 rounded-md 
                     text-slate-300 hover:bg-red-600/20 hover:text-red-400 
