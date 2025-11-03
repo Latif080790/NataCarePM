@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import '@/styles/enterprise-design-system.css';
-import Sidebar from '@/components/Sidebar';
-import MobileNavigation from '@/components/MobileNavigation';
+import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import LiveCursors from '@/components/LiveCursors';
 import OnlineUsersDisplay from '@/components/OnlineUsersDisplay';
@@ -78,6 +78,9 @@ const CostControlDashboardView = lazy(() => import('@/views/CostControlDashboard
 const AIResourceOptimizationView = lazy(() => import('@/views/AIResourceOptimizationView'));
 const PredictiveAnalyticsView = lazy(() => import('@/views/PredictiveAnalyticsView'));
 
+// Unauthorized View
+const UnauthorizedView = lazy(() => import('@/views/UnauthorizedView'));
+
 import { useProjectCalculations } from '@/hooks/useProjectCalculations';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { useActivityTracker } from '@/hooks/useMonitoring';
@@ -109,66 +112,6 @@ const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView')
 const ChatView = lazy(() => import('@/views/ChatView'));
 const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderView'));
 const RabApprovalWorkflowView = lazy(() => import('@/views/RabApprovalWorkflowView'));
-
-const viewComponents: { [key: string]: React.ComponentType<any> } = {
-  dashboard: DashboardView,
-  analytics: IntegratedAnalyticsView, // Enhanced Analytics Dashboard
-  rab_ahsp: EnhancedRabAhspView, // Using enhanced version
-  rab_basic: RabAhspView, // Keep basic version available
-  rab_approval: RabApprovalWorkflowView, // Adding RAB approval workflow view
-  jadwal: GanttChartView,
-  tasks: TasksView,
-  task_list: TaskListView,
-  kanban: KanbanView,
-  kanban_board: KanbanBoardView,
-  dependencies: DependencyGraphView,
-  notifications: NotificationCenterView,
-  monitoring: MonitoringView,
-  laporan_harian: DailyReportView,
-  progres: ProgressView,
-  absensi: AttendanceView,
-  biaya_proyek: FinanceView, // Remapped
-  arus_kas: CashflowView,
-  strategic_cost: StrategicCostView,
-
-  // Finance & Accounting Module
-  chart_of_accounts: ChartOfAccountsView,
-  journal_entries: JournalEntriesView,
-  accounts_payable: AccountsPayableView,
-  accounts_receivable: AccountsReceivableView,
-
-  // WBS Module
-  wbs_management: WBSManagementView,
-
-  // Logistics Module
-  goods_receipt: GoodsReceiptView,
-  material_request: MaterialRequestView,
-  vendor_management: VendorManagementView,
-  inventory_management: InventoryManagementView,
-  integration_dashboard: IntegrationDashboardView,
-  cost_control: CostControlDashboardView,
-
-  logistik: LogisticsView,
-  dokumen: DokumenView,
-  documents: IntelligentDocumentSystem, // New Intelligent Document System
-  laporan: ReportView,
-  user_management: UserManagementView,
-  master_data: MasterDataView,
-  audit_trail: AuditTrailView,
-  profile: ProfileView,
-
-  // Phase 4: AI & Analytics
-  ai_resource_optimization: AIResourceOptimizationView,
-  predictive_analytics: PredictiveAnalyticsView,
-  advanced_analytics: AdvancedAnalyticsView,
-  chat: ChatView,
-  custom_report_builder: CustomReportBuilderView,
-};
-
-// Views that show fallback "coming soon" page
-const comingSoonViews: { [key: string]: { name: string; features: string[] } } = {
-  // All views have been moved to viewComponents
-};
 
 // Error Boundary Fallback Component
 function ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
@@ -203,12 +146,11 @@ function ErrorFallback({ error, resetError }: { error: Error; resetError: () => 
 }
 
 function AppContent() {
-  const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isNavigating, setIsNavigating] = useState(false);
   const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
   const [hasError, setHasError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const navigate = useNavigate();
 
   // Accessibility features
   // const accessibility = useAccessibility();
@@ -301,13 +243,13 @@ function AppContent() {
   useEffect(() => {
     if (currentUser) {
       try {
-        trackPageView(`/${currentView}`, `NataCarePM - ${currentView}`);
-        logger.debug('Page view tracked', { view: currentView });
+        trackPageView(window.location.pathname, `NataCarePM - ${window.location.pathname}`);
+        logger.debug('Page view tracked', { path: window.location.pathname });
       } catch (err) {
-        logger.error('Failed to track page view', err instanceof Error ? err : new Error(String(err)), { view: currentView });
+        logger.error('Failed to track page view', err instanceof Error ? err : new Error(String(err)), { path: window.location.pathname });
       }
     }
-  }, [currentView, currentUser]);
+  }, [currentUser]);
 
   // 🐛 Debug panel keyboard shortcut (Ctrl+Shift+D)
   useEffect(() => {
@@ -321,59 +263,6 @@ function AppContent() {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [showDebug]);
-
-  const handleNavigate = (viewId: string, params?: any) => {
-    logger.debug('Navigation attempt', {
-      viewId,
-      viewExists: !!viewComponents[viewId],
-      params,
-    });
-
-    if (viewComponents[viewId]) {
-      setIsNavigating(true);
-
-      // Store params in a ref or state if needed
-      // For now, we'll just log them
-      if (params) {
-        logger.debug('Navigation params', params);
-      }
-
-      // Smooth transition
-      setTimeout(() => {
-        setCurrentView(viewId);
-        setIsNavigating(false);
-        logger.info('Navigation completed', { viewId });
-      }, 150);
-
-      // Update presence when navigating to different views
-      updatePresence(viewId);
-
-      // 📊 Track navigation activity
-      trackActivity('navigate', 'view', viewId, true);
-    } else {
-      logger.warn('View not found', {
-        viewId,
-        suggestions: Object.keys(viewComponents).filter((v) => v.includes(viewId.split('_')[0])),
-      });
-    }
-  };
-
-  // Handle navigation events from custom events (like chat icon click)
-  useEffect(() => {
-    const handleNavigateToView = (event: CustomEvent) => {
-      const viewId = event.detail;
-      if (viewId && typeof viewId === 'string') {
-        handleNavigate(viewId);
-      }
-    };
-
-    window.addEventListener('navigateToView', handleNavigateToView as EventListener);
-    return () => {
-      window.removeEventListener('navigateToView', handleNavigateToView as EventListener);
-    };
-  }, [handleNavigate]);
-
-
 
   // Initialize Failover Manager
   useEffect(() => {
@@ -389,9 +278,6 @@ function AppContent() {
       healthMonitor.stop();
     };
   }, []);
-
-  // Initialize Route Preloading
-  useRoutePreload(currentView, currentUser?.roleId);
 
   // Error boundary reset function
   const resetError = () => {
@@ -443,156 +329,154 @@ function AppContent() {
     );
   }
 
-  const CurrentViewComponent = viewComponents[currentView];
-
-  // Show coming soon view for views in development
-  if (!CurrentViewComponent && comingSoonViews[currentView]) {
-    const comingSoonInfo = comingSoonViews[currentView];
-    return (
-      <div id="app-container" className="flex h-screen glass-bg font-sans">
-        <Sidebar
-          currentView={currentView}
-          onNavigate={handleNavigate}
-          isCollapsed={isSidebarCollapsed}
-          setIsCollapsed={setIsSidebarCollapsed}
-        />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <Header isSidebarCollapsed={isSidebarCollapsed}>
-            <OnlineUsersDisplay compact showActivity={false} />
-          </Header>
-          <div className="flex-1 overflow-hidden">
-            <FallbackView
-              type="coming-soon"
-              viewName={comingSoonInfo.name}
-              viewId={currentView}
-              onNavigateBack={() => handleNavigate('dashboard')}
-              comingSoonFeatures={comingSoonInfo.features}
-              description={`Modul ${comingSoonInfo.name} sedang dalam tahap pengembangan final. Kami berkomitmen memberikan pengalaman terbaik dengan fitur-fitur canggih untuk mendukung operasional proyek Anda.`}
-            />
-          </div>
-        </main>
-        <CommandPalette onNavigate={handleNavigate} />
-        <AiAssistantChat />
-        <OfflineIndicator />
-        <LiveCursors containerId="app-container" showLabels />
-      </div>
-    );
-  }
-
-  // Enhanced error handling for missing views
-  if (!CurrentViewComponent) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen glass-dark text-brilliance p-8 text-center">
-        <div className="glass border border-violet-essence/30 p-8 rounded-3xl shadow-2xl backdrop-blur-xl max-w-md">
-          <div className="w-20 h-20 gradient-bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 floating">
-            <svg
-              className="w-10 h-10 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 19c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold gradient-text mb-3">Modul Tidak Ditemukan</h2>
-          <p className="text-violet-essence-200 mb-6 leading-relaxed">
-            Modul "{currentView}" sedang dalam pengembangan atau belum tersedia.
-          </p>
-          <button
-            onClick={() => handleNavigate('dashboard')}
-            className="w-full gradient-bg-primary hover:scale-105 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg"
-          >
-            Kembali ke Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // Simplified view props - each view will fetch its own data
-  const getViewProps = (viewId: string): any => ({
+  const getViewProps = (): any => ({
     project: currentProject,
     projectMetrics: projectMetrics,
     loading: projectLoading,
     error: projectError,
     user: currentUser,
-    onNavigate: handleNavigate,
   });
 
-  const viewProps = getViewProps(currentView);
+  const viewProps = getViewProps();
+
+  // Wrapper function for CommandPalette navigation
+  const handleCommandPaletteNavigate = (viewId: string) => {
+    // Map view IDs to routes
+    const routeMap: Record<string, string> = {
+      dashboard: '/',
+      analytics: '/analytics',
+      rab_ahsp: '/rab',
+      rab_basic: '/rab/basic',
+      rab_approval: '/rab/approval',
+      jadwal: '/schedule',
+      tasks: '/tasks',
+      task_list: '/tasks/list',
+      kanban: '/tasks/kanban',
+      kanban_board: '/tasks/kanban/board',
+      dependencies: '/tasks/dependencies',
+      notifications: '/notifications',
+      monitoring: '/monitoring',
+      laporan_harian: '/reports/daily',
+      progres: '/reports/progress',
+      absensi: '/attendance',
+      biaya_proyek: '/finance',
+      arus_kas: '/finance/cashflow',
+      strategic_cost: '/finance/strategic',
+      chart_of_accounts: '/finance/chart-of-accounts',
+      journal_entries: '/finance/journal-entries',
+      accounts_payable: '/finance/accounts-payable',
+      accounts_receivable: '/finance/accounts-receivable',
+      wbs_management: '/wbs',
+      goods_receipt: '/logistics/goods-receipt',
+      material_request: '/logistics/material-request',
+      vendor_management: '/logistics/vendor-management',
+      inventory_management: '/logistics/inventory',
+      integration_dashboard: '/logistics/integration',
+      cost_control: '/finance/cost-control',
+      logistik: '/logistics',
+      dokumen: '/documents',
+      documents: '/documents/intelligent',
+      laporan: '/reports',
+      user_management: '/settings/users',
+      master_data: '/settings/master-data',
+      audit_trail: '/settings/audit-trail',
+      profile: '/profile',
+      ai_resource_optimization: '/ai/resource-optimization',
+      predictive_analytics: '/ai/predictive-analytics',
+      advanced_analytics: '/analytics/advanced',
+      chat: '/chat',
+      custom_report_builder: '/reports/custom-builder',
+    };
+
+    const route = routeMap[viewId] || '/';
+    navigate(route);
+  };
 
   return (
-    <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
-      <SkipLink />
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:block">
-        <Sidebar
-          currentView={currentView}
-          onNavigate={handleNavigate}
-          isCollapsed={isSidebarCollapsed}
-          setIsCollapsed={setIsSidebarCollapsed}
-        />
-      </div>
-
-      {/* Mobile Navigation - Only shown on mobile */}
-      <MobileNavigation
-        currentView={currentView}
-        onNavigate={handleNavigate}
-        showBottomNav={true}
-      />
-
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <Header isSidebarCollapsed={isSidebarCollapsed}>
-          <OnlineUsersDisplay compact showActivity={false} />
-        </Header>
-        <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 mobile-p-4 glass-bg relative pb-20 md:pb-6">
-          {/* Navigation Loading Overlay */}
-          {isNavigating && (
-            <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-40 flex items-center justify-center">
+    <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>
+      <EnhancedErrorBoundary>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center space-y-3">
                 <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
+                <p className="text-sm font-medium text-slate-700">Loading view...</p>
               </div>
             </div>
-          )}
-
-          <EnhancedErrorBoundary>
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center h-full">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-sm font-medium text-slate-700">Loading {currentView}...</p>
-                  </div>
-                </div>
-              }
-            >
-              {CurrentViewComponent ? (
-                <CurrentViewComponent {...viewProps} />
-              ) : (
-                <div className="flex items-center justify-center h-full">
+          }
+        >
+          <Routes>
+            <Route index element={<DashboardView {...viewProps} />} />
+            <Route path="/analytics" element={<IntegratedAnalyticsView {...viewProps} />} />
+            <Route path="/rab" element={<EnhancedRabAhspView {...viewProps} />} />
+            <Route path="/rab/basic" element={<RabAhspView {...viewProps} />} />
+            <Route path="/rab/approval" element={<RabApprovalWorkflowView {...viewProps} />} />
+            <Route path="/schedule" element={<GanttChartView {...viewProps} />} />
+            <Route path="/tasks" element={<TasksView {...viewProps} />} />
+            <Route path="/tasks/list" element={<TaskListView {...viewProps} />} />
+            <Route path="/tasks/kanban" element={<KanbanView {...viewProps} />} />
+            <Route path="/tasks/kanban/board" element={<KanbanBoardView {...viewProps} />} />
+            <Route path="/tasks/dependencies" element={<DependencyGraphView {...viewProps} />} />
+            <Route path="/notifications" element={<NotificationCenterView {...viewProps} />} />
+            <Route path="/monitoring" element={<MonitoringView {...viewProps} />} />
+            <Route path="/reports/daily" element={<DailyReportView {...viewProps} />} />
+            <Route path="/reports/progress" element={<ProgressView {...viewProps} />} />
+            <Route path="/attendance" element={<AttendanceView {...viewProps} />} />
+            <Route path="/finance" element={<FinanceView {...viewProps} />} />
+            <Route path="/finance/cashflow" element={<CashflowView {...viewProps} />} />
+            <Route path="/finance/strategic" element={<StrategicCostView {...viewProps} />} />
+            <Route path="/finance/chart-of-accounts" element={<ChartOfAccountsView {...viewProps} />} />
+            <Route path="/finance/journal-entries" element={<JournalEntriesView {...viewProps} />} />
+            <Route path="/finance/accounts-payable" element={<AccountsPayableView {...viewProps} />} />
+            <Route path="/finance/accounts-receivable" element={<AccountsReceivableView {...viewProps} />} />
+            <Route path="/wbs" element={<WBSManagementView {...viewProps} />} />
+            <Route path="/logistics/goods-receipt" element={<GoodsReceiptView {...viewProps} />} />
+            <Route path="/logistics/material-request" element={<MaterialRequestView {...viewProps} />} />
+            <Route path="/logistics/vendor-management" element={<VendorManagementView {...viewProps} />} />
+            <Route path="/logistics/inventory" element={<InventoryManagementView {...viewProps} />} />
+            <Route path="/logistics/integration" element={<IntegrationDashboardView {...viewProps} />} />
+            <Route path="/finance/cost-control" element={<CostControlDashboardView {...viewProps} />} />
+            <Route path="/logistics" element={<LogisticsView {...viewProps} />} />
+            <Route path="/documents" element={<DokumenView {...viewProps} />} />
+            <Route path="/documents/intelligent" element={<IntelligentDocumentSystem {...viewProps} />} />
+            <Route path="/reports" element={<ReportView {...viewProps} />} />
+            <Route path="/settings/users" element={<UserManagementView {...viewProps} />} />
+            <Route path="/settings/master-data" element={<MasterDataView {...viewProps} />} />
+            <Route path="/settings/audit-trail" element={<AuditTrailView {...viewProps} />} />
+            <Route path="/profile" element={<ProfileView {...viewProps} />} />
+            <Route path="/ai/resource-optimization" element={<AIResourceOptimizationView {...viewProps} />} />
+            <Route path="/ai/predictive-analytics" element={<PredictiveAnalyticsView {...viewProps} />} />
+            <Route path="/analytics/advanced" element={<AdvancedAnalyticsView {...viewProps} />} />
+            <Route path="/chat" element={<ChatView {...viewProps} />} />
+            <Route path="/reports/custom-builder" element={<CustomReportBuilderView {...viewProps} />} />
+            
+            {/* Unauthorized route */}
+            <Route path="/unauthorized" element={<UnauthorizedView />} />
+            
+            {/* Fallback route for 404s */}
+            <Route
+              path="*"
+              element={
+                <div className="flex flex-col items-center justify-center h-full">
                   <div className="text-center">
-                    <p className="text-gray-500">View component failed to load</p>
+                    <p className="text-gray-500">Page not found</p>
                     <button
-                      onClick={() => handleNavigate('dashboard')}
+                      onClick={() => (window.location.href = '/')}
                       className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                     >
                       Go to Dashboard
                     </button>
                   </div>
                 </div>
-              )}
-            </Suspense>
-          </EnhancedErrorBoundary>
-        </div>
-      </main>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </EnhancedErrorBoundary>
+      
       <Suspense fallback={null}>
-        <CommandPalette onNavigate={handleNavigate} />
+        <CommandPalette onNavigate={handleCommandPaletteNavigate} />
       </Suspense>
       <Suspense fallback={null}>
         <AiAssistantChat />
@@ -611,8 +495,8 @@ function AppContent() {
       {/* Debug Panel (Ctrl+Shift+D to toggle) */}
       {showDebug && (
         <NavigationDebug
-          currentView={currentView}
-          availableViews={Object.keys(viewComponents)}
+          currentView={window.location.pathname}
+          availableViews={[]} // Will be populated by the route configuration
           userPermissions={currentUser?.roleId ? ['view_dashboard', 'view_rab', 'view_gantt'] : []}
         />
       )}
@@ -621,7 +505,7 @@ function AppContent() {
       <div className="fixed bottom-4 left-4 z-40 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs opacity-50 hover:opacity-100 transition-opacity">
         Press <kbd className="bg-slate-700 px-1.5 py-0.5 rounded">Ctrl+Shift+D</kbd> for debug panel
       </div>
-    </div>
+    </MainLayout>
   );
 }
 

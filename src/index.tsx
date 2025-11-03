@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -20,7 +21,9 @@ if (container) {
             <ProjectProvider>
               <AIResourceProvider>
                 <PredictiveAnalyticsProvider>
-                  <App />
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
                 </PredictiveAnalyticsProvider>
               </AIResourceProvider>
             </ProjectProvider>

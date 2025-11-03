@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart3, CheckSquare, FileArchive, Bell, Menu } from 'lucide-react';
 
 interface BottomNavItem {
@@ -33,6 +34,21 @@ const NAV_ITEMS: BottomNavItem[] = [
 ];
 
 export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate, onMenuClick }) => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (viewId: string) => {
+    // Map view IDs to routes
+    const routeMap: Record<string, string> = {
+      dashboard: '/',
+      tasks: '/tasks',
+      dokumen: '/documents',
+      notifications: '/notifications',
+    };
+
+    const route = routeMap[viewId] || '/';
+    navigate(route);
+  };
+
   return (
     <nav className="mobile-bottom-nav" role="navigation" aria-label="Bottom navigation">
       {NAV_ITEMS.map((item) => {
@@ -42,7 +58,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate, o
         return (
           <button
             key={item.id}
-            onClick={() => onNavigate(item.id)}
+            onClick={() => handleNavigate(item.id)}
             className={`mobile-bottom-nav-item ${isActive ? 'active' : ''}`}
             aria-label={`Navigate to ${item.name}`}
             aria-current={isActive ? 'page' : undefined}

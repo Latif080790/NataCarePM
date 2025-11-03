@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronsLeft,
   ChevronsRight,
@@ -41,6 +42,7 @@ export default function Sidebar({
   isCollapsed,
   setIsCollapsed,
 }: SidebarProps) {
+  const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   // Expand all groups by default for better UX
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
@@ -83,12 +85,56 @@ export default function Sidebar({
   };
 
   const handleNavigate = (viewId: string) => {
-    try {
-      onNavigate(viewId);
-      setShowUserMenu(false);
-    } catch (error) {
-      console.error('Navigation error:', error);
-    }
+    // Map view IDs to routes
+    const routeMap: Record<string, string> = {
+      dashboard: '/',
+      analytics: '/analytics',
+      rab_ahsp: '/rab',
+      rab_basic: '/rab/basic',
+      rab_approval: '/rab/approval',
+      jadwal: '/schedule',
+      tasks: '/tasks',
+      task_list: '/tasks/list',
+      kanban: '/tasks/kanban',
+      kanban_board: '/tasks/kanban/board',
+      dependencies: '/tasks/dependencies',
+      notifications: '/notifications',
+      monitoring: '/monitoring',
+      laporan_harian: '/reports/daily',
+      progres: '/reports/progress',
+      absensi: '/attendance',
+      biaya_proyek: '/finance',
+      arus_kas: '/finance/cashflow',
+      strategic_cost: '/finance/strategic',
+      chart_of_accounts: '/finance/chart-of-accounts',
+      journal_entries: '/finance/journal-entries',
+      accounts_payable: '/finance/accounts-payable',
+      accounts_receivable: '/finance/accounts-receivable',
+      wbs_management: '/wbs',
+      goods_receipt: '/logistics/goods-receipt',
+      material_request: '/logistics/material-request',
+      vendor_management: '/logistics/vendor-management',
+      inventory_management: '/logistics/inventory',
+      integration_dashboard: '/logistics/integration',
+      cost_control: '/finance/cost-control',
+      logistik: '/logistics',
+      dokumen: '/documents',
+      documents: '/documents/intelligent',
+      laporan: '/reports',
+      user_management: '/settings/users',
+      master_data: '/settings/master-data',
+      audit_trail: '/settings/audit-trail',
+      profile: '/profile',
+      ai_resource_optimization: '/ai/resource-optimization',
+      predictive_analytics: '/ai/predictive-analytics',
+      advanced_analytics: '/analytics/advanced',
+      chat: '/chat',
+      custom_report_builder: '/reports/custom-builder',
+    };
+
+    const route = routeMap[viewId] || '/';
+    navigate(route);
+    setShowUserMenu(false);
   };
 
   const toggleGroup = (groupId: string) => {
