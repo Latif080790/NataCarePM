@@ -92,6 +92,7 @@ import {
   useRealtimeCollaboration,
 } from '@/contexts/RealtimeCollaborationContext';
 import { monitoringService } from '@/api/monitoringService';
+console.log('🔧 monitoringService imported in App.tsx:', monitoringService);
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
 import { useRoutePreload } from '@/hooks/useRoutePreload';
@@ -228,16 +229,24 @@ function AppContent() {
   // 📊 Initialize monitoring service
   useEffect(() => {
     if (currentUser) {
-      logger.info('System monitoring started', {
-        userId: currentUser.id,
-        interval: 60000,
-      });
-      monitoringService.startMonitoring(60000); // 1 minute interval
+      try {
+        logger.info('System monitoring started', {
+          userId: currentUser.id,
+          interval: 60000,
+        });
+        monitoringService.startMonitoring(60000); // 1 minute interval
 
-      return () => {
-        monitoringService.stopMonitoring();
-        logger.info('System monitoring stopped');
-      };
+        return () => {
+          try {
+            monitoringService.stopMonitoring();
+            logger.info('System monitoring stopped');
+          } catch (err) {
+            logger.error('Failed to stop monitoring service', err instanceof Error ? err : new Error(String(err)));
+          }
+        };
+      } catch (err) {
+        logger.error('Failed to start monitoring service', err instanceof Error ? err : new Error(String(err)));
+      }
     }
 
     return undefined;

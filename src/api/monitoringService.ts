@@ -18,6 +18,7 @@ import {
   serverTimestamp,
   Timestamp,
   onSnapshot,
+  type Firestore,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger.enhanced';
