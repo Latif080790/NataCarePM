@@ -77,6 +77,12 @@ service cloud.firestore {
     // ============================================
     // PROJECTS COLLECTION
     // ============================================
+
+    // Allow authenticated users to list projects
+    match /projects {
+      allow list: if isAuthenticated();
+    }
+    
     match /projects/{projectId} {
       // Project members can read
       allow read: if isProjectMember(projectId);

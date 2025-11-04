@@ -5,6 +5,7 @@ import App from './App';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
+import { MessageProvider } from '@/contexts/MessageContext';
 import { AIResourceProvider } from '@/contexts/AIResourceContext';
 import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
 import { RealtimeCollaborationProvider } from '@/contexts/RealtimeCollaborationContext';
@@ -20,20 +21,22 @@ if (container) {
         <ToastProvider>
           <AuthProvider>
             <ProjectProvider>
-              <AIResourceProvider>
-                <PredictiveAnalyticsProvider>
-                  {/* Urutan sangat penting:
-                      Pastikan provider yang dibutuhkan (misalnya Auth/Project)
-                      sudah di atas RealtimeCollaborationProvider jika ia memerlukannya.
-                      Saya berasumsi RealtimeCollaboration bisa memerlukan Auth/Project data.
-                  */}
-                  <RealtimeCollaborationProvider>
-                    <BrowserRouter>
-                      <App />
-                    </BrowserRouter>
-                  </RealtimeCollaborationProvider>
-                </PredictiveAnalyticsProvider>
-              </AIResourceProvider>
+              <MessageProvider>
+                <AIResourceProvider>
+                  <PredictiveAnalyticsProvider>
+                    {/* Urutan sangat penting:
+                        Pastikan provider yang dibutuhkan (misalnya Auth/Project)
+                        sudah di atas RealtimeCollaborationProvider jika ia memerlukannya.
+                        Saya berasumsi RealtimeCollaboration bisa memerlukan Auth/Project data.
+                    */}
+                    <RealtimeCollaborationProvider>
+                      <BrowserRouter>
+                        <App />
+                      </BrowserRouter>
+                    </RealtimeCollaborationProvider>
+                  </PredictiveAnalyticsProvider>
+                </AIResourceProvider>
+              </MessageProvider>
             </ProjectProvider>
           </AuthProvider>
         </ToastProvider>

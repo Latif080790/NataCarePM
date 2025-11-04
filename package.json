@@ -50,7 +50,7 @@
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
     "dompurify": "^3.3.0",
-    "firebase": "^12.4.0",
+    "firebase": "^12.5.0",
     "firebase-admin": "^13.5.0",
     "framer-motion": "^12.23.24",
     "ml-matrix": "^6.10.4",
