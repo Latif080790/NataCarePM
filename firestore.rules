@@ -40,10 +40,11 @@ service cloud.firestore {
     }
     
     // ============================================
-    // DEFAULT: DENY ALL
+    // DEFAULT: ALLOW READ FOR AUTHENTICATED USERS (DEVELOPMENT ONLY)
     // ============================================
     match /{document=**} {
-      allow read, write: if false;
+      allow read: if isAuthenticated();
+      allow write: if false;
     }
     
     // ============================================
