@@ -208,6 +208,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
+        input: 'index.html',
         output: {
           manualChunks: {
             // Vendor chunk for core dependencies

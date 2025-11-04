@@ -1,48 +1,12 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import { ToastProvider } from '@/contexts/ToastContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ProjectProvider } from '@/contexts/ProjectContext';
-import { MessageProvider } from '@/contexts/MessageContext';
-import { AIResourceProvider } from '@/contexts/AIResourceContext';
-import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
-import { RealtimeCollaborationProvider } from '@/contexts/RealtimeCollaborationContext';
-import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
+import Root from './Root';
 import { registerServiceWorker } from '@/utils/pwa';
 
 const container = document.getElementById('root');
 if (container) {
   const root = createRoot(container);
-  root.render(
-    <React.StrictMode>
-      <EnhancedErrorBoundary>
-        <ToastProvider>
-          <AuthProvider>
-            <ProjectProvider>
-              <MessageProvider>
-                <AIResourceProvider>
-                  <PredictiveAnalyticsProvider>
-                    {/* Urutan sangat penting:
-                        Pastikan provider yang dibutuhkan (misalnya Auth/Project)
-                        sudah di atas RealtimeCollaborationProvider jika ia memerlukannya.
-                        Saya berasumsi RealtimeCollaboration bisa memerlukan Auth/Project data.
-                    */}
-                    <RealtimeCollaborationProvider>
-                      <BrowserRouter>
-                        <App />
-                      </BrowserRouter>
-                    </RealtimeCollaborationProvider>
-                  </PredictiveAnalyticsProvider>
-                </AIResourceProvider>
-              </MessageProvider>
-            </ProjectProvider>
-          </AuthProvider>
-        </ToastProvider>
-      </EnhancedErrorBoundary>
-    </React.StrictMode>
-  );
+  root.render(<Root />);
 } else {
   console.error('Fatal Error: Root element not found in the DOM.');
 }

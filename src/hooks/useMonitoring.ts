@@ -1,8 +1,3 @@
-/**
- * 📊 MONITORING HOOK
- * React hook for real-time monitoring
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import {
   monitoringService,
@@ -12,9 +7,8 @@ import {
 } from '@/api/monitoringService';
 import { useAuth } from '@/contexts/AuthContext';
 
-/**
- * Hook for system metrics monitoring
- */
+// ... (hook-hook lain tetap sama) ...
+
 export function useSystemMetrics() {
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,9 +27,6 @@ export function useSystemMetrics() {
   return { metrics, loading };
 }
 
-/**
- * Hook for error logs monitoring
- */
 export function useErrorLogs(limitCount: number = 10) {
   const [errors, setErrors] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,9 +49,6 @@ export function useErrorLogs(limitCount: number = 10) {
   return { errors, loading, resolveError };
 }
 
-/**
- * Hook for system health
- */
 export function useSystemHealth() {
   const [health, setHealth] = useState<{
     status: 'healthy' | 'warning' | 'critical';
@@ -78,19 +66,13 @@ export function useSystemHealth() {
 
   useEffect(() => {
     checkHealth();
-
-    // Check health every minute
     const interval = setInterval(checkHealth, 60000);
-
     return () => clearInterval(interval);
   }, [checkHealth]);
 
   return { health, loading, refresh: checkHealth };
 }
 
-/**
- * Hook for project metrics
- */
 export function useProjectMetrics(projectId: string | undefined) {
   const [metrics, setMetrics] = useState<ProjectMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,11 +93,13 @@ export function useProjectMetrics(projectId: string | undefined) {
   return { metrics, loading };
 }
 
+
 /**
- * Hook for user activity tracking
+ * REFACTORED Hook for user activity tracking
+ * useAuth is now called inside the returned function to prevent top-level execution.
  */
 export function useActivityTracker() {
-  const { currentUser } = useAuth();
+  const auth = useAuth(); // Now we get the whole context
 
   const trackActivity = useCallback(
     async (
@@ -125,6 +109,7 @@ export function useActivityTracker() {
       success: boolean = true,
       duration?: number
     ) => {
+      const currentUser = auth.currentUser; // Access currentUser when the function is called
       if (!currentUser) return;
 
       await monitoringService.logUserActivity({
@@ -137,15 +122,12 @@ export function useActivityTracker() {
         success,
       });
     },
-    [currentUser]
+    [auth] // Depend on the whole auth context
   );
 
   return { trackActivity };
 }
 
-/**
- * Hook for performance tracking
- */
 export function usePerformanceTracker() {
   const trackPerformance = useCallback(
     async (
@@ -186,10 +168,11 @@ export function usePerformanceTracker() {
 }
 
 /**
- * Hook for error tracking
+ * REFACTORED Hook for error tracking
+ * useAuth is now called inside the returned function to prevent top-level execution.
  */
 export function useErrorTracker() {
-  const { currentUser } = useAuth();
+  const auth = useAuth(); // Get the whole context
 
   const trackError = useCallback(
     async (
@@ -198,6 +181,7 @@ export function useErrorTracker() {
       component?: string,
       action?: string
     ) => {
+      const currentUser = auth.currentUser; // Access currentUser when function is called
       await monitoringService.logError({
         message: error.message,
         stack: error.stack,
@@ -208,15 +192,12 @@ export function useErrorTracker() {
         action,
       });
     },
-    [currentUser]
+    [auth] // Depend on the whole auth context
   );
 
   return { trackError };
 }
 
-/**
- * Hook for dashboard analytics
- */
 export function useDashboardAnalytics(timeRange: 'hour' | 'day' | 'week' | 'month' = 'day') {
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
