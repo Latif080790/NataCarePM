@@ -42,7 +42,7 @@ import {
   OptimizationWarning,
   RecommendedResource,
 } from '@/types/ai-resource.types';
-import { Resource, ResourceAllocation as ResourceAlloc } from '@/types/resource.types';
+import { Resource } from '@/types/resource.types';
 import { Project } from '@/types';
 
 // ============================================================================

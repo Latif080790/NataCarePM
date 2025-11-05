@@ -5,7 +5,6 @@
 
 import { doc, setDoc, getDoc, updateDoc, deleteDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-import { User as FirebaseUser } from 'firebase/auth';
 import { APIResponse, safeAsync } from '@/utils/responseWrapper';
 import { logger } from '@/utils/logger.enhanced';
 

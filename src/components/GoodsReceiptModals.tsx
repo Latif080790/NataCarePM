@@ -35,7 +35,6 @@ import { Input } from './FormControls';
 import { Card } from './Card';
 import {
   GoodsReceipt,
-  GRItem,
   CreateGRInput,
   InspectGRItemInput,
   QualityStatus,
@@ -43,7 +42,6 @@ import {
 import { PurchaseOrder } from '@/types';
 import {
   createGoodsReceipt,
-  updateGRItemQuantity,
   inspectGRItem,
   addGRPhoto,
   validateGoodsReceipt,

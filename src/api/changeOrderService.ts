@@ -19,8 +19,6 @@ import {
 import { db } from '@/firebaseConfig';
 import type {
   ChangeOrder,
-  ChangeOrderStatus,
-  ChangeOrderType,
   ChangeOrderSummary,
   ChangeOrderFilterOptions,
   ApprovalDecision,

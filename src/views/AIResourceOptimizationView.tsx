@@ -9,8 +9,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Brain,
-  TrendingUp,
-  TrendingDown,
   Calendar,
   AlertTriangle,
   CheckCircle,

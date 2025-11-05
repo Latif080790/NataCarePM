@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import {
   X,
-  Upload,
   Plus,
   Trash2,
   AlertTriangle,

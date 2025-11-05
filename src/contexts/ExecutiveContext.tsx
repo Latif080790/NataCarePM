@@ -8,8 +8,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type {
   ExecutiveDashboardData,
-  ExecutiveKPI,
-  ExecutiveAlert,
   TimeFrame,
 } from '@/types/executive.types';
 import executiveService from '@/api/executiveService';

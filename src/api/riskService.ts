@@ -22,8 +22,6 @@ import {
 import { db } from '@/firebaseConfig';
 import type {
   Risk,
-  RiskCategory,
-  RiskStatus,
   RiskSeverity,
   RiskProbability,
   RiskPriorityLevel,

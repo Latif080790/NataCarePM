@@ -29,8 +29,6 @@ import {
 import { db } from '@/firebaseConfig';
 import {
   Vendor,
-  VendorStatus,
-  VendorCategory,
   VendorContact,
   VendorBankAccount,
   VendorEvaluation,

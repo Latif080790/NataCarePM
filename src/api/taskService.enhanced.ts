@@ -27,8 +27,6 @@ import {
 } from 'firebase/firestore';
 import {
   Task,
-  Subtask,
-  TaskComment,
   User,
 } from '@/types';
 import { TaskDependency, ResourceAllocation } from '@/types/ai-resource.types';
