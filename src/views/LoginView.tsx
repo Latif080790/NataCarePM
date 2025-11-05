@@ -1,16 +1,22 @@
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { Input } from '@/components/FormControls';
 import { useAuth } from '@/contexts/AuthContext';
 import { Spinner } from '@/components/Spinner';
 import { LogIn, UserPlus } from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';
 import { TwoFactorVerify } from '@/components/TwoFactorVerify';
-import { loginSchema, registrationSchema, validateData } from '@/utils/validation';
+import { useValidatedForm } from '@/hooks/useValidatedForm';
+import { FormField, FormErrorSummary } from '@/components/FormFields';
+import { 
+  loginSchema, 
+  registrationSchema,
+  type LoginFormData,
+  type RegistrationFormData 
+} from '@/schemas/authSchemas';
 
 // Firebase imports
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -27,84 +33,41 @@ export default function LoginView() {
   } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [generalError, setGeneralError] = useState('');
 
-  // Enhanced form state
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Animation state
-  useEffect(() => {
-    // Component mounted
-  }, []);
-
-  if (showForgotPassword) {
-    return <ForgotPasswordView onBack={() => setShowForgotPassword(false)} />;
-  }
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setErrors({});
-
-    if (isLogin) {
-      // --- PROSES LOGIN dengan Validasi ---
-      const validation = validateData(loginSchema, { email, password });
-
-      if (!validation.success) {
-        // Format errors untuk display
-        const formattedErrors: Record<string, string> = {};
-        const errorRecord = (validation as any).errors as Record<string, string[]>;
-        Object.entries(errorRecord).forEach(([field, messages]) => {
-          formattedErrors[field] = messages[0]; // Ambil error pertama
-        });
-        setErrors(formattedErrors);
-        setIsSubmitting(false);
-        return;
-      }
-
+  // Login form
+  const loginForm = useValidatedForm<LoginFormData>({
+    schema: loginSchema,
+    onSubmit: async (data) => {
+      setGeneralError('');
       try {
-        await login(validation.data.email, validation.data.password);
-        // Jika berhasil, AuthContext akan menangani redirect
+        await login(data.email, data.password);
+        // AuthContext will handle redirect
       } catch (error: any) {
-        setErrors({ general: error.message || 'Gagal masuk' });
+        setGeneralError(error.message || 'Gagal masuk');
+        throw error; // Re-throw to prevent form reset
       }
-    } else {
-      // --- PROSES SIGN UP dengan Validasi ---
-      const validation = validateData(registrationSchema, {
-        name,
-        email,
-        password,
-        confirmPassword,
-      });
+    },
+    resetOnSuccess: false, // Don't reset on success (will redirect)
+  });
 
-      if (!validation.success) {
-        // Format errors untuk display
-        const formattedErrors: Record<string, string> = {};
-        const errorRecord = (validation as any).errors as Record<string, string[]>;
-        Object.entries(errorRecord).forEach(([field, messages]) => {
-          formattedErrors[field] = messages[0];
-        });
-        setErrors(formattedErrors);
-        setIsSubmitting(false);
-        return;
-      }
-
+  // Registration form
+  const registrationForm = useValidatedForm<RegistrationFormData>({
+    schema: registrationSchema,
+    onSubmit: async (data) => {
+      setGeneralError('');
       try {
-        // Langkah 1: Buat user di Firebase Authentication
+        // Create user in Firebase Authentication
         const userCredential = await createUserWithEmailAndPassword(
           auth,
-          validation.data.email,
-          validation.data.password
+          data.email,
+          data.password
         );
         const firebaseUser = userCredential.user;
 
-        // Langkah 2: Buat dokumen baru di koleksi 'users' Firestore
+        // Create user document in Firestore
         await setDoc(doc(db, 'users', firebaseUser.uid), {
-          name: validation.data.name,
+          name: data.name,
           email: firebaseUser.email,
           roleId: 'viewer',
           avatarUrl: `https://i.pravatar.cc/150?u=${firebaseUser.uid}`,
@@ -112,19 +75,23 @@ export default function LoginView() {
 
         alert('Akun berhasil dibuat! Silakan masuk.');
         setIsLogin(true);
-        // Reset form
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
+        // Form will be reset automatically
       } catch (error: any) {
-        setErrors({ general: error.message || 'Gagal mendaftar' });
+        setGeneralError(error.message || 'Gagal mendaftar');
+        throw error; // Re-throw to prevent form reset
       }
-    }
-    setIsSubmitting(false);
-  };
+    },
+  });
 
+  // Select active form based on mode
+  const activeForm = isLogin ? loginForm : registrationForm;
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = activeForm;
   const isLoading = authLoading || isSubmitting;
+
+  // Animation state
+  useEffect(() => {
+    // Component mounted
+  }, []);
 
   if (showForgotPassword) {
     return <ForgotPasswordView onBack={() => setShowForgotPassword(false)} />;
@@ -163,80 +130,95 @@ export default function LoginView() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* General Error Message */}
-            {errors.general && (
+            {generalError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{errors.general}</p>
+                <p className="text-sm text-red-600">{generalError}</p>
               </div>
             )}
 
+            {/* Form Error Summary */}
+            <FormErrorSummary errors={errors} />
+
+            {/* Registration: Name field */}
             {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-palladium mb-1">Nama</label>
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (errors.name) setErrors({ ...errors, name: '' });
-                  }}
-                  placeholder="Nama Lengkap"
-                  disabled={isLoading}
-                  className={errors.name ? 'border-red-500' : ''}
-                />
-                {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-palladium mb-1">Email</label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (errors.email) setErrors({ ...errors, email: '' });
-                }}
-                placeholder="email@contoh.com"
+              <FormField
+                name="name"
+                label="Nama"
+                type="text"
+                placeholder="Nama Lengkap"
+                register={register as any}
+                errors={errors}
                 disabled={isLoading}
-                className={errors.email ? 'border-red-500' : ''}
+                required
               />
-              {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-palladium mb-1">Password</label>
-              <Input
+            )}
+
+            {/* Email field */}
+            <FormField
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="email@contoh.com"
+              register={register as any}
+              errors={errors}
+              disabled={isLoading}
+              required
+            />
+
+            {/* Password field */}
+            <FormField
+              name="password"
+              label="Password"
+              type="password"
+              placeholder="******"
+              register={register as any}
+              errors={errors}
+              disabled={isLoading}
+              required
+            />
+
+            {/* Registration: Confirm Password field */}
+            {!isLogin && (
+              <FormField
+                name="confirmPassword"
+                label="Konfirmasi Password"
                 type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (errors.password) setErrors({ ...errors, password: '' });
-                }}
                 placeholder="******"
+                register={register as any}
+                errors={errors}
                 disabled={isLoading}
-                className={errors.password ? 'border-red-500' : ''}
+                required
               />
-              {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
-            </div>
+            )}
 
+            {/* Registration: Terms checkbox */}
             {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-palladium mb-1">
-                  Konfirmasi Password
-                </label>
-                <Input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
-                  }}
-                  placeholder="******"
-                  disabled={isLoading}
-                  className={errors.confirmPassword ? 'border-red-500' : ''}
-                />
-                {errors.confirmPassword && (
-                  <p className="text-xs text-red-600 mt-1">{errors.confirmPassword}</p>
+              <>
+                <div className="flex items-start space-x-2">
+                  <input
+                    type="checkbox"
+                    id="agreeToTerms"
+                    {...(registrationForm.register as any)('agreeToTerms')}
+                    disabled={isLoading}
+                    className="mt-1"
+                  />
+                  <label htmlFor="agreeToTerms" className="text-sm text-palladium">
+                    Saya setuju dengan{' '}
+                    <a href="#" className="text-persimmon hover:underline">
+                      Syarat & Ketentuan
+                    </a>{' '}
+                    dan{' '}
+                    <a href="#" className="text-persimmon hover:underline">
+                      Kebijakan Privasi
+                    </a>
+                  </label>
+                </div>
+                {registrationForm.formState.errors.agreeToTerms && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {registrationForm.formState.errors.agreeToTerms.message}
+                  </p>
                 )}
-              </div>
+              </>
             )}
 
             <Button type="submit" className="w-full" disabled={isLoading}>

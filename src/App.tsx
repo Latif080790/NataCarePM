@@ -4,6 +4,7 @@ import LiveCursors from '@/components/LiveCursors';
 import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import { ViewErrorBoundary } from '@/components/ViewErrorBoundary';
+import PerformanceDashboard from '@/components/PerformanceDashboard';
 import '@/styles/enterprise-design-system.css';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -14,6 +15,7 @@ import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 // Priority 2C: Monitoring & Analytics initialization
 import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
 import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
+import { performanceMonitor } from '@/utils/performanceMonitor';
 
 // Eager-loaded components (critical for initial render)
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
@@ -189,6 +191,12 @@ function ProtectedApp() {
       // Initialize Google Analytics 4
       initializeGA4();
       logger.info('Google Analytics 4 initialized');
+
+      // Initialize Performance Monitoring (Web Vitals)
+      console.log('📊 [Performance] Monitoring initialized - tracking Core Web Vitals');
+      
+      // Optional: Configure performance reporting endpoint
+      // performanceMonitor.configureReporting('/api/performance', 60000);
     } catch (err) {
       logger.error('Failed to initialize monitoring services', err instanceof Error ? err : new Error(String(err)));
     }
@@ -599,6 +607,7 @@ function ProtectedApp() {
       <LiveCursors containerId="app-container" showLabels />
       <FailoverStatusIndicator />
       <PerformanceMonitor />
+      <PerformanceDashboard />
     </MainLayout>
   );
 }

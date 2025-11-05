@@ -2,11 +2,13 @@
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/Button';
-import { Input } from '@/components/FormControls';
 import { useAuth } from '@/contexts/AuthContext';
 import { Spinner } from '@/components/Spinner';
+import { useValidatedForm } from '@/hooks/useValidatedForm';
+import { FormErrorSummary } from '@/components/FormFields';
+import { loginSchema, registrationSchema, type LoginFormData, type RegistrationFormData } from '@/schemas/authSchemas';
 import {
   LogIn,
   UserPlus,
@@ -38,56 +40,44 @@ export default function EnterpriseLoginView() {
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // Enhanced form state
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Login form validation
+  const loginForm = useValidatedForm<LoginFormData>({
+    schema: loginSchema,
+    onSubmit: async (data) => {
+      await login(data.email, data.password);
+    },
+  });
+
+  // Registration form validation
+  const registrationForm = useValidatedForm<RegistrationFormData>({
+    schema: registrationSchema,
+    onSubmit: async (data) => {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        name: data.name,
+        email: data.email,
+        role: 'project_manager',
+        createdAt: new Date().toISOString(),
+      });
+
+      alert('✅ Account created successfully! Please sign in.');
+      setIsLogin(true);
+      registrationForm.resetForm();
+    },
+  });
+
+  // Select active form based on mode
+  const activeForm = isLogin ? loginForm : registrationForm;
+  const { handleSubmit, formState: { errors, isSubmitting } } = activeForm;
 
   // Animation state
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-
-    if (isLogin) {
-      try {
-        await login(email, password);
-        // Login successful - login function will handle navigation
-      } catch (error: any) {
-        alert(`❌ Login Error: ${error.message}`);
-      }
-    } else {
-      if (!name) {
-        alert('⚠️ Full name is required.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        await setDoc(doc(db, 'users', user.uid), {
-          name,
-          email,
-          role: 'project_manager',
-          createdAt: new Date().toISOString(),
-        });
-
-        alert('✅ Account created successfully! Please sign in.');
-        setIsLogin(true);
-      } catch (error: any) {
-        alert(`❌ Registration Error: ${error.message}`);
-      }
-    }
-    setIsSubmitting(false);
-  };
 
   if (showForgotPassword) {
     return <ForgotPasswordView onBack={() => setShowForgotPassword(false)} />;
@@ -250,6 +240,8 @@ export default function EnterpriseLoginView() {
 
               {/* Authentication Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
+                <FormErrorSummary errors={errors} />
+
                 {!isLogin && (
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-white/90 flex items-center gap-2">
@@ -257,16 +249,20 @@ export default function EnterpriseLoginView() {
                       Full Name
                     </label>
                     <div className="relative">
-                      <Input
+                      <input
                         type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        {...registrationForm.register('name')}
                         placeholder="Enter your full name"
+                        disabled={isSubmitting || authLoading}
                         className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                        required={!isLogin}
                       />
                       <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
                     </div>
+                    {registrationForm.formState.errors.name && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {registrationForm.formState.errors.name.message as string}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -276,16 +272,16 @@ export default function EnterpriseLoginView() {
                     Email Address
                   </label>
                   <div className="relative">
-                    <Input
+                    <input
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      {...(isLogin ? loginForm.register('email') : registrationForm.register('email'))}
                       placeholder="Enter your enterprise email"
+                      disabled={isSubmitting || authLoading}
                       className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                      required
                     />
                     <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
                   </div>
+                  {errors.email && <p className="text-sm text-red-400 mt-1">{errors.email.message as string}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -294,13 +290,12 @@ export default function EnterpriseLoginView() {
                     Password
                   </label>
                   <div className="relative">
-                    <Input
+                    <input
                       type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      {...(isLogin ? loginForm.register('password') : registrationForm.register('password'))}
                       placeholder="Enter your secure password"
+                      disabled={isSubmitting || authLoading}
                       className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                      required
                     />
                     <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
                     <button
@@ -311,7 +306,45 @@ export default function EnterpriseLoginView() {
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
+                  {errors.password && <p className="text-sm text-red-400 mt-1">{errors.password.message as string}</p>}
                 </div>
+
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-white/90 flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        {...registrationForm.register('confirmPassword')}
+                        placeholder="Confirm your password"
+                        disabled={isSubmitting || authLoading}
+                        className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
+                      />
+                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
+                    </div>
+                    {registrationForm.formState.errors.confirmPassword && (
+                      <p className="text-sm text-red-400 mt-1">
+                        {registrationForm.formState.errors.confirmPassword.message as string}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {!isLogin && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      {...registrationForm.register('agreeToTerms')}
+                      className="w-4 h-4 rounded border-white/20 bg-white/10 text-accent-coral focus:ring-2 focus:ring-accent-coral"
+                    />
+                    <label className="text-sm text-white/90">
+                      I agree to the Terms of Service and Privacy Policy
+                    </label>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="space-y-4">

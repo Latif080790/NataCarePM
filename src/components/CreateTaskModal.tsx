@@ -10,6 +10,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { Spinner } from './Spinner';
 import { Calendar, Tag, AlertCircle, Plus, X } from 'lucide-react';
 import { getTodayDateString } from '@/constants';
+import { taskSchema } from '@/schemas/projectSchemas';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -41,44 +43,42 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
   const [availableUsers] = useState<User[]>(currentProject?.members || []);
   const [availableRabItems] = useState<RabItem[]>(currentProject?.items || []);
 
-  // Validation
+  // Validation using Zod schema
   const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = 'Judul task wajib diisi';
-    } else if (formData.title.length < 3) {
-      newErrors.title = 'Judul task minimal 3 karakter';
-    } else if (formData.title.length > 100) {
-      newErrors.title = 'Judul task maksimal 100 karakter';
+    if (!currentProject) {
+      setValidationErrors(['Project tidak ditemukan']);
+      return false;
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = 'Deskripsi task wajib diisi';
-    } else if (formData.description.length < 10) {
-      newErrors.description = 'Deskripsi minimal 10 karakter';
-    } else if (formData.description.length > 1000) {
-      newErrors.description = 'Deskripsi maksimal 1000 karakter';
+    const result = taskSchema.safeParse({
+      title: formData.title,
+      description: formData.description,
+      status: formData.status,
+      priority: formData.priority,
+      projectId: currentProject.id,
+      assignedTo: formData.assignedTo[0] || '', // Schema expects single assignee
+      dueDate: formData.dueDate,
+      tags: formData.tags,
+    });
+
+    if (!result.success) {
+      const errorMessages = result.error.issues.map((err) =>
+        err.path.length > 0 ? `${err.path.join('.')}: ${err.message}` : err.message
+      );
+      setValidationErrors(errorMessages);
+      setErrors(
+        result.error.issues.reduce((acc, err) => {
+          const key = err.path[0] as string;
+          if (key) acc[key] = err.message;
+          return acc;
+        }, {} as Record<string, string>)
+      );
+      return false;
     }
 
-    if (!formData.dueDate) {
-      newErrors.dueDate = 'Tanggal deadline wajib diisi';
-    } else {
-      const dueDate = new Date(formData.dueDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (dueDate < today) {
-        newErrors.dueDate = 'Tanggal deadline tidak boleh di masa lalu';
-      }
-    }
-
-    if (formData.assignedTo.length === 0) {
-      newErrors.assignedTo = 'Minimal satu user harus ditugaskan';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setValidationErrors([]);
+    setErrors({});
+    return true;
   };
 
   // Handle form submission
@@ -202,13 +202,34 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Buat Task Baru" size="lg">
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Validation Errors Summary */}
+        {validationErrors.length > 0 && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-red-800 mb-1">Validation Errors</h4>
+                <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                  {validationErrors.map((error, idx) => (
+                    <li key={idx}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-night-black mb-1">Judul Task *</label>
           <Input
             type="text"
             value={formData.title}
-            onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, title: e.target.value }));
+              setValidationErrors([]);
+              setErrors({});
+            }}
             placeholder="Masukkan judul task yang jelas dan deskriptif"
             disabled={isSubmitting}
             className={errors.title ? 'border-red-500' : ''}

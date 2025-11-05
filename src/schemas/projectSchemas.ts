@@ -305,3 +305,46 @@ export function validateMilestone(data: unknown) {
 export function validateWBSItem(data: unknown) {
   return wbsItemSchema.safeParse(data);
 }
+
+/**
+ * Purchase Order (PO) Item Schema
+ */
+export const poItemSchema = z.object({
+  materialName: z.string().min(1, 'Material name is required'),
+  quantity: z.number()
+    .min(0.01, 'Quantity must be greater than 0')
+    .or(z.string().transform((val) => parseFloat(val)).refine((val) => val > 0, 'Quantity must be greater than 0')),
+  unit: z.string().min(1, 'Unit is required'),
+  pricePerUnit: z.number()
+    .min(0, 'Price must be 0 or greater')
+    .or(z.string().transform((val) => parseFloat(val)).refine((val) => val >= 0, 'Price must be 0 or greater')),
+  totalPrice: z.number().min(0, 'Total price must be 0 or greater'),
+});
+
+export type POItemFormData = z.infer<typeof poItemSchema>;
+
+/**
+ * Purchase Order Creation Schema
+ */
+export const purchaseOrderSchema = z.object({
+  prNumber: z.string()
+    .min(3, 'PR Number must be at least 3 characters')
+    .max(50, 'PR Number is too long (max 50 characters)')
+    .regex(/^[A-Z0-9-]+$/i, 'PR Number can only contain letters, numbers, and hyphens')
+    .trim(),
+  items: z.array(poItemSchema)
+    .min(1, 'At least one item is required')
+    .refine(
+      (items) => items.every((item) => item.materialName && item.quantity > 0),
+      'All items must have a material name and quantity greater than 0'
+    ),
+});
+
+export type PurchaseOrderFormData = z.infer<typeof purchaseOrderSchema>;
+
+/**
+ * Validate Purchase Order data
+ */
+export function validatePurchaseOrder(data: unknown) {
+  return purchaseOrderSchema.safeParse(data);
+}

@@ -5,7 +5,8 @@ import { Button } from './Button';
 import { Input, Select } from './FormControls';
 import { PurchaseOrder, POItem, AhspData, User } from '@/types';
 import { formatCurrency, getTodayDateString } from '@/constants';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, AlertCircle } from 'lucide-react';
+import { purchaseOrderSchema } from '@/schemas/projectSchemas';
 
 interface CreatePOModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function CreatePOModal({
   const [items, setItems] = useState<POItem[]>([
     { materialName: '', quantity: 1, unit: '', pricePerUnit: 0, totalPrice: 0 },
   ]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const availableMaterials = Object.keys(ahspData.materialPrices);
 
@@ -46,6 +48,7 @@ export function CreatePOModal({
     currentItem.totalPrice = currentItem.quantity * currentItem.pricePerUnit;
     newItems[index] = currentItem;
     setItems(newItems);
+    setValidationErrors([]); // Clear errors on change
   };
 
   const handleAddItem = () => {
@@ -60,16 +63,30 @@ export function CreatePOModal({
   };
 
   const handleSubmit = () => {
-    if (!prNumber || items.some((i) => !i.materialName || i.quantity <= 0)) {
-      alert('Harap isi nomor PR dan detail item dengan benar.');
+    // Validate using Zod schema
+    const result = purchaseOrderSchema.safeParse({
+      prNumber,
+      items,
+    });
+
+    if (!result.success) {
+      const errors = result.error.issues.map((err) => 
+        err.path.length > 0 ? `${err.path.join('.')}: ${err.message}` : err.message
+      );
+      setValidationErrors(errors);
+      alert('Harap perbaiki error validasi:\n' + errors.join('\n'));
       return;
     }
+
     onAddPO({
       prNumber,
       items: items.filter((i) => i.materialName),
       requester: currentUser.name,
       requestDate: getTodayDateString(),
     });
+    setPrNumber('');
+    setItems([{ materialName: '', quantity: 1, unit: '', pricePerUnit: 0, totalPrice: 0 }]);
+    setValidationErrors([]);
     onClose();
   };
 
@@ -78,11 +95,26 @@ export function CreatePOModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Buat Purchase Order Baru">
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+        {validationErrors.length > 0 && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-red-800 mb-1">Validation Errors</h4>
+                <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                  {validationErrors.map((error, idx) => (
+                    <li key={idx}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
         <div>
           <label className="text-sm font-medium">Nomor PR (Purchase Request)</label>
           <Input
             value={prNumber}
-            onChange={(e) => setPrNumber(e.target.value)}
+            onChange={(e) => { setPrNumber(e.target.value); setValidationErrors([]); }}
             placeholder="Contoh: PR-00123"
           />
         </div>
