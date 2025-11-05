@@ -10,7 +10,7 @@
  */
 
 import { render } from '@testing-library/react';
-import { screen, waitFor, fireEvent } from '@testing-library/dom';
+import { screen, waitFor } from '@testing-library/dom';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { SafetyProvider } from '@/contexts/SafetyContext';

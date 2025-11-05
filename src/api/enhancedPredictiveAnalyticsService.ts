@@ -7,7 +7,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import { Matrix } from 'ml-matrix';
+
 import {
   collection,
   getDocs,
@@ -42,7 +42,7 @@ import type {
   ScenarioAnalysis,
   Scenario,
 } from '@/types/predictive-analytics.types';
-import { Project, DailyReport, Expense } from '@/types';
+import { Project } from '@/types';
 import { predictiveAnalyticsService } from './predictiveAnalyticsService';
 
 // ============================================================================

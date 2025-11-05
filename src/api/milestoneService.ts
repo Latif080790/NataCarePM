@@ -23,7 +23,7 @@ import {
 import { db } from '@/firebaseConfig';
 import { Milestone, MilestoneProgressUpdate, User } from '@/types';
 import { APIResponse, APIError, ErrorCodes, safeAsync } from '@/utils/responseWrapper';
-import { withRetry } from '@/utils/retryWrapper';
+
 import { validators } from '@/utils/validators';
 
 // Helper to convert Firestore doc to TypeScript types

@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { failoverManager, FailoverEvent } from '@/utils/failoverManager';
 import { RegionConfig, REGIONS, getFailoverHistory } from '../config/failover';
-import { HealthStatus } from '@/utils/healthCheck';
+
 
 export interface FailoverStatus {
   currentRegion: RegionConfig;

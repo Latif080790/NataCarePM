@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, FormEvent } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';

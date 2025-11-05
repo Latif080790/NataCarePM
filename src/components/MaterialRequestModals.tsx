@@ -34,7 +34,7 @@ import { Input } from './FormControls';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
-import { MaterialRequest, MRItem, MRStatus, MRPriority, ApprovalStage } from '@/types/logistics';
+import { MaterialRequest, MRItem, MRPriority } from '@/types/logistics';
 import {
   createMaterialRequest,
   getMaterialRequestById,

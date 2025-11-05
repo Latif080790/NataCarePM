@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { DigitalSignature, VersionTag } from '@/types';
+import { DigitalSignature } from '@/types';
 import {
   FileText,
   Download,

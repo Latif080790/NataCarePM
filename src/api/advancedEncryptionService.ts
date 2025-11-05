@@ -8,8 +8,7 @@
 
 import forge from 'node-forge';
 import { logger } from '@/utils/logger.enhanced';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
+
 // APIResponse type is not used in this file, removing import
 
 // ============================================================================

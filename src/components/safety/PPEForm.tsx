@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { X, Shield, Package, AlertTriangle, Calendar, DollarSign, FileText } from 'lucide-react';
+import { X, Shield, Package, AlertTriangle, Calendar, FileText } from 'lucide-react';
 import type { PPEInventory, PPEType } from '@/types/safety.types';
 
 interface PPEFormProps {

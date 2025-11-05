@@ -20,7 +20,7 @@ import {
   Timestamp,
   writeBatch,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
+import { ref, listAll } from 'firebase/storage';
 import { withRetry } from '@/utils/retryWrapper';
 import { APIError, ErrorCodes } from '@/utils/responseWrapper';
 import { createScopedLogger } from '@/utils/logger';

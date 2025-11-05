@@ -7,7 +7,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import { Matrix } from 'ml-matrix';
+
 import {
   collection,
   getDocs,
@@ -43,7 +43,7 @@ import {
   RecommendedResource,
 } from '@/types/ai-resource.types';
 import { Resource, ResourceAllocation as ResourceAlloc } from '@/types/resource.types';
-import { Project, Worker } from '@/types';
+import { Project } from '@/types';
 
 // ============================================================================
 // Constants and Configuration

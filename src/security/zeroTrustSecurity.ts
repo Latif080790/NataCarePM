@@ -12,8 +12,8 @@
  */
 
 import { logger } from '@/utils/logger.enhanced';
-import { APIResponse, APIError, ErrorCodes } from '@/utils/responseWrapper';
-import { validateRequest, detectSuspiciousActivity } from '@/utils/securityValidation';
+import { APIResponse, ErrorCodes } from '@/utils/responseWrapper';
+import { detectSuspiciousActivity } from '@/utils/securityValidation';
 
 // Type definitions
 export interface ZeroTrustContext {

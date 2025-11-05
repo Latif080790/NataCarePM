@@ -28,7 +28,7 @@ import { Task, User } from '@/types';
 import { TaskDependency, SchedulingPlan, TaskSchedule } from '@/types/ai-resource.types';
 import { enhancedTaskService } from './taskService.enhanced';
 import { APIResponse, APIError, ErrorCodes, safeAsync } from '@/utils/responseWrapper';
-import { withRetry } from '@/utils/retryWrapper';
+
 import { validators } from '@/utils/validators';
 
 // Helper to convert Firestore doc to TypeScript types

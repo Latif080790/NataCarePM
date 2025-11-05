@@ -4,11 +4,11 @@
  */
 
 import { doc, setDoc, getDoc, updateDoc, deleteDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
-import { auth, db } from '@/firebaseConfig';
+import { db } from '@/firebaseConfig';
 import { User as FirebaseUser } from 'firebase/auth';
-import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';
+import { APIResponse, safeAsync } from '@/utils/responseWrapper';
 import { logger } from '@/utils/logger.enhanced';
-import { rateLimiter } from '@/utils/rateLimiter';
+
 
 // Session interfaces
 export interface UserSession {

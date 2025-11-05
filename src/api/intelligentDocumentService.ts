@@ -35,7 +35,7 @@ import { digitalSignaturesService } from './digitalSignaturesService';
 import { documentVersionControl } from './documentVersionControl';
 
 // Utility imports for error handling and validation
-import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';
+import { APIError, ErrorCodes } from '@/utils/responseWrapper';
 import { withRetry } from '@/utils/retryWrapper';
 import { validators } from '@/utils/validators';
 import { createScopedLogger } from '@/utils/logger';

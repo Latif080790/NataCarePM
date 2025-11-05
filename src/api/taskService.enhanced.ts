@@ -34,7 +34,7 @@ import {
 import { TaskDependency, ResourceAllocation } from '@/types/ai-resource.types';
 import { projectService } from './projectService';
 import { APIResponse, APIError, ErrorCodes, safeAsync } from '@/utils/responseWrapper';
-import { withRetry } from '@/utils/retryWrapper';
+
 import { validators } from '@/utils/validators';
 
 // Helper to convert Firestore doc to TypeScript types

@@ -35,8 +35,8 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { Select, Input } from '@/components/FormControls';
-import { formatCurrency } from '@/constants';
+import { Select } from '@/components/FormControls';
+
 import { useProject } from '@/contexts/ProjectContext';
 import { advancedBenchmarkingService } from '@/api';
 import type { ProjectBenchmarkComparison, ProjectBenchmarkMetric, IndustryInsight } from '@/api/advancedBenchmarkingService';

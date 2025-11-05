@@ -8,7 +8,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMessage } from '@/contexts/MessageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Chat, Message } from '@/types/message.types';
 
 const ChatView: React.FC = () => {
   const {

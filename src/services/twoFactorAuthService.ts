@@ -5,7 +5,6 @@
 
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
-import { getAuth, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type { APIResponse } from '@/types/userProfile';

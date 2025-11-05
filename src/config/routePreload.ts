@@ -3,7 +3,7 @@
  * Defines which components to preload for each route
  */
 
-import { lazy } from 'react';
+
 import { RoutePreloadConfig } from '@/utils/componentPreloader';
 
 // Import lazy components (will be defined in App.tsx)

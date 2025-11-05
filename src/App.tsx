@@ -1,14 +1,14 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import '@/styles/enterprise-design-system.css';
 import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import LiveCursors from '@/components/LiveCursors';
-import { EnterpriseAuthLoader, EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
+import { EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
 import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
-import { NavigationDebug } from '@/components/NavigationDebug';
+
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
-import { SkipLink } from '@/components/SkipLink';
+
 
 // Priority 2C: Monitoring & Analytics initialization
 import { initializeSentry, setSentryUser, clearSentryUser } from '@/config/sentry.config';
@@ -18,9 +18,9 @@ import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config'
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
 
 // Context providers
-import { AuthProvider } from '@/contexts/AuthContext';
+
 import { ProjectProvider } from '@/contexts/ProjectContext';
-import { MessageProvider } from '@/contexts/MessageContext';
+
 
 // Lazy-loaded Views (loaded on demand)
 const DashboardView = lazy(() => import('@/views/DashboardView'));
@@ -93,7 +93,7 @@ import { monitoringService } from '@/api/monitoringService';
 console.log('🔧 monitoringService imported in App.tsx:', monitoringService);
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
-import { useRoutePreload } from '@/hooks/useRoutePreload';
+
 import { logger } from '@/utils/logger.enhanced';
 
 // Lazy-loaded heavy components

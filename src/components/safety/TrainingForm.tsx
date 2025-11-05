@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { X, Plus, Trash2, GraduationCap, Calendar, Users, FileText, Clock } from 'lucide-react';
+import { X, Plus, GraduationCap, Calendar, Users, FileText, Clock } from 'lucide-react';
 import type { SafetyTraining, TrainingType, TrainingStatus } from '@/types/safety.types';
 
 type TrainingAttendee = SafetyTraining['attendees'][0];

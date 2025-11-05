@@ -32,9 +32,9 @@ import {
   ResourceAvailability,
   MaintenanceRecord
 } from '@/types/resource.types';
-import { Task } from '@/types';
+
 import { APIResponse, APIError, ErrorCodes, safeAsync } from '@/utils/responseWrapper';
-import { withRetry } from '@/utils/retryWrapper';
+
 import { validators } from '@/utils/validators';
 import { resourceService } from './resourceService';
 

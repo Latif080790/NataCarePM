@@ -7,7 +7,7 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import { Matrix } from 'ml-matrix';
+
 import {
   collection,
   getDocs,
@@ -37,7 +37,7 @@ import type {
   ForecastAccuracy,
   BacktestResult,
 } from '@/types/predictive-analytics.types';
-import { Project, DailyReport } from '@/types';
+import { Project } from '@/types';
 
 // ============================================================================
 // Constants

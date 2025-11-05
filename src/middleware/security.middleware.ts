@@ -11,8 +11,8 @@
 
 import { logger } from '@/utils/logger.enhanced';
 import { rateLimiter } from '@/utils/rateLimiter';
-import { validateRequest, sanitizeForSecurity, detectSuspiciousActivity, generateSecurityHeaders } from '@/utils/securityValidation';
-import { APIResponse, APIError, ErrorCodes } from '@/utils/responseWrapper';
+import { validateRequest, detectSuspiciousActivity, generateSecurityHeaders } from '@/utils/securityValidation';
+import { APIResponse, ErrorCodes } from '@/utils/responseWrapper';
 
 // Type definitions
 interface SecurityMiddlewareOptions {

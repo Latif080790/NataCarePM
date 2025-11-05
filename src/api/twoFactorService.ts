@@ -14,7 +14,7 @@
  * - Multi-factor authentication levels
  */
 
-import { doc, setDoc, getDoc, updateDoc, deleteDoc, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';

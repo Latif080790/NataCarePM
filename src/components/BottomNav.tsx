@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import { useNavigate, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { BarChart3, CheckSquare, FileArchive, Bell, Menu } from 'lucide-react';
 
 interface BottomNavItem {

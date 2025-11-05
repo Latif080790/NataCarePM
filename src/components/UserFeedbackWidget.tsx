@@ -12,7 +12,7 @@
  */
 
 import React, { useState } from 'react';
-import { MessageSquare, X, ThumbsUp, ThumbsDown, Bug, Lightbulb, Send } from 'lucide-react';
+import { MessageSquare, X, ThumbsUp, Bug, Lightbulb, Send } from 'lucide-react';
 import { captureSentryMessage, showSentryFeedbackDialog } from '../config/sentry.config';
 import { trackEvent } from '../config/ga4.config';
 

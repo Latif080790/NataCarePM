@@ -35,7 +35,7 @@ import type {
   RiskProbability,
 } from '@/types/risk.types';
 import { Project, DailyReport } from '@/types';
-import { riskService } from './riskService';
+
 
 // ============================================================================
 // Enhanced Configuration

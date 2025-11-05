@@ -8,17 +8,9 @@
 
 import { logger } from '@/utils/logger.enhanced';
 import { APIResponse } from '@/utils/responseWrapper';
+
 import { 
-  BaseIntegrationConnector,
-  IntegrationConfig,
-  ProjectData,
-  TaskData,
-  ResourceData
-} from './integrationConnectors';
-import { realtimeSyncService } from './realtimeSyncService';
-import { 
-  SyncConflict,
-  ConflictResolution as OfflineConflictResolution
+  SyncConflict
 } from '@/types/offline.types';
 import * as IndexedDB from '@/utils/indexedDB';
 
