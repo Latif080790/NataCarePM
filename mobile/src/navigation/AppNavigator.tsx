@@ -103,7 +103,7 @@ function AuthStack() {
 
 // Main app navigator
 function AppNavigator() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(true); // For demo purposes
+//   const [isLoggedIn, setIsLoggedIn] = React.useState(true); // For demo purposes // Unused variable
 
   return (
     <NavigationContainer>

@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
 import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  AlertTriangle,
-  CheckCircle,
-  Activity,
-  Download,
-  RefreshCw,
-  BarChart3,
-  LineChart as LineChartIcon,
-  Target,
-} from 'lucide-react';
+    generateCostAlerts,
+    generateForecast,
+    getCostControlSummary,
+} from '@/api/costControlService';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import {
-  getCostControlSummary,
-  generateForecast,
-  generateCostAlerts,
-} from '@/api/costControlService';
-import {
-  CostControlSummary,
-  CostAlert,
+    CostAlert,
+    CostControlSummary,
 } from '@/types/costControl';
+import {
+    Activity,
+    AlertTriangle,
+    BarChart3,
+    CheckCircle,
+    DollarSign,
+    Download,
+    RefreshCw,
+    Target,
+    TrendingDown,
+    TrendingUp,
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 const CostControlDashboardView: React.FC = () => {
   const { currentProject } = useProject();

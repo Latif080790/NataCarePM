@@ -52,7 +52,7 @@ vi.mock('firebase/firestore', () => {
     where: vi.fn((field, op, value) => ({ field, op, value })),
     orderBy: vi.fn((field, direction) => ({ field, direction })),
     limit: vi.fn((count) => ({ limit: count })),
-    onSnapshot: vi.fn((ref, callback) => vi.fn()),
+    onSnapshot: vi.fn((ref, _callback) => vi.fn()),
     serverTimestamp: vi.fn(() => new Date()),
     arrayUnion: vi.fn((...args) => args),
     Timestamp: MockTimestamp,
@@ -66,7 +66,7 @@ vi.mock('firebase/auth', () => ({
   })),
   signInWithEmailAndPassword: vi.fn(() => Promise.resolve({ user: { uid: 'test-user-id' } })),
   signOut: vi.fn(() => Promise.resolve()),
-  onAuthStateChanged: vi.fn((auth, callback) => {
+  onAuthStateChanged: vi.fn((_auth, callback) => {
     callback({ uid: 'test-user-id', email: 'test@example.com' });
     return vi.fn();
   }),
@@ -222,22 +222,22 @@ const createIndexedDBMock = () => {
                 length: 0,
                 item: vi.fn(() => null),
               },
-              createObjectStore: vi.fn((storeName: string, options?: any) => ({
+              createObjectStore: vi.fn((storeName: string, _options?: any) => ({
                 createIndex: vi.fn(),
-                add: vi.fn((data: any) => ({
+                add: vi.fn((_data: any) => ({
                   onsuccess: null,
                   onerror: null,
                   result: 'mock-key',
                 })),
-                put: vi.fn((data: any) => ({
+                put: vi.fn((_data: any) => ({
                   onsuccess: null,
                   onerror: null,
                   result: 'mock-key',
                 })),
               })),
-              transaction: vi.fn((storeNames: string | string[], mode?: string) => {
+              transaction: vi.fn((storeNames: string | string[], _mode?: string) => {
                 const storeName = Array.isArray(storeNames) ? storeNames[0] : storeNames;
-                const store = stores.get(storeName) || new Map();
+//                 const store = stores.get(storeName) || new Map(); // Unused variable
 
                 return {
                   objectStore: vi.fn((storeName: string) => {
@@ -303,7 +303,7 @@ const createIndexedDBMock = () => {
         }, 10);
       });
     }),
-    deleteDatabase: vi.fn((name: string) => Promise.resolve()),
+    deleteDatabase: vi.fn((_name: string) => Promise.resolve()),
     databases: databases,
     stores: stores,
   };

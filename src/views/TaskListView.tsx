@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
-import { Input, Select } from '@/components/FormControls';
-import { Task } from '@/types';
 import { taskService } from '@/api/taskService';
+import { Button } from '@/components/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/Card';
+import CreateTaskModal from '@/components/CreateTaskModal';
+import { Input, Select } from '@/components/FormControls';
+import TaskDetailModal from '@/components/TaskDetailModal';
+import { formatDate } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
-import CreateTaskModal from '@/components/CreateTaskModal';
-import TaskDetailModal from '@/components/TaskDetailModal';
-import { PlusCircle, Search, Calendar, User as UserIcon, Tag, CheckCircle } from 'lucide-react';
-import { formatDate } from '@/constants';
+import { Task } from '@/types';
 import { sanitizeBasic } from '@/utils/sanitizer';
+import { Calendar, CheckCircle, PlusCircle, Search, Tag } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface TaskListViewProps {
   projectId: string;

@@ -2,6 +2,7 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 /**
  * Security Headers Plugin
@@ -99,6 +100,12 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       securityHeadersPlugin(),
+      visualizer({
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+        filename: 'dist/stats.html',
+      }) as any,
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
@@ -212,15 +219,30 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
+              // Split vendor libraries into separate chunks
+              if (id.includes('firebase')) return 'firebase';
+              if (id.includes('tensorflow')) return 'tensorflow';
+              if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+              if (id.includes('framer-motion')) return 'framer-motion';
+              if (id.includes('recharts')) return 'recharts';
               return 'vendor';
             }
             if (id.includes('/src/views/')) {
-              return `views/${id.split('/').pop().split('.')[0]}`;
+              const viewName = id.split('/').pop()?.split('.')[0];
+              return viewName ? `views/${viewName}` : undefined;
             }
           },
         },
       },
-      chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
+      chunkSizeWarningLimit: 1000,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
+      reportCompressedSize: true,
     },
   };
 });

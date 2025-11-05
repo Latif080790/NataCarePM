@@ -1,30 +1,29 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  limit as firestoreLimit,
-  Timestamp,
-  writeBatch,
-} from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {
-  Notification,
-  CreateNotificationInput,
-  NotificationFilters,
-  NotificationChannel,
-  NotificationPriority,
-  NotificationType,
+    CreateNotificationInput,
+    Notification,
+    NotificationChannel,
+    NotificationFilters,
+    NotificationPriority,
+    NotificationType,
 } from '@/types/automation';
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    orderBy,
+    query,
+    Timestamp,
+    updateDoc,
+    where,
+    writeBatch,
+} from 'firebase/firestore';
 import { emailService } from './channels/emailChannel';
-import { smsService } from './channels/smsChannel';
 import { pushService } from './channels/pushChannel';
+import { smsService } from './channels/smsChannel';
 
 // ============================================================================
 // NOTIFICATION MANAGEMENT

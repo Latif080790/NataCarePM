@@ -1,33 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Modal } from '@/components/Modal';
 import {
-  FileText,
-  Upload,
-  Search,
-  Eye,
-  Edit,
-  Share,
-  GitBranch,
-  History,
-  Brain,
-  CheckCircle,
-  Clock,
-  Tag,
-  Archive,
-  RefreshCw,
-  PenTool as Signature,
-  Lock,
+    Archive,
+    Brain,
+    CheckCircle,
+    Clock,
+    Edit,
+    Eye,
+    FileText,
+    GitBranch,
+    History,
+    Lock,
+    RefreshCw,
+    Search,
+    Share,
+    Tag,
+    Upload,
 } from 'lucide-react';
 
 import {
-  IntelligentDocument,
-  DocumentCategory,
-  DocumentStatus,
-  DocumentTemplate,
-  AIInsight,
+    AIInsight,
+    DocumentCategory,
+    DocumentStatus,
+    DocumentTemplate,
+    IntelligentDocument,
 } from '@/types';
 
 import { intelligentDocumentService } from '@/api/intelligentDocumentService';

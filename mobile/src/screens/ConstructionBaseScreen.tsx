@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
-import { Card, Title, Button, ActivityIndicator, IconButton } from 'react-native-paper';
+import { Card, Title, Button, IconButton } from 'react-native-paper';
 import { offlineService } from '../services/offlineService';
 
 interface ConstructionBaseScreenProps {

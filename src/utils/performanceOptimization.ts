@@ -49,7 +49,7 @@ export function useRenderMonitor(
     if (!enabled) return;
 
     renderCount.current += 1;
-    const renderTime = Date.now() - lastRender.current;
+//     const renderTime = Date.now() - lastRender.current; // Unused variable
     lastRender.current = Date.now();
 
     // Performance monitoring in development
@@ -98,7 +98,7 @@ export function throttle<T extends (...args: any[]) => any>(
 /**
  * Measure component render performance
  */
-export function measureRenderTime(componentName: string) {
+export function measureRenderTime(_componentName: string) {
   const startTime = performance.now();
 
   return () => {

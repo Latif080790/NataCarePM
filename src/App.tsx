@@ -1,18 +1,19 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import '@/styles/enterprise-design-system.css';
+import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
+import { EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
+import LiveCursors from '@/components/LiveCursors';
 import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
-import LiveCursors from '@/components/LiveCursors';
-import { EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
-import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
+import { ViewErrorBoundary } from '@/components/ViewErrorBoundary';
+import '@/styles/enterprise-design-system.css';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 
 
 // Priority 2C: Monitoring & Analytics initialization
-import { initializeSentry, setSentryUser, clearSentryUser } from '@/config/sentry.config';
 import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
+import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
 
 // Eager-loaded components (critical for initial render)
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
@@ -78,19 +79,16 @@ const PredictiveAnalyticsView = lazy(() => import('@/views/PredictiveAnalyticsVi
 // Unauthorized View
 const UnauthorizedView = lazy(() => import('@/views/UnauthorizedView'));
 
-import { useProjectCalculations } from '@/hooks/useProjectCalculations';
-import { useSessionTimeout } from '@/hooks/useSessionTimeout';
-import { Spinner } from '@/components/Spinner';
+import { monitoringService } from '@/api/monitoringService';
 import PerformanceMonitor from '@/components/PerformanceMonitor';
+import { Spinner } from '@/components/Spinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
-import {
-  useRealtimeCollaboration,
-} from '@/contexts/RealtimeCollaborationContext';
-import { monitoringService } from '@/api/monitoringService';
-console.log('🔧 monitoringService imported in App.tsx:', monitoringService);
+import { useProjectCalculations } from '@/hooks/useProjectCalculations';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
+console.log('🔧 monitoringService imported in App.tsx:', monitoringService);
 
 import { logger } from '@/utils/logger.enhanced';
 
@@ -107,7 +105,7 @@ const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderVi
 const RabApprovalWorkflowView = lazy(() => import('@/views/RabApprovalWorkflowView'));
 
 // Error Boundary Fallback Component
-function ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+function _ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-red-50 p-4">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
@@ -311,52 +309,258 @@ function ProtectedApp() {
         >
           <Routes>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardView {...viewProps} />} />
-            <Route path="/analytics" element={<IntegratedAnalyticsView {...viewProps} />} />
-            <Route path="/rab" element={<EnhancedRabAhspView {...viewProps} />} />
-            <Route path="/rab/basic" element={<RabAhspView {...viewProps} />} />
-            <Route path="/rab/approval" element={<RabApprovalWorkflowView {...viewProps} />} />
-            <Route path="/schedule" element={<GanttChartView {...viewProps} />} />
-            <Route path="/tasks" element={<TasksView {...viewProps} />} />
-            <Route path="/tasks/list" element={<TaskListView {...viewProps} />} />
-            <Route path="/tasks/kanban" element={<KanbanView {...viewProps} />} />
-            <Route path="/tasks/kanban/board" element={<KanbanBoardView {...viewProps} />} />
-            <Route path="/tasks/dependencies" element={<DependencyGraphView {...viewProps} />} />
-            <Route path="/notifications" element={<NotificationCenterView {...viewProps} />} />
-            <Route path="/monitoring" element={<MonitoringView {...viewProps} />} />
-            <Route path="/reports/daily" element={<DailyReportView {...viewProps} />} />
-            <Route path="/reports/progress" element={<ProgressView {...viewProps} />} />
-            <Route path="/attendance" element={<AttendanceView {...viewProps} />} />
-            <Route path="/finance" element={<FinanceView {...viewProps} />} />
-            <Route path="/finance/cashflow" element={<CashflowView {...viewProps} />} />
-            <Route path="/finance/strategic" element={<StrategicCostView {...viewProps} />} />
-            <Route path="/finance/chart-of-accounts" element={<ChartOfAccountsView {...viewProps} />} />
-            <Route path="/finance/journal-entries" element={<JournalEntriesView {...viewProps} />} />
-            <Route path="/finance/accounts-payable" element={<AccountsPayableView {...viewProps} />} />
-            <Route path="/finance/accounts-receivable" element={<AccountsReceivableView {...viewProps} />} />
-            <Route path="/wbs" element={<WBSManagementView {...viewProps} />} />
-            <Route path="/logistics/goods-receipt" element={<GoodsReceiptView {...viewProps} />} />
-            <Route path="/logistics/material-request" element={<MaterialRequestView {...viewProps} />} />
-            <Route path="/logistics/vendor-management" element={<VendorManagementView {...viewProps} />} />
-            <Route path="/logistics/inventory" element={<InventoryManagementView {...viewProps} />} />
-            <Route path="/logistics/integration" element={<IntegrationDashboardView {...viewProps} />} />
-            <Route path="/finance/cost-control" element={<CostControlDashboardView {...viewProps} />} />
-            <Route path="/logistics" element={<LogisticsView {...viewProps} />} />
-            <Route path="/documents" element={<DokumenView {...viewProps} />} />
-            <Route path="/documents/intelligent" element={<IntelligentDocumentSystem {...viewProps} />} />
-            <Route path="/reports" element={<ReportView {...viewProps} />} />
-            <Route path="/settings/users" element={<UserManagementView {...viewProps} />} />
-            <Route path="/settings/master-data" element={<MasterDataView {...viewProps} />} />
-            <Route path="/settings/audit-trail" element={<AuditTrailView {...viewProps} />} />
-            <Route path="/profile" element={<ProfileView {...viewProps} />} />
-            <Route path="/ai/resource-optimization" element={<AIResourceOptimizationView {...viewProps} />} />
-            <Route path="/ai/predictive-analytics" element={<PredictiveAnalyticsView {...viewProps} />} />
-            <Route path="/analytics/advanced" element={<AdvancedAnalyticsView {...viewProps} />} />
-            <Route path="/chat" element={<ChatView {...viewProps} />} />
-            <Route path="/reports/custom-builder" element={<CustomReportBuilderView {...viewProps} />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ViewErrorBoundary viewName="Dashboard">
+                  <DashboardView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/analytics" 
+              element={
+                <ViewErrorBoundary viewName="Analytics">
+                  <IntegratedAnalyticsView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/rab" 
+              element={
+                <ViewErrorBoundary viewName="RAB & AHSP">
+                  <EnhancedRabAhspView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route path="/rab/basic" element={
+              <ViewErrorBoundary viewName="RAB Basic">
+                <RabAhspView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/rab/approval" element={
+              <ViewErrorBoundary viewName="RAB Approval Workflow">
+                <RabApprovalWorkflowView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route 
+              path="/schedule" 
+              element={
+                <ViewErrorBoundary viewName="Schedule">
+                  <GanttChartView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/tasks" 
+              element={
+                <ViewErrorBoundary viewName="Tasks">
+                  <TasksView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route path="/tasks/list" element={
+              <ViewErrorBoundary viewName="Task List">
+                <TaskListView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/tasks/kanban" element={
+              <ViewErrorBoundary viewName="Kanban">
+                <KanbanView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/tasks/kanban/board" element={
+              <ViewErrorBoundary viewName="Kanban Board">
+                <KanbanBoardView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/tasks/dependencies" element={
+              <ViewErrorBoundary viewName="Dependency Graph">
+                <DependencyGraphView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/notifications" element={
+              <ViewErrorBoundary viewName="Notification Center">
+                <NotificationCenterView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/monitoring" element={
+              <ViewErrorBoundary viewName="Monitoring">
+                <MonitoringView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/reports/daily" element={
+              <ViewErrorBoundary viewName="Daily Report">
+                <DailyReportView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/reports/progress" element={
+              <ViewErrorBoundary viewName="Progress Report">
+                <ProgressView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/attendance" element={
+              <ViewErrorBoundary viewName="Attendance">
+                <AttendanceView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route 
+              path="/finance" 
+              element={
+                <ViewErrorBoundary viewName="Finance">
+                  <FinanceView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route path="/finance/cashflow" element={
+              <ViewErrorBoundary viewName="Cashflow">
+                <CashflowView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/strategic" element={
+              <ViewErrorBoundary viewName="Strategic Cost">
+                <StrategicCostView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/chart-of-accounts" element={
+              <ViewErrorBoundary viewName="Chart of Accounts">
+                <ChartOfAccountsView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/journal-entries" element={
+              <ViewErrorBoundary viewName="Journal Entries">
+                <JournalEntriesView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/accounts-payable" element={
+              <ViewErrorBoundary viewName="Accounts Payable">
+                <AccountsPayableView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/accounts-receivable" element={
+              <ViewErrorBoundary viewName="Accounts Receivable">
+                <AccountsReceivableView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/wbs" element={
+              <ViewErrorBoundary viewName="WBS Management">
+                <WBSManagementView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics/goods-receipt" element={
+              <ViewErrorBoundary viewName="Goods Receipt">
+                <GoodsReceiptView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics/material-request" element={
+              <ViewErrorBoundary viewName="Material Request">
+                <MaterialRequestView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics/vendor-management" element={
+              <ViewErrorBoundary viewName="Vendor Management">
+                <VendorManagementView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics/inventory" element={
+              <ViewErrorBoundary viewName="Inventory Management">
+                <InventoryManagementView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics/integration" element={
+              <ViewErrorBoundary viewName="Integration Dashboard">
+                <IntegrationDashboardView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/cost-control" element={
+              <ViewErrorBoundary viewName="Cost Control Dashboard">
+                <CostControlDashboardView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics" element={
+              <ViewErrorBoundary viewName="Logistics">
+                <LogisticsView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route 
+              path="/documents" 
+              element={
+                <ViewErrorBoundary viewName="Documents">
+                  <DokumenView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route path="/documents/intelligent" element={
+              <ViewErrorBoundary viewName="Intelligent Document System">
+                <IntelligentDocumentSystem {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route 
+              path="/reports" 
+              element={
+                <ViewErrorBoundary viewName="Reports">
+                  <ReportView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route 
+              path="/settings/users" 
+              element={
+                <ViewErrorBoundary viewName="User Management">
+                  <UserManagementView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route path="/settings/master-data" element={
+              <ViewErrorBoundary viewName="Master Data">
+                <MasterDataView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/settings/audit-trail" element={
+              <ViewErrorBoundary viewName="Audit Trail">
+                <AuditTrailView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route 
+              path="/profile" 
+              element={
+                <ViewErrorBoundary viewName="Profile">
+                  <ProfileView {...viewProps} />
+                </ViewErrorBoundary>
+              } 
+            />
+            <Route path="/ai/resource-optimization" element={
+              <ViewErrorBoundary viewName="AI Resource Optimization">
+                <AIResourceOptimizationView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/ai/predictive-analytics" element={
+              <ViewErrorBoundary viewName="Predictive Analytics">
+                <PredictiveAnalyticsView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/analytics/advanced" element={
+              <ViewErrorBoundary viewName="Advanced Analytics">
+                <AdvancedAnalyticsView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/chat" element={
+              <ViewErrorBoundary viewName="Chat">
+                <ChatView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/reports/custom-builder" element={
+              <ViewErrorBoundary viewName="Custom Report Builder">
+                <CustomReportBuilderView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
             
             {/* Unauthorized route */}
-            <Route path="/unauthorized" element={<UnauthorizedView />} />
+            <Route path="/unauthorized" element={
+              <ViewErrorBoundary viewName="Unauthorized">
+                <UnauthorizedView />
+              </ViewErrorBoundary>
+            } />
             
             {/* Fallback route for 404s */}
             <Route
@@ -464,7 +668,11 @@ function App() {
       {!currentUser ? (
         // --- Rute Publik (Belum Login) ---
         <>
-          <Route path="/login" element={<EnterpriseLoginView />} />
+          <Route path="/login" element={
+            <ViewErrorBoundary viewName="Login">
+              <EnterpriseLoginView />
+            </ViewErrorBoundary>
+          } />
           {/* Paksa semua rute lain ke halaman login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </>

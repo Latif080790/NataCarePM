@@ -114,7 +114,7 @@ async function checkAuth(): Promise<ServiceHealth> {
 
   try {
     // Check if auth is initialized
-    const currentUser = auth.currentUser;
+//     const currentUser = auth.currentUser; // Unused variable
 
     // Auth is accessible if we can check current user (even if null)
     const latency = Date.now() - startTime;

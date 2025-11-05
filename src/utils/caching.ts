@@ -422,7 +422,7 @@ export class EnhancedCache<T = any> {
   /**
    * Persist cache entry to storage
    */
-  private async persistToStorage(key: string, value: T): Promise<void> {
+  private async persistToStorage(key: string, _value: T): Promise<void> {
     if (!this.config.persistenceKey) return;
 
     try {

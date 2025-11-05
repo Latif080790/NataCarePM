@@ -104,7 +104,7 @@ class OfflineService {
   async initialize(): Promise<void> {
     try {
       this.db = await openDB<NataCarePMDB>('NataCarePM-Mobile', 2, {
-        upgrade(db, oldVersion, newVersion) {
+        upgrade(db, oldVersion, _newVersion) {
           // Create offline data store
           if (!db.objectStoreNames.contains('offline_data')) {
             const offlineStore = db.createObjectStore('offline_data', { keyPath: 'key' });

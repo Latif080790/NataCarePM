@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
     onSuccess: (_registration) => {
       console.log('[PWA] Service Worker registered successfully');
     },
-    onUpdate: (registration) => {
+    onUpdate: (_registration) => {
       console.log('[PWA] New content available, please refresh.');
       // Notify user about update
       if (window.confirm('New version available! Click OK to update.')) {

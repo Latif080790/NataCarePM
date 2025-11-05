@@ -66,7 +66,7 @@ const TasksScreen = () => {
   ]);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const navigation = useNavigation();
+//   const navigation = useNavigation(); // Unused variable
   
   const { isOnline, isInitialized, saveOfflineData, addToSyncQueue } = useOffline();
 

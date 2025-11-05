@@ -23,7 +23,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const ReportsScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const navigation = useNavigation();
+//   const navigation = useNavigation(); // Unused variable
 
   const reports = [
     {

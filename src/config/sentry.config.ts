@@ -92,7 +92,7 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
     release: import.meta.env.VITE_APP_VERSION || 'development',
 
     // Before sending events
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Filter out development errors
       if (finalConfig.environment === 'development') {
         logger.debug('Sentry event captured', { event });

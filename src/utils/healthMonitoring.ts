@@ -62,7 +62,7 @@ class HealthMonitoringService {
       if (options.customChecks) {
         for (const customCheck of options.customChecks) {
           try {
-            const check = await customCheck();
+//             const check = await customCheck(); // Unused variable
             const checkResult = await customCheck();
             checks[checkResult.name] = {
               status: (await checkResult.check()) ? 'healthy' : 'unhealthy',

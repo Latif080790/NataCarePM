@@ -510,7 +510,7 @@ export class DisasterRecoveryService {
     }
   }
 
-  private calculateNextBackup(cronExpression: string): Date {
+  private calculateNextBackup(_cronExpression: string): Date {
     // Simple implementation - in production, use a proper cron parser
     // For now, assume daily backups
     const nextBackup = new Date();
@@ -518,7 +518,7 @@ export class DisasterRecoveryService {
     return nextBackup;
   }
 
-  private async backupFirestoreCollections(backupRecord: BackupRecord, config: BackupConfig): Promise<void> {
+  private async backupFirestoreCollections(backupRecord: BackupRecord, _config: BackupConfig): Promise<void> {
     try {
       // Get all collections to backup
       const collections = ['users', 'projects', 'tasks', 'chart_of_accounts', 'journal_entries'];
@@ -543,7 +543,7 @@ export class DisasterRecoveryService {
     }
   }
 
-  private async backupStorageBuckets(backupRecord: BackupRecord, config: BackupConfig): Promise<void> {
+  private async backupStorageBuckets(backupRecord: BackupRecord, _config: BackupConfig): Promise<void> {
     try {
       // List all files in storage
       const storageRef = ref(storage);

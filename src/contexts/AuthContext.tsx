@@ -1,18 +1,17 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  ReactNode,
-} from 'react';
-import { User as AppUser } from '@/types';
-import { auth } from '@/firebaseConfig';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { rateLimiter } from '@/utils/rateLimiter';
 import { twoFactorService } from '@/api/twoFactorService';
+import { auth } from '@/firebaseConfig';
 import { authService } from '@/services/authService';
 import { logger } from '@/utils/logger.enhanced';
+import { rateLimiter } from '@/utils/rateLimiter';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import React, {
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
 
 interface AuthContextType {
   currentUser: AppUser | null;

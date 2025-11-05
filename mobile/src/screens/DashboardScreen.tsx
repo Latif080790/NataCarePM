@@ -3,7 +3,6 @@
  * NataCarePM Mobile App
  */
 
-import React from 'react';
 import {
   View,
   StyleSheet,

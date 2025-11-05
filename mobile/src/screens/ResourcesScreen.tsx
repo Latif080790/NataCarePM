@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 const ResourcesScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const navigation = useNavigation();
+//   const navigation = useNavigation(); // Unused variable
 
   const resources = [
     {

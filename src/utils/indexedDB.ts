@@ -466,7 +466,7 @@ export const getMetadata = async (key: string): Promise<any> => {
  * Get storage statistics
  */
 export const getStorageStats = async (): Promise<OfflineStorageMetadata> => {
-  const db = await initDB();
+//   const db = await initDB(); // Unused variable
 
   // Count records in each store
   const inspectionsCount = await dbOperation(STORES.INSPECTIONS, 'readonly', (store) =>

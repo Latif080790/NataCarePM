@@ -401,7 +401,7 @@ export class IntelligentDocumentValidator {
         );
 
         // Create signature workflow
-        const workflow = await intelligentDocumentService.initiateSignatureWorkflow(
+//         const workflow = await intelligentDocumentService.initiateSignatureWorkflow( // Unused variable
           document.id,
           ['signer1@test.com', 'signer2@test.com'],
           true, // sequential
@@ -851,7 +851,7 @@ export class IntelligentDocumentValidator {
         }
 
         // Test signature integration
-        const workflow = await intelligentDocumentService.initiateSignatureWorkflow(
+//         const workflow = await intelligentDocumentService.initiateSignatureWorkflow( // Unused variable
           document.id,
           ['signer@test.com'],
           false,
@@ -1196,7 +1196,7 @@ export class IntelligentDocumentValidator {
 
   // Type validation helpers
   private async validateDocumentType(): Promise<string> {
-    const testDoc: Partial<IntelligentDocument> = {
+//     const testDoc: Partial<IntelligentDocument> = { // Unused variable
       id: 'test',
       title: 'Test',
       category: 'other',
@@ -1206,7 +1206,7 @@ export class IntelligentDocumentValidator {
   }
 
   private async validateTemplateType(): Promise<string> {
-    const testTemplate: Partial<DocumentTemplate> = {
+//     const testTemplate: Partial<DocumentTemplate> = { // Unused variable
       id: 'test',
       name: 'Test Template',
       category: 'report' as any,
@@ -1216,7 +1216,7 @@ export class IntelligentDocumentValidator {
   }
 
   private async validateSignatureType(): Promise<string> {
-    const testSignature: Partial<DigitalSignature> = {
+//     const testSignature: Partial<DigitalSignature> = { // Unused variable
       id: 'test',
       documentId: 'test-doc',
       signerEmail: 'test@example.com',
@@ -1226,7 +1226,7 @@ export class IntelligentDocumentValidator {
   }
 
   private async validateVersionType(): Promise<string> {
-    const testVersion: Partial<DocumentVersion> = {
+//     const testVersion: Partial<DocumentVersion> = { // Unused variable
       id: 'test',
       documentId: 'test-doc',
       versionNumber: '1.0.0',
@@ -1236,7 +1236,7 @@ export class IntelligentDocumentValidator {
   }
 
   private async validateOCRType(): Promise<string> {
-    const testOCR: Partial<OCRResult> = {
+//     const testOCR: Partial<OCRResult> = { // Unused variable
       extractedText: 'Test text',
       confidence: 0.95,
       language: 'en',
@@ -1245,7 +1245,7 @@ export class IntelligentDocumentValidator {
   }
 
   private async validateInsightType(): Promise<string> {
-    const testInsight: Partial<AIInsight> = {
+//     const testInsight: Partial<AIInsight> = { // Unused variable
       id: 'test',
       type: 'compliance_check' as any,
       priority: 'medium',

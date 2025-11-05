@@ -31,12 +31,12 @@ interface OfflineDailyLog extends DailyLog {
 
 // Mock service implementations for demonstration
 const rfiService = {
-  createRfi: async (projectId: string, rfiData: any) => {
+  createRfi: async (_projectId: string, rfiData: any) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true, data: { ...rfiData, id: `server_${Date.now()}` } };
   },
-  updateRfi: async (rfiId: string, updates: any) => {
+  updateRfi: async (_rfiId: string, updates: any) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true, data: updates };
@@ -44,12 +44,12 @@ const rfiService = {
 };
 
 const submittalService = {
-  createSubmittal: async (projectId: string, submittalData: any) => {
+  createSubmittal: async (_projectId: string, submittalData: any) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true, data: { ...submittalData, id: `server_${Date.now()}` } };
   },
-  updateSubmittal: async (submittalId: string, updates: any) => {
+  updateSubmittal: async (_submittalId: string, updates: any) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true, data: updates };
@@ -57,12 +57,12 @@ const submittalService = {
 };
 
 const dailyLogService = {
-  createDailyLog: async (projectId: string, dailyLogData: any) => {
+  createDailyLog: async (_projectId: string, dailyLogData: any) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true, data: { ...dailyLogData, id: `server_${Date.now()}` } };
   },
-  updateDailyLog: async (dailyLogId: string, updates: any) => {
+  updateDailyLog: async (_dailyLogId: string, updates: any) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true, data: updates };
@@ -369,7 +369,7 @@ class ConstructionSyncService {
   /**
    * Get sync statistics
    */
-  async getSyncStats(projectId: string): Promise<{
+  async getSyncStats(_projectId: string): Promise<{
     pendingRfis: number;
     pendingSubmittals: number;
     pendingDailyLogs: number;

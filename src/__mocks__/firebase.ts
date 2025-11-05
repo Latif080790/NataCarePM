@@ -53,7 +53,7 @@ export const mockFirebaseAuth = {
     emailVerified: true,
     getIdToken: jest.fn(() => Promise.resolve('mock-token')),
   },
-  signIn: jest.fn((email: string, password: string) =>
+  signIn: jest.fn((email: string, _password: string) =>
     Promise.resolve({
       user: mockFirebaseAuth.currentUser,
     })

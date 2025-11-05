@@ -109,7 +109,7 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
     }
 
     // Update password in Firebase Authentication
-    const user = await admin.auth().getUser(userId);
+//     const user = await admin.auth().getUser(userId); // Unused variable
     
     // Reauthenticate by verifying current password
     // Note: In a real implementation, you would verify the current password
@@ -383,7 +383,7 @@ export const createDigitalSignature = functions.https.onCall(async (data: any, c
   }
 
   const { documentId, documentVersionId, signerInfo, signatureType } = data;
-  const userId = context.auth.uid;
+//   const userId = context.auth.uid; // Unused variable
 
   try {
     // Create digital signature using the service
@@ -420,7 +420,7 @@ export const verifyDigitalSignature = functions.https.onCall(async (data: any, c
   }
 
   const { signatureData, certificate } = data;
-  const userId = context.auth.uid;
+//   const userId = context.auth.uid; // Unused variable
 
   try {
     // Verify digital signature using the service

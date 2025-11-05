@@ -1,37 +1,36 @@
 import React, { useState } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { DigitalSignature } from '@/types';
 import {
-  FileText,
-  Download,
-  Share,
-  Edit,
-  GitBranch,
-  History,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  Brain,
-  Calendar,
-  Tag,
-  Clock,
-  TrendingUp,
-  Shield,
-  ChevronDown,
-  ChevronRight,
-  ExternalLink,
-  Target,
-  Zap,
-  Unlock,
-  Lock,
-  Users,
-  FileX,
-  PenTool as Signature,
+    AlertTriangle,
+    Brain,
+    Calendar,
+    CheckCircle,
+    ChevronDown,
+    ChevronRight,
+    Clock,
+    Download,
+    Edit,
+    ExternalLink,
+    FileText,
+    FileX,
+    GitBranch,
+    History,
+    Info,
+    Lock,
+    Share,
+    Shield,
+    Tag,
+    Target,
+    TrendingUp,
+    Unlock,
+    Users,
+    Zap
 } from 'lucide-react';
 
-import { IntelligentDocument, AIInsight } from '@/types';
+import { AIInsight, IntelligentDocument } from '@/types';
 
 import { intelligentDocumentService } from '@/api/intelligentDocumentService';
 

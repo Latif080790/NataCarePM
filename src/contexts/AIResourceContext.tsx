@@ -100,7 +100,7 @@ export const AIResourceProvider: React.FC<AIResourceProviderProps> = ({ children
   }, []);
 
   const loadModelMetadata = useCallback(
-    async (modelId: string): Promise<MLModelMetadata | null> => {
+    async (_modelId: string): Promise<MLModelMetadata | null> => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {

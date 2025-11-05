@@ -1,24 +1,22 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { Button } from './Button';
-import { Input } from './FormControls';
-import { Card, CardContent, CardHeader, CardTitle } from './Card';
-import {
-  Bot,
-  Send,
-  X,
-  User as UserIcon,
-  Sparkles,
-  History as HistoryIcon,
-  Trash2,
-  PlusCircle,
-} from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
+import {
+    Bot,
+    PlusCircle,
+    Send,
+    Sparkles,
+    Trash2,
+    X,
+} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button } from './Button';
+import { Card, CardContent, CardHeader, CardTitle } from './Card';
+import { Input } from './FormControls';
 // FIX: Import `Chat` type from `@google/genai` to correctly type the chat session object.
-import { GoogleGenAI, Chat } from '@google/genai';
-import { ChatMessage } from '@/types';
+import { taskService } from '@/api/taskService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
-import { taskService } from '@/api/taskService';
+import { ChatMessage } from '@/types';
+import { Chat, GoogleGenAI } from '@google/genai';
 
 const getEnvApiKey = () => (import.meta as any)?.env?.VITE_GEMINI_API_KEY;
 
