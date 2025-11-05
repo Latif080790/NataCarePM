@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSafety } from '@/contexts/SafetyContext';
-import type { SafetyIncident, IncidentSeverity, IncidentStatus } from '@/types/safety.types';
+import type { IncidentSeverity, IncidentStatus } from '@/types/safety.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
 
@@ -19,10 +19,8 @@ interface IncidentManagementViewProps {
 const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ projectId }) => {
   const {
     incidents,
-    selectedIncident,
     incidentsLoading,
     fetchIncidents,
-    setSelectedIncident,
     getCriticalIncidents,
     getOpenIncidents,
   } = useSafety();
@@ -30,7 +28,6 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSeverity, setSelectedSeverity] = useState<IncidentSeverity | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<IncidentStatus | 'all'>('all');
-  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     fetchIncidents(projectId);
@@ -166,8 +163,7 @@ const IncidentManagementView: React.FC<IncidentManagementViewProps> = ({ project
               <li
                 key={incident.id}
                 onClick={() => {
-                  setSelectedIncident(incident);
-                  setShowDetailModal(true);
+                  console.log('View incident:', incident);
                 }}
                 className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
               >

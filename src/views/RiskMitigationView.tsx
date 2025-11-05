@@ -7,16 +7,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRisk } from '@/contexts/RiskContext';
-import type { Risk, MitigationAction, RiskStatus } from '@/types/risk.types';
+import type { Risk, MitigationAction } from '@/types/risk.types';
 import { Spinner } from '@/components/Spinner';
-import { Button } from '@/components/Button';
 
 interface RiskMitigationViewProps {
   projectId: string;
 }
 
 const RiskMitigationView: React.FC<RiskMitigationViewProps> = ({ projectId }) => {
-  const { risks, risksLoading, risksError, fetchRisks, updateRisk } = useRisk();
+  const { risks, risksLoading, risksError, fetchRisks } = useRisk();
 
   // Local state
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);

@@ -6,16 +6,12 @@ import {
   AlertTriangle,
   CheckCircle,
   Activity,
-  Calendar,
   Download,
-  Filter,
   RefreshCw,
-  PieChart,
   BarChart3,
   LineChart as LineChartIcon,
   Target,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -25,14 +21,10 @@ import {
 } from '@/api/costControlService';
 import {
   CostControlSummary,
-  EVMMetrics,
-  BudgetVsActual,
-  CostBreakdown,
   CostAlert,
 } from '@/types/costControl';
 
 const CostControlDashboardView: React.FC = () => {
-  const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
 
@@ -42,7 +34,6 @@ const CostControlDashboardView: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<
     'overview' | 'evm' | 'budget' | 'trends' | 'cashflow'
   >('overview');
-  const [dateRange, setDateRange] = useState<'month' | 'quarter' | 'year'>('month');
 
   useEffect(() => {
     if (currentProject) {
@@ -119,7 +110,7 @@ const CostControlDashboardView: React.FC = () => {
   const renderOverview = () => {
     if (!summary) return null;
 
-    const { evmMetrics, totalBudget, totalActual, totalCommitted, totalRemaining } = summary;
+    const { evmMetrics, totalBudget, totalActual } = summary;
 
     return (
       <div className="space-y-6">

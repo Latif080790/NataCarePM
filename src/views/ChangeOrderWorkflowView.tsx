@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useChangeOrder } from '@/contexts/ChangeOrderContext';
-import type { ChangeOrder, ApprovalStep, ApprovalDecision } from '@/types/changeOrder.types';
+import type { ApprovalStep, ApprovalDecision } from '@/types/changeOrder.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
 

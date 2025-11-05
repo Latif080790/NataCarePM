@@ -6,7 +6,7 @@
  * schedule prediction, risk analysis, and quality forecasting
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   TrendingUp,
   DollarSign,
@@ -14,9 +14,6 @@ import {
   AlertTriangle,
   CheckCircle,
   BarChart3,
-  RefreshCw,
-  Download,
-  Settings,
   Play,
   Target,
   Clock,
@@ -36,8 +33,6 @@ const PredictiveAnalyticsView: React.FC = () => {
   const {
     costForecasts,
     scheduleForecasts,
-    riskForecasts,
-    qualityForecasts,
     isLoading,
     error,
     generateForecast,
@@ -54,8 +49,6 @@ const PredictiveAnalyticsView: React.FC = () => {
   // Get latest forecasts
   const latestCostForecast = costForecasts[costForecasts.length - 1];
   const latestScheduleForecast = scheduleForecasts[scheduleForecasts.length - 1];
-  const latestRiskForecast = riskForecasts[riskForecasts.length - 1];
-  const latestQualityForecast = qualityForecasts[qualityForecasts.length - 1];
 
   // Event Handlers
   const handleGenerateForecast = async () => {

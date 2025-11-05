@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Task, User } from '@/types';
+import { Task } from '@/types';
 import { TaskDependency } from '@/types/ai-resource.types';
 import { enhancedTaskService } from '@/api/taskService.enhanced';
 import { Card } from '@/components/Card';
@@ -18,17 +18,14 @@ import {
   Calendar,
   Clock,
   Target,
-  TrendingUp,
   BarChart3,
   RefreshCw,
   Download,
 } from 'lucide-react';
-import { formatCurrency } from '@/constants';
 
 interface CriticalPathViewProps {
   projectId: string;
   tasks: Task[];
-  currentUser: User;
   onTaskSelect?: (taskId: string) => void;
 }
 
@@ -56,7 +53,6 @@ interface TaskScheduleInfo {
 export const CriticalPathView: React.FC<CriticalPathViewProps> = ({
   projectId,
   tasks,
-  currentUser,
   onTaskSelect,
 }) => {
   const [analysis, setAnalysis] = useState<CriticalPathAnalysis | null>(null);

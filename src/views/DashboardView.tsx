@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Project, Task, Expense, PurchaseOrder, User } from '@/types';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
-import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import QuickAccessPanel from '@/components/QuickAccessPanel';
 import MetricCard from '@/components/MetricCard';
 import ProgressRing from '@/components/ProgressRing';
@@ -20,7 +19,6 @@ import {
   Target,
   BarChart3,
   RefreshCw,
-  Eye,
   Activity,
   Zap,
   Award,
@@ -127,11 +125,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     setIsRefreshing(false);
     console.log('Dashboard refreshed');
   };
-
-  const breadcrumbItems = [
-    { name: 'Home', onClick: () => onNavigate('dashboard') },
-    { name: 'Dashboard' },
-  ];
 
   if (isLoading) {
     return (

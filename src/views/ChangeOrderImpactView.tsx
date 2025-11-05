@@ -7,7 +7,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useChangeOrder } from '@/contexts/ChangeOrderContext';
-import type { ChangeOrder } from '@/types/changeOrder.types';
 import { Spinner } from '@/components/Spinner';
 
 interface ChangeOrderImpactViewProps {

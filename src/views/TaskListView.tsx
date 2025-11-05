@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';

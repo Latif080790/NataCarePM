@@ -6,7 +6,6 @@
  */
 
 import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   TrendingDown,
@@ -24,11 +23,10 @@ import {
   Bell,
 } from 'lucide-react';
 import { useExecutive } from '@/contexts/ExecutiveContext';
-import type { ExecutiveKPI, KPIStatus, KPITrend, ExecutiveAlert } from '@/types/executive.types';
+import type { KPIStatus, KPITrend, ExecutiveAlert } from '@/types/executive.types';
 import { format } from 'date-fns';
 
 const ExecutiveDashboardView: React.FC = () => {
-  const navigate = useNavigate();
   const {
     dashboardData,
     loading,

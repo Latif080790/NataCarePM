@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRisk } from '@/contexts/RiskContext';
-import type { Risk, RiskPriorityLevel, RiskStatus, RiskCategory } from '@/types/risk.types';
+import type { RiskPriorityLevel, RiskStatus, RiskCategory } from '@/types/risk.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
 
@@ -21,14 +21,9 @@ const RiskRegistryView: React.FC<RiskRegistryViewProps> = ({ projectId }) => {
     risksLoading,
     risksError,
     fetchRisks,
-    createRisk,
-    updateRisk,
     deleteRisk,
     dashboardStats,
     fetchDashboardStats,
-    getRisksByPriority,
-    getRisksByStatus,
-    getHighPriorityRisks,
   } = useRisk();
 
   // Local state
@@ -110,7 +105,7 @@ const RiskRegistryView: React.FC<RiskRegistryViewProps> = ({ projectId }) => {
   };
 
   // Get status color
-  const getStatusColor = (status: RiskStatus) => {
+  const getStatusColor = (status: RiskStatus): string => {
     switch (status) {
       case 'identified':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
@@ -122,6 +117,8 @@ const RiskRegistryView: React.FC<RiskRegistryViewProps> = ({ projectId }) => {
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'closed':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 

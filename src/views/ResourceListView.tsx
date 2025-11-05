@@ -12,7 +12,6 @@ import type {
   ResourceType,
   ResourceStatus,
   ResourceFilterOptions,
-  ResourceCategory,
 } from '@/types/resource.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
@@ -23,8 +22,6 @@ const ResourceListView: React.FC = () => {
     resourcesLoading,
     resourcesError,
     fetchResources,
-    createResource,
-    updateResource,
     deleteResource,
     setFilters,
     statistics,
@@ -36,7 +33,6 @@ const ResourceListView: React.FC = () => {
   const [selectedType, setSelectedType] = useState<ResourceType[] | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<ResourceStatus[] | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
   // Fetch resources on mount
   useEffect(() => {

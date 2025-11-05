@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Task, User } from '@/types';
+import { Task } from '@/types';
 import { ResourceAllocation } from '@/types/ai-resource.types';
 import { enhancedTaskService } from '@/api/taskService.enhanced';
 import { Card } from '@/components/Card';
@@ -18,21 +18,16 @@ import {
   Users,
   Calendar,
   AlertTriangle,
-  CheckCircle,
-  Clock,
   TrendingUp,
   Plus,
   Search,
-  Filter,
   Download,
   RefreshCw,
 } from 'lucide-react';
-import { formatCurrency } from '@/constants';
 
 interface ResourceAllocationViewProps {
   projectId: string;
   tasks: Task[];
-  currentUser: User;
   onTaskSelect?: (taskId: string) => void;
 }
 
@@ -48,7 +43,6 @@ interface ResourceUtilization {
 export const ResourceAllocationView: React.FC<ResourceAllocationViewProps> = ({
   projectId,
   tasks,
-  currentUser,
   onTaskSelect,
 }) => {
   const [allocations, setAllocations] = useState<ResourceAllocation[]>([]);

@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuality } from '@/contexts/QualityContext';
-import type { Defect, DefectStatus, DefectSeverity } from '@/types/quality.types';
+import type { DefectStatus, DefectSeverity } from '@/types/quality.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
 
@@ -21,10 +21,6 @@ const DefectTrackerView: React.FC<DefectTrackerViewProps> = ({ projectId }) => {
     defectsLoading,
     defectsError,
     fetchDefects,
-    createDefect,
-    updateDefect,
-    getDefectsBySeverity,
-    getDefectsByStatus,
     getOpenDefects,
     getCriticalDefects,
     getDefectRate,

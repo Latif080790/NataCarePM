@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useResource } from '@/contexts/ResourceContext';
-import type { Resource, ResourceUtilization, ResourceType } from '@/types/resource.types';
+import type { ResourceType } from '@/types/resource.types';
 import { Spinner } from '@/components/Spinner';
 
 const ResourceUtilizationView: React.FC = () => {
@@ -16,7 +16,6 @@ const ResourceUtilizationView: React.FC = () => {
     utilization,
     resourcesLoading,
     fetchResources,
-    calculateUtilization,
     statistics,
     fetchStatistics,
   } = useResource();
@@ -34,29 +33,6 @@ const ResourceUtilizationView: React.FC = () => {
     fetchResources();
     fetchStatistics();
   }, []);
-
-  // Calculate period dates
-  const getPeriodDates = () => {
-    const end = new Date();
-    const start = new Date();
-
-    switch (selectedPeriod) {
-      case 'week':
-        start.setDate(start.getDate() - 7);
-        break;
-      case 'month':
-        start.setMonth(start.getMonth() - 1);
-        break;
-      case 'quarter':
-        start.setMonth(start.getMonth() - 3);
-        break;
-      case 'year':
-        start.setFullYear(start.getFullYear() - 1);
-        break;
-    }
-
-    return { start, end };
-  };
 
   // Filter and sort resources
   const filteredResources = useMemo(() => {

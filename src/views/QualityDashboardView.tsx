@@ -5,9 +5,9 @@
  * Comprehensive quality metrics and analytics dashboard
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuality } from '@/contexts/QualityContext';
-import type { QualityMetrics, DefectSeverity } from '@/types/quality.types';
+import type { DefectSeverity } from '@/types/quality.types';
 import { Spinner } from '@/components/Spinner';
 
 interface QualityDashboardViewProps {
@@ -16,16 +16,12 @@ interface QualityDashboardViewProps {
 
 const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }) => {
   const {
-    inspections,
-    defects,
     inspectionsLoading,
     defectsLoading,
     fetchInspections,
     fetchDefects,
     metrics,
     fetchMetrics,
-    getPassRate,
-    getDefectRate,
   } = useQuality();
 
   // Local state

@@ -12,7 +12,6 @@ import {
   CheckCircle,
   XCircle,
   Users,
-  Download,
 } from 'lucide-react';
 import { useSafety } from '@/contexts/SafetyContext';
 import { PPEForm } from '@/components/safety/PPEForm';

@@ -6,13 +6,11 @@ import {
   BookOpen,
   Plus,
   Search,
-  Filter,
   Edit,
   Trash2,
-  FolderTree,
-  DollarSign,
   ChevronRight,
   ChevronDown,
+  Filter,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
 import { chartOfAccountsService } from '@/api/chartOfAccountsService';
@@ -29,8 +27,6 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<AccountType | 'all'>('all');
   const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
-  const [showForm, setShowForm] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<ChartOfAccount | null>(null);
 
   useEffect(() => {
     loadAccounts();
@@ -93,14 +89,14 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
     }
   };
 
-  const getAccountTypeColor = (type: AccountType): string => {
-    const colors = {
+  const getTypeColor = (type: AccountType): string => {
+    const colors: Partial<Record<AccountType, string>> = {
       asset: 'bg-green-100 text-green-800',
       liability: 'bg-red-100 text-red-800',
       equity: 'bg-blue-100 text-blue-800',
       revenue: 'bg-purple-100 text-purple-800',
       expense: 'bg-orange-100 text-orange-800',
-      cost_of_goods_sold: 'bg-yellow-100 text-yellow-800',
+      cost_of_sales: 'bg-yellow-100 text-yellow-800',
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
@@ -155,7 +151,7 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
           </td>
           <td className="py-3 px-4">
             <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${getAccountTypeColor(account.accountType)}`}
+              className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(account.accountType)}`}
             >
               {account.accountType.replace('_', ' ')}
             </span>
@@ -178,8 +174,8 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
             <div className="flex items-center gap-2 justify-end">
               <button
                 onClick={() => {
-                  setEditingAccount(account);
-                  setShowForm(true);
+                  // TODO: Implement edit form
+                  console.log('Edit account:', account);
                 }}
                 className="p-2 hover:bg-blue-50 rounded text-blue-600"
                 title="Edit"
@@ -226,8 +222,8 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
           </div>
           <Button
             onClick={() => {
-              setEditingAccount(null);
-              setShowForm(true);
+              // TODO: Implement create form
+              console.log('Create new account');
             }}
             className="flex items-center gap-2"
           >
@@ -297,7 +293,7 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
             <div className="p-12 text-center">
               <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No accounts found</p>
-              <Button onClick={() => setShowForm(true)} className="mt-4">
+              <Button onClick={() => console.log('Create first account')} className="mt-4">
                 Create First Account
               </Button>
             </div>

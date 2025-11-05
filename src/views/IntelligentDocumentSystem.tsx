@@ -7,7 +7,6 @@ import {
   FileText,
   Upload,
   Search,
-  Filter,
   Eye,
   Edit,
   Share,

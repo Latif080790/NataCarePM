@@ -24,7 +24,6 @@ import {
   AlertTriangle,
   ShoppingCart,
   TrendingUp,
-  Calendar,
   DollarSign,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,15 +36,10 @@ import { Input } from '@/components/FormControls';
 import { MaterialRequest, MRStatus, MRPriority } from '@/types/logistics';
 import {
   getMaterialRequests,
-  getMaterialRequestById,
-  createMaterialRequest,
   submitMaterialRequest,
-  approveMaterialRequest,
-  convertMRtoPO,
   deleteMaterialRequest,
   getMRSummary,
   getPendingApprovals,
-  validateMaterialRequest,
 } from '@/api/materialRequestService';
 import {
   CreateMRModal,

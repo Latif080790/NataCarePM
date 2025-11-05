@@ -8,10 +8,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useChangeOrder } from '@/contexts/ChangeOrderContext';
 import type {
-  ChangeOrder,
   ChangeOrderStatus,
   ChangeOrderType,
-  ChangeOrderFilterOptions,
 } from '@/types/changeOrder.types';
 import { Spinner } from '@/components/Spinner';
 import { Button } from '@/components/Button';
@@ -26,14 +24,9 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
     changeOrdersLoading,
     changeOrdersError,
     fetchChangeOrders,
-    createChangeOrder,
-    updateChangeOrder,
     deleteChangeOrder,
     summary,
     fetchSummary,
-    getChangeOrdersByStatus,
-    getTotalCostImpact,
-    getTotalScheduleImpact,
   } = useChangeOrder();
 
   // Local state
@@ -41,7 +34,6 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
   const [selectedStatus, setSelectedStatus] = useState<ChangeOrderStatus | 'all'>('all');
   const [selectedType, setSelectedType] = useState<ChangeOrderType | 'all'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [selectedChangeOrder, setSelectedChangeOrder] = useState<ChangeOrder | null>(null);
 
   // Fetch change orders on mount
   useEffect(() => {
@@ -131,15 +123,6 @@ const ChangeOrderListView: React.FC<ChangeOrderListViewProps> = ({ projectId }) 
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
-  };
-
-  // Format date
-  const formatDate = (date: Date): string => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   };
 
   // Handle delete

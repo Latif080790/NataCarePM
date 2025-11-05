@@ -1,4 +1,3 @@
-import React from 'react';
 // 🚀 ENTERPRISE LOGIN VIEW - LEVEL PREMIUM
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
@@ -24,7 +23,6 @@ export default function LoginView() {
     login,
     requires2FA,
     pending2FAUserId,
-    verify2FA,
     cancel2FA,
   } = useAuth();
   const [isLogin, setIsLogin] = useState(true);

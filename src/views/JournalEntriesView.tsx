@@ -3,18 +3,14 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import {
-  BookOpen,
   Plus,
   Search,
   Filter,
   Eye,
-  Edit,
   Check,
   Send,
   X,
   FileText,
-  Calendar,
-  DollarSign,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
 import { journalEntriesService } from '@/api/journalService';

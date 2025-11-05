@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState } from 'react';
 import { RabItem, AhspData } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';

@@ -15,7 +15,6 @@ import { initializeSentry, setSentryUser, clearSentryUser } from '@/config/sentr
 import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
 
 // Eager-loaded components (critical for initial render)
-import LoginView from '@/views/LoginView';
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
 
 // Context providers

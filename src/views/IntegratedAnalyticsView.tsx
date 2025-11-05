@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -63,7 +63,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
       // Load tasks
       const projectTasksResponse = await taskService.getTasksByProject(currentProject.id);
       const projectTasks = projectTasksResponse.success ? projectTasksResponse.data : [];
-      setTasks(projectTasks);
+      setTasks(projectTasks || []);
 
       // Load RAB items (mock data for demonstration)
       const mockRabItems: RabItem[] = [
@@ -115,9 +115,11 @@ export const IntegratedAnalyticsView: React.FC = () => {
 
       // Mock actual costs
       const mockActualCosts: { [taskId: string]: number } = {};
-      projectTasks.forEach((task) => {
-        mockActualCosts[task.id] = Math.random() * 20000000 + 5000000;
-      });
+      if (projectTasks) {
+        projectTasks.forEach((task) => {
+          mockActualCosts[task.id] = Math.random() * 20000000 + 5000000;
+        });
+      }
       setActualCosts(mockActualCosts);
 
       // Set project start date

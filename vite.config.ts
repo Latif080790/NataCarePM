@@ -210,46 +210,13 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: 'index.html',
         output: {
-          manualChunks: {
-            // Vendor chunk for core dependencies
-            vendor: ['react', 'react-dom'],
-
-            // Firebase chunk
-            firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-
-            // UI library chunk
-            icons: ['lucide-react'],
-
-            // Large dashboard components
-            dashboards: [
-              './src/views/DashboardView.tsx',
-              './src/views/EnhancedDashboardView.tsx',
-              './src/views/EnterpriseAdvancedDashboardView.tsx',
-            ],
-
-            // Chart and visualization components
-            charts: [
-              './src/components/LineChart.tsx',
-              './src/components/GaugeChart.tsx',
-              './src/components/SimpleBarChart.tsx',
-              './src/components/RobustCharts.tsx',
-            ],
-
-            // Project management views
-            projectViews: [
-              './src/views/GanttChartView.tsx',
-              './src/views/InteractiveGanttView.tsx',
-              './src/views/KanbanView.tsx',
-              './src/views/TasksView.tsx',
-              './src/views/TaskListView.tsx',
-            ],
-
-            // AI and monitoring features
-            aiMonitoring: [
-              './src/components/AiAssistantChat.tsx',
-              './src/components/MonitoringDashboard.tsx',
-              './src/api/monitoringService.ts',
-            ],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+            if (id.includes('/src/views/')) {
+              return `views/${id.split('/').pop().split('.')[0]}`;
+            }
           },
         },
       },

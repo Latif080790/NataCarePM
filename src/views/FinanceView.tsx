@@ -4,7 +4,6 @@ import { formatCurrency, formatDate } from '@/constants';
 import { Progress } from '@/components/Progress';
 import { LineChart } from '@/components/LineChart';
 import { useElementSize } from '@/hooks/useElementSize';
-import { PermissionGate } from '@/components/PermissionGate';
 import { useRequirePermission } from '@/hooks/usePermissions';
 import { Lock } from 'lucide-react';
 

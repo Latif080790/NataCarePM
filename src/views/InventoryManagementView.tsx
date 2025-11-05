@@ -11,11 +11,8 @@ import {
   Eye,
   Edit2,
   Trash2,
-  Clock,
   CheckCircle,
   XCircle,
-  Filter,
-  Download,
   BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,7 +31,6 @@ import {
   StockAlert,
   MaterialCategory,
   MaterialStatus,
-  StockAlertType,
 } from '@/types/inventory';
 import {
   MaterialModal,

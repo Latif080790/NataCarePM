@@ -1,16 +1,52 @@
 import { User } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Trash2 } from 'lucide-react';
 import { ROLES_CONFIG, hasPermission } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
+import { userService } from '@/api/userService';
+import { Spinner } from '@/components/Spinner';
 
-interface UserManagementViewProps {
-  users: User[];
-}
-
-export default function UserManagementView({ users }: UserManagementViewProps) {
+export default function UserManagementView() {
   const { currentUser } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const fetchedUsers = await userService.getUsers();
+        setUsers(fetchedUsers);
+      } catch (err) {
+        setError('Gagal memuat pengguna');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleDelete = (user: User) => {
+    setUserToDelete(user);
+  };
+
+  const confirmDelete = async () => {
+    if (userToDelete) {
+      try {
+        await userService.deleteUser(userToDelete.id);
+        setUsers(users.filter((user) => user.id !== userToDelete.id));
+        setUserToDelete(null);
+      } catch (err) {
+        setError('Gagal menghapus pengguna');
+      }
+    }
+  };
 
   const getRoleById = (roleId: string) => ROLES_CONFIG.find((r) => r.id === roleId);
 
@@ -31,69 +67,102 @@ export default function UserManagementView({ users }: UserManagementViewProps) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between items-center">
-        <div>
-          <CardTitle>Manajemen Pengguna</CardTitle>
-          <CardDescription>Kelola akses dan peran pengguna untuk proyek ini.</CardDescription>
-        </div>
-        {hasPermission(currentUser, 'manage_users') && (
-          <Button>
-            <UserPlus className="w-4 h-4 mr-2" />
-            Undang User Baru
-          </Button>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left text-night-black">
-            <thead className="bg-violet-essence/50 text-xs uppercase">
-              <tr>
-                <th className="p-3">Nama</th>
-                <th className="p-3">Peran (Role)</th>
-                <th className="p-3 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => {
-                const role = getRoleById(user.roleId);
-                return (
-                  <tr
-                    key={user.id}
-                    className="border-b border-violet-essence hover:bg-violet-essence/30"
-                  >
-                    <td className="p-3">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={user.avatarUrl}
-                          alt={user.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <span className="font-medium">{user.name}</span>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full font-semibold ${getRoleColor(role?.name)}`}
-                      >
-                        {role?.name || 'Unknown Role'}
-                      </span>
-                    </td>
-                    <td className="p-3 text-center">
-                      {hasPermission(currentUser, 'manage_users') && (
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle>Manajemen Pengguna</CardTitle>
+            <CardDescription>Kelola akses dan peran pengguna untuk proyek ini.</CardDescription>
+          </div>
+          {hasPermission(currentUser, 'manage_users') && (
+            <Button>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Undang User Baru
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-night-black">
+              <thead className="bg-violet-essence/50 text-xs uppercase">
+                <tr>
+                  <th className="p-3">Nama</th>
+                  <th className="p-3">Peran (Role)</th>
+                  <th className="p-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => {
+                  const role = getRoleById(user.roleId);
+                  return (
+                    <tr
+                      key={user.id}
+                      className="border-b border-violet-essence hover:bg-violet-essence/30"
+                    >
+                      <td className="p-3">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={user.avatarUrl}
+                            alt={user.name}
+                            className="w-8 h-8 rounded-full"
+                          />
+                          <span className="font-medium">{user.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full font-semibold ${getRoleColor(
+                            role?.name
+                          )}`}
+                        >
+                          {role?.name || 'Unknown Role'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-center">
+                        {hasPermission(currentUser, 'manage_users') && (
+                          <div className="flex justify-center gap-2">
+                            <Button variant="outline" size="sm">
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDelete(user)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+      {userToDelete && (
+        <ConfirmationDialog
+          isOpen={!!userToDelete}
+          onClose={() => setUserToDelete(null)}
+          onConfirm={confirmDelete}
+          title={`Hapus Pengguna ${userToDelete.name}`}
+          description="Apakah Anda yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat diurungkan."/>
+      )}
+    </>
   );
 }

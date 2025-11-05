@@ -20,9 +20,6 @@ const SafetyDashboardView: React.FC<SafetyDashboardViewProps> = ({ projectId }) 
     dashboardSummary,
     fetchDashboardSummary,
     metricsLoading,
-    getCriticalIncidents,
-    getOpenIncidents,
-    getUpcomingTraining,
   } = useSafety();
 
   const [selectedPeriod, setSelectedPeriod] = useState<'month' | 'quarter' | 'year'>('month');
@@ -78,7 +75,7 @@ const SafetyDashboardView: React.FC<SafetyDashboardViewProps> = ({ projectId }) 
     );
   }
 
-  const { currentStatus, thisMonth, upcomingTraining, expiringCertifications, recentIncidents } =
+  const { currentStatus, upcomingTraining, expiringCertifications, recentIncidents } =
     dashboardSummary;
 
   return (

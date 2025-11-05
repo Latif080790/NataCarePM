@@ -27,7 +27,6 @@ import {
   AlertCircle,
   Clock,
   Search,
-  Filter,
   Edit,
   Trash2,
   Target,
@@ -199,9 +198,6 @@ export const MilestoneView: React.FC<MilestoneViewProps> = ({ projectId }) => {
           progress: 0,
           dependencies: formData.dependencies,
           assignedTo: formData.assignedTo,
-          createdBy: currentUser.id,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         };
 
         const response = await milestoneService.createMilestone(
