@@ -25,8 +25,6 @@ import {
   AlertTriangle, 
   CheckCircle, 
   FileText,
-  PieChart,
-  Calendar,
   Filter
 } from 'lucide-react';
 import { formatCurrency, getTodayDateString } from '@/constants';

@@ -7,8 +7,7 @@ import {
   PhoneAuthProvider,
   PhoneMultiFactorGenerator,
   multiFactor,
-  RecaptchaVerifier,
-  getAuth,
+  RecaptchaVerifier
 } from 'firebase/auth';
 import { doc, updateDoc, serverTimestamp, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';

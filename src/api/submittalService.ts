@@ -19,7 +19,6 @@ import {
   SubmittalReview, 
   SubmittalApproval,
   SubmittalRevision,
-  ConstructionAttachment,
   ConstructionFilterOptions
 } from '@/types/construction.types';
 import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';

@@ -9,7 +9,6 @@ import {
   getDoc,
   doc,
   Query,
-  QuerySnapshot,
   DocumentData,
   QueryDocumentSnapshot
 } from 'firebase/firestore';

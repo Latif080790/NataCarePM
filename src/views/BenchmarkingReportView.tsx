@@ -12,9 +12,7 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line,
-  AreaChart,
-  Area
+  Line
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -24,14 +22,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Info,
-  Download,
-  Filter,
-  Calendar,
-  Target,
-  Users,
-  DollarSign,
-  Clock,
-  Shield
+  Download
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';

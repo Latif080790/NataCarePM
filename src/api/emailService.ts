@@ -12,7 +12,6 @@ import {
   updateDoc,
   query,
   where,
-  orderBy,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
@@ -20,7 +19,6 @@ import type {
   EmailNotification,
   EmailTemplate,
   EmailPreferences,
-  EmailCampaign,
   EmailStatistics,
   EmailNotificationType,
   EmailStatus,

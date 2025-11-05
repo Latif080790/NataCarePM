@@ -6,13 +6,11 @@ import {
   User, 
   Server, 
   Calendar,
-  Filter,
   RefreshCw,
   Trash2,
   Eye,
   Merge,
-  ArrowLeft,
-  ArrowRight
+  ArrowLeft
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';

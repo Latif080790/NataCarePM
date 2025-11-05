@@ -19,12 +19,10 @@ import {
   XCircle,
   Clock,
   Package,
-  DollarSign,
   Calendar,
   User,
   MessageSquare,
   ShoppingCart,
-  TrendingUp,
   AlertCircle,
 } from 'lucide-react';
 import { Modal } from './Modal';
@@ -39,8 +37,7 @@ import {
   getMaterialRequestById,
   approveMaterialRequest,
   convertMRtoPO,
-  validateMaterialRequest,
-  checkBudgetAvailability,
+  validateMaterialRequest
 } from '@/api/materialRequestService';
 import { checkStockLevel } from '@/api/inventoryTransactionService';
 

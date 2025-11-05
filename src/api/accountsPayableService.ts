@@ -20,7 +20,6 @@ import {
   getDocs,
   setDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
@@ -32,9 +31,7 @@ import type {
   AccountsPayable,
   PayableStatus,
   PayableLineItem,
-  Vendor,
   Payment,
-  PaymentTerms,
   AgingReport,
   AgingBracket,
 } from '@/types/accounting';

@@ -7,10 +7,7 @@ import {
   addDoc,
   updateDoc,
   query,
-  where,
-  orderBy,
-  serverTimestamp,
-  Timestamp,
+  where
 } from 'firebase/firestore';
 import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';
 import { withRetry } from '@/utils/retryWrapper';

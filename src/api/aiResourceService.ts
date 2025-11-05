@@ -1,13 +1,3 @@
-/**
- * AI Resource Optimization Service
- * NataCarePM - Phase 4: AI & Analytics
- *
- * ML-powered resource allocation, scheduling optimization,
- * and predictive resource planning using TensorFlow.js
- */
-
-import * as tf from '@tensorflow/tfjs';
-
 import {
   collection,
   getDocs,
@@ -31,12 +21,7 @@ import {
   GeneticAlgorithmConfig,
   Individual,
   GeneticAlgorithmResult,
-  ResourceAvailability,
-  ResourceDemandForecast,
-  ResourceBottleneck,
-  SchedulingRecommendation,
   TaskSchedule,
-  ResourceUtilization,
   OptimizationMetrics,
   AlternativeScenario,
   OptimizationWarning,

@@ -25,8 +25,7 @@ import {
   query,
   where,
   orderBy,
-  serverTimestamp,
-  Timestamp,
+  serverTimestamp
 } from 'firebase/firestore';
 
 import { ocrService } from './ocrService';

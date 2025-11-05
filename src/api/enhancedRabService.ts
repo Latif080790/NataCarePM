@@ -5,8 +5,7 @@ import {
   VarianceAnalysis,
   SensitivityFactor,
   RegionalPriceFactor,
-  MarketFactor,
-  ProjectRiskProfile,
+  MarketFactor
 } from '@/types';
 
 export class EnhancedRabService {

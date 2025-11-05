@@ -21,8 +21,6 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
-  writeBatch,
   serverTimestamp,
 } from 'firebase/firestore';
 import {

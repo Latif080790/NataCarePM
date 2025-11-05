@@ -2,8 +2,7 @@ import React from 'react';
 import {
   validatePassword,
   getPasswordStrengthColor,
-  estimateCrackTime,
-  type PasswordStrength,
+  estimateCrackTime
 } from '@/utils/passwordValidator';
 
 interface PasswordStrengthIndicatorProps {

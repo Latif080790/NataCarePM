@@ -11,9 +11,6 @@ import {
   addDoc,
   updateDoc,
   query,
-  where,
-  orderBy,
-  limit,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
@@ -24,8 +21,7 @@ import type {
   SearchEntityType,
   SearchFacets,
   SavedSearch,
-  SearchHistory,
-  SearchSuggestion,
+  SearchHistory
 } from '@/types/search.types';
 
 const SEARCH_HISTORY_COLLECTION = 'searchHistory';

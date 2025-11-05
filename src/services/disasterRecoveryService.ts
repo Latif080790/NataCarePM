@@ -17,8 +17,7 @@ import {
   where,
   orderBy,
   serverTimestamp,
-  Timestamp,
-  writeBatch,
+  Timestamp
 } from 'firebase/firestore';
 import { ref, listAll } from 'firebase/storage';
 import { withRetry } from '@/utils/retryWrapper';

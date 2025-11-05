@@ -24,9 +24,7 @@ import {
 import {
   DigitalSignature,
   SignatureWorkflow,
-  IntelligentDocument,
-  SignatureStandard,
-  SignatureMethod,
+  IntelligentDocument
 } from '@/types';
 
 import { digitalSignaturesService } from '@/api/digitalSignaturesService';

@@ -10,12 +10,9 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
   addDoc,
   updateDoc,
   deleteDoc,
-  query,
-  where,
   Timestamp,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -26,11 +23,8 @@ import type {
   SyncQueueItem,
   SyncConflict,
   NetworkStatus,
-  BackgroundSyncTask,
-  ConflictResolution,
+  BackgroundSyncTask
 } from '@/types/offline.types';
-import * as IndexedDB from '@/utils/indexedDB';
-
 const INSPECTIONS_COLLECTION = 'offlineInspections';
 const SYNC_BATCH_SIZE = 10;
 const MAX_RETRY_ATTEMPTS = 3;

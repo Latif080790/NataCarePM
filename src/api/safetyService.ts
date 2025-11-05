@@ -30,10 +30,7 @@ import type {
   SafetyObservation,
   SafetyMetrics,
   SafetyDashboardSummary,
-  IncidentSeverity,
-  IncidentStatus,
-  TrainingStatus,
-  AuditStatus,
+  IncidentSeverity
 } from '@/types/safety.types';
 
 /**

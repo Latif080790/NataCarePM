@@ -19,12 +19,10 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
-  limit,
-  Timestamp,
+  limit
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {

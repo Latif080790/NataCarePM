@@ -4,8 +4,6 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  TrendingDown,
-  TrendingUp,
   AlertTriangle,
   Info,
   Activity,

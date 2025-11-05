@@ -18,12 +18,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  User,
-  Calendar,
-  FileText,
   AlertTriangle,
-  Send,
-  Eye,
   ChevronRight,
   ChevronDown,
 } from 'lucide-react';

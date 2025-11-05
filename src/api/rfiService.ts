@@ -18,7 +18,6 @@ import {
   RfiStatus, 
   RfiResponse, 
   RfiAssignment,
-  ConstructionAttachment,
   ConstructionFilterOptions
 } from '@/types/construction.types';
 import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';

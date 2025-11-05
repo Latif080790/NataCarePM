@@ -7,8 +7,7 @@ import {
   Calendar,
   MapPin,
   User,
-  FileText,
-  AlertTriangle,
+  FileText
 } from 'lucide-react';
 import type { SafetyAudit, AuditType, AuditStatus } from '@/types/safety.types';
 

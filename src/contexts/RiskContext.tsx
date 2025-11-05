@@ -10,7 +10,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   ReactNode,
 } from 'react';
@@ -19,8 +18,6 @@ import type {
   Risk,
   RiskCategory,
   RiskStatus,
-  RiskSeverity,
-  RiskProbability,
   RiskPriorityLevel,
   RiskReview,
   RiskDashboardStats,

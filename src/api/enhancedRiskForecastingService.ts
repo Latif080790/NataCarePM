@@ -1,12 +1,3 @@
-/**
- * Enhanced Risk Forecasting Service
- * NataCarePM - Phase 4.6: Advanced Risk Management
- *
- * Advanced ML-powered risk prediction using ensemble methods, deep learning,
- * and sophisticated feature engineering for construction project risk management
- */
-
-import * as tf from '@tensorflow/tfjs';
 import {
   collection,
   getDocs,
@@ -29,10 +20,7 @@ import type {
 } from '@/types/predictive-analytics.types';
 import type {
   Risk,
-  RiskCategory,
-  RiskStatus,
-  RiskSeverity,
-  RiskProbability,
+  RiskCategory
 } from '@/types/risk.types';
 import { Project, DailyReport } from '@/types';
 

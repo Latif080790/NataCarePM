@@ -13,15 +13,11 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   limit,
-  Timestamp,
-  serverTimestamp,
-  onSnapshot,
-  Unsubscribe,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type {
@@ -30,8 +26,6 @@ import type {
   User,
   MessageFilterOptions,
   ChatFilterOptions,
-  ChatMessage,
-  TypingIndicator,
   ChatNotification,
   ChatSettings,
 } from '@/types/message.types';

@@ -1,13 +1,3 @@
-/**
- * Enhanced Predictive Analytics Service
- * NataCarePM - Phase 4.2: AI & Analytics
- *
- * Advanced ML-powered forecasting with ensemble methods, deep learning,
- * and sophisticated feature engineering for construction project management
- */
-
-import * as tf from '@tensorflow/tfjs';
-
 import {
   collection,
   getDocs,
@@ -16,29 +6,20 @@ import {
   Timestamp,
   addDoc,
   doc,
-  getDoc,
-  updateDoc,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type {
   CostForecast,
   ScheduleForecast,
   RiskForecast,
-  QualityForecast,
   ForecastConfig,
-  TimeSeriesData,
   TimeSeriesPoint,
   CostPrediction,
-  SchedulePrediction,
-  PredictedRisk,
-  QualityPrediction,
   ForecastWarning,
   GenerateForecastRequest,
   GenerateForecastResponse,
-  ForecastAccuracy,
-  BacktestResult,
   ExternalFactor,
-  WeatherForecast,
   ScenarioAnalysis,
   Scenario,
 } from '@/types/predictive-analytics.types';

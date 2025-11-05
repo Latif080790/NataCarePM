@@ -22,13 +22,11 @@ import {
   getDoc,
   addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   limit as firestoreLimit,
   Timestamp,
-  writeBatch,
   runTransaction,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';

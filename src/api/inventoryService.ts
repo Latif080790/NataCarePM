@@ -6,13 +6,10 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   Timestamp,
-  writeBatch,
-  increment,
   runTransaction,
 } from 'firebase/firestore';
 import {

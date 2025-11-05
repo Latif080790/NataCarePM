@@ -12,11 +12,9 @@ import type {
   CostForecast,
   ScheduleForecast,
   RiskForecast,
-  QualityForecast,
   ForecastConfig,
   GenerateForecastRequest,
-  GenerateForecastResponse,
-  ForecastType,
+  GenerateForecastResponse
 } from '@/types/predictive-analytics.types';
 import { predictiveAnalyticsService } from '@/api/predictiveAnalyticsService';
 

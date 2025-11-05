@@ -21,16 +21,13 @@ import {
   Users,
   Target,
   AlertCircle,
-  Settings,
   Play,
 } from 'lucide-react';
 import { useAIResource } from '@/contexts/AIResourceContext';
 import { useProject } from '@/contexts/ProjectContext';
 import type {
   ResourceOptimizationRequest,
-  OptimizationGoal,
-  OptimizationResult,
-  SchedulingRecommendation,
+  OptimizationGoal
 } from '@/types/ai-resource.types';
 
 // ============================================================================

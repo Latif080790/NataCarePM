@@ -20,7 +20,6 @@ import {
   PersonnelLog, 
   EquipmentLog, 
   MaterialLog,
-  ConstructionAttachment,
   ConstructionFilterOptions
 } from '@/types/construction.types';
 import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';

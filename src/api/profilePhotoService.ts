@@ -8,8 +8,7 @@ import {
   uploadBytes,
   getDownloadURL,
   deleteObject,
-  getMetadata,
-  updateMetadata,
+  getMetadata
 } from 'firebase/storage';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { storage, db } from '@/firebaseConfig';

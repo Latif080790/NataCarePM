@@ -11,7 +11,6 @@ import {
   orderBy,
   limit as firestoreLimit,
   Timestamp,
-  writeBatch,
   increment,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';

@@ -13,21 +13,14 @@ import {
   collection,
   getDocs,
   addDoc,
-  updateDoc,
-  deleteDoc,
   query,
   where,
-  orderBy,
-  writeBatch,
-  serverTimestamp,
-  Timestamp,
+  orderBy
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { 
   ResourceAllocation, 
-  ResourceConflict,
-  ResourceAvailability,
-  MaintenanceRecord
+  ResourceConflict
 } from '@/types/resource.types';
 
 import { APIResponse, APIError, ErrorCodes, safeAsync } from '@/utils/responseWrapper';

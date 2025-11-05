@@ -14,17 +14,10 @@ import React, { useState, useEffect } from 'react';
 import {
   X,
   Package,
-  Calendar,
-  Truck,
-  User,
   FileText,
   Camera,
-  Upload,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Save,
-  Eye,
+  XCircle
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -42,9 +35,7 @@ import {
 import { PurchaseOrder } from '@/types';
 import {
   createGoodsReceipt,
-  inspectGRItem,
-  addGRPhoto,
-  validateGoodsReceipt,
+  inspectGRItem
 } from '@/api/goodsReceiptService';
 
 // ============================================================================

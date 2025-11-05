@@ -10,7 +10,6 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
@@ -21,9 +20,6 @@ import type {
   QualityInspection,
   Defect,
   QualityMetrics,
-  CAPARecord,
-  InspectionStatus,
-  DefectStatus,
   QualityFilterOptions,
   DefectFilterOptions,
 } from '@/types/quality.types';

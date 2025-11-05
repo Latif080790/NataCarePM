@@ -16,8 +16,7 @@ import {
   query,
   where,
   orderBy,
-  Timestamp,
-  writeBatch,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type {
@@ -26,11 +25,9 @@ import type {
   RiskProbability,
   RiskPriorityLevel,
   RiskReview,
-  RiskTrend,
   RiskAlert,
   RiskFilterOptions,
-  RiskDashboardStats,
-  LessonsLearned,
+  RiskDashboardStats
 } from '@/types/risk.types';
 
 const RISKS_COLLECTION = 'risks';

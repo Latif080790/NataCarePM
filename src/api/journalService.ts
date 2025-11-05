@@ -34,9 +34,6 @@ import type {
   JournalEntry,
   JournalEntryLine,
   JournalEntryStatus,
-  JournalEntryType,
-  JournalEntryTemplate,
-  RecurringSchedule,
   GeneralLedgerEntry,
 } from '@/types/accounting';
 

@@ -22,8 +22,6 @@ import type {
   ResourceConflict,
   ResourceStatistics,
   ResourceFilterOptions,
-  ResourceType,
-  ResourceStatus,
   MaintenanceRecord,
 } from '@/types/resource.types';
 
