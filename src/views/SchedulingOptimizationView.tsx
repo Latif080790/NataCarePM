@@ -44,7 +44,6 @@ export const SchedulingOptimizationView: React.FC<SchedulingOptimizationViewProp
   tasks,
 }) => {
   const { currentUser } = useAuth();
-  const { currentProject } = useProject();
   const { addToast } = useToast();
 
   // State

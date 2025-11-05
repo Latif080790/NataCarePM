@@ -86,7 +86,6 @@ import PerformanceMonitor from '@/components/PerformanceMonitor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import {
-  RealtimeCollaborationProvider,
   useRealtimeCollaboration,
 } from '@/contexts/RealtimeCollaborationContext';
 import { monitoringService } from '@/api/monitoringService';
@@ -149,13 +148,11 @@ function ProtectedApp() {
   const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
   const { currentUser } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
-  const { updatePresence } = useRealtimeCollaboration();
 
   // 🔒 Initialize session timeout hook
   useSessionTimeout();
 
   // 📊 Initialize monitoring hooks
-  const { trackActivity } = useActivityTracker();
 
   const { projectMetrics } = useProjectCalculations(currentProject);
 

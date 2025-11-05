@@ -100,8 +100,6 @@ const SimplePieChart: React.FC<{ data: { label: string; value: number; color: st
 };
 
 const AdvancedAnalyticsView: React.FC = () => {
-  const { currentProject } = useProject();
-  const { currentUser } = useAuth();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
   const [isLoading, setIsLoading] = useState(true);

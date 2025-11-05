@@ -26,7 +26,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { 
-  Resource, 
   ResourceAllocation, 
   ResourceConflict,
   ResourceAvailability,

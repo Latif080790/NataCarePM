@@ -152,7 +152,7 @@ class HealthMonitoringService {
     
     try {
       // Import Firebase dynamically to avoid issues in test environments
-      const { getFirestore, collection, getDocs, limit } = await import('firebase/firestore');
+      const { collection, getDocs, limit } = await import('firebase/firestore');
       const { db } = await import('@/firebaseConfig');
       
       // Perform a lightweight query to test connectivity

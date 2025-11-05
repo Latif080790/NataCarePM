@@ -12,7 +12,6 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  X,
   Plus,
   Trash2,
   AlertTriangle,
@@ -519,7 +518,6 @@ export const MRDetailsModal: React.FC<MRDetailsModalProps> = ({
   mrId,
   onDelete,
 }) => {
-  const { currentUser } = useAuth();
   const { addToast } = useToast();
 
   const [mr, setMR] = useState<MaterialRequest | null>(null);

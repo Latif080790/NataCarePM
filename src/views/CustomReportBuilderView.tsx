@@ -66,7 +66,6 @@ interface ReportVisualization {
 }
 
 const CustomReportBuilderView: React.FC = () => {
-  const { currentProject } = useProject();
   const [reportName, setReportName] = useState('');
   const [reportDescription, setReportDescription] = useState('');
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([]);

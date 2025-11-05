@@ -7,8 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useProject } from '@/contexts/ProjectContext';
-import type { RabItem, EnhancedRabItem, ApprovalDecision } from '@/types';
-import type { ApprovalStep } from '@/types/changeOrder.types';
+import type { EnhancedRabItem, ApprovalDecision } from '@/types';
 import { rabAhspService } from '@/api/rabAhspService';
 import { rabApprovalService } from '@/api/rabApprovalService';
 import { EnhancedRabService } from '@/api/enhancedRabService';

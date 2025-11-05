@@ -50,7 +50,6 @@ interface MilestoneFormData {
 
 export const MilestoneView: React.FC<MilestoneViewProps> = ({ projectId }) => {
   const { currentUser } = useAuth();
-  const { currentProject } = useProject();
   const { addToast } = useToast();
 
   // State

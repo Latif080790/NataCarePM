@@ -16,7 +16,7 @@ interface CAPAViewProps {
 }
 
 const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
-  const { defects, defectsLoading, fetchDefects } = useQuality();
+  const { defectsLoading, fetchDefects } = useQuality();
 
   // Local state
   const [capaRecords, setCapaRecords] = useState<CAPARecord[]>([]);

@@ -39,7 +39,7 @@ import { Select } from '@/components/FormControls';
 
 import { useProject } from '@/contexts/ProjectContext';
 import { advancedBenchmarkingService } from '@/api';
-import type { ProjectBenchmarkComparison, ProjectBenchmarkMetric, IndustryInsight } from '@/api/advancedBenchmarkingService';
+import type { ProjectBenchmarkComparison, IndustryInsight } from '@/api/advancedBenchmarkingService';
 
 // Color palette for charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];

@@ -815,7 +815,7 @@ class AIResourceService {
     console.log(`Starting optimization for ${request.projectIds.length} projects...`);
 
     // Fetch projects, tasks, and resources
-    const { projects, tasks, resources } = await this.fetchOptimizationData(request.projectIds);
+    const { tasks, resources } = await this.fetchOptimizationData(request.projectIds);
 
     // Run Genetic Algorithm
     this.gaOptimizer = new GeneticAlgorithmOptimizer({

@@ -19,7 +19,6 @@ import {
 import { Resource } from '@/types/resource.types';
 import { KPIService } from './kpiService';
 import { 
-  DashboardWidget, 
   DashboardConfiguration,
   ReportFilter
 } from './enhancedReportingService';
@@ -219,7 +218,7 @@ class DashboardService {
     evmMetrics?: EVMMetrics;
   }): Promise<APIResponse<any>> {
     try {
-      const { widgetId, projectId, dateRange, filters } = request;
+      const { widgetId, projectId, filters } = request;
       
       logger.debug('Fetching widget data', { widgetId, projectId });
 

@@ -16,7 +16,7 @@ import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWr
 import { withRetry } from '@/utils/retryWrapper';
 import { validators } from '@/utils/validators';
 import { logger } from '@/utils/logger.enhanced';
-import type { RabItem, ApprovalDecision } from '@/types';
+import type { ApprovalDecision } from '@/types';
 
 // Define types for RAB approval workflow
 interface RabApprovalStep {

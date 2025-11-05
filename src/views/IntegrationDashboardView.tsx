@@ -4,7 +4,7 @@
  * Central dashboard for managing all third-party integrations
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useIntegration } from '@/contexts/IntegrationContext';
 import { logger } from '@/utils/logger.enhanced';
 

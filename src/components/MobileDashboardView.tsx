@@ -16,7 +16,6 @@ import PullToRefresh from '@/components/PullToRefresh';
 import SwipeableCards from '@/components/SwipeableCards';
 import MetricCard from '@/components/MetricCard';
 import {
-  DollarSign,
   CheckCircle,
   Clock,
   TrendingUp,

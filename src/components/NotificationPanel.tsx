@@ -7,7 +7,7 @@ interface NotificationPanelProps {
   onClose: () => void;
 }
 
-export default function NotificationPanel({ notifications, onClose }: NotificationPanelProps) {
+export default function NotificationPanel({ notifications }: NotificationPanelProps) {
   return (
     <div className="absolute top-full right-0 mt-2 w-80 z-50">
       <Card className="shadow-2xl border-2 border-violet-essence">

@@ -390,7 +390,7 @@ export function useRoleCheck() {
  */
 export function useProjectPermissions(projectId?: string, projectMembers?: string[]) {
   const { currentUser } = useAuth();
-  const { hasPermission, canPerform } = usePermissions();
+  const { hasPermission } = usePermissions();
 
   const canAccessProject = useMemo(() => {
     if (!projectId || !currentUser) return false;

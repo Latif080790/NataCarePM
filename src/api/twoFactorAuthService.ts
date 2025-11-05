@@ -13,7 +13,7 @@ import {
 import { doc, updateDoc, serverTimestamp, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger';
-import type { TwoFactorEnrollment, TwoFactorVerificationRequest } from '@/types';
+import type { TwoFactorVerificationRequest } from '@/types';
 
 /**
  * Generate backup codes for 2FA recovery

@@ -9,7 +9,7 @@
  * - iOS-style rubber band effect
  */
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useIsMobile } from '@/constants/responsive';
 
