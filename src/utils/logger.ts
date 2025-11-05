@@ -63,6 +63,15 @@ class Logger {
   }
 
   /**
+   * Success level logging - only in development
+   */
+  success(...args: any[]): void {
+    if (this.config.enableInfo) {
+      console.info(`${this.config.prefix} [SUCCESS]`, ...args);
+    }
+  }
+
+  /**
    * Warning level logging - always enabled
    */
   warn(...args: any[]): void {
@@ -273,4 +282,4 @@ export const logger = new Logger();
 export { Logger };
 
 // Convenience exports
-export const { debug, info, warn, error, group, groupEnd, table, time, timeEnd, trace } = logger;
+export const { debug, info, success, warn, error, group, groupEnd, table, time, timeEnd, trace } = logger;

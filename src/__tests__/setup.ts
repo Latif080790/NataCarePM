@@ -1,5 +1,5 @@
 // Test Setup Configuration for Intelligent Document System
-import { beforeAll, afterAll, beforeEach, afterEach } from '@jest/globals';
+import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 
 // Global test configuration
 const TEST_CONFIG = {
@@ -340,10 +340,10 @@ beforeAll(async () => {
   console.log('🔧 Setting up test environment...');
 
   // Mock the API services
-  jest.doMock('../api/intelligentDocumentService', () => mockServices.intelligentDocumentService);
+  vi.doMock('../api/intelligentDocumentService', () => mockServices.intelligentDocumentService);
 
   // Set test timeout
-  jest.setTimeout(TEST_CONFIG.timeout);
+  // Note: Vitest handles timeouts differently, using test timeout configuration
 
   console.log('✅ Test environment setup complete');
 });
@@ -358,7 +358,7 @@ afterAll(async () => {
   }
 
   // Clear all mocks
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 
   console.log('✅ Test environment cleanup complete');
 });

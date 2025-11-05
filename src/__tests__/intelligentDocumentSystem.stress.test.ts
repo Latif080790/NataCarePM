@@ -1,5 +1,5 @@
 // Advanced Stress Testing and Performance Validation
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { mockServices } from './setup';
 
 describe('Intelligent Document System - Advanced Stress Testing', () => {

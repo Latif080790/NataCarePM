@@ -1,5 +1,5 @@
 // Comprehensive Security Testing Suite
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { mockServices } from './setup';
 
 describe('Intelligent Document System - Security Validation', () => {

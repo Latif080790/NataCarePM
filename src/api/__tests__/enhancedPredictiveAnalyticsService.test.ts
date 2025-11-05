@@ -7,29 +7,29 @@ import { enhancedPredictiveAnalyticsService, FeatureEngineer, EnsembleForecaster
 import { Project } from '@/types';
 
 // Mock Firebase
-jest.mock('@/firebaseConfig', () => ({
+vi.mock('@/firebaseConfig', () => ({
   db: {},
 }));
 
 // Mock Firestore functions
-jest.mock('firebase/firestore', () => ({
-  collection: jest.fn(),
-  getDocs: jest.fn(),
-  query: jest.fn(),
-  where: jest.fn(),
+vi.mock('firebase/firestore', () => ({
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
   Timestamp: {
-    fromDate: jest.fn(),
-    toDate: jest.fn(),
+    fromDate: vi.fn(),
+    toDate: vi.fn(),
   },
-  addDoc: jest.fn(),
-  doc: jest.fn(),
-  getDoc: jest.fn(),
-  updateDoc: jest.fn(),
+  addDoc: vi.fn(),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  updateDoc: vi.fn(),
 }));
 
 describe('EnhancedPredictiveAnalyticsService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('FeatureEngineer', () => {

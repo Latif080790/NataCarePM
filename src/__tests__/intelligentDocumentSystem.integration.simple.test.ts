@@ -1,5 +1,5 @@
 // Simplified Integration Test Suite for Intelligent Document System
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { mockServices } from './setup';
 
 describe('Intelligent Document System - Basic Integration Tests', () => {
