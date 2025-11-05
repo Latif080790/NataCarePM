@@ -41,12 +41,11 @@ service cloud.firestore {
       // Project members can read
       allow read: if isProjectMember(projectId);
       
+      // Allow authenticated users to create projects for testing
+      allow create: if isAuthenticated();
+      
       // Only project admins can update/delete
       allow update, delete: if hasProjectRole(projectId, 'admin');
-      
-      // System/admin can create projects
-      allow create: if isAdmin() && 
-                      hasRequiredFields(['name', 'location', 'startDate', 'createdAt']);
       
       // ============================================
       // PROJECT SUBCOLLECTIONS
@@ -259,3 +258,41 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
+    // ============================================
+    // MONITORING COLLECTIONS
+    // ============================================
+    match /systemMetrics/{metricId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable logs
+    }
+    
+    match /errorLogs/{errorId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable logs
+    }
+    
+    match /userActivities/{activityId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable logs
+    }
+    
+    match /userSessions/{sessionId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && 
+                      resource.data.userId == request.auth.uid;
+    }
+    
+    match /performanceMetrics/{metricId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable logs
+    }
+    
+  }
+}

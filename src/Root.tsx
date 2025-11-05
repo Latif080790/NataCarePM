@@ -13,25 +13,25 @@ import App from './App';
 function Root() {
   return (
     <React.StrictMode>
-      <MessageProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <EnhancedErrorBoundary>
-              <ProjectProvider>
-                <AIResourceProvider>
-                  <PredictiveAnalyticsProvider>
-                    <RealtimeCollaborationProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <EnhancedErrorBoundary>
+            <ProjectProvider>
+              <AIResourceProvider>
+                <PredictiveAnalyticsProvider>
+                  <RealtimeCollaborationProvider>
+                    <MessageProvider>
                       <BrowserRouter>
                         <App />
                       </BrowserRouter>
-                    </RealtimeCollaborationProvider>
-                  </PredictiveAnalyticsProvider>
-                </AIResourceProvider>
-              </ProjectProvider>
-            </EnhancedErrorBoundary>
-          </AuthProvider>
-        </ToastProvider>
-      </MessageProvider>
+                    </MessageProvider>
+                  </RealtimeCollaborationProvider>
+                </PredictiveAnalyticsProvider>
+              </AIResourceProvider>
+            </ProjectProvider>
+          </EnhancedErrorBoundary>
+        </AuthProvider>
+      </ToastProvider>
     </React.StrictMode>
   );
 }

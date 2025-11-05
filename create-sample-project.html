@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Sample Project</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <h1>Create Sample Project</h1>
+        <button id="createProject" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Create Sample Project
+        </button>
+        <div id="result" style="margin-top: 20px; padding: 10px; border-radius: 4px;"></div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8",
+            authDomain: "natacara-hns.firebaseapp.com",
+            projectId: "natacara-hns",
+            storageBucket: "natacara-hns.firebasestorage.app",
+            messagingSenderId: "118063816239",
+            appId: "1:118063816239:web:11b43366e18bc71e9170da",
+            measurementId: "G-7XPWRK3R2P"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.getElementById('createProject').addEventListener('click', async () => {
+            const button = document.getElementById('createProject');
+            const resultDiv = document.getElementById('result');
+            
+            button.disabled = true;
+            button.textContent = 'Creating...';
+            resultDiv.style.backgroundColor = '#f0f0f0';
+            resultDiv.textContent = 'Creating sample project...';
+            
+            try {
+                // Sample project data
+                const sampleProject = {
+                    name: 'Sample Construction Project',
+                    location: 'Sample Location, Indonesia',
+                    client: 'Sample Client',
+                    contractor: 'Sample Contractor',
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days from now
+                    projectValue: 1000000000, // 1 billion
+                    status: 'On Progress',
+                    progress: 0,
+                    projectManager: 'sample-user',
+                    siteManager: 'sample-user',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                };
+
+                // Create project document
+                const docRef = await db.collection('projects').add(sampleProject);
+                
+                resultDiv.style.backgroundColor = '#d4edda';
+                resultDiv.innerHTML = `
+                    <h3>Success!</h3>
+                    <p>Sample project created successfully.</p>
+                    <p>Project ID: ${docRef.id}</p>
+                    <p>Project Name: ${sampleProject.name}</p>
+                    <button onclick="window.location.reload()" style="margin-top: 10px; padding: 5px 10px;">Create Another</button>
+                `;
+            } catch (error) {
+                console.error('Error creating sample project:', error);
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.innerHTML = `
+                    <h3>Error</h3>
+                    <p>Failed to create sample project:</p>
+                    <p>${error.message}</p>
+                    <button onclick="window.location.reload()" style="margin-top: 10px; padding: 5px 10px;">Try Again</button>
+                `;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Create Sample Project';
+            }
+        });
+    </script>
+</body>
+</html>

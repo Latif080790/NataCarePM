@@ -32,8 +32,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   return (
     <div id="app-container" className="flex h-screen bg-gray-100 font-sans">
       <SkipLink />
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <div className="hidden md:block">
+      {/* Desktop Sidebar - Show on all screens for testing */}
+      <div className="block">
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}

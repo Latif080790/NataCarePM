@@ -1022,6 +1022,94 @@ export const projectService = {
   },
 
   /**
+   * Create a sample project for testing
+   * This function can be called from the browser console for testing purposes
+   * @returns Promise with created project ID
+   */
+  createSampleProjectForTesting: async () => {
+    try {
+      console.log('Creating sample project...');
+      
+      // Sample project data
+      const sampleProject = {
+        name: 'Sample Construction Project',
+        location: 'Sample Location, Indonesia',
+        client: 'Sample Client',
+        contractor: 'Sample Contractor',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days from now
+        projectValue: 1000000000, // 1 billion
+        status: 'On Progress',
+        progress: 0,
+        projectManager: 'sample-user',
+        siteManager: 'sample-user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Create project document
+      const docRef = await addDoc(collection(db, 'projects'), sampleProject);
+      
+      console.log('Sample project created successfully!');
+      console.log('Project ID:', docRef.id);
+      console.log('Project Name:', sampleProject.name);
+      
+      return docRef.id;
+    } catch (error) {
+      console.error('Error creating sample project:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Create a sample project for testing
+   * @returns API response with created project
+   */
+  createSampleProject: async (): Promise<APIResponse<Project>> => {
+    logger.time('projectService:createSampleProject');
+    const result = await safeAsync(async () => {
+      logger.info('projectService:createSampleProject', 'Creating sample project');
+
+      // Sample project data
+      const sampleProject = {
+        name: 'Sample Construction Project',
+        location: 'Sample Location, Indonesia',
+        client: 'Sample Client',
+        contractor: 'Sample Contractor',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days from now
+        projectValue: 1000000000, // 1 billion
+        status: 'On Progress',
+        progress: 0,
+        projectManager: 'sample-user',
+        siteManager: 'sample-user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Create project document
+      const docRef = await addDoc(collection(db, 'projects'), sampleProject);
+      
+      // Get the created project
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const project = { id: docSnap.id, ...docSnap.data() } as Project;
+
+        logger.info('projectService:createSampleProject', 'Sample project created successfully', {
+          projectId: project.id,
+          projectName: project.name,
+        });
+
+        return project;
+      } else {
+        throw new APIError(ErrorCodes.NOT_FOUND, 'Failed to create project', 500);
+      }
+    }, 'projectService.createSampleProject');
+    logger.timeEnd('projectService:createSampleProject');
+    return result;
+  },
+
+  /**
    * Mark notifications as read
    * @param notificationIds - Array of notification IDs
    * @returns API response

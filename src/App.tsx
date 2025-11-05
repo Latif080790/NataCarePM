@@ -400,20 +400,6 @@ function ProtectedApp() {
       <LiveCursors containerId="app-container" showLabels />
       <FailoverStatusIndicator />
       <PerformanceMonitor />
-
-      {/* Debug Panel (Ctrl+Shift+D to toggle) */}
-      {showDebug && (
-        <NavigationDebug
-          currentView={window.location.pathname}
-          availableViews={[]} // Will be populated by the route configuration
-          userPermissions={currentUser?.roleId ? ['view_dashboard', 'view_rab', 'view_gantt'] : []}
-        />
-      )}
-
-      {/* Debug Toggle Hint */}
-      <div className="fixed bottom-4 left-4 z-40 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs opacity-50 hover:opacity-100 transition-opacity">
-        Press <kbd className="bg-slate-700 px-1.5 py-0.5 rounded">Ctrl+Shift+D</kbd> for debug panel
-      </div>
     </MainLayout>
   );
 }

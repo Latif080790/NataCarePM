@@ -1,26 +1,12 @@
-import { initializeApp } from 'firebase/app';
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  collection,
-  addDoc,
-  writeBatch,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 // Firebase config (menggunakan config yang benar)
 const firebaseConfig = {
-  apiKey: 'AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8',
-  authDomain: 'natacara-hns.firebaseapp.com',
   projectId: 'natacara-hns',
-  storageBucket: 'natacara-hns.appspot.com',
-  messagingSenderId: '118063816239',
-  appId: '1:118063816239:web:11b43366e18bc71e9170da',
-  measurementId: 'G-7XPWRK3R2P',
 };
 
-// Initialize Firebase
+// Initialize Firebase Admin
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -415,24 +401,24 @@ async function setupRealData() {
   console.log('🚀 Memulai setup data real ke Firestore...');
 
   try {
-    const batch = writeBatch(db);
+    const batch = db.batch();
 
     // 1. Setup Master Data AHSP
     console.log('📊 Mengisi master data AHSP...');
-    const ahspRef = doc(db, 'masterData', 'ahsp');
+    const ahspRef = db.collection('masterData').doc('ahsp');
     batch.set(ahspRef, REAL_DATA.ahspData);
 
     // 2. Setup Workers
     console.log('👷 Mengisi data workers...');
     for (const worker of REAL_DATA.workers) {
-      const workerRef = doc(db, 'workers', worker.id);
+      const workerRef = db.collection('workers').doc(worker.id);
       batch.set(workerRef, worker);
     }
 
     // 3. Setup Roles
     console.log('🔐 Mengisi data roles...');
     for (const role of REAL_DATA.roles) {
-      const roleRef = doc(db, 'roles', role.id);
+      const roleRef = db.collection('roles').doc(role.id);
       batch.set(roleRef, role);
     }
 
@@ -443,16 +429,16 @@ async function setupRealData() {
     // 4. Setup Projects (satu per satu karena kompleks)
     console.log('🏗️ Mengisi data projects...');
     for (const project of REAL_DATA.projects) {
-      const projectRef = doc(db, 'projects', project.id);
+      const projectRef = db.collection('projects').doc(project.id);
 
       // Data utama project
       const projectData = {
         ...project,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
-      await setDoc(projectRef, projectData);
+      await projectRef.set(projectData);
 
       // Tambahkan daily reports sample
       const dailyReportsData = [
@@ -499,8 +485,8 @@ async function setupRealData() {
 
       // Simpan daily reports
       for (const report of dailyReportsData) {
-        const reportRef = doc(db, `projects/${project.id}/dailyReports`, report.id);
-        await setDoc(reportRef, report);
+        const reportRef = db.collection(`projects/${project.id}/dailyReports`).doc(report.id);
+        await reportRef.set(report);
       }
 
       // Tambahkan sample purchase orders
@@ -526,8 +512,8 @@ async function setupRealData() {
       ];
 
       for (const po of purchaseOrdersData) {
-        const poRef = doc(db, `projects/${project.id}/purchaseOrders`, po.id);
-        await setDoc(poRef, po);
+        const poRef = db.collection(`projects/${project.id}/purchaseOrders`).doc(po.id);
+        await poRef.set(po);
       }
 
       // Tambahkan attendance records
@@ -568,8 +554,8 @@ async function setupRealData() {
         timestamp: new Date().toISOString(),
       };
 
-      const attendanceRef = doc(db, `projects/${project.id}/attendances`, attendanceData.id);
-      await setDoc(attendanceRef, attendanceData);
+      const attendanceRef = db.collection(`projects/${project.id}/attendances`).doc(attendanceData.id);
+      await attendanceRef.set(attendanceData);
 
       console.log(`✅ Project ${project.name} berhasil disimpan!`);
     }
@@ -578,70 +564,37 @@ async function setupRealData() {
     console.log('🔔 Mengisi notifications...');
     const notifications = [
       {
-        id: 'NOTIF-001',
-        title: 'Purchase Order Perlu Persetujuan',
-        message: 'PO/PROJ-2024-001/2024/002 menunggu persetujuan Anda',
-        type: 'approval_required',
-        priority: 'high',
-        isRead: false,
+        id: 'notif-001',
         userId: 'user1',
-        projectId: 'PROJ-2024-001',
-        timestamp: addDays(today, -1).toISOString(),
+        type: 'project_update',
+        title: 'Progress Update',
+        message: 'Proyek Green Valley mencapai 45.5% completion',
+        timestamp: new Date().toISOString(),
+        read: false,
       },
       {
-        id: 'NOTIF-002',
-        title: 'Laporan Harian Telah Dibuat',
-        message:
-          'Laporan harian tanggal ' +
-          addDays(today, -1).toISOString().split('T')[0] +
-          ' telah dibuat',
-        type: 'info',
-        priority: 'medium',
-        isRead: false,
+        id: 'notif-002',
         userId: 'user1',
-        projectId: 'PROJ-2024-001',
+        type: 'task_assignment',
+        title: 'New Task Assigned',
+        message: 'Anda telah ditugaskan untuk review RAB proyek Digital Solusi',
         timestamp: addDays(today, -1).toISOString(),
-      },
-      {
-        id: 'NOTIF-003',
-        title: 'Material Stock Menipis',
-        message: 'Stock semen di gudang proyek Green Valley tinggal 15 sak',
-        type: 'warning',
-        priority: 'high',
-        isRead: false,
-        userId: 'user3',
-        projectId: 'PROJ-2024-001',
-        timestamp: addDays(today, -2).toISOString(),
+        read: false,
       },
     ];
 
-    for (const notif of notifications) {
-      const notifRef = doc(db, 'notifications', notif.id);
-      await setDoc(notifRef, notif);
+    for (const notification of notifications) {
+      const notifRef = db.collection('notifications').doc(notification.id);
+      await notifRef.set(notification);
     }
 
-    console.log('🎉 SETUP COMPLETE! Semua data real telah berhasil disimpan ke Firestore!');
-    console.log('📋 Data yang telah dibuat:');
-    console.log('   - Master Data AHSP: ✅');
-    console.log('   - Workers: ✅ ' + REAL_DATA.workers.length + ' pekerja');
-    console.log('   - Roles: ✅ ' + REAL_DATA.roles.length + ' role');
-    console.log('   - Projects: ✅ ' + REAL_DATA.projects.length + ' proyek');
-    console.log('   - Daily Reports: ✅');
-    console.log('   - Purchase Orders: ✅');
-    console.log('   - Attendance Records: ✅');
-    console.log('   - Notifications: ✅');
+    console.log('✅ Notifications berhasil disimpan!');
+
+    console.log('🚀 Setup selesai! Aplikasi siap digunakan dengan data real.');
   } catch (error) {
     console.error('❌ Error setting up real data:', error);
   }
 }
 
 // Run the setup
-setupRealData()
-  .then(() => {
-    console.log('🚀 Setup selesai! Aplikasi siap digunakan dengan data real.');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('💥 Setup gagal:', error);
-    process.exit(1);
-  });
+setupRealData();

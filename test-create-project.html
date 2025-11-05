@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Create Project</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h1>Test Create Project</h1>
+        <div id="authSection">
+            <h2>Authentication</h2>
+            <p>You need to be logged in to create a project.</p>
+            <button id="loginBtn" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Login with Google
+            </button>
+        </div>
+        
+        <div id="createSection" style="display: none; margin-top: 20px;">
+            <h2>Create Project</h2>
+            <button id="createProjectBtn" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Create Sample Project
+            </button>
+        </div>
+        
+        <div id="result" style="margin-top: 20px; padding: 10px; border-radius: 4px;"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'firebase/app';
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+        import { getFirestore, collection, addDoc } from 'firebase/firestore';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8",
+            authDomain: "natacara-hns.firebaseapp.com",
+            projectId: "natacara-hns",
+            storageBucket: "natacara-hns.firebasestorage.app",
+            messagingSenderId: "118063816239",
+            appId: "1:118063816239:web:11b43366e18bc71e9170da",
+            measurementId: "G-7XPWRK3R2P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loginBtn = document.getElementById('loginBtn');
+        const createProjectBtn = document.getElementById('createProjectBtn');
+        const authSection = document.getElementById('authSection');
+        const createSection = document.getElementById('createSection');
+        const resultDiv = document.getElementById('result');
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                authSection.style.display = 'none';
+                createSection.style.display = 'block';
+                resultDiv.style.backgroundColor = '#d1ecf1';
+                resultDiv.innerHTML = `<p>Logged in as: ${user.email}</p>`;
+            } else {
+                authSection.style.display = 'block';
+                createSection.style.display = 'none';
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.innerHTML = '<p>You are not logged in.</p>';
+            }
+        });
+
+        // Login with Google
+        loginBtn.addEventListener('click', async () => {
+            try {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+                resultDiv.style.backgroundColor = '#d4edda';
+                resultDiv.innerHTML = '<p>Login successful!</p>';
+            } catch (error) {
+                console.error('Login error:', error);
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.innerHTML = `<p>Login error: ${error.message}</p>`;
+            }
+        });
+
+        // Create sample project
+        createProjectBtn.addEventListener('click', async () => {
+            const button = createProjectBtn;
+            button.disabled = true;
+            button.textContent = 'Creating...';
+            resultDiv.style.backgroundColor = '#f0f0f0';
+            resultDiv.textContent = 'Creating sample project...';
+            
+            try {
+                // Sample project data
+                const sampleProject = {
+                    name: 'Sample Construction Project',
+                    location: 'Sample Location, Indonesia',
+                    client: 'Sample Client',
+                    contractor: 'Sample Contractor',
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90 days from now
+                    projectValue: 1000000000, // 1 billion
+                    status: 'On Progress',
+                    progress: 0,
+                    projectManager: 'sample-user',
+                    siteManager: 'sample-user',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                };
+
+                // Create project document
+                const docRef = await addDoc(collection(db, 'projects'), sampleProject);
+                
+                resultDiv.style.backgroundColor = '#d4edda';
+                resultDiv.innerHTML = `
+                    <h3>Success!</h3>
+                    <p>Sample project created successfully.</p>
+                    <p>Project ID: ${docRef.id}</p>
+                    <p>Project Name: ${sampleProject.name}</p>
+                `;
+            } catch (error) {
+                console.error('Error creating sample project:', error);
+                resultDiv.style.backgroundColor = '#f8d7da';
+                resultDiv.innerHTML = `
+                    <h3>Error</h3>
+                    <p>Failed to create sample project:</p>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Create Sample Project';
+            }
+        });
+    </script>
+</body>
+</html>
