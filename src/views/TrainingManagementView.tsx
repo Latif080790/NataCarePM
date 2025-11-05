@@ -3,7 +3,6 @@ import {
   GraduationCap,
   Plus,
   Search,
-  Filter,
   Calendar,
   Users,
   CheckCircle,
@@ -12,8 +11,6 @@ import {
   Award,
   TrendingUp,
   AlertCircle,
-  FileText,
-  Download,
 } from 'lucide-react';
 import { useSafety } from '@/contexts/SafetyContext';
 import { TrainingForm } from '@/components/safety/TrainingForm';

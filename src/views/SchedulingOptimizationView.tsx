@@ -10,9 +10,9 @@
  * @component SchedulingOptimizationView
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task } from '@/types';
-import { TaskDependency, SchedulingConstraint } from '@/types/ai-resource.types';
+import { TaskDependency } from '@/types/ai-resource.types';
 import { schedulingService } from '@/api/schedulingService';
 import { enhancedTaskService } from '@/api/taskService.enhanced';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,13 +24,10 @@ import { Input, Textarea, Select } from '@/components/FormControls';
 import {
   AlertTriangle,
   CheckCircle,
-  Clock,
   Settings,
   Plus,
-  Edit,
   Trash2,
   Calendar,
-  Users,
   Target,
   BarChart3,
   Zap,
@@ -53,7 +50,7 @@ export const SchedulingOptimizationView: React.FC<SchedulingOptimizationViewProp
   // State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [constraints, setConstraints] = useState<SchedulingConstraint[]>([]);
+  const [constraints, setConstraints] = useState<any[]>([]);
   const [conflicts, setConflicts] = useState<any>(null);
   const [showCreateConstraintModal, setShowCreateConstraintModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'conflicts' | 'constraints' | 'baselines'>('conflicts');

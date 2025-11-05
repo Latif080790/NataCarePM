@@ -33,24 +33,21 @@ import {
   CheckCircle,
   Clock,
   FileText,
-  Link as LinkIcon,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { wbsService } from '@/api/wbsService';
-import { WBSElement, WBSHierarchy, WBSSummary } from '@/types/wbs';
+import { WBSElement, WBSHierarchy } from '@/types/wbs';
 import { formatCurrency, hasPermission } from '@/constants';
 
 interface WBSManagementViewProps {
   projectId: string;
   projectName: string;
-  onNavigate?: (view: string) => void;
 }
 
 const WBSManagementView: React.FC<WBSManagementViewProps> = ({
   projectId,
   projectName,
-  onNavigate,
 }) => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();

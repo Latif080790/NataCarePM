@@ -27,13 +27,9 @@ import {
   Ban,
   Eye,
   Edit,
-  Trash2,
-  Download,
-  Upload,
   BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
 import { Card } from '@/components/Card';
@@ -48,7 +44,6 @@ import {
 } from '@/types/vendor';
 import {
   getVendors,
-  getVendorById,
   deleteVendor,
   approveVendor,
   getVendorSummary,
@@ -104,7 +99,6 @@ const RATING_CONFIG: Record<PerformanceRating, { label: string; color: string; s
 
 const VendorManagementView: React.FC = () => {
   const { currentUser } = useAuth();
-  const { currentProject } = useProject();
   const { addToast } = useToast();
 
   // State management
