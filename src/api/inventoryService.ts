@@ -70,7 +70,21 @@ export async function generateMaterialCode(): Promise<string> {
     return `${prefix}001`;
   }
 
-  const lastCode = snapshot.docs[0].data().materialCode;
+  // Check if docs array exists and has elements
+  if (!snapshot.docs || snapshot.docs.length === 0) {
+    return `${prefix}001`;
+  }
+
+  const firstDoc = snapshot.docs[0];
+  if (!firstDoc || !firstDoc.data()) {
+    return `${prefix}001`;
+  }
+
+  const lastCode = firstDoc.data().materialCode;
+  if (!lastCode) {
+    return `${prefix}001`;
+  }
+
   const lastNumber = parseInt(lastCode.split('-')[2]);
   const newNumber = (lastNumber + 1).toString().padStart(3, '0');
 
@@ -100,7 +114,21 @@ export async function generateTransactionCode(type: TransactionType): Promise<st
     return `${prefix}001`;
   }
 
-  const lastCode = snapshot.docs[0].data().transactionCode;
+  // Check if docs array exists and has elements
+  if (!snapshot.docs || snapshot.docs.length === 0) {
+    return `${prefix}001`;
+  }
+
+  const firstDoc = snapshot.docs[0];
+  if (!firstDoc || !firstDoc.data()) {
+    return `${prefix}001`;
+  }
+
+  const lastCode = firstDoc.data().transactionCode;
+  if (!lastCode) {
+    return `${prefix}001`;
+  }
+
   const lastNumber = parseInt(lastCode.split('-')[3]);
   const newNumber = (lastNumber + 1).toString().padStart(3, '0');
 
@@ -129,7 +157,21 @@ export async function generateStockCountNumber(): Promise<string> {
     return `${prefix}001`;
   }
 
-  const lastCode = snapshot.docs[0].data().countNumber;
+  // Check if docs array exists and has elements
+  if (!snapshot.docs || snapshot.docs.length === 0) {
+    return `${prefix}001`;
+  }
+
+  const firstDoc = snapshot.docs[0];
+  if (!firstDoc || !firstDoc.data()) {
+    return `${prefix}001`;
+  }
+
+  const lastCode = firstDoc.data().countNumber;
+  if (!lastCode) {
+    return `${prefix}001`;
+  }
+
   const lastNumber = parseInt(lastCode.split('-')[2]);
   const newNumber = (lastNumber + 1).toString().padStart(3, '0');
 

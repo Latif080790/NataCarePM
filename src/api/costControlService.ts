@@ -786,8 +786,21 @@ export const getWBSBudgetStatus = async (
       return null;
     }
 
+    // Check if docs array exists and has elements
+    if (!wbsSnapshot.docs || wbsSnapshot.docs.length === 0) {
+      return null;
+    }
+
     const doc = wbsSnapshot.docs[0];
+    if (!doc) {
+      return null;
+    }
+
     const wbs = doc.data();
+    if (!wbs) {
+      return null;
+    }
+
     const budget = wbs.budgetAmount || 0;
     const actual = wbs.actualAmount || 0;
     const committed = wbs.commitments || 0;

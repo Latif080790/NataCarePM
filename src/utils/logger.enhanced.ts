@@ -235,6 +235,13 @@ class EnhancedLogger {
   }
 
   /**
+   * Success level logging
+   */
+  public success(context: string, message: string, metadata?: LogMetadata): void {
+    this.log(LogLevel.INFO, `[SUCCESS] ${context}: ${message}`, metadata);
+  }
+
+  /**
    * Warning level logging
    */
   public warn(message: string, metadata?: LogMetadata): void {

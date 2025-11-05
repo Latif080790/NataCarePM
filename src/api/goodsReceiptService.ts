@@ -98,7 +98,7 @@ async function generateGRNumber(projectId: string): Promise<string> {
   );
 
   const snapshot = await getDocs(q);
-  const sequence = snapshot.size + 1;
+  const sequence = (snapshot?.size || 0) + 1;
   const sequenceStr = sequence.toString().padStart(4, '0');
 
   return `GR-${dateStr}-${sequenceStr}`;
