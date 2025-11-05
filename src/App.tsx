@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import '@/styles/enterprise-design-system.css';
 import MainLayout from '@/components/MainLayout';
@@ -80,7 +80,6 @@ const UnauthorizedView = lazy(() => import('@/views/UnauthorizedView'));
 
 import { useProjectCalculations } from '@/hooks/useProjectCalculations';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
-import { useActivityTracker } from '@/hooks/useMonitoring';
 import { Spinner } from '@/components/Spinner';
 import PerformanceMonitor from '@/components/PerformanceMonitor';
 import { useAuth } from '@/contexts/AuthContext';

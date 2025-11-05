@@ -14,7 +14,7 @@
  * @module utils/rbacMiddleware
  */
 
-import React, { ComponentType } from 'react';
+import { ComponentType } from 'react';
 import { Navigate } from 'react-router-dom';
 import { User, Permission } from '@/types';
 

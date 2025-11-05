@@ -107,7 +107,7 @@ class SearchService {
         searchTime,
         executedAt: new Date(),
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[SearchService] Error performing search:', error);
       throw new Error(`Search failed: ${error.message}`);
     }
@@ -465,7 +465,7 @@ class SearchService {
         createdAt: now,
         updatedAt: now,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[SearchService] Error saving search:', error);
       throw new Error(`Failed to save search: ${error.message}`);
     }

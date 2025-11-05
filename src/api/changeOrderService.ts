@@ -79,7 +79,7 @@ class ChangeOrderService {
         createdAt: now,
         updatedAt: now,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error creating change order:', error);
       throw new Error(`Failed to create change order: ${error.message}`);
     }
@@ -117,7 +117,7 @@ class ChangeOrderService {
             timestamp: a.timestamp?.toDate(),
           })) || [],
       } as ChangeOrder;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error getting change order:', error);
       throw new Error(`Failed to get change order: ${error.message}`);
     }
@@ -157,7 +157,7 @@ class ChangeOrderService {
           updatedAt: data.updatedAt?.toDate(),
         } as ChangeOrder;
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error getting change orders:', error);
       throw new Error(`Failed to get change orders: ${error.message}`);
     }
@@ -179,7 +179,7 @@ class ChangeOrderService {
       delete updateData.createdAt;
 
       await updateDoc(docRef, updateData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error updating change order:', error);
       throw new Error(`Failed to update change order: ${error.message}`);
     }
@@ -242,7 +242,7 @@ class ChangeOrderService {
       }
 
       await this.updateChangeOrder(changeOrderId, updates);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error processing approval:', error);
       throw new Error(`Failed to process approval: ${error.message}`);
     }
@@ -276,7 +276,7 @@ class ChangeOrderService {
       summary.approvalRate = decided.length > 0 ? (approved.length / decided.length) * 100 : 0;
 
       return summary;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error getting summary:', error);
       throw new Error(`Failed to get summary: ${error.message}`);
     }
@@ -289,7 +289,7 @@ class ChangeOrderService {
     try {
       const docRef = doc(db, CHANGE_ORDERS_COLLECTION, changeOrderId);
       await deleteDoc(docRef);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[ChangeOrderService] Error deleting change order:', error);
       throw new Error(`Failed to delete change order: ${error.message}`);
     }

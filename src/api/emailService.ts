@@ -60,7 +60,7 @@ class EmailService {
         createdAt: now,
         updatedAt: now,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[EmailService] Error sending notification:', error);
       throw new Error(`Failed to send notification: ${error.message}`);
     }
@@ -80,7 +80,7 @@ class EmailService {
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
       } as EmailTemplate;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[EmailService] Error getting template:', error);
       throw new Error(`Failed to get template: ${error.message}`);
     }
@@ -107,7 +107,7 @@ class EmailService {
           updatedAt: data.updatedAt?.toDate(),
         } as EmailTemplate;
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[EmailService] Error getting templates:', error);
       throw new Error(`Failed to get templates: ${error.message}`);
     }
@@ -136,7 +136,7 @@ class EmailService {
         updatedAt: data.updatedAt?.toDate(),
         unsubscribedAt: data.unsubscribedAt?.toDate(),
       } as EmailPreferences;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[EmailService] Error getting preferences:', error);
       throw new Error(`Failed to get preferences: ${error.message}`);
     }
@@ -155,7 +155,7 @@ class EmailService {
       };
 
       await updateDoc(docRef, updateData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[EmailService] Error updating preferences:', error);
       throw new Error(`Failed to update preferences: ${error.message}`);
     }
@@ -206,7 +206,7 @@ class EmailService {
       }
 
       return stats;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[EmailService] Error getting statistics:', error);
       throw new Error(`Failed to get statistics: ${error.message}`);
     }

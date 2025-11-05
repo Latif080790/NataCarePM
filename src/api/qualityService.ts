@@ -87,7 +87,7 @@ class QualityService {
         createdAt: now,
         updatedAt: now,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error creating inspection:', error);
       throw new Error(`Failed to create inspection: ${error.message}`);
     }
@@ -110,7 +110,7 @@ class QualityService {
         createdAt: data.createdAt?.toDate(),
         updatedAt: data.updatedAt?.toDate(),
       } as QualityInspection;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error getting inspection:', error);
       throw new Error(`Failed to get inspection: ${error.message}`);
     }
@@ -148,7 +148,7 @@ class QualityService {
           updatedAt: data.updatedAt?.toDate(),
         } as QualityInspection;
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error getting inspections:', error);
       throw new Error(`Failed to get inspections: ${error.message}`);
     }
@@ -185,7 +185,7 @@ class QualityService {
         createdAt: now,
         updatedAt: now,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error creating defect:', error);
       throw new Error(`Failed to create defect: ${error.message}`);
     }
@@ -232,7 +232,7 @@ class QualityService {
             : undefined,
         } as Defect;
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error getting defects:', error);
       throw new Error(`Failed to get defects: ${error.message}`);
     }
@@ -250,7 +250,7 @@ class QualityService {
       delete updateData.createdAt;
 
       await updateDoc(docRef, updateData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error updating defect:', error);
       throw new Error(`Failed to update defect: ${error.message}`);
     }
@@ -327,7 +327,7 @@ class QualityService {
       };
 
       return metrics;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[QualityService] Error getting quality metrics:', error);
       throw new Error(`Failed to get quality metrics: ${error.message}`);
     }

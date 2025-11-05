@@ -5,8 +5,6 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/utils/logger.enhanced';
 import { performanceMonitor } from '@/utils/performance/performanceMonitor';
 import { useOptimizedRendering } from '@/hooks/useOptimizedRendering';

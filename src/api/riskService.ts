@@ -137,7 +137,7 @@ class RiskService {
         createdAt: now,
         updatedAt: now,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error creating risk:', error);
       throw new Error(`Failed to create risk: ${error.message}`);
     }
@@ -174,7 +174,7 @@ class RiskService {
 
       const data = docSnap.data();
       return this.convertFirestoreToRisk(docSnap.id, data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error getting risk:', error);
       throw new Error(`Failed to get risk: ${error.message}`);
     }
@@ -221,7 +221,7 @@ class RiskService {
       }
 
       return risks;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error getting risks:', error);
       throw new Error(`Failed to get risks: ${error.message}`);
     }
@@ -269,7 +269,7 @@ class RiskService {
       delete updateData.createdAt;
 
       await updateDoc(docRef, updateData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error updating risk:', error);
       throw new Error(`Failed to update risk: ${error.message}`);
     }
@@ -282,7 +282,7 @@ class RiskService {
     try {
       const docRef = doc(db, RISKS_COLLECTION, riskId);
       await deleteDoc(docRef);
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error deleting risk:', error);
       throw new Error(`Failed to delete risk: ${error.message}`);
     }
@@ -315,7 +315,7 @@ class RiskService {
         lastReviewedAt: Timestamp.fromDate(review.reviewDate),
         updatedAt: Timestamp.fromDate(new Date()),
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error creating review:', error);
       throw new Error(`Failed to create review: ${error.message}`);
     }
@@ -375,7 +375,7 @@ class RiskService {
       };
 
       return stats;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[RiskService] Error getting dashboard stats:', error);
       throw new Error(`Failed to get dashboard stats: ${error.message}`);
     }
