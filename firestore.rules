@@ -2,6 +2,43 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleId == 'admin';
+    }
+    
+    // Check if user is the document owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user is a member of the project
+    function isProjectMember(projectId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/projects/$(projectId)/members/$(request.auth.uid));
+    }
+    
+    // Check if user has a specific role in the project
+    function hasProjectRole(projectId, role) {
+      return isProjectMember(projectId) && 
+             get(/databases/$(database)/documents/projects/$(projectId)/members/$(request.auth.uid)).data.role == role;
+    }
+    
+    // Check if required fields are present
+    function hasRequiredFields(fields) {
+      return fields.hasAll(request.resource.data.keys());
+    }
+    
+    // ============================================
     // USERS COLLECTION
     // ============================================
     match /users/{userId} {
@@ -41,8 +78,9 @@ service cloud.firestore {
       // Project members can read
       allow read: if isProjectMember(projectId);
       
-      // Allow authenticated users to create projects for testing
-      allow create: if isAuthenticated();
+      // Allow admins to create projects
+      allow create: if isAdmin() && 
+                      hasRequiredFields(['name', 'location', 'startDate', 'createdAt']);
       
       // Only project admins can update/delete
       allow update, delete: if hasProjectRole(projectId, 'admin');

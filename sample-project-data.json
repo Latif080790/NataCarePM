@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "sample-project-001": {
+      "name": "Sample Construction Project",
+      "location": "Sample Location, Indonesia",
+      "client": "Sample Client",
+      "contractor": "Sample Contractor",
+      "startDate": "2025-11-04",
+      "endDate": "2026-02-02",
+      "projectValue": 1000000000,
+      "status": "On Progress",
+      "progress": 0,
+      "projectManager": "sample-user",
+      "siteManager": "sample-user",
+      "createdAt": "2025-11-04T18:00:00.000Z",
+      "updatedAt": "2025-11-04T18:00:00.000Z"
+    }
+  }
+}

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Sample Data</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        input, textarea { padding: 8px; margin: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Setup Sample Data</h1>
+    
+    <div class="section">
+        <h2>Authentication</h2>
+        <button id="createUserBtn">Create Test User</button>
+        <button id="loginUserBtn">Login as Test User</button>
+        <div id="authResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Create Sample Data</h2>
+        <button id="createMasterDataBtn">Create Master Data</button>
+        <button id="createWorkersBtn">Create Workers</button>
+        <button id="createRolesBtn">Create Roles</button>
+        <button id="createProjectsBtn">Create Projects</button>
+        <div id="dataResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Status</h2>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBl8-t0rqqyl56G28HkgG8S32_SZUEqFY8",
+            authDomain: "natacara-hns.firebaseapp.com",
+            projectId: "natacara-hns",
+            storageBucket: "natacara-hns.firebasestorage.app",
+            messagingSenderId: "118063816239",
+            appId: "1:118063816239:web:11b43366e18bc71e9170da",
+            measurementId: "G-7XPWRK3R2P"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Test user credentials
+        const testUser = {
+            email: 'test@example.com',
+            password: 'test123456'
+        };
+
+        // Sample data
+        const sampleData = {
+            ahspData: {
+                version: '2024',
+                items: [
+                    {
+                        id: 'A.2.2.1.1',
+                        code: 'A.2.2.1.1',
+                        description: 'Pembersihan lapangan dan pemasangan bowplank',
+                        unit: 'm2',
+                        materialCosts: [
+                            { name: 'Kayu kelas III', quantity: 0.05, unit: 'm3', unitPrice: 2500000 },
+                            { name: 'Paku 5cm', quantity: 0.25, unit: 'kg', unitPrice: 18000 },
+                            { name: 'Tali rafia', quantity: 0.1, unit: 'kg', unitPrice: 25000 },
+                        ],
+                        laborCosts: [
+                            { type: 'Pekerja', coefficient: 0.5, wage: 120000 },
+                            { type: 'Tukang Kayu', coefficient: 0.25, wage: 150000 },
+                            { type: 'Kepala Tukang', coefficient: 0.025, wage: 160000 },
+                            { type: 'Mandor', coefficient: 0.0125, wage: 170000 },
+                        ],
+                        equipmentCosts: [{ name: 'Alat bantu', cost: 5000 }],
+                        totalUnitPrice: 185000,
+                    }
+                ]
+            },
+            
+            workers: [
+                {
+                    id: 'W001',
+                    name: 'Budi Santoso',
+                    type: 'Pekerja',
+                    dailyWage: 120000,
+                    skillLevel: 'Berpengalaman',
+                },
+                {
+                    id: 'T001',
+                    name: 'Asep Sunandar',
+                    type: 'Tukang Batu',
+                    dailyWage: 150000,
+                    skillLevel: 'Ahli',
+                }
+            ],
+            
+            roles: [
+                {
+                    id: 'admin',
+                    name: 'Administrator',
+                    description: 'Full access to all system functions',
+                    permissions: ['read', 'write', 'delete', 'admin', 'user_management', 'system_config'],
+                    color: '#dc2626',
+                },
+                {
+                    id: 'pm',
+                    name: 'Project Manager',
+                    description: 'Manage projects, reports, and team coordination',
+                    permissions: ['read', 'write', 'project_management', 'reports', 'approvals'],
+                    color: '#2563eb',
+                }
+            ],
+            
+            projects: [
+                {
+                    id: 'PROJ-2024-001',
+                    name: 'Sample Construction Project',
+                    description: 'This is a sample project for testing purposes',
+                    location: 'Sample Location, Indonesia',
+                    client: 'Sample Client',
+                    contractor: 'Sample Contractor',
+                    startDate: '2024-09-01',
+                    endDate: '2025-03-31',
+                    projectValue: 1000000000,
+                    status: 'On Progress',
+                    progress: 25.5,
+                    projectManager: 'user1',
+                    siteManager: 'user2',
+                }
+            ]
+        };
+
+        // DOM elements
+        const authResult = document.getElementById('authResult');
+        const dataResult = document.getElementById('dataResult');
+        const status = document.getElementById('status');
+
+        // Update status
+        function updateStatus(message) {
+            status.innerHTML = `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+        }
+
+        // Show result
+        function showResult(element, message, isSuccess = true) {
+            element.className = isSuccess ? 'success' : 'error';
+            element.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Create test user
+        document.getElementById('createUserBtn').addEventListener('click', async () => {
+            try {
+                updateStatus('Creating test user...');
+                await auth.createUserWithEmailAndPassword(testUser.email, testUser.password);
+                showResult(authResult, 'Test user created successfully!', true);
+                updateStatus('Test user created');
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    showResult(authResult, 'Test user already exists. You can login.', true);
+                    updateStatus('Test user already exists');
+                } else {
+                    showResult(authResult, `Error creating test user: ${error.message}`, false);
+                    updateStatus(`Error creating test user: ${error.message}`);
+                }
+            }
+        });
+
+        // Login as test user
+        document.getElementById('loginUserBtn').addEventListener('click', async () => {
+            try {
+                updateStatus('Logging in as test user...');
+                await auth.signInWithEmailAndPassword(testUser.email, testUser.password);
+                showResult(authResult, 'Logged in as test user!', true);
+                updateStatus('Logged in as test user');
+            } catch (error) {
+                showResult(authResult, `Error logging in: ${error.message}`, false);
+                updateStatus(`Error logging in: ${error.message}`);
+            }
+        });
+
+        // Create master data
+        document.getElementById('createMasterDataBtn').addEventListener('click', async () => {
+            if (!auth.currentUser) {
+                showResult(dataResult, 'Please login first!', false);
+                return;
+            }
+            
+            try {
+                updateStatus('Creating master data...');
+                const ahspRef = db.collection('masterData').doc('ahsp');
+                await ahspRef.set(sampleData.ahspData);
+                showResult(dataResult, 'Master data created successfully!', true);
+                updateStatus('Master data created');
+            } catch (error) {
+                showResult(dataResult, `Error creating master data: ${error.message}`, false);
+                updateStatus(`Error creating master data: ${error.message}`);
+            }
+        });
+
+        // Create workers
+        document.getElementById('createWorkersBtn').addEventListener('click', async () => {
+            if (!auth.currentUser) {
+                showResult(dataResult, 'Please login first!', false);
+                return;
+            }
+            
+            try {
+                updateStatus('Creating workers...');
+                const batch = db.batch();
+                sampleData.workers.forEach(worker => {
+                    const workerRef = db.collection('workers').doc(worker.id);
+                    batch.set(workerRef, worker);
+                });
+                await batch.commit();
+                showResult(dataResult, 'Workers created successfully!', true);
+                updateStatus('Workers created');
+            } catch (error) {
+                showResult(dataResult, `Error creating workers: ${error.message}`, false);
+                updateStatus(`Error creating workers: ${error.message}`);
+            }
+        });
+
+        // Create roles
+        document.getElementById('createRolesBtn').addEventListener('click', async () => {
+            if (!auth.currentUser) {
+                showResult(dataResult, 'Please login first!', false);
+                return;
+            }
+            
+            try {
+                updateStatus('Creating roles...');
+                const batch = db.batch();
+                sampleData.roles.forEach(role => {
+                    const roleRef = db.collection('roles').doc(role.id);
+                    batch.set(roleRef, role);
+                });
+                await batch.commit();
+                showResult(dataResult, 'Roles created successfully!', true);
+                updateStatus('Roles created');
+            } catch (error) {
+                showResult(dataResult, `Error creating roles: ${error.message}`, false);
+                updateStatus(`Error creating roles: ${error.message}`);
+            }
+        });
+
+        // Create projects
+        document.getElementById('createProjectsBtn').addEventListener('click', async () => {
+            if (!auth.currentUser) {
+                showResult(dataResult, 'Please login first!', false);
+                return;
+            }
+            
+            try {
+                updateStatus('Creating projects...');
+                const batch = db.batch();
+                sampleData.projects.forEach(project => {
+                    const projectRef = db.collection('projects').doc(project.id);
+                    batch.set(projectRef, {...project, createdAt: new Date(), updatedAt: new Date()});
+                });
+                await batch.commit();
+                showResult(dataResult, 'Projects created successfully!', true);
+                updateStatus('Projects created');
+            } catch (error) {
+                showResult(dataResult, `Error creating projects: ${error.message}`, false);
+                updateStatus(`Error creating projects: ${error.message}`);
+            }
+        });
+
+        // Check auth state
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                updateStatus(`Authenticated as ${user.email}`);
+            } else {
+                updateStatus('Not authenticated');
+            }
+        });
+    </script>
+</body>
+</html>
