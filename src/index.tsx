@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import Root from './Root';
-import { registerServiceWorker } from '@/utils/pwa';
+import { registerServiceWorker } from '@/utils/serviceWorkerRegistration';
 
 const container = document.getElementById('root');
 if (container) {
@@ -11,22 +11,14 @@ if (container) {
 }
 
 // Register Service Worker for PWA functionality
-if (process.env.NODE_ENV === 'production') {
-  registerServiceWorker({
-    onSuccess: (_registration) => {
+// Note: Service worker is registered in all environments for testing
+// You can add environment check if needed: if (import.meta.env.PROD) { ... }
+registerServiceWorker()
+  .then((registration) => {
+    if (registration) {
       console.log('[PWA] Service Worker registered successfully');
-    },
-    onUpdate: (_registration) => {
-      console.log('[PWA] New content available, please refresh.');
-      // Notify user about update
-      if (window.confirm('New version available! Click OK to update.')) {
-        window.location.reload();
-      }
-    },
-    onError: (error) => {
-      console.error('[PWA] Service Worker registration failed:', error);
-    },
+    }
+  })
+  .catch((error) => {
+    console.error('[PWA] Service Worker registration failed:', error);
   });
-} else {
-  console.log('[PWA] Service Worker registration skipped in development mode');
-}

@@ -4,16 +4,15 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Lock, Eye, EyeOff, Check, AlertCircle, Shield, Info } from 'lucide-react';
+import { X, Lock, Eye, EyeOff, Check, AlertCircle, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { changePassword } from '@/api/authService';
 import {
   validatePassword,
-  quickStrengthCheck,
-  getPasswordRequirements,
   type PasswordValidationResult,
 } from '@/utils/passwordValidator';
+import { PasswordStrengthMeter } from '@/components/PasswordStrengthMeter';
 
 // ========================================
 // TYPES
@@ -127,7 +126,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 
     try {
       const result = await changePassword({
-        userId: currentUser.id,
         currentPassword,
         newPassword,
       });
@@ -167,9 +165,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 
   // Don't render if not open
   if (!isOpen) return null;
-
-  // Get strength data for meter
-  const strengthData = newPassword ? quickStrengthCheck(newPassword) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
@@ -250,89 +245,19 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
               </button>
             </div>
 
-            {/* Strength Meter */}
-            {newPassword && strengthData && (
-              <div className="mt-3 space-y-2">
-                {/* Strength Bar */}
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full transition-all duration-300 rounded-full"
-                      style={{
-                        width: `${strengthData.score}%`,
-                        backgroundColor: strengthData.color,
-                      }}
-                    />
-                  </div>
-                  <span
-                    className="text-xs font-medium px-2 py-1 rounded"
-                    style={{
-                      color: strengthData.color,
-                      backgroundColor: `${strengthData.color}15`,
-                    }}
-                  >
-                    {strengthData.label}
-                  </span>
-                </div>
-
-                {/* Validation Messages */}
-                {validation && (
-                  <div className="space-y-1">
-                    {/* Errors */}
-                    {validation.errors.map((error, index) => (
-                      <div
-                        key={`error-${index}`}
-                        className="flex items-start gap-2 text-xs text-red-600"
-                      >
-                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                        <span>{error}</span>
-                      </div>
-                    ))}
-
-                    {/* Warnings */}
-                    {validation.warnings.map((warning, index) => (
-                      <div
-                        key={`warning-${index}`}
-                        className="flex items-start gap-2 text-xs text-amber-600"
-                      >
-                        <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                        <span>{warning}</span>
-                      </div>
-                    ))}
-
-                    {/* Success */}
-                    {validation.valid && (
-                      <div className="flex items-center gap-2 text-xs text-green-600">
-                        <Check className="w-3.5 h-3.5" />
-                        <span>Password cukup kuat ✓</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Requirements Toggle */}
-            <button
-              type="button"
-              onClick={() => setShowRequirements(!showRequirements)}
-              className="mt-2 text-xs text-blue-600 hover:text-blue-700 hover:underline"
-            >
-              {showRequirements ? 'Sembunyikan' : 'Lihat'} persyaratan password
-            </button>
-
-            {/* Requirements List */}
-            {showRequirements && (
-              <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                <p className="text-xs font-medium text-blue-900 mb-2">Persyaratan Password:</p>
-                <ul className="space-y-1">
-                  {getPasswordRequirements().map((req, index) => (
-                    <li key={index} className="flex items-start gap-2 text-xs text-blue-800">
-                      <Check className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      <span>{req}</span>
-                    </li>
-                  ))}
-                </ul>
+            {/* Password Strength Meter - Using new comprehensive component */}
+            {newPassword && (
+              <div className="mt-3">
+                <PasswordStrengthMeter password={newPassword} showRequirements={showRequirements} />
+                
+                {/* Requirements Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowRequirements(!showRequirements)}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-700 hover:underline"
+                >
+                  {showRequirements ? 'Sembunyikan' : 'Lihat'} persyaratan password
+                </button>
               </div>
             )}
           </div>

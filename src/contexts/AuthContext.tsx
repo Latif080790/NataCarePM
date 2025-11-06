@@ -1,9 +1,15 @@
 import { twoFactorService } from '@/api/twoFactorService';
+import { 
+  checkAccountLockout, 
+  recordLoginAttempt, 
+  calculateLoginDelay 
+} from '@/api/rateLimitService';
 import { auth } from '@/firebaseConfig';
 import { authService } from '@/services/authService';
 import { logger } from '@/utils/logger.enhanced';
 import { rateLimiter } from '@/utils/rateLimiter';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import type { User } from '@/types';
 import React, {
     createContext,
     ReactNode,
@@ -14,7 +20,7 @@ import React, {
 } from 'react';
 
 interface AuthContextType {
-  currentUser: AppUser | null;
+  currentUser: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
@@ -39,7 +45,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [requires2FA, setRequires2FA] = useState(false);
   const [pending2FAUserId, setPending2FAUserId] = useState<string | null>(null);
@@ -104,13 +110,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       setLoading(true);
 
+      // Step 1: Check for account lockout
+      const lockoutStatus = await checkAccountLockout(email);
+      
+      if (lockoutStatus.locked && lockoutStatus.lockedUntil) {
+        const minutesRemaining = Math.ceil(
+          (lockoutStatus.lockedUntil.getTime() - Date.now()) / (1000 * 60)
+        );
+        const errorMessage = `Account locked due to too many failed attempts. Please try again in ${minutesRemaining} minutes. Remaining attempts: ${lockoutStatus.remainingAttempts}`;
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Step 2: Calculate and apply delay for failed attempts
+      const delay = await calculateLoginDelay(email);
+      if (delay > 0) {
+        logger.warn('Login attempt delayed due to previous failures', { email, delaySeconds: delay });
+        await new Promise(resolve => setTimeout(resolve, delay * 1000));
+      }
+
+      // Step 3: Attempt login
       const response = await authService.login(email, password);
       
       if (!response.success) {
+        // Record failed attempt
+        await recordLoginAttempt(
+          email, 
+          false, 
+          undefined, 
+          undefined, 
+          response.error?.message || 'Login failed'
+        );
+        
         throw new Error(response.error?.message || 'Login failed');
       }
 
-      // Check if 2FA is required
+      // Step 4: Check if 2FA is required
       if (response.data?.requires2FA) {
         setRequires2FA(true);
         setPending2FAUserId(response.data.pending2FAUserId || null);
@@ -118,6 +153,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setLoading(false);
         return;
       }
+
+      // Step 5: Record successful login
+      const user = auth.currentUser;
+      await recordLoginAttempt(
+        email, 
+        true, 
+        user?.uid, 
+        undefined, 
+        'Login successful'
+      );
 
       // Login successful, user will be set by auth state listener
       rateLimiter.reset(email, 'login');
@@ -188,6 +233,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const isValid = await twoFactorService.verifyCode(pending2FAUserId, code);
 
         if (!isValid) {
+          // Record failed 2FA attempt
+          await recordLoginAttempt(
+            pendingCredentials.email,
+            false,
+            pending2FAUserId,
+            undefined,
+            'Invalid 2FA code'
+          );
+          
           const errorMessage = 'Invalid 2FA code';
           setError(errorMessage);
           throw new Error(errorMessage);
@@ -195,6 +249,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         // 2FA verified - complete the login
         await authService.login(pendingCredentials.email, pendingCredentials.password);
+
+        // Record successful login with 2FA
+        await recordLoginAttempt(
+          pendingCredentials.email,
+          true,
+          pending2FAUserId,
+          undefined,
+          'Login successful with 2FA'
+        );
 
         // Reset rate limit on success
         rateLimiter.reset(pendingCredentials.email, 'login');
