@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
+import { InputPro } from '@/components/FormComponents';
+import { EmptyState } from '@/components/StateComponents';
 import { Task, User } from '@/types';
 import {
   Plus,
@@ -162,128 +163,128 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      {/* 🎯 ENTERPRISE HEADER */}
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
               📋 Kanban Board
             </h1>
-            <p className="text-lg text-gray-700 font-medium">
-              Enterprise Kanban • Visual Workflow • Team Collaboration • Advanced Analytics
+            <p className="text-gray-600">
+              Visual Workflow • Team Collaboration • Analytics
             </p>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-lg shadow-sm">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-green-700 font-medium">Live Board</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-green-700 font-medium text-sm">Live</span>
             </div>
-            <Button
+            <ButtonPro
+              variant="primary"
+              icon={Plus}
               onClick={() => setIsCreateModalOpen(true)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 shadow-lg"
             >
-              <Plus className="w-5 h-5" />
-              <span>Add Task</span>
-            </Button>
+              Add Task
+            </ButtonPro>
           </div>
         </div>
 
-        {/* 📊 KANBAN ANALYTICS DASHBOARD */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
-          <Card className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+        {/* Analytics Dashboard */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+          <CardPro className="p-4 bg-blue-600 text-white">
             <div className="text-center">
-              <p className="text-blue-100 text-sm">Total Tasks</p>
+              <p className="text-blue-100 text-sm">Total</p>
               <p className="text-2xl font-bold">{kanbanAnalytics.total}</p>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="p-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+          <CardPro className="p-4 bg-gray-600 text-white">
             <div className="text-center">
               <p className="text-gray-100 text-sm">To Do</p>
               <p className="text-2xl font-bold">{kanbanAnalytics.todo}</p>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+          <CardPro className="p-4 bg-purple-600 text-white">
             <div className="text-center">
-              <p className="text-purple-100 text-sm">In Progress</p>
+              <p className="text-purple-100 text-sm">Progress</p>
               <p className="text-2xl font-bold">{kanbanAnalytics.inProgress}</p>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+          <CardPro className="p-4 bg-yellow-600 text-white">
             <div className="text-center">
               <p className="text-yellow-100 text-sm">Review</p>
               <p className="text-2xl font-bold">{kanbanAnalytics.review}</p>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white">
+          <CardPro className="p-4 bg-green-600 text-white">
             <div className="text-center">
               <p className="text-green-100 text-sm">Done</p>
               <p className="text-2xl font-bold">{kanbanAnalytics.completed}</p>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="p-4 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white">
+          <CardPro className="p-4 bg-indigo-600 text-white">
             <div className="text-center">
-              <p className="text-indigo-100 text-sm">WIP Limit</p>
+              <p className="text-indigo-100 text-sm">WIP</p>
               <p className="text-2xl font-bold">{kanbanAnalytics.wip}</p>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="p-4 bg-gradient-to-r from-pink-500 to-pink-600 text-white">
+          <CardPro className="p-4 bg-pink-600 text-white">
             <div className="text-center">
-              <p className="text-pink-100 text-sm">Throughput</p>
-              <p className="text-2xl font-bold">{kanbanAnalytics.throughput}/wk</p>
+              <p className="text-pink-100 text-sm">Week</p>
+              <p className="text-2xl font-bold">{kanbanAnalytics.throughput}</p>
             </div>
-          </Card>
+          </CardPro>
         </div>
       </div>
 
-      {/* 🔍 SEARCH BAR */}
-      <Card className="p-4 mb-8 bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+      {/* Search Bar */}
+      <CardPro className="p-4 mb-6" variant="elevated">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
+          <InputPro
             type="text"
             placeholder="Search tasks across all columns..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm"
+            className="pl-10"
           />
         </div>
-      </Card>
+      </CardPro>
 
-      {/* 📋 KANBAN BOARD */}
+      {/* Kanban Board */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {kanbanColumns.map((column) => {
           const Icon = column.icon;
           const columnTasks = tasksByStatus[column.status] || [];
 
           return (
-            <div key={column.id} className="flex flex-col h-full">
+            <div key={column.id} className="flex flex-col">
               {/* Column Header */}
-              <Card className={`p-4 mb-4 ${column.color} border-2 shadow-lg`}>
+              <CardPro className={`p-4 mb-4 ${column.color} border-2`}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Icon className="w-5 h-5" />
                     <h3 className="text-lg font-bold">{column.title}</h3>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="bg-white/80 text-gray-700 px-2 py-1 rounded-full text-sm font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-white px-2 py-1 rounded-full text-sm font-medium">
                       {columnTasks.length}
                     </span>
-                    <Button
+                    <button
                       onClick={() => setIsCreateModalOpen(true)}
-                      className="p-1 text-gray-600 hover:text-blue-600 hover:bg-white/50 rounded"
+                      className="p-1 hover:bg-white/50 rounded transition-colors"
                     >
                       <Plus className="w-4 h-4" />
-                    </Button>
+                    </button>
                   </div>
                 </div>
-              </Card>
+              </CardPro>
 
               {/* Drop Zone */}
               <div
@@ -292,104 +293,107 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
                 onDrop={(e) => handleDrop(e, column.status)}
               >
                 {columnTasks.length === 0 ? (
-                  <div className="flex items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg bg-white/50">
-                    <p className="text-gray-500 text-sm">No tasks</p>
-                  </div>
+                  <EmptyState
+                    title="No tasks"
+                    description="Drag tasks here or click + to add"
+                    variant="default"
+                  />
                 ) : (
                   columnTasks.map((task) => (
-                    <Card
+                    <div
                       key={task.id}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, task)}
-                      className="p-4 bg-white/90 backdrop-blur-sm border border-white/40 shadow-lg hover:shadow-xl transition-all duration-300 cursor-move group"
+                      onDragStart={(e: React.DragEvent) => handleDragStart(e, task)}
+                      className="cursor-move"
                     >
-                      <div className="space-y-3">
-                        {/* Task Header */}
-                        <div className="flex items-start justify-between">
-                          <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                            {task.title}
-                          </h4>
-                          <div className="flex items-center space-x-1 ml-2">
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTask(task);
-                              }}
-                              className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                      <CardPro hoverable className="p-4">
+                        <div className="space-y-3">
+                          {/* Task Header */}
+                          <div className="flex items-start justify-between">
+                            <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1">
+                              {task.title}
+                            </h4>
+                            <div className="flex items-center gap-1 ml-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTask(task);
+                                }}
+                                className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                              >
+                                <Eye className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                                className="p-1 text-gray-400 hover:text-green-600 rounded transition-colors"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Task Description */}
+                          {task.description && (
+                            <div
+                              className="text-xs text-gray-600 line-clamp-2"
+                              dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
+                            />
+                          )}
+
+                          {/* Task Metadata */}
+                          <div className="space-y-2">
+                            {/* Priority */}
+                            <div
+                              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium w-fit ${getPriorityColor(task.priority)}`}
                             >
-                              <Eye className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Edit functionality
-                              }}
-                              className="p-1 text-gray-400 hover:text-green-600 rounded"
-                            >
-                              <Edit3 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
+                              {getPriorityIcon(task.priority)}
+                              <span className="capitalize">{task.priority}</span>
+                            </div>
 
-                        {/* Task Description */}
-                        {task.description && (
-                          <div
-                            className="text-xs text-gray-600 line-clamp-2"
-                            dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
-                          />
-                        )}
-
-                        {/* Task Metadata */}
-                        <div className="space-y-2">
-                          {/* Priority */}
-                          <div
-                            className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium w-fit ${getPriorityColor(task.priority)}`}
-                          >
-                            {getPriorityIcon(task.priority)}
-                            <span className="capitalize">{task.priority}</span>
-                          </div>
-
-                          {/* Assignee and Due Date */}
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            {task.assignedTo && task.assignedTo.length > 0 && (
-                              <div className="flex items-center space-x-1">
-                                <UserIcon className="w-3 h-3" />
-                                <span className="truncate">
-                                  {users
-                                    .find((u) => u.id === task.assignedTo[0])
-                                    ?.name?.split(' ')[0] || 'Unknown'}
-                                </span>
-                              </div>
-                            )}
-                            {task.dueDate && (
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>{formatDate(task.dueDate)}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Tags */}
-                          {task.tags && task.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {task.tags.slice(0, 2).map((tag, index) => (
-                                <span
-                                  key={index}
-                                  className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                              {task.tags.length > 2 && (
-                                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">
-                                  +{task.tags.length - 2}
-                                </span>
+                            {/* Assignee and Due Date */}
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              {task.assignedTo && task.assignedTo.length > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <UserIcon className="w-3 h-3" />
+                                  <span className="truncate">
+                                    {users
+                                      .find((u) => u.id === task.assignedTo[0])
+                                      ?.name?.split(' ')[0] || 'Unknown'}
+                                  </span>
+                                </div>
+                              )}
+                              {task.dueDate && (
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>{formatDate(task.dueDate)}</span>
+                                </div>
                               )}
                             </div>
-                          )}
+
+                            {/* Tags */}
+                            {task.tags && task.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {task.tags.slice(0, 2).map((tag, index) => (
+                                  <span
+                                    key={index}
+                                    className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {task.tags.length > 2 && (
+                                  <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">
+                                    +{task.tags.length - 2}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </Card>
+                      </CardPro>
+                    </div>
                   ))
                 )}
               </div>
@@ -398,14 +402,14 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
         })}
       </div>
 
-      {/* ⚡ WORKFLOW INSIGHTS */}
-      <Card className="mt-8 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+      {/* Workflow Insights */}
+      <CardPro className="mt-8 p-6 bg-indigo-50 border-indigo-200">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold flex items-center">
             <Activity className="w-7 h-7 mr-3 text-indigo-600" />
             Workflow Intelligence
           </h3>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
               Live Analytics
             </span>
@@ -413,7 +417,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-5 rounded-xl border border-blue-200">
+          <CardPro className="p-5 bg-blue-50 border-blue-200">
             <div className="text-center">
               <p className="text-3xl font-bold text-blue-600">
                 {kanbanAnalytics.completionRate.toFixed(0)}%
@@ -421,30 +425,30 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
               <p className="text-blue-700 text-sm">Completion Rate</p>
               <p className="text-blue-600 text-xs mt-1">↗️ +5.2% from last week</p>
             </div>
-          </div>
+          </CardPro>
 
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-5 rounded-xl border border-green-200">
+          <CardPro className="p-5 bg-green-50 border-green-200">
             <div className="text-center">
               <p className="text-3xl font-bold text-green-600">{kanbanAnalytics.cycleTime}</p>
               <p className="text-green-700 text-sm">Avg Cycle Time</p>
               <p className="text-green-600 text-xs mt-1">↘️ -0.8 days improvement</p>
             </div>
-          </div>
+          </CardPro>
 
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-200">
+          <CardPro className="p-5 bg-purple-50 border-purple-200">
             <div className="text-center">
               <p className="text-3xl font-bold text-purple-600">{kanbanAnalytics.throughput}</p>
               <p className="text-purple-700 text-sm">Weekly Throughput</p>
               <p className="text-purple-600 text-xs mt-1">↗️ +2 tasks increase</p>
             </div>
-          </div>
+          </CardPro>
         </div>
-      </Card>
+      </CardPro>
 
-      {/* Kanban Task Management - TODO: Implement proper modals */}
+      {/* Create Task Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-8 bg-white/95 backdrop-blur-sm max-w-lg mx-4 rounded-2xl shadow-2xl border border-white/20">
+          <CardPro className="p-8 max-w-lg mx-4">
             <div className="text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-8 h-8 text-purple-600" />
@@ -454,22 +458,24 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
                 Advanced Kanban task management is being integrated with the project system.
               </p>
               <div className="space-y-3">
-                <Button
+                <ButtonPro
+                  variant="primary"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+                  className="w-full"
                 >
                   Continue Working
-                </Button>
+                </ButtonPro>
                 <p className="text-sm text-gray-500">Drag & drop task management coming soon</p>
               </div>
             </div>
-          </Card>
+          </CardPro>
         </div>
       )}
 
+      {/* Task Details Modal */}
       {selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-8 bg-white/95 backdrop-blur-sm max-w-lg mx-4 rounded-2xl shadow-2xl border border-white/20">
+          <CardPro className="p-8 max-w-lg mx-4">
             <div className="text-center">
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Eye className="w-8 h-8 text-indigo-600" />
@@ -479,14 +485,15 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
                 className="text-gray-600 mb-6"
                 dangerouslySetInnerHTML={{ __html: sanitizeBasic(selectedTask.description) }}
               />
-              <Button
+              <ButtonPro
+                variant="primary"
                 onClick={() => setSelectedTask(null)}
-                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-lg"
+                className="w-full"
               >
                 Close
-              </Button>
+              </ButtonPro>
             </div>
-          </Card>
+          </CardPro>
         </div>
       )}
 

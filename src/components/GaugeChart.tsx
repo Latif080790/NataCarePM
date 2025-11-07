@@ -27,7 +27,9 @@ export function GaugeChart({ value, max }: GaugeChartProps) {
 }
 
 export function RadialProgress({ title, description, value, className = '' }: RadialProgressProps) {
-  const normalizedValue = Math.max(0, Math.min(100, value));
+  // Ensure value is a valid number
+  const safeValue = isNaN(value) || !isFinite(value) ? 0 : value;
+  const normalizedValue = Math.max(0, Math.min(100, safeValue));
   const circumference = 2 * Math.PI * 45; // 2 * pi * radius
   const offset = circumference - (normalizedValue / 100) * circumference;
 
@@ -95,7 +97,7 @@ export function RadialProgress({ title, description, value, className = '' }: Ra
           {/* Enhanced center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-3xl font-bold gradient-text group-hover:scale-110 transition-transform duration-300">
-              {value.toFixed(1)}%
+              {normalizedValue.toFixed(1)}%
             </span>
             <div className="w-4 h-1 rounded-full bg-gradient-to-r from-precious-persimmon to-no-way-rose mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>

@@ -3,7 +3,9 @@
 // Sophisticated Authentication Interface with Advanced Glassmorphism & Animations
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/Button';
+import { ButtonPro } from '@/components/ButtonPro';
+import { InputPro } from '@/components/FormComponents';
+import { CardPro } from '@/components/CardPro';
 import { useAuth } from '@/contexts/AuthContext';
 import { Spinner } from '@/components/Spinner';
 import { useValidatedForm } from '@/hooks/useValidatedForm';
@@ -85,8 +87,8 @@ export default function EnterpriseLoginView() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* 🎨 SOPHISTICATED ANIMATED BACKGROUND */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         {/* Floating orbs animation */}
         <div className="absolute top-20 left-20 w-96 h-96 bg-accent-coral/20 rounded-full blur-3xl animate-pulse"></div>
         <div
@@ -221,17 +223,17 @@ export default function EnterpriseLoginView() {
         >
           <div className="w-full max-w-md">
             {/* Premium Auth Card */}
-            <div className="glass-card p-8 rounded-3xl shadow-2xl backdrop-blur-xl border border-white/20">
+            <CardPro className="p-8 bg-white" variant="elevated">
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <Sparkles className="w-6 h-6 text-accent-coral" />
-                  <h2 className="text-2xl font-bold text-white">
+                  <Sparkles className="w-6 h-6 text-blue-600" />
+                  <h2 className="text-2xl font-bold text-gray-900">
                     {isLogin ? 'Welcome Back' : 'Join Enterprise'}
                   </h2>
-                  <Sparkles className="w-6 h-6 text-accent-coral" />
+                  <Sparkles className="w-6 h-6 text-blue-600" />
                 </div>
-                <p className="text-white/70">
+                <p className="text-gray-600">
                   {isLogin
                     ? 'Akses dashboard enterprise Anda dengan teknologi terdepan'
                     : 'Bergabung dengan platform enterprise construction management terdepan'}
@@ -244,22 +246,18 @@ export default function EnterpriseLoginView() {
 
                 {!isLogin && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/90 flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Full Name
                     </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        {...registrationForm.register('name')}
-                        placeholder="Enter your full name"
-                        disabled={isSubmitting || authLoading}
-                        className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                      />
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
-                    </div>
+                    <InputPro
+                      type="text"
+                      {...registrationForm.register('name')}
+                      placeholder="Enter your full name"
+                      disabled={isSubmitting || authLoading}
+                    />
                     {registrationForm.formState.errors.name && (
-                      <p className="text-sm text-red-400 mt-1">
+                      <p className="text-sm text-red-600 mt-1">
                         {registrationForm.formState.errors.name.message as string}
                       </p>
                     )}
@@ -267,66 +265,57 @@ export default function EnterpriseLoginView() {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/90 flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Mail className="w-4 h-4" />
                     Email Address
                   </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      {...(isLogin ? loginForm.register('email') : registrationForm.register('email'))}
-                      placeholder="Enter your enterprise email"
-                      disabled={isSubmitting || authLoading}
-                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                    />
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
-                  </div>
-                  {errors.email && <p className="text-sm text-red-400 mt-1">{errors.email.message as string}</p>}
+                  <InputPro
+                    type="email"
+                    {...(isLogin ? loginForm.register('email') : registrationForm.register('email'))}
+                    placeholder="Enter your enterprise email"
+                    disabled={isSubmitting || authLoading}
+                  />
+                  {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message as string}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/90 flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                     <Lock className="w-4 h-4" />
                     Password
                   </label>
                   <div className="relative">
-                    <input
+                    <InputPro
                       type={showPassword ? 'text' : 'password'}
                       {...(isLogin ? loginForm.register('password') : registrationForm.register('password'))}
                       placeholder="Enter your secure password"
                       disabled={isSubmitting || authLoading}
-                      className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
+                      className="pr-12"
                     />
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  {errors.password && <p className="text-sm text-red-400 mt-1">{errors.password.message as string}</p>}
+                  {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password.message as string}</p>}
                 </div>
 
                 {!isLogin && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/90 flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                       <Lock className="w-4 h-4" />
                       Confirm Password
                     </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        {...registrationForm.register('confirmPassword')}
-                        placeholder="Confirm your password"
-                        disabled={isSubmitting || authLoading}
-                        className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:ring-2 focus:ring-accent-coral focus:border-transparent backdrop-blur-sm transition-all duration-300"
-                      />
-                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
-                    </div>
+                    <InputPro
+                      type={showPassword ? 'text' : 'password'}
+                      {...registrationForm.register('confirmPassword')}
+                      placeholder="Confirm your password"
+                      disabled={isSubmitting || authLoading}
+                    />
                     {registrationForm.formState.errors.confirmPassword && (
-                      <p className="text-sm text-red-400 mt-1">
+                      <p className="text-sm text-red-600 mt-1">
                         {registrationForm.formState.errors.confirmPassword.message as string}
                       </p>
                     )}
@@ -338,9 +327,9 @@ export default function EnterpriseLoginView() {
                     <input
                       type="checkbox"
                       {...registrationForm.register('agreeToTerms')}
-                      className="w-4 h-4 rounded border-white/20 bg-white/10 text-accent-coral focus:ring-2 focus:ring-accent-coral"
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                     />
-                    <label className="text-sm text-white/90">
+                    <label className="text-sm text-gray-700">
                       I agree to the Terms of Service and Privacy Policy
                     </label>
                   </div>
@@ -348,10 +337,11 @@ export default function EnterpriseLoginView() {
 
                 {/* Action Buttons */}
                 <div className="space-y-4">
-                  <Button
+                  <ButtonPro
                     type="submit"
                     disabled={isSubmitting || authLoading}
-                    className="w-full py-3 bg-gradient-to-r from-accent-coral to-accent-coral-dark text-white font-semibold rounded-xl shadow-coral hover:shadow-coral-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+                    variant="primary"
+                    className="w-full"
                   >
                     {isSubmitting || authLoading ? (
                       <>
@@ -365,13 +355,13 @@ export default function EnterpriseLoginView() {
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
-                  </Button>
+                  </ButtonPro>
 
                   {isLogin && (
                     <button
                       type="button"
                       onClick={() => setShowForgotPassword(true)}
-                      className="text-sm text-white/70 hover:text-accent-coral transition-colors"
+                      className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
                     >
                       Forgot your password?
                     </button>
@@ -379,14 +369,14 @@ export default function EnterpriseLoginView() {
                 </div>
 
                 {/* Toggle Auth Mode */}
-                <div className="text-center pt-6 border-t border-white/10">
-                  <p className="text-white/70 text-sm">
+                <div className="text-center pt-6 border-t border-gray-200">
+                  <p className="text-gray-600 text-sm">
                     {isLogin ? "Don't have an enterprise account?" : 'Already have an account?'}
                   </p>
                   <button
                     type="button"
                     onClick={() => setIsLogin(!isLogin)}
-                    className="text-accent-coral font-semibold hover:text-accent-coral-dark transition-colors ml-1"
+                    className="text-blue-600 font-semibold hover:text-blue-700 transition-colors ml-1"
                   >
                     {isLogin ? 'Request Enterprise Access' : 'Sign In to Enterprise'}
                   </button>
@@ -411,7 +401,7 @@ export default function EnterpriseLoginView() {
                   <div className="text-accent-coral mt-2">🚀 Full enterprise features unlocked</div>
                 </div>
               </div>
-            </div>
+            </CardPro>
 
             {/* Security Badge */}
             <div className="mt-6 flex items-center justify-center gap-4 text-white/50 text-xs">

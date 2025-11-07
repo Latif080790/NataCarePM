@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { FinancialForecastingComponent } from '@/components/FinancialForecastingComponent';
 import { EVMDashboard } from '@/components/EVMDashboard';
 import { EnhancedProgressTracking } from '@/components/EnhancedProgressTracking';
@@ -165,11 +165,11 @@ export const IntegratedAnalyticsView: React.FC = () => {
   if (!currentProject) {
     return (
       <div className="p-6">
-        <Card className="p-8 text-center">
+        <CardPro className="p-8 text-center">
           <Target className="w-16 h-16 mx-auto mb-4 text-gray-400" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">No Project Selected</h2>
           <p className="text-gray-600">Please select a project to view analytics dashboard.</p>
-        </Card>
+        </CardPro>
       </div>
     );
   }
@@ -196,15 +196,19 @@ export const IntegratedAnalyticsView: React.FC = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleRefresh} disabled={isLoading} variant="outline">
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <ButtonPro
+                onClick={handleRefresh}
+                disabled={isLoading}
+                variant="outline"
+                icon={RefreshCw}
+                className={isLoading ? 'animate-spin' : ''}
+              >
                 Refresh All
-              </Button>
+              </ButtonPro>
 
-              <Button onClick={handleExportReport}>
-                <Download className="w-4 h-4 mr-2" />
+              <ButtonPro onClick={handleExportReport} icon={Download}>
                 Export Report
-              </Button>
+              </ButtonPro>
             </div>
           </div>
         </div>
@@ -212,7 +216,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-4">
+        <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-gray-900">Total Budget</h3>
             <DollarSign className="w-4 h-4 text-gray-400" />
@@ -221,9 +225,9 @@ export const IntegratedAnalyticsView: React.FC = () => {
             {formatCurrency(budgetAtCompletion)}
           </div>
           <p className="text-sm text-gray-600">Project budget allocation</p>
-        </Card>
+        </CardPro>
 
-        <Card className="p-4">
+        <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-gray-900">EVM Health</h3>
             <BarChart3 className="w-4 h-4 text-gray-400" />
@@ -232,9 +236,9 @@ export const IntegratedAnalyticsView: React.FC = () => {
             {evmMetrics?.healthScore || 0}/100
           </div>
           <p className="text-sm text-gray-600">EVM performance score</p>
-        </Card>
+        </CardPro>
 
-        <Card className="p-4">
+        <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-gray-900">Task Progress</h3>
             <Target className="w-4 h-4 text-gray-400" />
@@ -246,9 +250,9 @@ export const IntegratedAnalyticsView: React.FC = () => {
             {tasks.filter((t) => t.status === 'done' || t.status === 'completed').length} of{' '}
             {tasks.length} completed
           </p>
-        </Card>
+        </CardPro>
 
-        <Card className="p-4">
+        <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-gray-900">Risk Level</h3>
             <AlertTriangle className="w-4 h-4 text-gray-400" />
@@ -265,7 +269,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
             {evmMetrics?.performanceStatus || 'Unknown'}
           </div>
           <p className="text-sm text-gray-600">Current risk status</p>
-        </Card>
+        </CardPro>
       </div>
 
       {/* Tab Navigation */}
@@ -301,7 +305,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
             <div className="space-y-6">
               {/* Project Summary Cards */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="p-6">
+                <CardPro className="p-6">
                   <h3 className="text-lg font-semibold mb-4">Financial Health</h3>
                   {financialForecast ? (
                     <div className="space-y-3">
@@ -335,9 +339,9 @@ export const IntegratedAnalyticsView: React.FC = () => {
                   ) : (
                     <p className="text-gray-500">Loading financial forecast...</p>
                   )}
-                </Card>
+                </CardPro>
 
-                <Card className="p-6">
+                <CardPro className="p-6">
                   <h3 className="text-lg font-semibold mb-4">EVM Performance</h3>
                   {evmMetrics ? (
                     <div className="space-y-3">
@@ -375,9 +379,9 @@ export const IntegratedAnalyticsView: React.FC = () => {
                   ) : (
                     <p className="text-gray-500">Loading EVM metrics...</p>
                   )}
-                </Card>
+                </CardPro>
 
-                <Card className="p-6">
+                <CardPro className="p-6">
                   <h3 className="text-lg font-semibold mb-4">KPI Summary</h3>
                   {kpiMetrics ? (
                     <div className="space-y-3">
@@ -407,50 +411,50 @@ export const IntegratedAnalyticsView: React.FC = () => {
                   ) : (
                     <p className="text-gray-500">Loading KPI metrics...</p>
                   )}
-                </Card>
+                </CardPro>
               </div>
 
               {/* Quick Actions */}
-              <Card className="p-6">
+              <CardPro className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Button
+                  <ButtonPro
                     onClick={() => setActiveTab('forecasting')}
                     variant="outline"
+                    icon={TrendingUp}
                     className="h-20 flex-col"
                   >
-                    <TrendingUp className="w-6 h-6 mb-2" />
-                    <span>View Forecasting</span>
-                  </Button>
+                    View Forecasting
+                  </ButtonPro>
 
-                  <Button
+                  <ButtonPro
                     onClick={() => setActiveTab('evm')}
                     variant="outline"
+                    icon={Target}
                     className="h-20 flex-col"
                   >
-                    <Target className="w-6 h-6 mb-2" />
-                    <span>EVM Analysis</span>
-                  </Button>
+                    EVM Analysis
+                  </ButtonPro>
 
-                  <Button
+                  <ButtonPro
                     onClick={() => setActiveTab('kpis')}
                     variant="outline"
+                    icon={Users}
                     className="h-20 flex-col"
                   >
-                    <Users className="w-6 h-6 mb-2" />
-                    <span>KPI Dashboard</span>
-                  </Button>
+                    KPI Dashboard
+                  </ButtonPro>
 
-                  <Button
+                  <ButtonPro
                     onClick={() => setActiveTab('rab')}
                     variant="outline"
+                    icon={DollarSign}
                     className="h-20 flex-col"
                   >
-                    <DollarSign className="w-6 h-6 mb-2" />
-                    <span>Enhanced RAB</span>
-                  </Button>
+                    Enhanced RAB
+                  </ButtonPro>
                 </div>
-              </Card>
+              </CardPro>
             </div>
           )}
 

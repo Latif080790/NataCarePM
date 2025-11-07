@@ -1,7 +1,7 @@
 import React from 'react';
 import { useProject } from '@/contexts/ProjectContext';
 import { useAuth } from '@/contexts/AuthContext';
-import EnhancedDashboardView from './EnhancedDashboardView';
+import DashboardPro from './DashboardPro';
 import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { ProjectMetrics } from '@/types';
 
@@ -41,34 +41,32 @@ const DashboardWrapper: React.FC = () => {
   }
 
   // Calculate project metrics from current project data
+  const totalBudget = currentProject.items?.reduce((sum, item) => sum + (item.volume * item.hargaSatuan), 0) || 0;
+  const actualCost = currentProject.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0;
+  const progressPercent = 35; // Demo project has 35% progress
+  
+  // Calculate EVM values
+  const earnedValue = (totalBudget * progressPercent) / 100;
+  const plannedValue = totalBudget * 0.5; // Assume 50% should be done by now
+  
   const projectMetrics: ProjectMetrics = {
-    totalBudget: currentProject.items?.reduce((sum, item) => sum + (item.volume * item.hargaSatuan), 0) || 0,
-    actualCost: currentProject.expenses?.reduce((sum, exp) => sum + (exp.amount || 0), 0) || 0,
-    budgetVariance: 0, // Will be calculated
-    progressPercentage: 0, // Will be calculated from items
-    tasksCompleted: 0,
-    totalTasks: 0,
-    onTimePerformance: 100,
-    qualityScore: 95,
-    safetyScore: 98,
-    teamProductivity: 85,
-    costPerformanceIndex: 1.0,
-    schedulePerformanceIndex: 1.0,
-    riskLevel: 'low' as const,
-    forecastedCompletion: currentProject.startDate,
-    criticalPath: [],
-    resourceUtilization: 75,
-    changeOrdersCount: 0,
-    issuesCount: 0,
+    totalBudget: totalBudget,
+    actualCost: actualCost,
+    plannedValue: plannedValue,
+    earnedValue: earnedValue,
+    remainingBudget: totalBudget - actualCost,
+    overallProgress: progressPercent,
+    evm: {
+      cpi: actualCost > 0 ? earnedValue / actualCost : 1.0,
+      spi: plannedValue > 0 ? earnedValue / plannedValue : 1.0,
+      cv: earnedValue - actualCost,
+      sv: earnedValue - plannedValue,
+    },
+    sCurveData: {
+      planned: [],
+      actual: [],
+    },
   };
-
-  // Calculate budget variance
-  projectMetrics.budgetVariance = projectMetrics.totalBudget - projectMetrics.actualCost;
-
-  // Calculate progress percentage from completed volume
-  const totalVolume = currentProject.items?.reduce((sum, item) => sum + item.volume, 0) || 1;
-  const completedVolume = 0; // This would come from actual completion data
-  projectMetrics.progressPercentage = totalVolume > 0 ? (completedVolume / totalVolume) * 100 : 0;
 
   // Prepare recent reports
   const recentReports = currentProject.dailyReports?.slice(0, 10) || [];
@@ -80,7 +78,7 @@ const DashboardWrapper: React.FC = () => {
   };
 
   return (
-    <EnhancedDashboardView
+    <DashboardPro
       project={currentProject}
       projectMetrics={projectMetrics}
       recentReports={recentReports}

@@ -179,14 +179,30 @@ export default function DashboardView({
     const toDate = new Date(filters.dateRange.to);
 
     // In real implementation, this would filter actual data
+    const budgetUtilization = projectMetrics.totalBudget > 0 
+      ? (projectMetrics.actualCost / projectMetrics.totalBudget) * 100 
+      : 0;
+    
+    const schedulePerformance = projectMetrics.evm?.spi 
+      ? projectMetrics.evm.spi * 100 
+      : 100;
+    
+    const cpi = projectMetrics.evm?.cpi 
+      ? projectMetrics.evm.cpi.toFixed(2) 
+      : '1.00';
+    
+    const spi = projectMetrics.evm?.spi 
+      ? projectMetrics.evm.spi.toFixed(2) 
+      : '1.00';
+    
     return {
       ...projectMetrics,
-      // Additional calculated metrics
-      totalCost: projectMetrics.actualCost,
-      budgetUtilization: (projectMetrics.actualCost / projectMetrics.totalBudget) * 100,
-      schedulePerformance: projectMetrics.evm.spi * 100,
-      cpi: projectMetrics.evm.cpi.toFixed(2),
-      spi: projectMetrics.evm.spi.toFixed(2),
+      // Additional calculated metrics with safe fallbacks
+      totalCost: projectMetrics.actualCost || 0,
+      budgetUtilization: isFinite(budgetUtilization) ? budgetUtilization : 0,
+      schedulePerformance: isFinite(schedulePerformance) ? schedulePerformance : 100,
+      cpi: cpi,
+      spi: spi,
       // Apply date filtering logic here
       filteredReports: recentReports.filter((report) => {
         const reportDate = new Date(report.date);
@@ -249,15 +265,15 @@ export default function DashboardView({
 
   return (
     <div className={`h-full flex flex-col ${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
-      {/* Enhanced Header */}
-      <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg shadow-sm border">
+      {/* Enterprise Header */}
+      <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-night-black">🚀 Enterprise Dashboard v1.2</h1>
-            <p className="text-palladium flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+            <p className="text-gray-500 flex items-center gap-2 text-sm">
               <Clock className="w-4 h-4" />
-              Terakhir diperbarui: {lastUpdated.toLocaleTimeString()}
-              {autoRefresh && <span className="text-green-600 text-xs">• Auto refresh aktif</span>}
+              Last updated: {lastUpdated.toLocaleTimeString('id-ID')}
+              {autoRefresh && <span className="text-green-600 text-xs ml-2">• Auto-refresh enabled</span>}
             </p>
           </div>
 
@@ -437,7 +453,7 @@ export default function DashboardView({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard
                       title="Total Progress"
                       value={`${filteredMetrics.overallProgress}%`}
@@ -514,14 +530,14 @@ export default function DashboardView({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div className="bg-gray-50 p-3 rounded">
-                        <p className="font-semibold">Cost Performance Index</p>
+                        <p className="font-semibold break-words">Cost Performance Index</p>
                         <p className="text-2xl font-bold text-green-600">{filteredMetrics.cpi}</p>
                         <p className="text-xs text-palladium">Target: ≥ 1.0</p>
                       </div>
                       <div className="bg-gray-50 p-3 rounded">
-                        <p className="font-semibold">Schedule Performance Index</p>
+                        <p className="font-semibold break-words">Schedule Performance Index</p>
                         <p className="text-2xl font-bold text-orange-600">{filteredMetrics.spi}</p>
                         <p className="text-xs text-palladium">Target: ≥ 1.0</p>
                       </div>

@@ -42,14 +42,14 @@ export function StatCard({
 
   return (
     <Card
-      className={`group transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] cursor-pointer border border-violet-essence/20 shadow-lg glass-enhanced backdrop-blur-lg overflow-hidden relative ${className}`}
+      className={`group transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] cursor-pointer border border-violet-essence/20 shadow-lg glass-enhanced backdrop-blur-lg overflow-hidden relative min-h-[10rem] ${className}`}
       onClick={handleClick}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-brilliance/50 via-violet-essence-50/30 to-no-way-rose-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-        <CardTitle className="text-sm font-semibold text-palladium group-hover:text-night-black transition-colors duration-300">
+        <CardTitle className="text-sm font-semibold text-palladium group-hover:text-night-black transition-colors duration-300 break-words">
           {title}
         </CardTitle>
         <div className="w-12 h-12 rounded-xl glass flex items-center justify-center group-hover:scale-110 transition-all duration-300 border border-violet-essence/20">

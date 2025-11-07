@@ -1,15 +1,14 @@
-// import React from 'react';
 import { useState, FormEvent, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
-import { Input } from '@/components/FormControls';
+import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro, ButtonProGroup } from '@/components/ButtonPro';
+import { InputPro, FormGroupPro } from '@/components/FormComponents';
+import { LoadingState, ErrorState } from '@/components/StateComponents';
 import { useAuth } from '@/contexts/AuthContext';
-import { Spinner } from '@/components/Spinner';
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import { TwoFactorSetup } from '@/components/TwoFactorSetup';
 import { twoFactorService } from '@/api/twoFactorService';
-import { User, Lock, Save, Shield, ShieldCheck } from 'lucide-react';
+import { User, Lock, Save, Shield, ShieldCheck, CheckCircle, AlertCircle } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
@@ -82,84 +81,84 @@ export default function ProfileView() {
   };
 
   if (!currentUser) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <LoadingState message="Loading profile..." size="lg" />;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 p-4">
       {/* Profile Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Profil Pengguna</CardTitle>
-          <CardDescription>Kelola informasi profil Anda</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <CardPro variant="elevated">
+        <CardProHeader>
+          <CardProTitle>Profil Pengguna</CardProTitle>
+          <CardProDescription>Kelola informasi profil Anda</CardProDescription>
+        </CardProHeader>
+        <CardProContent>
           <div className="flex items-start gap-6 mb-6">
             <div className="flex-shrink-0">
-              {/* New ProfilePhotoUpload component with interactive crop */}
               <ProfilePhotoUpload />
             </div>
 
             <div className="flex-1">
               {!isEditing ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-palladium">Nama</label>
-                    <p className="text-lg font-semibold">{currentUser.name}</p>
+                    <label className="text-sm font-medium text-gray-600">Nama</label>
+                    <p className="text-lg font-semibold text-gray-900">{currentUser.name}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-palladium">Email</label>
-                    <p className="text-lg">{currentUser.email}</p>
+                    <label className="text-sm font-medium text-gray-600">Email</label>
+                    <p className="text-lg text-gray-900">{currentUser.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-palladium">Role</label>
-                    <p className="text-lg capitalize">{currentUser.roleId}</p>
+                    <label className="text-sm font-medium text-gray-600">Role</label>
+                    <p className="text-lg capitalize text-gray-900">{currentUser.roleId}</p>
                   </div>
-                  <Button onClick={() => setIsEditing(true)} className="mt-4">
-                    <User className="w-4 h-4 mr-2" />
+                  <ButtonPro variant="primary" icon={User} onClick={() => setIsEditing(true)} className="mt-4">
                     Edit Profil
-                  </Button>
+                  </ButtonPro>
                 </div>
               ) : (
                 <form onSubmit={handleSaveProfile} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-palladium mb-1">Nama</label>
-                    <Input
+                  <FormGroupPro label="Nama" required>
+                    <InputPro
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       disabled={isSaving}
                       required
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-palladium mb-1">Email</label>
-                    <Input type="email" value={email} disabled={true} className="bg-gray-100" />
-                    <p className="text-xs text-palladium mt-1">Email tidak dapat diubah</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-palladium mb-1">
-                      Avatar URL
-                    </label>
-                    <Input
+                  </FormGroupPro>
+                  
+                  <FormGroupPro label="Email" helpText="Email tidak dapat diubah">
+                    <InputPro 
+                      type="email" 
+                      value={email} 
+                      disabled={true} 
+                      className="bg-gray-100" 
+                    />
+                  </FormGroupPro>
+                  
+                  <FormGroupPro label="Avatar URL">
+                    <InputPro
                       type="url"
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
                       placeholder="https://example.com/avatar.jpg"
                       disabled={isSaving}
                     />
-                  </div>
+                  </FormGroupPro>
 
-                  <div className="flex gap-2">
-                    <Button type="submit" disabled={isSaving}>
-                      {isSaving ? <Spinner size="sm" /> : <Save className="w-4 h-4 mr-2" />}
+                  <ButtonProGroup>
+                    <ButtonPro 
+                      type="submit" 
+                      variant="primary" 
+                      icon={Save}
+                      disabled={isSaving}
+                      isLoading={isSaving}
+                    >
                       Simpan
-                    </Button>
-                    <Button
+                    </ButtonPro>
+                    <ButtonPro
                       type="button"
                       variant="outline"
                       onClick={() => {
@@ -170,34 +169,36 @@ export default function ProfileView() {
                       disabled={isSaving}
                     >
                       Batal
-                    </Button>
-                  </div>
+                    </ButtonPro>
+                  </ButtonProGroup>
                 </form>
               )}
             </div>
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm text-green-600">{success}</p>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-green-700">{success}</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       {/* Change Password Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Keamanan Akun</CardTitle>
-          <CardDescription>Kelola password dan keamanan akun Anda</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <CardPro variant="elevated">
+        <CardProHeader>
+          <CardProTitle>Keamanan Akun</CardProTitle>
+          <CardProDescription>Kelola password dan keamanan akun Anda</CardProDescription>
+        </CardProHeader>
+        <CardProContent>
           <div className="space-y-6">
             {/* Password Section */}
             <div>
@@ -205,18 +206,17 @@ export default function ProfileView() {
                 <Lock className="w-4 h-4" />
                 Password
               </h3>
-              <p className="text-sm text-palladium mb-3">
+              <p className="text-sm text-gray-600 mb-3">
                 Gunakan password yang kuat untuk melindungi akun Anda. Disarankan mengubah password
                 secara berkala.
               </p>
-              <Button onClick={() => setShowPasswordModal(true)}>
-                <Lock className="w-4 h-4 mr-2" />
+              <ButtonPro variant="outline" icon={Lock} onClick={() => setShowPasswordModal(true)}>
                 Ubah Password
-              </Button>
+              </ButtonPro>
             </div>
 
             {/* 2FA Section */}
-            <div className="border-t pt-6">
+            <div className="border-t border-gray-200 pt-6">
               <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
                 {is2FAEnabled ? (
                   <ShieldCheck className="w-4 h-4 text-green-600" />
@@ -227,24 +227,22 @@ export default function ProfileView() {
               </h3>
 
               {checking2FA ? (
-                <div className="flex items-center gap-2 text-sm text-palladium">
-                  <Spinner size="sm" />
-                  Memeriksa status 2FA...
-                </div>
+                <LoadingState message="Memeriksa status 2FA..." size="sm" />
               ) : (
                 <>
                   {is2FAEnabled ? (
                     <div className="space-y-3">
-                      <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                         <p className="text-sm text-green-800 font-medium flex items-center gap-2">
-                          ✓ Autentikasi dua faktor aktif
+                          <CheckCircle className="w-4 h-4" />
+                          Autentikasi dua faktor aktif
                         </p>
                         <p className="text-xs text-green-600 mt-1">
                           Akun Anda dilindungi dengan keamanan tambahan
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
+                      <ButtonProGroup>
+                        <ButtonPro
                           variant="outline"
                           size="sm"
                           onClick={async () => {
@@ -271,8 +269,8 @@ export default function ProfileView() {
                           }}
                         >
                           Nonaktifkan 2FA
-                        </Button>
-                        <Button
+                        </ButtonPro>
+                        <ButtonPro
                           variant="outline"
                           size="sm"
                           onClick={async () => {
@@ -306,36 +304,36 @@ export default function ProfileView() {
                           }}
                         >
                           Regenerate Backup Codes
-                        </Button>
-                      </div>
+                        </ButtonPro>
+                      </ButtonProGroup>
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <p className="text-sm text-yellow-800 font-medium flex items-center gap-2">
-                          ⚠️ Autentikasi dua faktor tidak aktif
+                          <AlertCircle className="w-4 h-4" />
+                          Autentikasi dua faktor tidak aktif
                         </p>
                         <p className="text-xs text-yellow-600 mt-1">
                           Aktifkan 2FA untuk meningkatkan keamanan akun Anda
                         </p>
                       </div>
-                      <p className="text-sm text-palladium">
+                      <p className="text-sm text-gray-600">
                         Tambahkan lapisan keamanan ekstra dengan mengaktifkan autentikasi dua
                         faktor. Anda akan memerlukan kode dari aplikasi authenticator setiap kali
                         login.
                       </p>
-                      <Button onClick={() => setShow2FASetup(true)}>
-                        <Shield className="w-4 h-4 mr-2" />
+                      <ButtonPro variant="primary" icon={Shield} onClick={() => setShow2FASetup(true)}>
                         Aktifkan 2FA
-                      </Button>
+                      </ButtonPro>
                     </div>
                   )}
                 </>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       {/* Password Change Modal */}
       <PasswordChangeModal
@@ -349,31 +347,8 @@ export default function ProfileView() {
 
       {/* 2FA Setup Modal */}
       {show2FASetup && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10000,
-            padding: '20px',
-          }}
-        >
-          <div
-            style={{
-              background: 'white',
-              borderRadius: '16px',
-              maxWidth: '700px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflow: 'auto',
-            }}
-          >
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-5">
+          <CardPro className="max-w-2xl w-full max-h-[90vh] overflow-auto">
             <TwoFactorSetup
               onComplete={() => {
                 setShow2FASetup(false);
@@ -383,7 +358,7 @@ export default function ProfileView() {
               }}
               onCancel={() => setShow2FASetup(false)}
             />
-          </div>
+          </CardPro>
         </div>
       )}
     </div>

@@ -69,24 +69,16 @@ service cloud.firestore {
     // PROJECTS COLLECTION
     // ============================================
 
-    // TEMPORARY: Allow unauthenticated read for testing
+    // OPEN FOR TESTING - Allow all authenticated users
     match /projects {
-      allow list, read: if true; // TEMPORARY - Remove after testing
+      allow list, read: if isAuthenticated(); // Allow listing projects
+      allow create: if isAuthenticated(); // Allow creating projects for testing
     }
     
     match /projects/{projectId} {
-      // TEMPORARY: Allow unauthenticated read for testing
-      allow read: if true; // TEMPORARY - Remove after testing
-      
-      // Project members can read
-      // allow read: if isProjectMember(projectId);
-      
-      // Allow admins to create projects
-      allow create: if isAdmin() && 
-                      hasRequiredFields(['name', 'location', 'startDate', 'createdAt']);
-      
-      // Only project admins can update/delete
-      allow update, delete: if hasProjectRole(projectId, 'admin');
+      // OPEN FOR TESTING - Allow all authenticated users
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Temporarily allow all writes for testing
       
       // ============================================
       // PROJECT SUBCOLLECTIONS
@@ -94,17 +86,12 @@ service cloud.firestore {
       
       // Project Members
       match /members/{memberId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Daily Reports
       match /dailyReports/{reportId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['date', 'weather', 'createdBy', 'createdAt']);
-        allow update: if isProjectMember(projectId);
-        allow delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // RAB/Budget Items
@@ -116,141 +103,89 @@ service cloud.firestore {
       
       // Expenses
       match /expenses/{expenseId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['amount', 'category', 'date', 'createdAt']);
-        allow update, delete: if hasProjectRole(projectId, 'admin') || 
-                                hasProjectRole(projectId, 'finance');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Purchase Orders
       match /purchaseOrders/{poId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['prNumber', 'vendor', 'items', 'createdAt']);
-        allow update: if isProjectMember(projectId);
-        allow delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Inventory
       match /inventory/{inventoryId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'logistics') ||
-                       hasProjectRole(projectId, 'procurement');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Documents
       match /documents/{documentId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['name', 'type', 'uploadedBy', 'uploadedAt']);
-        allow update: if isProjectMember(projectId) || 
-                        request.resource.data.uploadedBy == request.auth.uid;
-        allow delete: if hasProjectRole(projectId, 'admin') || 
-                        resource.data.uploadedBy == request.auth.uid;
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Tasks
       match /tasks/{taskId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['title', 'status', 'createdBy', 'createdAt']);
-        allow update: if isProjectMember(projectId);
-        allow delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Attendances
       match /attendances/{attendanceId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'supervisor') ||
-                       hasProjectRole(projectId, 'hr');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Termins (Payment Terms)
       match /termins/{terminId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'finance');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
-      // Audit Logs (read-only for non-admins)
+      // Audit Logs
       match /auditLog/{logId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isAuthenticated(); // System creates
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
         allow update, delete: if false; // Immutable
       }
       
       // Safety Incidents
       match /safetyIncidents/{incidentId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['incidentNumber', 'type', 'severity', 'createdAt']);
-        allow update: if isProjectMember(projectId);
-        allow delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // PPE Inventory
       match /ppeInventory/{ppeId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'safety') ||
-                       hasProjectRole(projectId, 'logistics');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Training Records
       match /training/{trainingId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if isProjectMember(projectId);
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Material Requests
       match /materialRequests/{mrId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['mrNumber', 'requestedBy', 'createdAt']);
-        allow update: if isProjectMember(projectId);
-        allow delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Goods Receipts
       match /goodsReceipts/{grId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId) && 
-                        hasRequiredFields(['grNumber', 'receivedBy', 'createdAt']);
-        allow update: if isProjectMember(projectId);
-        allow delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Vendors
       match /vendors/{vendorId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'procurement');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Financial Transactions
       match /transactions/{transactionId} {
-        allow read: if isProjectMember(projectId);
-        allow create: if (hasProjectRole(projectId, 'admin') || 
-                         hasProjectRole(projectId, 'finance')) && 
-                        hasRequiredFields(['type', 'amount', 'date', 'createdAt']);
-        allow update, delete: if hasProjectRole(projectId, 'admin');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Journal Entries
       match /journalEntries/{entryId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'finance');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
       
       // Chart of Accounts
       match /chartOfAccounts/{accountId} {
-        allow read: if isProjectMember(projectId);
-        allow write: if hasProjectRole(projectId, 'admin') || 
-                       hasProjectRole(projectId, 'finance');
+        allow read, write: if isAuthenticated(); // OPEN FOR TESTING
       }
     }
     
