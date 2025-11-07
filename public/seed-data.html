@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Sample Data - NataCarePM</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .log {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .log-item {
+      margin-bottom: 8px;
+      padding: 4px 0;
+    }
+    .log-item.success { color: #10b981; }
+    .log-item.error { color: #ef4444; }
+    .log-item.info { color: #3b82f6; }
+    .log-item.warning { color: #f59e0b; }
+    .progress {
+      background: #e5e7eb;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #10b981, #059669);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌱 Seed Sample Data</h1>
+    <p class="subtitle">Initialize monitoring dashboard with test data</p>
+    
+    <button id="seedBtn" onclick="seedData()">Start Seeding Data</button>
+    
+    <div class="progress" id="progressContainer" style="display: none;">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, doc, setDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAyour-api-key-here",
+      authDomain: "natacara-hns.firebaseapp.com",
+      projectId: "natacara-hns",
+      storageBucket: "natacara-hns.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function addLog(message, type = 'info') {
+      const log = document.getElementById('log');
+      const item = document.createElement('div');
+      item.className = `log-item ${type}`;
+      item.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+      log.appendChild(item);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function updateProgress(percent) {
+      const bar = document.getElementById('progressBar');
+      bar.style.width = `${percent}%`;
+    }
+
+    window.seedData = async function() {
+      const btn = document.getElementById('seedBtn');
+      const progressContainer = document.getElementById('progressContainer');
+      
+      btn.disabled = true;
+      progressContainer.style.display = 'block';
+      addLog('🌱 Starting data seeding...', 'info');
+
+      try {
+        // 1. Create workspace
+        updateProgress(10);
+        await setDoc(doc(db, 'workspaces', 'default-workspace'), {
+          name: 'Default Workspace',
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+        });
+        addLog('✅ Workspace created', 'success');
+
+        // 2. Create project
+        updateProgress(20);
+        await setDoc(doc(db, 'projects', 'demo-project-001'), {
+          name: 'Demo Construction Project',
+          description: 'Sample project for testing mobile features',
+          location: 'Jakarta, Indonesia',
+          startDate: Timestamp.fromDate(new Date('2025-01-01')),
+          endDate: Timestamp.fromDate(new Date('2025-12-31')),
+          budget: 5000000000,
+          status: 'active',
+          progress: 35,
+          workspaceId: 'default-workspace',
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          createdBy: 'system',
+          geofence: {
+            latitude: -6.2088,
+            longitude: 106.8456,
+            radius: 500,
+          },
+        });
+        addLog('✅ Project created', 'success');
+
+        // 3. Create camera uploads
+        updateProgress(40);
+        for (let i = 1; i <= 10; i++) {
+          await setDoc(doc(db, 'cameraUploads', `upload-${i}`), {
+            projectId: 'demo-project-001',
+            userId: 'demo-user-001',
+            fileName: `photo-${i}.jpg`,
+            fileSize: Math.floor(Math.random() * 3000000) + 500000,
+            fileType: 'image/jpeg',
+            uploadedAt: Timestamp.fromDate(
+              new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000))
+            ),
+            compressed: true,
+            quality: 0.8,
+            status: Math.random() > 0.05 ? 'success' : 'failed',
+            location: {
+              latitude: -6.2088 + (Math.random() - 0.5) * 0.01,
+              longitude: 106.8456 + (Math.random() - 0.5) * 0.01,
+            },
+          });
+        }
+        addLog('✅ 10 camera uploads created', 'success');
+
+        // 4. Create GPS captures
+        updateProgress(60);
+        for (let i = 1; i <= 10; i++) {
+          const insideGeofence = Math.random() > 0.1;
+          await setDoc(doc(db, 'gpsCaptures', `gps-${i}`), {
+            projectId: 'demo-project-001',
+            userId: 'demo-user-001',
+            latitude: insideGeofence
+              ? -6.2088 + (Math.random() - 0.5) * 0.002
+              : -6.2088 + (Math.random() - 0.5) * 0.02,
+            longitude: insideGeofence
+              ? 106.8456 + (Math.random() - 0.5) * 0.002
+              : 106.8456 + (Math.random() - 0.5) * 0.02,
+            accuracy: Math.floor(Math.random() * 15) + 5,
+            timestamp: Timestamp.fromDate(
+              new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000))
+            ),
+            insideGeofence,
+            geofenceCompliance: insideGeofence ? 'compliant' : 'non-compliant',
+          });
+        }
+        addLog('✅ 10 GPS captures created', 'success');
+
+        // 5. Create push notifications
+        updateProgress(80);
+        for (let i = 1; i <= 5; i++) {
+          const opened = Math.random() > 0.5;
+          await setDoc(doc(db, 'pushNotifications', `notif-${i}`), {
+            projectId: 'demo-project-001',
+            userId: 'demo-user-001',
+            title: `Test Notification ${i}`,
+            body: 'This is a test notification for monitoring dashboard',
+            type: ['info', 'warning', 'success'][Math.floor(Math.random() * 3)],
+            sentAt: Timestamp.fromDate(
+              new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000))
+            ),
+            delivered: true,
+            opened,
+            openedAt: opened ? Timestamp.fromDate(
+              new Date(Date.now() - Math.floor(Math.random() * 6 * 24 * 60 * 60 * 1000))
+            ) : null,
+          });
+        }
+        addLog('✅ 5 push notifications created', 'success');
+
+        updateProgress(100);
+        addLog('🎉 Sample data seeded successfully!', 'success');
+        addLog('📊 1 Workspace, 1 Project, 10 Camera uploads, 10 GPS captures, 5 Push notifications', 'info');
+        addLog('🌐 Visit: https://natacara-hns.web.app/monitoring', 'info');
+
+        setTimeout(() => {
+          window.location.href = 'https://natacara-hns.web.app/monitoring';
+        }, 2000);
+
+      } catch (error) {
+        addLog(`❌ Error: ${error.message}`, 'error');
+        btn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

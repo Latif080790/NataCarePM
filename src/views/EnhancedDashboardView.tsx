@@ -253,7 +253,7 @@ export default function DashboardView({
       <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg shadow-sm border">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-night-black">Project Dashboard</h1>
+            <h1 className="text-2xl font-bold text-night-black">🚀 Enterprise Dashboard v1.2</h1>
             <p className="text-palladium flex items-center gap-2">
               <Clock className="w-4 h-4" />
               Terakhir diperbarui: {lastUpdated.toLocaleTimeString()}

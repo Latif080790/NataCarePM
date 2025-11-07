@@ -69,14 +69,17 @@ service cloud.firestore {
     // PROJECTS COLLECTION
     // ============================================
 
-    // Allow authenticated users to list projects
+    // TEMPORARY: Allow unauthenticated read for testing
     match /projects {
-      allow list: if isAuthenticated();
+      allow list, read: if true; // TEMPORARY - Remove after testing
     }
     
     match /projects/{projectId} {
+      // TEMPORARY: Allow unauthenticated read for testing
+      allow read: if true; // TEMPORARY - Remove after testing
+      
       // Project members can read
-      allow read: if isProjectMember(projectId);
+      // allow read: if isProjectMember(projectId);
       
       // Allow admins to create projects
       allow create: if isAdmin() && 

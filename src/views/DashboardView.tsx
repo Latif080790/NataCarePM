@@ -27,40 +27,40 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
+import { useProject } from '@/contexts/ProjectContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DashboardViewProps {
-  projects: Project[];
-  tasks: Task[];
-  expenses: Expense[];
-  purchaseOrders: PurchaseOrder[];
-  users: User[];
+  projects?: Project[];
+  tasks?: Task[];
+  expenses?: Expense[];
+  purchaseOrders?: PurchaseOrder[];
+  users?: User[];
   onNavigate?: (viewName: string) => void;
 }
 
 const DashboardView: React.FC<DashboardViewProps> = ({
-  projects = [],
-  tasks = [],
-  expenses = [],
-  purchaseOrders = [],
-  users = [],
   onNavigate = () => {},
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
+  // Use ProjectContext to get current project data
+  const { currentProject, workspaces, loading: projectLoading } = useProject();
+  const { currentUser } = useAuth();
+  
+  // Extract data from current project
+  const projects = workspaces.flatMap(ws => ws.projects || []).filter(p => p.id);
+  const expenses = currentProject?.expenses || [];
+  const purchaseOrders = currentProject?.purchaseOrders || [];
+  const users = currentProject?.members || [];
+  
+  // Tasks are not in the current data model, so we'll create empty array
+  const tasks: Task[] = [];
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
 
-  // Simulate initial data load
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Get current project or use first project
-  const currentProject = projects[selectedProjectIndex] || projects[0];
+  // Use loading state from ProjectContext
+  const isLoading = projectLoading;
 
   // S-Curve data (Planned vs Actual)
   const sCurveData = [

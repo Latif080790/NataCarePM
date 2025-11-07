@@ -1,9 +1,9 @@
 /**
  * Service Worker for NataCarePM
  * Implements offline-first PWA capabilities with intelligent caching strategies
- */
+  */
 
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.1.1'; // Bumped for mobile fixes
 const CACHE_NAME = `natacare-${CACHE_VERSION}`;
 
 // Cache strategies
@@ -402,12 +402,17 @@ self.addEventListener('push', (event) => {
     data = event.data.json();
   }
 
+  const timestamp = Date.now();
   const options = {
     body: data.body || 'New notification from NataCarePM',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/badge-72x72.png',
     vibrate: [200, 100, 200],
-    data: data.url || '/',
+    data: {
+      url: data.url || '/',
+      sentTimestamp: timestamp,
+      notificationType: data.type || 'generic',
+    },
     actions: data.actions || [],
   };
 
@@ -427,8 +432,39 @@ self.addEventListener('notificationclick', (event) => {
 
   event.notification.close();
 
+  const clickTimestamp = Date.now();
+  const sentTimestamp = event.notification.data?.sentTimestamp || clickTimestamp;
+  const notificationType = event.notification.data?.notificationType || 'generic';
+  const timeToOpen = clickTimestamp - sentTimestamp;
+
+  // Track notification click
   event.waitUntil(
-    clients.openWindow(event.notification.data || '/')
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Send tracking data to any open client
+      if (clientList.length > 0) {
+        clientList[0].postMessage({
+          type: 'NOTIFICATION_CLICKED',
+          payload: {
+            timestamp: clickTimestamp,
+            notificationType,
+            delivered: true,
+            opened: true,
+            timeToOpen,
+          },
+        });
+      }
+      
+      // Open or focus window
+      const urlToOpen = event.notification.data?.url || '/';
+      for (const client of clientList) {
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
   );
 });
 

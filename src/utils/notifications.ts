@@ -3,6 +3,8 @@
  * FCM integration for real-time alerts
  */
 
+import { trackPushNotification } from './mobileAnalytics';
+
 export interface NotificationPayload {
   title: string;
   body: string;
@@ -11,6 +13,7 @@ export interface NotificationPayload {
   data?: Record<string, any>;
   tag?: string;
   requireInteraction?: boolean;
+  type?: string; // For analytics tracking
 }
 
 export class NotificationService {
@@ -58,12 +61,25 @@ export class NotificationService {
     }
 
     const registration = await navigator.serviceWorker.ready;
+    const timestamp = Date.now();
+    
+    // Track notification sent
+    trackPushNotification({
+      timestamp,
+      notificationType: payload.type || 'generic',
+      delivered: true,
+      opened: false,
+    });
     
     await registration.showNotification(payload.title, {
       body: payload.body,
       icon: payload.icon || '/icon-192.png',
       badge: payload.badge || '/badge-72.png',
-      data: payload.data,
+      data: { 
+        ...payload.data,
+        sentTimestamp: timestamp, // Store for click tracking
+        notificationType: payload.type || 'generic',
+      },
       tag: payload.tag,
       requireInteraction: payload.requireInteraction || false,
     });

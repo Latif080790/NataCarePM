@@ -1,7 +1,7 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
+// import { VitePWA } from 'vite-plugin-pwa'; // Temporarily disabled
 import { visualizer } from 'rollup-plugin-visualizer';
 
 /**
@@ -106,99 +106,7 @@ export default defineConfig(({ mode }) => {
         brotliSize: true,
         filename: 'dist/stats.html',
       }) as any,
-      VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-        manifest: {
-          name: 'NataCare Project Management',
-          short_name: 'NataCare PM',
-          description: 'Enterprise Construction Project Management System',
-          theme_color: '#3b82f6',
-          background_color: '#ffffff',
-          display: 'standalone',
-          orientation: 'portrait',
-          scope: '/',
-          start_url: '/',
-          icons: [
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any maskable',
-            },
-          ],
-        },
-        workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-          maximumFileSizeToCacheInBytes: 5242880, // 5 MB limit
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'firebase-storage-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/i,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'firestore-api-cache',
-                networkTimeoutSeconds: 10,
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 5, // 5 minutes
-                },
-              },
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'google-fonts-stylesheets',
-              },
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-webfonts',
-                expiration: {
-                  maxEntries: 30,
-                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-          ],
-          cleanupOutdatedCaches: true,
-          skipWaiting: true,
-          clientsClaim: true,
-        },
-        devOptions: {
-          enabled: mode === 'development',
-          type: 'module',
-        },
-      }),
+      // VitePWA temporarily disabled to prevent reload loop
     ],
     esbuild: {
       jsx: 'automatic',
@@ -214,8 +122,14 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      target: ['es2015', 'chrome79', 'safari13', 'firefox72', 'edge79'],
       rollupOptions: {
         input: 'index.html',
+        external: [
+          // Exclude Twilio SDK from bundle (loaded dynamically only when needed)
+          'twilio',
+          'jsonwebtoken',
+        ],
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
@@ -235,7 +149,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       chunkSizeWarningLimit: 1000,
-      minify: 'terser',
+      minify: 'terser', // Re-enable minification
       terserOptions: {
         compress: {
           drop_console: true,

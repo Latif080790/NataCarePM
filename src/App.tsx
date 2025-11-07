@@ -18,6 +18,7 @@ import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
 import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
 import { performanceMonitor } from '@/utils/performanceMonitor';
+import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
@@ -28,7 +29,7 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 
 
 // Lazy-loaded Views (loaded on demand)
-const DashboardView = lazy(() => import('@/views/DashboardView'));
+const DashboardView = lazy(() => import('@/views/DashboardWrapper'));
 const RabAhspView = lazy(() => import('@/views/RabAhspView'));
 const EnhancedRabAhspView = lazy(() => import('@/views/EnhancedRabAhspView'));
 const GanttChartView = lazy(() => import('@/views/GanttChartView'));
@@ -246,6 +247,26 @@ function ProtectedApp() {
     }
   }, [currentUser]);
 
+  // 📱 Priority 2C Mobile: Listen for push notification click events from Service Worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const messageHandler = (event: MessageEvent) => {
+        if (event.data && event.data.type === 'NOTIFICATION_CLICKED') {
+          const payload = event.data.payload;
+          trackPushNotification(payload);
+          logger.info('Push notification click tracked', { type: payload.notificationType });
+        }
+      };
+
+      navigator.serviceWorker.addEventListener('message', messageHandler);
+
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', messageHandler);
+      };
+    }
+    return undefined;
+  }, []);
+
   // 🐛 Debug panel keyboard shortcut (Ctrl+Shift+D)
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -297,6 +318,12 @@ function ProtectedApp() {
   const getViewProps = (): any => ({
     project: currentProject,
     projectMetrics: projectMetrics,
+    recentReports: currentProject?.dailyReports || [],
+    notifications: [],
+    updateAiInsight: async () => {
+      // Placeholder for AI insight update
+      console.log('Update AI insight');
+    },
     loading: projectLoading,
     error: projectError,
     user: currentUser,
@@ -323,7 +350,7 @@ function ProtectedApp() {
               path="/dashboard" 
               element={
                 <ViewErrorBoundary viewName="Dashboard">
-                  <DashboardView {...viewProps} />
+                  <DashboardView />
                 </ViewErrorBoundary>
               } 
             />
