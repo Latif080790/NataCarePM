@@ -6,8 +6,10 @@ import { Input, Select } from '@/components/FormControls';
 import { Attendance, Worker } from '@/types';
 // FIX: Added formatDate to imports to resolve reference error.
 import { getTodayDateString, formatDate } from '@/constants';
-import { UserCheck, UserX, User, Lock } from 'lucide-react';
+import { UserCheck, UserX, User, Lock, MapPin } from 'lucide-react';
 import { usePermissions, useRequirePermission } from '@/hooks/usePermissions';
+import { GPSCapture, GeolocationData } from '@/components/GPSCapture';
+import { Modal } from '@/components/Modal';
 
 interface AttendanceViewProps {
   attendances: Attendance[];
@@ -39,6 +41,8 @@ export default function AttendanceView({
   const [localAttendance, setLocalAttendance] = useState<Map<string, Attendance['status']>>(
     new Map()
   );
+  const [gpsModalOpen, setGpsModalOpen] = useState(false);
+  const [locationData, setLocationData] = useState<Map<string, GeolocationData>>(new Map());
 
   useEffect(() => {
     // Populate local state based on global state for the selected date
@@ -55,6 +59,13 @@ export default function AttendanceView({
 
   const handleStatusChange = (workerId: string, status: Attendance['status']) => {
     setLocalAttendance(new Map(localAttendance.set(workerId, status)));
+  };
+
+  const handleGPSCapture = (geoData: GeolocationData) => {
+    const newLocationData = new Map(locationData);
+    newLocationData.set(selectedDate, geoData);
+    setLocationData(newLocationData);
+    setGpsModalOpen(false);
   };
 
   const handleSaveChanges = () => {
@@ -81,13 +92,19 @@ export default function AttendanceView({
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-            <Input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-auto"
-              disabled={!canManage}
-            />
+            <div className="flex gap-2">
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-auto"
+                disabled={!canManage}
+              />
+              <Button onClick={() => setGpsModalOpen(true)} variant="secondary" disabled={!canManage}>
+                <MapPin className="w-4 h-4 mr-1" />
+                GPS
+              </Button>
+            </div>
             <div className="flex gap-4 text-sm text-night-black">
               <span className="flex items-center">
                 <UserCheck className="w-4 h-4 mr-1 text-green-500" />
@@ -153,6 +170,13 @@ export default function AttendanceView({
           </div>
         </CardContent>
       </Card>
+
+      <Modal isOpen={gpsModalOpen} onClose={() => setGpsModalOpen(false)} title="Capture GPS Location">
+        <GPSCapture 
+          onCapture={handleGPSCapture}
+          workSiteLocation={{ lat: -6.2088, lng: 106.8456, radius: 100 }}
+        />
+      </Modal>
     </div>
   );
 }

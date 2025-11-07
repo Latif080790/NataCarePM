@@ -5,7 +5,9 @@ import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import { ViewErrorBoundary } from '@/components/ViewErrorBoundary';
 import PerformanceDashboard from '@/components/PerformanceDashboard';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 import '@/styles/enterprise-design-system.css';
+import '@/styles/mobile-responsive.css';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 

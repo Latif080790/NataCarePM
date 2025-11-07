@@ -24,10 +24,12 @@ import {
   Calendar,
   Tag,
   Archive,
+  Camera,
 } from 'lucide-react';
 import { formatDate, hasPermission } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { UploadDocumentModal } from '@/components/UploadDocumentModal';
+import { CameraCapture, useCameraCapture } from '@/components/CameraCapture';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -86,8 +88,11 @@ const getFileSize = (bytes: number): string => {
 
 export default function DokumenView({ documents }: DokumenViewProps) {
   const { currentUser } = useAuth();
-  const { handleAddDocument } = useProject();
+  const { handleAddDocument, currentProject } = useProject();
   const { addToast } = useToast();
+
+  // Camera capture hook
+  const { isOpen: isCameraOpen, openCamera, closeCamera, handleCapture } = useCameraCapture();
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<DocumentWithVersions | null>(null);
@@ -261,10 +266,20 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             </CardDescription>
           </div>
           {canManageDocuments && (
-            <Button onClick={() => setIsUploadModalOpen(true)}>
-              <Upload className="w-4 h-4 mr-2" />
-              Unggah Dokumen
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setIsUploadModalOpen(true)}>
+                <Upload className="w-4 h-4 mr-2" />
+                Unggah Dokumen
+              </Button>
+              <Button 
+                onClick={openCamera}
+                variant="outline"
+                className="bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Ambil Foto
+              </Button>
+            </div>
           )}
         </CardHeader>
         <CardContent>
@@ -620,6 +635,50 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Camera Capture Modal */}
+      {isCameraOpen && currentProject && (
+        <CameraCapture
+          projectId={currentProject.id}
+          onCapture={async (imageUrls) => {
+            handleCapture(imageUrls);
+            
+            // Convert URLs to documents
+            try {
+              for (let i = 0; i < imageUrls.length; i++) {
+                const url = imageUrls[i];
+                const timestamp = Date.now();
+                
+                // Fetch the image as blob
+                const response = await fetch(url);
+                const blob = await response.blob();
+                
+                // Create a File-like object
+                const file = new Blob([blob], { type: 'image/jpeg' }) as File;
+                Object.defineProperty(file, 'name', {
+                  value: `photo_${timestamp}_${i + 1}.jpg`,
+                  writable: false,
+                });
+                
+                // Add document via context
+                await handleAddDocument({
+                  name: `Photo ${new Date().toLocaleTimeString()} #${i + 1}`,
+                  category: 'image',
+                  uploadDate: new Date().toISOString(),
+                }, file);
+              }
+              
+              addToast(`${imageUrls.length} foto berhasil diunggah`, 'success');
+            } catch (error) {
+              console.error('Error adding captured photos:', error);
+              addToast('Gagal menambahkan foto', 'error');
+            }
+          }}
+          onCancel={closeCamera}
+          maxPhotos={5}
+          compressionQuality={0.8}
+        />
       )}
     </>
   );
