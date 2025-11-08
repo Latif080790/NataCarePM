@@ -43,3 +43,5 @@ export type { FABProps, FABMenuItem, FABMenuProps } from './FAB';
 // Advanced Features
 export { NotificationCenter } from './NotificationCenter';
 export type { Notification, NotificationCenterProps } from './NotificationCenter';
+
+export { ThemeSwitcher, useTheme } from './ThemeSwitcher';
