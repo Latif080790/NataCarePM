@@ -10,13 +10,21 @@ import {
 } from 'lucide-react';
 import {
   CardPro,
+  CardProHeader,
+  CardProContent,
   ButtonPro,
   StatCardPro,
   BadgePro,
+  BadgeStatus,
   EnterpriseLayout,
   PageHeader,
   SectionLayout,
+  TablePro,
+  SpinnerPro,
+  AlertPro,
+  GridLayout,
 } from '@/components/DesignSystem';
+import type { ColumnDef } from '@/components/DesignSystem';
 import MonitoringDashboard from '@/components/MonitoringDashboard';
 import {
   useSystemHealth,

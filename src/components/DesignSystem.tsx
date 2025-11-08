@@ -52,7 +52,43 @@ export type { FABProps, FABMenuItem, FABMenuProps } from './FAB';
 export { NotificationCenter } from './NotificationCenter';
 export type { Notification, NotificationCenterProps } from './NotificationCenter';
 
+// Advanced Features
 export { ThemeSwitcher, useTheme } from './ThemeSwitcher';
+
+export { 
+  ChartPro, 
+  LineChartPro, 
+  BarChartPro, 
+  GaugeChartPro, 
+  PieChartPro 
+} from './ChartPro';
+export type { 
+  ChartProProps, 
+  ChartType, 
+  ChartConfig, 
+  ChartDataPoint, 
+  ExportFormat 
+} from './ChartPro';
+
+export {
+  WidgetContainer,
+  StatWidget,
+  ChartWidget,
+  ListWidget,
+  MetricWidget,
+  WidgetGrid,
+  useWidgetState,
+} from './DashboardWidgets';
+export type {
+  WidgetConfig,
+  WidgetSize,
+  WidgetType,
+  StatData,
+  ChartWidgetData,
+  ListItem,
+  MetricData,
+  WidgetState,
+} from './DashboardWidgets';
 
 export { ToastProvider, useToast, toast, setGlobalToastHandler } from './ToastPro';
 export type { Toast } from './ToastPro';

@@ -182,10 +182,9 @@ export function CommandPalettePro({
 
   return (
     <ModalPro
-      open={open}
+      isOpen={open}
       onClose={onClose}
       size="lg"
-      showHeader={false}
       className="!p-0"
     >
       <div className="flex flex-col h-[600px] max-h-[80vh]">
