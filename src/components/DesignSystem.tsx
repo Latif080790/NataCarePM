@@ -45,3 +45,6 @@ export { NotificationCenter } from './NotificationCenter';
 export type { Notification, NotificationCenterProps } from './NotificationCenter';
 
 export { ThemeSwitcher, useTheme } from './ThemeSwitcher';
+
+export { ToastProvider, useToast, toast, setGlobalToastHandler } from './ToastPro';
+export type { Toast } from './ToastPro';
