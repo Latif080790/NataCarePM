@@ -8,7 +8,12 @@ import { auth } from '@/firebaseConfig';
 import { authService } from '@/services/authService';
 import { logger } from '@/utils/logger.enhanced';
 import { rateLimiter } from '@/utils/rateLimiter';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { 
+  onAuthStateChanged, 
+  signOut,
+  signInWithEmailAndPassword,
+  MultiFactorResolver,
+} from 'firebase/auth';
 import type { User } from '@/types';
 import React, {
     createContext,
@@ -32,6 +37,7 @@ interface AuthContextType {
   cancel2FA: () => void;
   error: string | null;
   clearError: () => void;
+  mfaResolver: MultiFactorResolver | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,6 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     password: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mfaResolver, setMfaResolver] = useState<MultiFactorResolver | null>(null);
 
   // Clear error message
   const clearError = useCallback(() => {
@@ -140,48 +147,64 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         await new Promise(resolve => setTimeout(resolve, delay * 1000));
       }
 
-      // Step 3: Attempt login
-      const response = await authService.login(email, password);
-      
-      if (!response.success) {
-        // Record failed attempt
+      // Step 3: Attempt login with Firebase Auth (to detect MFA)
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        
+        // If we get here, no MFA required - proceed with normal login
+        const response = await authService.login(email, password);
+        
+        if (!response.success) {
+          await recordLoginAttempt(
+            email, 
+            false, 
+            undefined, 
+            undefined, 
+            response.error?.message || 'Login failed'
+          );
+          throw new Error(response.error?.message || 'Login failed');
+        }
+
+        // Record successful login
+        const user = auth.currentUser;
+        await recordLoginAttempt(
+          email, 
+          true, 
+          user?.uid, 
+          undefined, 
+          'Login successful'
+        );
+        rateLimiter.reset(email, 'login');
+        
+      } catch (authError: any) {
+        // Check if this is a multi-factor auth error
+        if (authError.code === 'auth/multi-factor-auth-required') {
+          const resolver = authError.resolver as MultiFactorResolver;
+          setMfaResolver(resolver);
+          setRequires2FA(true);
+          setPendingCredentials({ email, password });
+          setLoading(false);
+          return;
+        }
+        
+        // Other auth errors
         await recordLoginAttempt(
           email, 
           false, 
           undefined, 
           undefined, 
-          response.error?.message || 'Login failed'
+          authError.message || 'Login failed'
         );
-        
-        throw new Error(response.error?.message || 'Login failed');
+        throw authError;
       }
 
-      // Step 4: Check if 2FA is required
-      if (response.data?.requires2FA) {
-        setRequires2FA(true);
-        setPending2FAUserId(response.data.pending2FAUserId || null);
-        setPendingCredentials({ email, password });
-        setLoading(false);
-        return;
-      }
-
-      // Step 5: Record successful login
-      const user = auth.currentUser;
-      await recordLoginAttempt(
-        email, 
-        true, 
-        user?.uid, 
-        undefined, 
-        'Login successful'
-      );
-
-      // Login successful, user will be set by auth state listener
-      rateLimiter.reset(email, 'login');
     } catch (err) {
       setLoading(false);
       const errorMessage = err instanceof Error ? err.message : 'Login failed: Unknown error occurred';
       setError(errorMessage);
       throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -294,6 +317,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setRequires2FA(false);
     setPending2FAUserId(null);
     setPendingCredentials(null);
+    setMfaResolver(null);
     setError(null);
   }, []);
 
@@ -333,6 +357,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     cancel2FA,
     error,
     clearError,
+    mfaResolver,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

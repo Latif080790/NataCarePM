@@ -8,6 +8,13 @@ import 'regenerator-runtime/runtime';
 import { createRoot } from 'react-dom/client';
 import Root from './Root';
 import { registerServiceWorker } from '@/utils/serviceWorkerRegistration';
+import { initAppCheck, enableAppCheckDebugMode } from '@/appCheckConfig';
+
+// Initialize App Check (production only by default)
+if (import.meta.env.DEV) {
+  enableAppCheckDebugMode();
+}
+initAppCheck();
 
 // Global error handler for mobile debugging
 window.addEventListener('error', (event) => {

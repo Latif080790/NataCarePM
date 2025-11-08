@@ -13,6 +13,7 @@ import { FormField } from '@/components/FormFields';
 import { loginSchema, registrationSchema, type LoginFormData, type RegistrationFormData } from '@/schemas/authSchemas';
 import { LogIn, UserPlus, Shield, Building2, AlertCircle } from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';
+import { TwoFactorSignIn } from '@/components/TwoFactorSignIn';
 
 // Firebase imports
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -20,7 +21,15 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 
 export default function EnterpriseLoginView() {
-  const { loading: authLoading, login, error: authError, clearError } = useAuth();
+  const { 
+    loading: authLoading, 
+    login, 
+    error: authError, 
+    clearError,
+    requires2FA,
+    mfaResolver,
+    cancel2FA,
+  } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
@@ -71,6 +80,21 @@ export default function EnterpriseLoginView() {
       clearError();
       setShowForgotPassword(false);
     }} />;
+  }
+
+  // Show 2FA verification if required
+  if (requires2FA && mfaResolver) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+        <TwoFactorSignIn
+          resolver={mfaResolver}
+          onSuccess={() => {
+            // User will be redirected by AuthContext
+          }}
+          onCancel={cancel2FA}
+        />
+      </div>
+    );
   }
 
   return (
