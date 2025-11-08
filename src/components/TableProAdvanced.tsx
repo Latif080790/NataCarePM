@@ -24,7 +24,6 @@ import {
   Filter,
   CheckSquare,
   Square,
-  Trash2,
 } from 'lucide-react';
 import { ButtonPro } from './ButtonPro';
 import { BadgePro } from './BadgePro';
@@ -74,7 +73,6 @@ export function useTableAdvanced<T extends Record<string, any>>(
     data,
     columns,
     pagination,
-    selectable = false,
     selectedRows: controlledSelected,
     onSelectionChange,
     rowKey = 'id' as keyof T,
@@ -265,7 +263,6 @@ export function TableToolbar<T>({
                     key={idx}
                     variant={action.variant || 'secondary'}
                     size="sm"
-                    icon={action.icon}
                     onClick={action.onClick as any}
                   >
                     {action.label}
@@ -437,7 +434,7 @@ export function ColumnToggleModal({
   onToggleColumn: (key: string) => void;
 }) {
   return (
-    <ModalPro open={open} onClose={onClose} title="Manage Columns" size="sm">
+    <ModalPro isOpen={open} onClose={onClose} title="Manage Columns" size="sm">
       <div className="space-y-2">
         {columns.map((col) => {
           const isVisible = visibleColumns.has(col.key);

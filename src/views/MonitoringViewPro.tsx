@@ -5,16 +5,15 @@ import {
   CheckCircle2,
   Clock,
   RefreshCw,
+  Settings,
+  TrendingUp,
   Users,
   Zap,
 } from 'lucide-react';
 import {
   CardPro,
-  CardProHeader,
-  CardProContent,
   ButtonPro,
   StatCardPro,
-  BadgePro,
   BadgeStatus,
   EnterpriseLayout,
   PageHeader,
@@ -112,7 +111,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
       header: 'Severity',
       render: (row) => {
         const severityMap = {
-          low: 'info',
+          low: 'default',
           medium: 'warning',
           high: 'error',
           critical: 'error',
@@ -142,7 +141,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
       key: 'resolved',
       header: 'Status',
       render: (row) => (
-        <BadgeStatus status={row.resolved ? 'success' : 'warning'}>
+        <BadgeStatus variant={row.resolved ? 'success' : 'warning'}>
           {row.resolved ? 'Resolved' : 'Pending'}
         </BadgeStatus>
       ),
@@ -164,7 +163,6 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
       <PageHeader
         title="System Monitoring"
         subtitle="Real-time monitoring and analytics for NataCarePM"
-        icon={<Activity className="w-8 h-8" />}
         actions={
           <div className="flex items-center gap-3">
             {/* System Health Badge */}
@@ -187,7 +185,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
               variant="outline"
               onClick={handleRefreshAll}
               disabled={isLoading}
-              leftIcon={<RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />}
+              icon={RefreshCw}
             >
               Refresh
             </ButtonPro>
@@ -196,7 +194,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
             <ButtonPro
               variant={showAdvanced ? 'primary' : 'outline'}
               onClick={() => setShowAdvanced(!showAdvanced)}
-              leftIcon={<Settings className="w-4 h-4" />}
+              icon={Settings}
             >
               Advanced
             </ButtonPro>
@@ -205,7 +203,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
       />
 
       {/* Time Range Filter */}
-      <SectionLayout variant="compact">
+      <SectionLayout>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700">Time Range:</span>
           <div className="flex bg-white rounded-lg border border-gray-200 shadow-soft overflow-hidden">
@@ -229,59 +227,50 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
       {/* Critical Alerts */}
       {health?.status === 'critical' && (
         <AlertPro
-          type="error"
+          variant="error"
           title="Critical System Issue Detected"
-          message="Immediate attention required. Check error logs for details."
-          action={
-            <ButtonPro variant="error" size="sm">
-              View Details
-            </ButtonPro>
-          }
-        />
+        >
+          Immediate attention required. Check error logs for details.
+        </AlertPro>
       )}
 
       {/* Quick Stats */}
       <SectionLayout title="System Metrics">
-        <GridLayout cols={4}>
+        <GridLayout>
           <StatCardPro
             title="Active Users"
             value={currentMetrics?.activeUsers || 0}
-            icon={<Users className="w-5 h-5" />}
-            trend={currentMetrics?.activeUsers ? 'up' : undefined}
-            trendValue={12}
-            loading={metricsLoading}
+            icon={Users}
+            trend={currentMetrics?.activeUsers ? { value: 12, isPositiveGood: true } : undefined}
+            isLoading={metricsLoading}
             variant="primary"
           />
 
           <StatCardPro
             title="Total Activities"
             value={analytics?.summary?.totalActivities || 0}
-            subtitle={`in ${timeRange}`}
-            icon={<Activity className="w-5 h-5" />}
-            trend="up"
-            trendValue={8}
-            loading={analyticsLoading}
+            icon={Activity}
+            trend={{ value: 8, isPositiveGood: true }}
+            isLoading={analyticsLoading}
             variant="success"
           />
 
           <StatCardPro
             title="Unresolved Errors"
             value={errors.length}
-            icon={<AlertTriangle className="w-5 h-5" />}
-            trend={errors.length > 10 ? 'up' : 'down'}
-            trendValue={errors.length > 10 ? 15 : 5}
-            loading={errorsLoading}
+            icon={AlertTriangle}
+            trend={errors.length > 10 ? { value: 15, isPositiveGood: false } : { value: 5, isPositiveGood: true }}
+            isLoading={errorsLoading}
             variant={errors.length > 10 ? 'error' : 'warning'}
           />
 
           <StatCardPro
             title="Response Time"
             value={currentMetrics ? `${Math.round(currentMetrics.responseTime)}ms` : '0ms'}
-            icon={<Zap className="w-5 h-5" />}
-            trend={currentMetrics && currentMetrics.responseTime < 200 ? 'down' : 'up'}
-            trendValue={currentMetrics ? Math.round((currentMetrics.responseTime / 200) * 10) : 0}
-            loading={metricsLoading}
-            variant="info"
+            icon={Zap}
+            trend={currentMetrics && currentMetrics.responseTime < 200 ? { value: Math.round((currentMetrics.responseTime / 200) * 10), isPositiveGood: true } : { value: 0, isPositiveGood: false }}
+            isLoading={metricsLoading}
+            variant="default"
           />
         </GridLayout>
       </SectionLayout>
@@ -351,16 +340,17 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
         }
       >
         {errorsLoading ? (
-          <SpinnerPro overlay text="Loading error logs..." />
+          <SpinnerPro />
         ) : errors.length === 0 ? (
           <AlertPro
-            type="success"
+            variant="success"
             title="No Errors Found"
-            message="System is running smoothly with no recent errors."
-          />
+          >
+            System is running smoothly with no recent errors.
+          </AlertPro>
         ) : (
           <TablePro
-            data={errors as ErrorLog[]}
+            data={errors as unknown as ErrorLog[]}
             columns={errorColumns}
             searchable
             searchPlaceholder="Search errors..."
@@ -370,38 +360,37 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
 
       {/* Performance Metrics */}
       <SectionLayout title="Performance Overview">
-        <GridLayout cols={2}>
+        <GridLayout>
           <CardPro>
-            <CardPro.Header
-              title="System Health Score"
-              subtitle="Overall system performance"
-            />
-            <CardPro.Content>
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">System Health Score</h3>
+              <p className="text-sm text-gray-600">Overall system performance</p>
+            </div>
+            <div className="p-6">
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="text-5xl font-bold text-primary-600">
-                    {health?.score || 0}%
+                    {health?.status === 'healthy' ? 100 : health?.status === 'warning' ? 70 : 40}%
                   </div>
                   <div className="text-sm text-gray-600 mt-2">Health Score</div>
-                  <BadgeStatus status={getHealthStatus()} className="mt-4">
+                  <BadgeStatus variant={getHealthStatus()} className="mt-4">
                     {health?.status || 'Unknown'}
                   </BadgeStatus>
                 </div>
               </div>
-            </CardPro.Content>
+            </div>
           </CardPro>
 
           <CardPro>
-            <CardPro.Header
-              title="Resource Usage"
-              subtitle="Current system resource consumption"
-            />
-            <CardPro.Content>
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Resource Usage</h3>
+              <p className="text-sm text-gray-600">Current system resource consumption</p>
+            </div>
+            <div className="p-6">
               <div className="space-y-4">
                 {[
                   { label: 'CPU', value: currentMetrics?.cpu || 0, max: 100, color: 'bg-blue-500' },
                   { label: 'Memory', value: currentMetrics?.memory || 0, max: 100, color: 'bg-green-500' },
-                  { label: 'Storage', value: currentMetrics?.storage || 0, max: 100, color: 'bg-purple-500' },
                 ].map((metric) => (
                   <div key={metric.label}>
                     <div className="flex items-center justify-between mb-1">
@@ -417,7 +406,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
                   </div>
                 ))}
               </div>
-            </CardPro.Content>
+            </div>
           </CardPro>
         </GridLayout>
       </SectionLayout>

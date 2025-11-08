@@ -21,13 +21,11 @@ import {
   Minimize2, 
   RefreshCw, 
   Settings,
-  Eye,
   EyeOff,
   AlertTriangle
 } from 'lucide-react';
 import { Card } from './Card';
 import { ButtonPro } from './ButtonPro';
-import { BadgePro } from './BadgePro';
 import { ModalPro } from './ModalPro';
 import { toast } from './ToastPro';
 
@@ -179,33 +177,6 @@ class ChartErrorBoundary extends Component<ChartErrorBoundaryProps, ChartErrorBo
 // ============================================================================
 
 /**
- * Hook for managing chart container dimensions
- */
-function useChartDimensions(containerRef: React.RefObject<HTMLDivElement>, config: ChartConfig) {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    if (!containerRef.current || !config.responsive) return;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width } = entry.contentRect;
-        const height = config.aspectRatio 
-          ? width / config.aspectRatio 
-          : Math.min(Math.max(width * 0.6, config.minHeight || 300), config.maxHeight || 600);
-        
-        setDimensions({ width, height });
-      }
-    });
-
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, [containerRef, config]);
-
-  return dimensions;
-}
-
-/**
  * Hook for managing legend visibility state
  */
 function useLegend(data: ChartDataPoint[], colorScheme: string[]) {
@@ -237,7 +208,7 @@ function useLegend(data: ChartDataPoint[], colorScheme: string[]) {
 /**
  * Export chart to PNG
  */
-async function exportToPNG(element: HTMLElement, filename: string): Promise<void> {
+async function exportToPNG(_element: HTMLElement, _filename: string): Promise<void> {
   try {
     // Using html2canvas would be ideal, but we'll provide a basic implementation
     const canvas = document.createElement('canvas');
@@ -246,11 +217,7 @@ async function exportToPNG(element: HTMLElement, filename: string): Promise<void
 
     // For now, create a simple download trigger
     // In production, use html2canvas library
-    toast({
-      title: 'Export PNG',
-      description: 'PNG export requires html2canvas library. Install with: npm install html2canvas',
-      variant: 'info',
-    });
+    toast.info('PNG export requires html2canvas library. Install with: npm install html2canvas');
   } catch (error) {
     throw new Error('Failed to export PNG');
   }
@@ -275,7 +242,7 @@ async function exportToSVG(element: HTMLElement, filename: string): Promise<void
     link.click();
 
     URL.revokeObjectURL(url);
-    toast({ title: 'Success', description: 'SVG exported successfully', variant: 'success' });
+    toast.success('SVG exported successfully');
   } catch (error) {
     throw new Error('Failed to export SVG');
   }
@@ -301,7 +268,7 @@ function exportToCSV(data: ChartDataPoint[], filename: string): void {
     link.click();
 
     URL.revokeObjectURL(url);
-    toast({ title: 'Success', description: 'CSV exported successfully', variant: 'success' });
+    toast.success('CSV exported successfully');
   } catch (error) {
     throw new Error('Failed to export CSV');
   }
@@ -322,7 +289,7 @@ function exportToJSON(data: any, filename: string): void {
     link.click();
 
     URL.revokeObjectURL(url);
-    toast({ title: 'Success', description: 'JSON exported successfully', variant: 'success' });
+    toast.success('JSON exported successfully');
   } catch (error) {
     throw new Error('Failed to export JSON');
   }
@@ -360,7 +327,7 @@ const ChartToolbar: React.FC<ChartToolbarProps> = ({
           <ButtonPro
             variant="ghost"
             size="sm"
-            leftIcon={<Download className="w-4 h-4" />}
+            icon={Download}
             onClick={() => setShowExportMenu(!showExportMenu)}
             aria-label="Export chart"
           >
@@ -414,7 +381,7 @@ const ChartToolbar: React.FC<ChartToolbarProps> = ({
         <ButtonPro
           variant="ghost"
           size="sm"
-          leftIcon={<RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />}
+          icon={RefreshCw}
           onClick={onRefresh}
           disabled={loading}
           aria-label="Refresh chart"
@@ -425,7 +392,7 @@ const ChartToolbar: React.FC<ChartToolbarProps> = ({
         <ButtonPro
           variant="ghost"
           size="sm"
-          leftIcon={isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          icon={isFullscreen ? Minimize2 : Maximize2}
           onClick={onToggleFullscreen}
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         />
@@ -434,7 +401,7 @@ const ChartToolbar: React.FC<ChartToolbarProps> = ({
       <ButtonPro
         variant="ghost"
         size="sm"
-        leftIcon={<Settings className="w-4 h-4" />}
+        icon={Settings}
         onClick={onToggleSettings}
         aria-label="Chart settings"
       />
@@ -515,7 +482,6 @@ export const ChartPro: React.FC<ChartProProps> = ({
   const config = { ...DEFAULT_CONFIG, ...userConfig };
   const chartRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const dimensions = useChartDimensions(containerRef, config);
   const { legendItems, toggleLegendItem } = useLegend(
     Array.isArray(data) ? data : [],
     config.colorScheme || DEFAULT_CONFIG.colorScheme!
@@ -555,11 +521,7 @@ export const ChartPro: React.FC<ChartProProps> = ({
           break;
       }
     } catch (error) {
-      toast({
-        title: 'Export Failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'error',
-      });
+      toast.error(error instanceof Error ? error.message : 'Export failed');
     }
   };
 
@@ -569,13 +531,9 @@ export const ChartPro: React.FC<ChartProProps> = ({
     setIsRefreshing(true);
     try {
       await onRefresh();
-      toast({ title: 'Success', description: 'Chart refreshed', variant: 'success' });
+      toast.success('Chart refreshed');
     } catch (error) {
-      toast({
-        title: 'Refresh Failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'error',
-      });
+      toast.error(error instanceof Error ? error.message : 'Refresh failed');
     } finally {
       setIsRefreshing(false);
     }
@@ -637,11 +595,11 @@ export const ChartPro: React.FC<ChartProProps> = ({
               <ButtonPro
                 variant="outline"
                 size="sm"
-                className="mt-4"
-                leftIcon={<RefreshCw className="w-4 h-4" />}
+                className="ml-auto"
+                icon={RefreshCw}
                 onClick={handleRefresh}
               >
-                Retry
+                Refresh
               </ButtonPro>
             )}
           </div>

@@ -19,8 +19,6 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Maximize2,
-  Minimize2,
   X,
   RefreshCw,
   Download,
@@ -28,13 +26,9 @@ import {
   ChevronDown,
   ChevronUp,
   BarChart3,
-  PieChart,
   ListOrdered,
-  Activity,
-  Table as TableIcon,
 } from 'lucide-react';
 import { Card } from './Card';
-import { ButtonPro } from './ButtonPro';
 import { BadgePro } from './BadgePro';
 import { SpinnerPro } from './SpinnerPro';
 
@@ -427,7 +421,7 @@ export const ListWidget: React.FC<ListWidgetProps> = ({
                   {item.title}
                 </p>
                 {item.badge && (
-                  <BadgePro variant="neutral" size="sm">
+                  <BadgePro variant="default" size="sm">
                     {item.badge}
                   </BadgePro>
                 )}

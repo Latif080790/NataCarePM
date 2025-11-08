@@ -16,7 +16,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, Command, ArrowRight, Clock, Hash } from 'lucide-react';
 import { ModalPro } from './ModalPro';
-import { InputPro } from './InputPro';
 import { BadgePro } from './BadgePro';
 
 export interface CommandItem {
