@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input, Select } from './FormControls';
 import { Document } from '@/types';
 import { getTodayDateString } from '@/constants';
+import FileValidationFeedback from './FileValidationFeedback';
+import { validateFile, type ValidationResult } from '@/utils/fileValidation';
 
 interface UploadDocumentModalProps {
   isOpen: boolean;
@@ -15,10 +17,27 @@ export function UploadDocumentModal({ isOpen, onClose, onAddDocument }: UploadDo
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Teknis');
   const [file, setFile] = useState<File | null>(null);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+
+  // Validate file whenever it changes
+  useEffect(() => {
+    if (file) {
+      const result = validateFile(file);
+      setValidationResult(result);
+    } else {
+      setValidationResult(null);
+    }
+  }, [file]);
 
   const handleSubmit = () => {
     if (!name || !category || !file) {
       alert('Harap lengkapi semua field dan pilih file.');
+      return;
+    }
+
+    // Check file validation - block if errors exist
+    if (validationResult && !validationResult.isValid) {
+      alert('File tidak valid. Harap perbaiki masalah yang ditampilkan sebelum mengunggah.');
       return;
     }
 
@@ -35,6 +54,7 @@ export function UploadDocumentModal({ isOpen, onClose, onAddDocument }: UploadDo
     setName('');
     setCategory('Teknis');
     setFile(null);
+    setValidationResult(null);
     onClose();
   };
 
@@ -47,6 +67,7 @@ export function UploadDocumentModal({ isOpen, onClose, onAddDocument }: UploadDo
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Contoh: Shop Drawing Revisi 2"
+            sanitize
           />
         </div>
         <div>
@@ -65,7 +86,16 @@ export function UploadDocumentModal({ isOpen, onClose, onAddDocument }: UploadDo
             onChange={(e) => e.target.files && setFile(e.target.files[0])}
             className="pt-2"
           />
-          {file && <p className="text-xs text-palladium mt-1">File dipilih: {file.name}</p>}
+          
+          {/* File Validation Feedback */}
+          {file && validationResult && (
+            <FileValidationFeedback
+              file={file}
+              validationResult={validationResult}
+              showHelp={true}
+              onUpload={handleSubmit}
+            />
+          )}
         </div>
         <div className="text-right pt-4">
           <Button onClick={handleSubmit}>Simpan & Unggah</Button>

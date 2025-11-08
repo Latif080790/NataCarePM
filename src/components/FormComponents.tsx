@@ -9,6 +9,7 @@
 
 import React, { forwardRef } from 'react';
 import { LucideIcon } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 // ============================================================================
 // Input Component
@@ -18,10 +19,22 @@ export interface InputProProps extends React.InputHTMLAttributes<HTMLInputElemen
   error?: string;
   icon?: LucideIcon;
   iconPosition?: 'left' | 'right';
+  /** Enable XSS protection by sanitizing input values */
+  sanitize?: boolean;
 }
 
 export const InputPro = forwardRef<HTMLInputElement, InputProProps>(
-  ({ error, icon: Icon, iconPosition = 'left', className = '', ...props }, ref) => {
+  ({ error, icon: Icon, iconPosition = 'left', className = '', sanitize = false, onChange, ...props }, ref) => {
+    // Handle sanitization on input change
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (sanitize && e.target.value) {
+        e.target.value = DOMPurify.sanitize(e.target.value, { 
+          ALLOWED_TAGS: [],
+          ALLOWED_ATTR: [] 
+        });
+      }
+      onChange?.(e);
+    };
     const baseStyles = `
       w-full px-4 py-2 
       bg-white border rounded-lg
@@ -59,7 +72,7 @@ export const InputPro = forwardRef<HTMLInputElement, InputProProps>(
             <Icon size={20} />
           </div>
         )}
-        <input ref={ref} className={combinedClassName} {...props} />
+        <input ref={ref} className={combinedClassName} onChange={handleChange} {...props} />
         {error && (
           <p className="mt-1 text-sm text-red-600">{error}</p>
         )}
@@ -139,10 +152,22 @@ SelectPro.displayName = 'SelectPro';
 export interface TextareaProProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   error?: string;
   resize?: 'none' | 'vertical' | 'horizontal' | 'both';
+  /** Enable XSS protection by sanitizing textarea values */
+  sanitize?: boolean;
 }
 
 export const TextareaPro = forwardRef<HTMLTextAreaElement, TextareaProProps>(
-  ({ error, resize = 'vertical', className = '', ...props }, ref) => {
+  ({ error, resize = 'vertical', className = '', sanitize = false, onChange, ...props }, ref) => {
+    // Handle sanitization on textarea change
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (sanitize && e.target.value) {
+        e.target.value = DOMPurify.sanitize(e.target.value, {
+          ALLOWED_TAGS: [],
+          ALLOWED_ATTR: []
+        });
+      }
+      onChange?.(e);
+    };
     const baseStyles = `
       w-full px-4 py-2
       bg-white border rounded-lg
@@ -172,7 +197,7 @@ export const TextareaPro = forwardRef<HTMLTextAreaElement, TextareaProProps>(
 
     return (
       <div>
-        <textarea ref={ref} className={combinedClassName} {...props} />
+        <textarea ref={ref} className={combinedClassName} onChange={handleChange} {...props} />
         {error && (
           <p className="mt-1 text-sm text-red-600">{error}</p>
         )}
