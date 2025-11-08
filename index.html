@@ -43,51 +43,6 @@
   <body class="bg-alabaster font-sans">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     
-    <!-- FORCE UNREGISTER ALL SERVICE WORKERS AND CLEAR CACHE -->
-    <script>
-      (async function() {
-        console.log('🔄 Starting aggressive service worker cleanup...');
-        
-        // 1. Unregister ALL service workers
-        if ('serviceWorker' in navigator) {
-          try {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            console.log(`Found ${registrations.length} service worker(s)`);
-            
-            for (let registration of registrations) {
-              await registration.unregister();
-              console.log('✅ Service Worker unregistered:', registration.scope);
-            }
-            
-            // 2. Force controller to null
-            if (navigator.serviceWorker.controller) {
-              console.log('⚠️ Controller still active, forcing null...');
-              navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-            }
-          } catch (error) {
-            console.error('❌ Error unregistering service workers:', error);
-          }
-        }
-        
-        // 3. Clear all caches
-        if ('caches' in window) {
-          try {
-            const cacheNames = await caches.keys();
-            console.log(`Found ${cacheNames.length} cache(s)`);
-            
-            for (let cacheName of cacheNames) {
-              await caches.delete(cacheName);
-              console.log('✅ Cache deleted:', cacheName);
-            }
-          } catch (error) {
-            console.error('❌ Error clearing caches:', error);
-          }
-        }
-        
-        console.log('✨ Service worker cleanup complete!');
-      })();
-    </script>
-    
     <div id="root">
       <!-- Loading Fallback for Mobile -->
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f8fafc; font-family: system-ui, -apple-system, sans-serif;">
@@ -103,6 +58,6 @@
         }
       </style>
     </div>
-    <script type="module" src="/src/index.tsx"></script>
+    <script type="module" src="/src/index.tsx?v=20251109-2"></script>
   </body>
 </html>

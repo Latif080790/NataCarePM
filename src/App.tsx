@@ -21,7 +21,7 @@ import { performanceMonitor } from '@/utils/performanceMonitor';
 import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
-import EnterpriseLoginView from '@/views/EnterpriseLoginView';
+import ModernLoginView from '@/views/ModernLoginView';
 
 // Context providers
 
@@ -157,8 +157,11 @@ function ProtectedApp() {
   const { projectMetrics } = useProjectCalculations(currentProject);
 
   // 📊 Initialize monitoring service
+  // TEMPORARILY DISABLED - Monitoring causes re-render issues
   useEffect(() => {
     if (currentUser) {
+      console.log('[Monitoring] DISABLED for debugging');
+      /* DISABLED
       try {
         logger.info('System monitoring started', {
           userId: currentUser.id,
@@ -177,6 +180,7 @@ function ProtectedApp() {
       } catch (err) {
         logger.error('Failed to start monitoring service', err instanceof Error ? err : new Error(String(err)));
       }
+      */
     }
 
     return undefined;
@@ -623,8 +627,8 @@ function ProtectedApp() {
       <OfflineIndicator />
       <LiveCursors containerId="app-container" showLabels />
       <FailoverStatusIndicator />
-      <PerformanceMonitor />
-      <PerformanceDashboard />
+      {/* <PerformanceMonitor /> */}
+      {/* <PerformanceDashboard /> */}
     </MainLayout>
   );
 }
@@ -695,8 +699,8 @@ function App() {
         // --- Rute Publik (Belum Login) ---
         <>
           <Route path="/login" element={
-            <ViewErrorBoundary viewName="Login">
-              <EnterpriseLoginView />
+            <ViewErrorBoundary viewName="Login" key="modern-login-final-v1">
+              <ModernLoginView key={Date.now()} />
             </ViewErrorBoundary>
           } />
           {/* Paksa semua rute lain ke halaman login */}

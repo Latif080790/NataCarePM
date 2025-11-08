@@ -1,6 +1,6 @@
 ﻿/**
- * Enterprise Login View - Clean Design
- * Clean, professional login interface consistent with application design system
+ * Modern Login View
+ * Brand new clean, professional login interface
  */
 
 import { useState } from 'react';
@@ -19,7 +19,8 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 
-export default function EnterpriseLoginView() {
+export default function ModernLoginView() {
+  // REMOVE CONSOLE.LOG TO PREVENT SPAM
   const { loading: authLoading, login, error: authError, clearError } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);

@@ -67,9 +67,30 @@ if (container) {
   `;
 }
 
-// Register Service Worker for PWA functionality
-// Note: Service worker is registered in all environments for testing
-// You can add environment check if needed: if (import.meta.env.PROD) { ... }
+// TEMPORARILY DISABLE SERVICE WORKER - CAUSES AGGRESSIVE CACHING ISSUES
+// Service worker prevents new code from loading due to cache-first strategy
+console.warn('[SW] Service Worker DISABLED for debugging cache issues');
+
+// Unregister ALL existing service workers
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => {
+      registration.unregister();
+      console.log('[SW] ✅ Unregistered:', registration.scope);
+    });
+  });
+  
+  // Clear ALL caches
+  caches.keys().then((names) => {
+    names.forEach((name) => {
+      caches.delete(name);
+      console.log('[Cache] ✅ Deleted:', name);
+    });
+  });
+}
+
+// DISABLED: registerServiceWorker()
+/*
 registerServiceWorker()
   .then((registration) => {
     if (registration) {
@@ -79,3 +100,4 @@ registerServiceWorker()
   .catch((error) => {
     console.error('[PWA] Service Worker registration failed:', error);
   });
+*/

@@ -1,5 +1,5 @@
 ﻿/**
- * Enterprise Login View - Clean Design
+ * Clean Login View - New Implementation
  * Clean, professional login interface consistent with application design system
  */
 
@@ -19,7 +19,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 
-export default function EnterpriseLoginView() {
+export default function CleanLoginView() {
   const { loading: authLoading, login, error: authError, clearError } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);

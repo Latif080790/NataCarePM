@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Enterprise Login - Direct Access</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    p {
+      font-size: 18px;
+      max-width: 600px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 15px 40px;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Test Page</h1>
+  <p>
+    Jika Anda melihat halaman ini dengan background gradient ungu, 
+    berarti server Vite berjalan dengan benar dan tidak ada masalah cache.
+  </p>
+  <p>
+    <strong>EnterpriseLoginView seharusnya memiliki background serupa dengan gradient biru-ungu.</strong>
+  </p>
+  <a href="/login" class="btn">Go to Login Page</a>
+  
+  <script>
+    console.log('✅ Test page loaded successfully!');
+    console.log('📍 Current location:', window.location.href);
+    console.log('🔧 Server is working correctly');
+  </script>
+</body>
+</html>

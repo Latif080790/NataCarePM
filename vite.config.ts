@@ -94,8 +94,19 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
     server: {
-      port: 3000,
+      port: 3001,
       host: '0.0.0.0',
+      strictPort: true,
+    },
+    optimizeDeps: {
+      force: true, // Force re-optimization
+      include: ['react', 'react-dom'], // Ensure single copy of React
+    },
+    resolve: {
+      dedupe: ['react', 'react-dom'], // Prevent duplicate React instances
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
     },
     plugins: [
       react(),
@@ -115,11 +126,6 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-      },
     },
     build: {
       target: ['es2015', 'chrome79', 'safari13', 'firefox72', 'edge79'],

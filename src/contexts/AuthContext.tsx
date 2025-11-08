@@ -62,7 +62,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Listen to auth state changes
   useEffect(() => {
+    // Timeout fallback: set loading false after 3 seconds max
+    const timeoutId = setTimeout(() => {
+      console.warn('[AuthContext] Firebase auth state check timeout - proceeding without user');
+      setLoading(false);
+    }, 3000);
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      clearTimeout(timeoutId); // Cancel timeout if auth state received
+      
       if (user) {
         try {
           const appUser = await authService.getCurrentUser();
@@ -101,7 +109,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   // Enhanced login function

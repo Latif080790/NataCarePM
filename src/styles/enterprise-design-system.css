@@ -1,7 +1,5 @@
 @import './accessibility.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Enterprise Design System - NataCarePM v2.0 */
 /* Enhanced Professional Color Palette - Based on Existing Design */
