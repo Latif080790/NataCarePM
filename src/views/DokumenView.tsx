@@ -2,8 +2,8 @@
 import { useState, useMemo } from 'react';
 import { Document as DocumentType } from '@/types';
 import { DocumentWithVersions } from '@/types/components';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { Modal } from '@/components/Modal';
 import {
@@ -188,8 +188,8 @@ export default function DokumenView({ documents }: DokumenViewProps) {
   };
 
   const renderDocumentCard = (doc: DocumentWithVersions) => (
-    <Card key={doc.id} className="hover:shadow-md transition-shadow cursor-pointer">
-      <CardContent className="p-4">
+    <CardPro key={doc.id} className="hover:shadow-md transition-shadow cursor-pointer">
+      <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-violet-essence rounded-lg">{getFileIcon(doc.name)}</div>
@@ -204,20 +204,32 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={() => handleVersionHistoryClick(doc)}>
+            <button 
+              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              onClick={() => handleVersionHistoryClick(doc)}
+            >
               <History className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => handleShareDocument(doc)}>
+            </button>
+            <button 
+              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              onClick={() => handleShareDocument(doc)}
+            >
               <Share2 className="w-4 h-4" />
-            </Button>
+            </button>
             {canManageDocuments && (
               <>
-                <Button variant="ghost" size="sm" onClick={() => handleArchiveDocument()}>
+                <button 
+                  className="p-2 hover:bg-gray-100 rounded transition-colors"
+                  onClick={() => handleArchiveDocument()}
+                >
                   <Archive className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDeleteDocument()}>
+                </button>
+                <button 
+                  className="p-2 hover:bg-gray-100 rounded transition-colors"
+                  onClick={() => handleDeleteDocument()}
+                >
                   <Trash2 className="w-4 h-4" />
-                </Button>
+                </button>
               </>
             )}
           </div>
@@ -251,38 +263,38 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </CardPro>
   );
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <CardPro>
+        <div className="flex flex-row justify-between items-center p-6 pb-4">
           <div>
-            <CardTitle>Manajemen Dokumen Advanced</CardTitle>
-            <CardDescription>
+            <h1 className="text-2xl font-bold text-night-black">Manajemen Dokumen Advanced</h1>
+            <p className="text-sm text-palladium mt-1">
               Pusat penyimpanan dengan versioning, preview, dan pencarian advanced.
-            </CardDescription>
+            </p>
           </div>
           {canManageDocuments && (
             <div className="flex gap-2">
-              <Button onClick={() => setIsUploadModalOpen(true)}>
+              <ButtonPro variant="primary" onClick={() => setIsUploadModalOpen(true)}>
                 <Upload className="w-4 h-4 mr-2" />
                 Unggah Dokumen
-              </Button>
-              <Button 
+              </ButtonPro>
+              <ButtonPro
                 onClick={openCamera}
                 variant="outline"
                 className="bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
               >
                 <Camera className="w-4 h-4 mr-2" />
                 Ambil Foto
-              </Button>
+              </ButtonPro>
             </div>
           )}
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="p-6 pt-0">
           {/* Search and Filter */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
@@ -310,29 +322,26 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                 ))}
               </select>
 
-              <Button
-                variant={showArchived ? 'default' : 'ghost'}
-                size="sm"
+              <ButtonPro
+                variant={showArchived ? 'primary' : 'ghost'}
                 onClick={() => setShowArchived(!showArchived)}
               >
                 <Archive className="w-4 h-4 mr-2" />
                 Arsip
-              </Button>
+              </ButtonPro>
 
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
+              <ButtonPro
+                variant={viewMode === 'grid' ? 'primary' : 'ghost'}
                 onClick={() => setViewMode('grid')}
               >
                 Grid
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
+              </ButtonPro>
+              <ButtonPro
+                variant={viewMode === 'list' ? 'primary' : 'ghost'}
                 onClick={() => setViewMode('list')}
               >
                 List
-              </Button>
+              </ButtonPro>
             </div>
           </div>
 
@@ -454,48 +463,46 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                       </td>
                       <td className="p-3">
                         <div className="flex items-center justify-center gap-1">
-                          <Button variant="ghost" size="sm" asChild>
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                              <Download className="w-4 h-4" />
-                            </a>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                          <a 
+                            href={doc.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-2 hover:bg-gray-100 rounded transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                          </a>
+                          <button
+                            className="p-2 hover:bg-gray-100 rounded transition-colors"
                             onClick={() => handleDocumentClick(doc)}
                           >
                             <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                          </button>
+                          <button
+                            className="p-2 hover:bg-gray-100 rounded transition-colors"
                             onClick={() => handleVersionHistoryClick(doc)}
                           >
                             <History className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                          </button>
+                          <button
+                            className="p-2 hover:bg-gray-100 rounded transition-colors"
                             onClick={() => handleShareDocument(doc)}
                           >
                             <Share2 className="w-4 h-4" />
-                          </Button>
+                          </button>
                           {canManageDocuments && (
                             <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
+                              <button
+                                className="p-2 hover:bg-gray-100 rounded transition-colors"
                                 onClick={() => handleArchiveDocument()}
                               >
                                 <Archive className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
+                              </button>
+                              <button
+                                className="p-2 hover:bg-gray-100 rounded transition-colors"
                                 onClick={() => handleDeleteDocument()}
                               >
                                 <Trash2 className="w-4 h-4" />
-                              </Button>
+                              </button>
                             </>
                           )}
                         </div>
@@ -519,15 +526,15 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                   : 'Belum ada dokumen yang diunggah'}
               </p>
               {canManageDocuments && (
-                <Button onClick={() => setIsUploadModalOpen(true)}>
+                <ButtonPro variant="primary" onClick={() => setIsUploadModalOpen(true)}>
                   <Upload className="w-4 h-4 mr-2" />
                   Unggah Dokumen Pertama
-                </Button>
+                </ButtonPro>
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* Upload Modal */}
       {canManageDocuments && (
@@ -553,12 +560,15 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Preview: {selectedDocument.name}</h2>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" asChild>
-                  <a href={selectedDocument.url} target="_blank" rel="noopener noreferrer">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </a>
-                </Button>
+                <a 
+                  href={selectedDocument.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </a>
               </div>
             </div>
 
@@ -620,11 +630,14 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-palladium">{getFileSize(version.size)}</span>
-                      <Button variant="ghost" size="sm" asChild>
-                        <a href={version.url} target="_blank" rel="noopener noreferrer">
-                          <Download className="w-4 h-4" />
-                        </a>
-                      </Button>
+                      <a 
+                        href={version.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="p-2 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
                     </div>
                   </div>
                   {version.changeLog && (

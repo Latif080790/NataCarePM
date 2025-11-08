@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Button } from '@/components/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
+import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro } from '@/components/CardPro';
 import { Modal } from '@/components/Modal';
 import {
     Archive,
@@ -14,6 +14,7 @@ import {
     GitBranch,
     History,
     Lock,
+    PenTool,
     RefreshCw,
     Search,
     Share,
@@ -242,16 +243,16 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
     const requiresSignature = document.requiresSignature && !hasSignatures;
 
     return (
-      <Card key={document.id} className="cursor-pointer hover:shadow-lg transition-shadow">
-        <CardHeader className="pb-3">
+      <CardPro key={document.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+        <div className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="w-5 h-5 text-blue-600" />
-              <CardTitle className="text-sm font-medium truncate">{document.title}</CardTitle>
+              <h3 className="text-sm font-medium truncate">{document.title}</h3>
             </div>
             <div className="flex items-center space-x-1">
               {getStatusIcon(document.status)}
-              {requiresSignature && <Signature className="w-4 h-4 text-red-500" />}
+              {requiresSignature && <PenTool className="w-4 h-4 text-red-500" />}
               {document.encryptionStatus.isEncrypted && <Lock className="w-4 h-4 text-green-500" />}
             </div>
           </div>
@@ -265,9 +266,9 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
               {new Date(document.updatedAt).toLocaleDateString()}
             </span>
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="pt-0">
+        <div className="pt-0">
           {document.description && (
             <div
               className="text-sm text-gray-600 mb-3 line-clamp-2"
@@ -320,9 +321,8 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
           {/* Action buttons */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button
-                size="sm"
-                variant="outline"
+              <button
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedDocument(document);
@@ -331,12 +331,11 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
               >
                 <Eye className="w-4 h-4 mr-1" />
                 View
-              </Button>
+              </button>
 
               {document.allVersions.length > 1 && (
-                <Button
-                  size="sm"
-                  variant="outline"
+                <button
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     // Show version history
@@ -344,14 +343,14 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
                 >
                   <History className="w-4 h-4 mr-1" />
                   History
-                </Button>
+                </button>
               )}
             </div>
 
             <div className="flex items-center space-x-1 text-xs text-gray-500">
               {hasSignatures && (
                 <div className="flex items-center">
-                  <Signature className="w-3 h-3 mr-1 text-green-500" />
+                  <PenTool className="w-3 h-3 mr-1 text-green-500" />
                   {document.signatures.length}
                 </div>
               )}
@@ -362,8 +361,8 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
     );
   };
 
@@ -442,37 +441,37 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
       </div>
 
       {/* Refresh */}
-      <Button
+      <ButtonPro
         variant="outline"
         onClick={() => setRefreshKey((prev) => prev + 1)}
         disabled={isLoading}
       >
         <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-      </Button>
+      </ButtonPro>
     </div>
   );
 
   // Render action buttons
   const renderActionButtons = () => (
     <div className="flex items-center space-x-3 mb-6">
-      <Button onClick={() => setShowUploadModal(true)} className="bg-blue-600 hover:bg-blue-700">
+      <ButtonPro onClick={() => setShowUploadModal(true)} variant="primary">
         <Upload className="w-4 h-4 mr-2" />
         Upload Document
-      </Button>
+      </ButtonPro>
 
-      <Button onClick={() => setShowTemplateModal(true)} variant="outline">
+      <ButtonPro onClick={() => setShowTemplateModal(true)} variant="outline">
         <FileText className="w-4 h-4 mr-2" />
         Generate from Template
-      </Button>
+      </ButtonPro>
 
-      <Button
+      <ButtonPro
         onClick={() => console.log('Signature feature coming soon')}
         variant="outline"
         disabled
       >
-        <Signature className="w-4 h-4 mr-2" />
+        <PenTool className="w-4 h-4 mr-2" />
         Request Signatures
-      </Button>
+      </ButtonPro>
     </div>
   );
 
@@ -522,10 +521,10 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
                 : 'Get started by uploading your first document'}
             </p>
             {!searchQuery && categoryFilter === 'all' && statusFilter === 'all' && (
-              <Button onClick={() => setShowUploadModal(true)}>
+              <ButtonPro variant="primary" onClick={() => setShowUploadModal(true)}>
                 <Upload className="w-4 h-4 mr-2" />
                 Upload First Document
-              </Button>
+              </ButtonPro>
             )}
           </div>
         )}
@@ -569,8 +568,8 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
           <div className="p-6">
             <div className="grid gap-4">
               {templates.map((template) => (
-                <Card key={template.id} className="cursor-pointer hover:shadow-md">
-                  <CardContent className="p-4">
+                <CardPro key={template.id} className="cursor-pointer hover:shadow-md">
+                  <div className="p-4">
                     <h4 className="font-medium mb-2">{template.name}</h4>
                     <p className="text-sm text-gray-600 mb-3">{template.description}</p>
                     <div className="flex items-center justify-between">
@@ -579,12 +578,12 @@ export const IntelligentDocumentSystem: React.FC<IntelligentDocumentSystemProps>
                       >
                         {template.category}
                       </span>
-                      <Button size="sm" onClick={() => handleTemplateGeneration(template.id, {})}>
+                      <ButtonPro onClick={() => handleTemplateGeneration(template.id, {})}>
                         Generate
-                      </Button>
+                      </ButtonPro>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </CardPro>
               ))}
             </div>
           </div>

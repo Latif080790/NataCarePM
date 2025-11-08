@@ -30,8 +30,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { MaterialRequest, MRStatus, MRPriority } from '@/types/logistics';
 import {
@@ -329,33 +329,32 @@ const MaterialRequestView: React.FC = () => {
         </div>
 
         {hasPermission(currentUser, 'create_po') && (
-          <Button onClick={handleCreateMR} className="btn-primary">
-            <Plus size={20} />
+          <ButtonPro variant="primary" icon={Plus} onClick={handleCreateMR}>
             Create Material Request
-          </Button>
+          </ButtonPro>
         )}
       </div>
 
       {/* Pending Approvals Alert */}
       {pendingApprovals.length > 0 && (
-        <Card className="alert-card alert-warning">
+        <CardPro className="alert-card alert-warning">
           <AlertTriangle size={24} />
           <div>
             <h3>Pending Approvals</h3>
             <p>You have {pendingApprovals.length} material request(s) waiting for your approval.</p>
           </div>
-          <Button
+          <ButtonPro
+            variant="primary"
             onClick={() => setStatusFilter(['site_manager_review', 'pm_review', 'budget_check'])}
-            className="btn-warning"
           >
             View Pending
-          </Button>
-        </Card>
+          </ButtonPro>
+        </CardPro>
       )}
 
       {/* Summary Cards */}
       <div className="summary-grid">
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon blue">
             <ClipboardList size={24} />
           </div>
@@ -363,9 +362,9 @@ const MaterialRequestView: React.FC = () => {
             <div className="summary-value">{summary.totalMRs}</div>
             <div className="summary-label">Total Requests</div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon yellow">
             <Clock size={24} />
           </div>
@@ -373,9 +372,9 @@ const MaterialRequestView: React.FC = () => {
             <div className="summary-value">{summary.pendingApproval}</div>
             <div className="summary-label">Pending Approval</div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon green">
             <CheckCircle size={24} />
           </div>
@@ -383,9 +382,9 @@ const MaterialRequestView: React.FC = () => {
             <div className="summary-value">{summary.approved}</div>
             <div className="summary-label">Approved</div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon purple">
             <TrendingUp size={24} />
           </div>
@@ -393,11 +392,11 @@ const MaterialRequestView: React.FC = () => {
             <div className="summary-value">{formatCurrency(summary.totalEstimatedValue)}</div>
             <div className="summary-label">Total Value</div>
           </div>
-        </Card>
+        </CardPro>
       </div>
 
       {/* Filters & Search */}
-      <Card className="filter-card">
+      <CardPro className="filter-card">
         <div className="filter-row">
           <div className="search-box">
             <Search size={20} />
@@ -406,6 +405,7 @@ const MaterialRequestView: React.FC = () => {
               placeholder="Search by MR number, purpose, or material..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             />
           </div>
 
@@ -419,6 +419,7 @@ const MaterialRequestView: React.FC = () => {
                   setStatusFilter([...statusFilter, status]);
                 }
               }}
+              className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             >
               <option value="">Filter by Status...</option>
               {Object.entries(STATUS_CONFIG).map(([key, config]) => (
@@ -436,6 +437,7 @@ const MaterialRequestView: React.FC = () => {
                   setFilterPriority([...priorityFilter, priority]);
                 }
               }}
+              className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             >
               <option value="">Filter by Priority...</option>
               {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
@@ -447,15 +449,15 @@ const MaterialRequestView: React.FC = () => {
           </div>
 
           {(statusFilter.length > 0 || priorityFilter.length > 0) && (
-            <Button
+            <ButtonPro
+              variant="secondary"
               onClick={() => {
                 setStatusFilter([]);
                 setFilterPriority([]);
               }}
-              className="btn-secondary"
             >
               Clear Filters
-            </Button>
+            </ButtonPro>
           )}
         </div>
 
@@ -466,7 +468,7 @@ const MaterialRequestView: React.FC = () => {
             {statusFilter.map((status) => (
               <span key={status} className="filter-tag">
                 {STATUS_CONFIG[status].label}
-                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))}>
+                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))} className="transition-colors">
                   ×
                 </button>
               </span>
@@ -476,6 +478,7 @@ const MaterialRequestView: React.FC = () => {
                 {PRIORITY_CONFIG[priority].label}
                 <button
                   onClick={() => setFilterPriority(priorityFilter.filter((p) => p !== priority))}
+                  className="transition-colors"
                 >
                   ×
                 </button>
@@ -483,10 +486,10 @@ const MaterialRequestView: React.FC = () => {
             ))}
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* MR List */}
-      <Card className="mr-list-card">
+      <CardPro className="mr-list-card">
         {loading ? (
           <div className="loading-state">
             <div className="spinner" />
@@ -531,46 +534,46 @@ const MaterialRequestView: React.FC = () => {
                     <td>{renderStatusBadge(mr.status)}</td>
                     <td>
                       <div className="action-buttons">
-                        <Button
+                        <button
                           onClick={() => handleViewDetails(mr)}
-                          className="btn-icon"
+                          className="btn-icon transition-colors"
                           title="View Details"
                         >
                           <ClipboardList size={16} />
-                        </Button>
+                        </button>
 
                         {mr.status === 'draft' && hasPermission(currentUser, 'create_po') && (
-                          <Button
+                          <button
                             onClick={() => handleSubmitMR(mr.id)}
-                            className="btn-icon btn-success"
+                            className="btn-icon btn-success transition-colors"
                             title="Submit"
                           >
                             <CheckCircle size={16} />
-                          </Button>
+                          </button>
                         )}
 
                         {['site_manager_review', 'pm_review', 'budget_check'].includes(
                           mr.status
                         ) && (
-                          <Button
+                          <button
                             onClick={() => handleApprove(mr)}
-                            className="btn-icon btn-primary"
+                            className="btn-icon btn-primary transition-colors"
                             title="Review & Approve"
                           >
                             <CheckCircle size={16} />
-                          </Button>
+                          </button>
                         )}
 
                         {mr.status === 'approved' &&
                           !mr.convertedToPO &&
                           hasPermission(currentUser, 'create_po') && (
-                            <Button
+                            <button
                               onClick={() => handleConvertToPO(mr)}
-                              className="btn-icon btn-success"
+                              className="btn-icon btn-success transition-colors"
                               title="Convert to PO"
                             >
                               <ShoppingCart size={16} />
-                            </Button>
+                            </button>
                           )}
                       </div>
                     </td>
@@ -580,7 +583,7 @@ const MaterialRequestView: React.FC = () => {
             </table>
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* Modals */}
       {showCreateModal && (

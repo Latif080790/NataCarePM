@@ -14,8 +14,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { Modal } from '@/components/Modal';
 import {
@@ -398,33 +398,33 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card>
-        <CardHeader>
+      <CardPro>
+        <div className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-night-black flex items-center gap-2">
                 <FolderTree className="w-6 h-6" />
                 Work Breakdown Structure (WBS)
-              </CardTitle>
+              </h1>
               <p className="text-sm text-gray-600 mt-1">
                 {projectName} • {hierarchy?.totalElements || 0} Elements •{' '}
                 {hierarchy?.maxLevel || 0} Levels
               </p>
             </div>
             {canManage && (
-              <Button onClick={() => setIsCreateModalOpen(true)}>
+              <ButtonPro variant="primary" onClick={() => setIsCreateModalOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah WBS Element
-              </Button>
+              </ButtonPro>
             )}
           </div>
-        </CardHeader>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Budget</p>
@@ -432,11 +432,11 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
               </div>
               <DollarSign className="w-8 h-8 text-blue-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Actual Cost</p>
@@ -444,11 +444,11 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
               </div>
               <BarChart3 className="w-8 h-8 text-purple-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Commitments</p>
@@ -456,11 +456,11 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
               </div>
               <FileText className="w-8 h-8 text-orange-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Variance</p>
@@ -477,13 +477,13 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
                 <AlertCircle className="w-8 h-8 text-red-500" />
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
       </div>
 
       {/* Filters and Controls */}
-      <Card>
-        <CardContent className="p-4">
+      <CardPro>
+        <div className="p-4">
           <div className="flex items-center gap-4 flex-wrap">
             <Input
               placeholder="Cari WBS code atau nama..."
@@ -505,23 +505,23 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
             </select>
 
             <div className="flex gap-2 ml-auto">
-              <Button variant="outline" size="sm" onClick={expandAll}>
+              <ButtonPro variant="outline" onClick={expandAll}>
                 Expand All
-              </Button>
-              <Button variant="outline" size="sm" onClick={collapseAll}>
+              </ButtonPro>
+              <ButtonPro variant="outline" onClick={collapseAll}>
                 Collapse All
-              </Button>
+              </ButtonPro>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* WBS Tree */}
-      <Card>
-        <CardHeader>
-          <CardTitle>WBS Hierarchy</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <CardPro>
+        <div className="p-6 pb-4">
+          <h2 className="text-lg font-semibold">WBS Hierarchy</h2>
+        </div>
+        <div className="p-6 pt-0">
           {hierarchy && hierarchy.rootElements.length > 0 ? (
             <div className="space-y-1">
               {/* Table Header */}
@@ -546,15 +546,15 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
               <p className="text-lg font-medium mb-2">Belum ada WBS Element</p>
               <p className="mb-4">Mulai dengan membuat root level WBS element</p>
               {canManage && (
-                <Button onClick={() => setIsCreateModalOpen(true)}>
+                <ButtonPro variant="primary" onClick={() => setIsCreateModalOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Buat WBS Element Pertama
-                </Button>
+                </ButtonPro>
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* Create/Edit Modals */}
       <WBSFormModal
@@ -763,14 +763,14 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
 
         {/* Actions */}
         <div className="flex gap-2 justify-end pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <ButtonPro type="button" variant="outline" onClick={onClose}>
             <X className="w-4 h-4 mr-2" />
             Cancel
-          </Button>
-          <Button type="submit">
+          </ButtonPro>
+          <ButtonPro type="submit" variant="primary">
             <Save className="w-4 h-4 mr-2" />
             Save
-          </Button>
+          </ButtonPro>
         </div>
       </form>
     </Modal>

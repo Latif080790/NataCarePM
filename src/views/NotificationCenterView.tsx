@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -275,26 +275,25 @@ export default function NotificationCenterView() {
           <p className="text-palladium">Kelola semua notifikasi dan update proyek</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <ButtonPro
             variant="ghost"
-            size="sm"
             onClick={handleMarkAllAsRead}
             disabled={stats.unread === 0}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
             Tandai Semua Dibaca
-          </Button>
-          <Button variant="ghost" size="sm">
+          </ButtonPro>
+          <ButtonPro variant="ghost">
             <Settings className="w-4 h-4 mr-2" />
             Pengaturan
-          </Button>
+          </ButtonPro>
         </div>
       </div>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Total</p>
@@ -302,11 +301,11 @@ export default function NotificationCenterView() {
               </div>
               <Bell className="w-8 h-8 text-violet-essence" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Belum Dibaca</p>
@@ -314,11 +313,11 @@ export default function NotificationCenterView() {
               </div>
               <BellOff className="w-8 h-8 text-persimmon" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Urgent</p>
@@ -326,11 +325,11 @@ export default function NotificationCenterView() {
               </div>
               <AlertCircle className="w-8 h-8 text-red-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Hari Ini</p>
@@ -338,13 +337,13 @@ export default function NotificationCenterView() {
               </div>
               <Calendar className="w-8 h-8 text-green-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
       </div>
 
       {/* Filters and Search */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
+      <CardPro className="mb-6">
+        <div className="p-4">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
@@ -354,7 +353,7 @@ export default function NotificationCenterView() {
                   placeholder="Cari notifikasi..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 focus:ring-2 focus:ring-blue-600 transition-shadow"
                 />
               </div>
             </div>
@@ -364,57 +363,55 @@ export default function NotificationCenterView() {
               {notificationTypes.map((type) => {
                 const Icon = type.icon;
                 return (
-                  <Button
+                  <ButtonPro
                     key={type.value}
                     variant={selectedType === type.value ? 'primary' : 'ghost'}
-                    size="sm"
                     onClick={() => setSelectedType(type.value)}
                   >
                     <Icon className="w-4 h-4 mr-2" />
                     {type.label}
-                  </Button>
+                  </ButtonPro>
                 );
               })}
             </div>
 
             {/* Read Filter */}
-            <Button
+            <ButtonPro
               variant={showOnlyUnread ? 'primary' : 'ghost'}
-              size="sm"
               onClick={() => setShowOnlyUnread(!showOnlyUnread)}
             >
               <Eye className="w-4 h-4 mr-2" />
               Belum Dibaca
-            </Button>
+            </ButtonPro>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* Bulk Actions */}
       {selectedNotifications.length > 0 && (
-        <Card className="mb-4">
-          <CardContent className="p-4">
+        <CardPro className="mb-4">
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <p className="font-semibold">{selectedNotifications.length} notifikasi dipilih</p>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={handleBulkMarkAsRead}>
+                <ButtonPro variant="ghost" onClick={handleBulkMarkAsRead}>
                   <Check className="w-4 h-4 mr-2" />
                   Tandai Dibaca
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleBulkDelete}>
+                </ButtonPro>
+                <ButtonPro variant="ghost" onClick={handleBulkDelete}>
                   <Trash2 className="w-4 h-4 mr-2" />
                   Hapus
-                </Button>
+                </ButtonPro>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
       )}
 
       {/* Notifications List */}
-      <Card className="flex-1">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Notifikasi ({filteredNotifications.length})</CardTitle>
+      <CardPro className="flex-1">
+        <div className="flex flex-row items-center justify-between p-6 pb-4">
+          <h3 className="text-lg font-semibold">Notifikasi ({filteredNotifications.length})</h3>
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -427,8 +424,8 @@ export default function NotificationCenterView() {
             />
             <label className="text-sm">Pilih Semua</label>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
+        </div>
+        <div className="p-0">
           <div className="max-h-[calc(100vh-500px)] overflow-y-auto">
             {filteredNotifications.length === 0 ? (
               <div className="text-center py-12">
@@ -499,30 +496,28 @@ export default function NotificationCenterView() {
 
                           <div className="flex items-center gap-1 ml-4">
                             {!notification.isRead && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
+                              <button
+                                className="p-2 hover:bg-gray-100 rounded transition-colors"
                                 onClick={() => handleMarkAsRead(notification.id)}
                               >
                                 <Check className="w-4 h-4" />
-                              </Button>
+                              </button>
                             )}
 
-                            <Button
-                              variant="ghost"
-                              size="sm"
+                            <button
+                              className="p-2 hover:bg-gray-100 rounded transition-colors"
                               onClick={() => handleDeleteNotification(notification.id)}
                             >
                               <Trash2 className="w-4 h-4" />
-                            </Button>
+                            </button>
                           </div>
                         </div>
 
                         {notification.actionUrl && notification.actionLabel && (
                           <div className="mt-3">
-                            <Button variant="outline" size="sm">
+                            <ButtonPro variant="outline">
                               {notification.actionLabel}
-                            </Button>
+                            </ButtonPro>
                           </div>
                         )}
                       </div>
@@ -532,8 +527,8 @@ export default function NotificationCenterView() {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
     </div>
   );
 }

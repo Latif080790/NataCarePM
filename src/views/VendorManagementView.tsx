@@ -32,7 +32,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
-import { Card } from '@/components/Card';
+import { CardPro } from '@/components/CardPro';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/FormControls';
 import {
@@ -360,7 +360,7 @@ const VendorManagementView: React.FC = () => {
       {summary &&
         summary.pendingApprovals > 0 &&
         hasPermission(currentUser, 'manage_master_data') && (
-          <Card className="alert-card alert-warning">
+          <CardPro className="alert-card alert-warning">
             <AlertTriangle size={24} />
             <div>
               <h3>Pending Vendor Approvals</h3>
@@ -369,13 +369,13 @@ const VendorManagementView: React.FC = () => {
             <Button onClick={() => setStatusFilter(['pending_approval'])} className="btn-warning">
               View Pending
             </Button>
-          </Card>
+          </CardPro>
         )}
 
       {/* Summary Cards */}
       {summary && (
         <div className="summary-grid">
-          <Card className="summary-card">
+          <CardPro className="summary-card">
             <div className="summary-icon blue">
               <Store size={24} />
             </div>
@@ -383,9 +383,9 @@ const VendorManagementView: React.FC = () => {
               <div className="summary-value">{summary.totalVendors}</div>
               <div className="summary-label">Total Vendors</div>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="summary-card">
+          <CardPro className="summary-card">
             <div className="summary-icon green">
               <CheckCircle size={24} />
             </div>
@@ -393,9 +393,9 @@ const VendorManagementView: React.FC = () => {
               <div className="summary-value">{summary.activeVendors}</div>
               <div className="summary-label">Active Vendors</div>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="summary-card">
+          <CardPro className="summary-card">
             <div className="summary-icon red">
               <Ban size={24} />
             </div>
@@ -403,9 +403,9 @@ const VendorManagementView: React.FC = () => {
               <div className="summary-value">{summary.blacklistedVendors}</div>
               <div className="summary-label">Blacklisted</div>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="summary-card">
+          <CardPro className="summary-card">
             <div className="summary-icon purple">
               <TrendingUp size={24} />
             </div>
@@ -413,9 +413,9 @@ const VendorManagementView: React.FC = () => {
               <div className="summary-value">{summary.averagePerformanceScore.toFixed(1)}%</div>
               <div className="summary-label">Avg Performance</div>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="summary-card">
+          <CardPro className="summary-card">
             <div className="summary-icon yellow">
               <Award size={24} />
             </div>
@@ -423,9 +423,9 @@ const VendorManagementView: React.FC = () => {
               <div className="summary-value">{summary.averageOnTimeDeliveryRate.toFixed(1)}%</div>
               <div className="summary-label">On-Time Delivery</div>
             </div>
-          </Card>
+          </CardPro>
 
-          <Card className="summary-card">
+          <CardPro className="summary-card">
             <div className="summary-icon blue">
               <BarChart3 size={24} />
             </div>
@@ -433,12 +433,12 @@ const VendorManagementView: React.FC = () => {
               <div className="summary-value">{formatCurrency(summary.totalPOValue)}</div>
               <div className="summary-label">Total PO Value</div>
             </div>
-          </Card>
+          </CardPro>
         </div>
       )}
 
       {/* Filters & Search */}
-      <Card className="filter-card">
+      <CardPro className="filter-card">
         <div className="filter-row">
           <div className="search-box">
             <Search size={20} />
@@ -548,10 +548,10 @@ const VendorManagementView: React.FC = () => {
             ))}
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* Vendor List */}
-      <Card className="vendor-list-card">
+      <CardPro className="vendor-list-card">
         {loading ? (
           <div className="loading-state">
             <div className="spinner" />
@@ -661,7 +661,7 @@ const VendorManagementView: React.FC = () => {
             </table>
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* Modals */}
       {showCreateModal && (

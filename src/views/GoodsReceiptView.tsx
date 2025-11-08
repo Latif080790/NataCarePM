@@ -31,8 +31,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { GoodsReceipt, GRStatus, QualityStatus, GRFilterOptions } from '@/types/logistics';
 // import { PurchaseOrder } from '@/types';
@@ -318,16 +318,15 @@ const GoodsReceiptView: React.FC = () => {
         </div>
 
         {hasPermission(currentUser, 'manage_logistics') && (
-          <Button onClick={handleCreateGR} className="btn-primary">
-            <Plus size={20} />
+          <ButtonPro variant="primary" icon={Plus} onClick={handleCreateGR}>
             Create Goods Receipt
-          </Button>
+          </ButtonPro>
         )}
       </div>
 
       {/* Summary Cards */}
       <div className="summary-grid">
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon blue">
             <Package size={24} />
           </div>
@@ -335,9 +334,9 @@ const GoodsReceiptView: React.FC = () => {
             <div className="summary-value">{summary.totalGRs}</div>
             <div className="summary-label">Total Receipts</div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon yellow">
             <Eye size={24} />
           </div>
@@ -345,9 +344,9 @@ const GoodsReceiptView: React.FC = () => {
             <div className="summary-value">{summary.pendingInspection}</div>
             <div className="summary-label">Pending Inspection</div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon green">
             <CheckCircle size={24} />
           </div>
@@ -355,9 +354,9 @@ const GoodsReceiptView: React.FC = () => {
             <div className="summary-value">{summary.completedGRs}</div>
             <div className="summary-label">Completed</div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card className="summary-card">
+        <CardPro className="summary-card">
           <div className="summary-icon purple">
             <TrendingUp size={24} />
           </div>
@@ -365,11 +364,11 @@ const GoodsReceiptView: React.FC = () => {
             <div className="summary-value">{formatCurrency(summary.totalValue)}</div>
             <div className="summary-label">Total Value</div>
           </div>
-        </Card>
+        </CardPro>
       </div>
 
       {/* Filters & Search */}
-      <Card className="filter-card">
+      <CardPro className="filter-card">
         <div className="filter-row">
           <div className="search-box">
             <Search size={20} />
@@ -378,6 +377,7 @@ const GoodsReceiptView: React.FC = () => {
               placeholder="Search by GR number, PO number, or vendor..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             />
           </div>
 
@@ -391,6 +391,7 @@ const GoodsReceiptView: React.FC = () => {
                   setStatusFilter([...statusFilter, status]);
                 }
               }}
+              className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             >
               <option value="">Filter by Status...</option>
               {Object.entries(STATUS_CONFIG).map(([key, config]) => (
@@ -408,6 +409,7 @@ const GoodsReceiptView: React.FC = () => {
                   setQualityFilter([...qualityFilter, quality]);
                 }
               }}
+              className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             >
               <option value="">Filter by Quality...</option>
               {Object.entries(QUALITY_CONFIG).map(([key, config]) => (
@@ -419,15 +421,15 @@ const GoodsReceiptView: React.FC = () => {
           </div>
 
           {(statusFilter.length > 0 || qualityFilter.length > 0) && (
-            <Button
+            <ButtonPro
+              variant="secondary"
               onClick={() => {
                 setStatusFilter([]);
                 setQualityFilter([]);
               }}
-              className="btn-secondary"
             >
               Clear Filters
-            </Button>
+            </ButtonPro>
           )}
         </div>
 
@@ -438,7 +440,7 @@ const GoodsReceiptView: React.FC = () => {
             {statusFilter.map((status) => (
               <span key={status} className="filter-tag">
                 {STATUS_CONFIG[status].label}
-                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))}>
+                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))} className="transition-colors">
                   ×
                 </button>
               </span>
@@ -448,6 +450,7 @@ const GoodsReceiptView: React.FC = () => {
                 {QUALITY_CONFIG[quality].label}
                 <button
                   onClick={() => setQualityFilter(qualityFilter.filter((q) => q !== quality))}
+                  className="transition-colors"
                 >
                   ×
                 </button>
@@ -455,10 +458,10 @@ const GoodsReceiptView: React.FC = () => {
             ))}
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* GR List */}
-      <Card className="gr-list-card">
+      <CardPro className="gr-list-card">
         {loading ? (
           <div className="loading-state">
             <div className="spinner" />
@@ -505,45 +508,45 @@ const GoodsReceiptView: React.FC = () => {
                     <td>{renderQualityBadge(gr.overallQualityStatus)}</td>
                     <td>
                       <div className="action-buttons">
-                        <Button
+                        <button
                           onClick={() => handleViewDetails(gr)}
-                          className="btn-icon"
+                          className="btn-icon transition-colors"
                           title="View Details"
                         >
                           <Eye size={16} />
-                        </Button>
+                        </button>
 
                         {(gr.status === 'submitted' || gr.status === 'inspecting') &&
                           hasPermission(currentUser, 'manage_logistics') && (
-                            <Button
+                            <button
                               onClick={() => handleInspect(gr)}
-                              className="btn-icon btn-primary"
+                              className="btn-icon btn-primary transition-colors"
                               title="Inspect"
                             >
                               <CheckCircle size={16} />
-                            </Button>
+                            </button>
                           )}
 
                         {gr.status === 'draft' &&
                           hasPermission(currentUser, 'manage_logistics') && (
-                            <Button
+                            <button
                               onClick={() => handleSubmitGR(gr.id)}
-                              className="btn-icon btn-success"
+                              className="btn-icon btn-success transition-colors"
                               title="Submit"
                             >
                               <Upload size={16} />
-                            </Button>
+                            </button>
                           )}
 
                         {gr.status === 'approved' &&
                           hasPermission(currentUser, 'manage_logistics') && (
-                            <Button
+                            <button
                               onClick={() => handleCompleteGR(gr.id)}
-                              className="btn-icon btn-success"
+                              className="btn-icon btn-success transition-colors"
                               title="Complete"
                             >
                               <CheckCircle size={16} />
-                            </Button>
+                            </button>
                           )}
                       </div>
                     </td>
@@ -553,7 +556,7 @@ const GoodsReceiptView: React.FC = () => {
             </table>
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* Modals */}
       {showCreateModal && (

@@ -1,7 +1,7 @@
 // React default import removed (using automatic JSX runtime)
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Task } from '@/types';
 import { taskService } from '@/api/taskService';
 import { useToast } from '@/contexts/ToastContext';
@@ -292,37 +292,35 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
           <p className="text-palladium">Visualisasi network dependencies antar tasks</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <ButtonPro
             variant={viewMode === 'dependency' ? 'primary' : 'ghost'}
-            size="sm"
             onClick={() => setViewMode('dependency')}
           >
             <Target className="w-4 h-4 mr-2" />
             Dependencies
-          </Button>
-          <Button
+          </ButtonPro>
+          <ButtonPro
             variant={viewMode === 'timeline' ? 'primary' : 'ghost'}
-            size="sm"
             onClick={() => setViewMode('timeline')}
           >
             <Clock className="w-4 h-4 mr-2" />
             Timeline
-          </Button>
-          <Button variant="ghost" size="sm" onClick={exportGraph}>
+          </ButtonPro>
+          <ButtonPro variant="ghost" onClick={exportGraph}>
             <Download className="w-4 h-4 mr-2" />
             Export
-          </Button>
-          <Button onClick={() => setShowCreateModal(true)}>
+          </ButtonPro>
+          <ButtonPro variant="primary" onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Buat Task
-          </Button>
+          </ButtonPro>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Total Tasks</p>
@@ -330,10 +328,10 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
               </div>
               <Target className="w-8 h-8 text-violet-essence" />
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
+          </div>
+        </CardPro>
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Critical Path</p>
@@ -341,10 +339,10 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
               </div>
               <AlertCircle className="w-8 h-8 text-red-500" />
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
+          </div>
+        </CardPro>
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Dependencies</p>
@@ -352,10 +350,10 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
               </div>
               <ArrowRight className="w-8 h-8 text-blue-500" />
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
+          </div>
+        </CardPro>
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Blocked Tasks</p>
@@ -365,22 +363,31 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
               </div>
               <Ban className="w-8 h-8 text-red-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
       </div>
 
       {/* Controls */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={handleZoomIn}>
+          <button 
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            onClick={handleZoomIn}
+          >
             <ZoomIn className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleZoomOut}>
+          </button>
+          <button 
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            onClick={handleZoomOut}
+          >
             <ZoomOut className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleResetView}>
+          </button>
+          <button 
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            onClick={handleResetView}
+          >
             <RefreshCw className="w-4 h-4" />
-          </Button>
+          </button>
           <span className="text-sm text-palladium ml-2">Zoom: {Math.round(zoom * 100)}%</span>
         </div>
 
@@ -405,8 +412,8 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
       </div>
 
       {/* Graph */}
-      <Card className="flex-1">
-        <CardContent className="p-0 h-full">
+      <CardPro className="flex-1">
+        <div className="p-0 h-full">
           <div className="w-full h-full overflow-hidden relative">
             <svg
               ref={svgRef}
@@ -582,8 +589,8 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* Create Task Modal */}
       {showCreateModal && (
