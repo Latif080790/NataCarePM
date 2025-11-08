@@ -48,3 +48,9 @@ export { ThemeSwitcher, useTheme } from './ThemeSwitcher';
 
 export { ToastProvider, useToast, toast, setGlobalToastHandler } from './ToastPro';
 export type { Toast } from './ToastPro';
+
+export { InputPro } from './InputPro';
+export type { InputProProps } from './InputPro';
+
+export { CommandPalettePro, useCommandPalette } from './CommandPalettePro';
+export type { CommandItem } from './CommandPalettePro';
