@@ -17,6 +17,14 @@ export type { BadgeProProps } from './BadgePro';
 export { TablePro } from './TablePro';
 export type { TableProProps, ColumnDef } from './TablePro';
 
+export { 
+  useTableAdvanced, 
+  TableToolbar, 
+  TablePagination, 
+  ColumnToggleModal 
+} from './TableProAdvanced';
+export type { TableProAdvancedProps } from './TableProAdvanced';
+
 export { ModalPro, ConfirmModal } from './ModalPro';
 export type { ModalProProps, ConfirmModalProps } from './ModalPro';
 
