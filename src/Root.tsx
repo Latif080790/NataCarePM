@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -16,27 +15,25 @@ function Root() {
   console.log('[Root] Rendering Root component with all providers...');
   
   return (
-    <React.StrictMode>
-      <ToastProvider>
-        <AuthProvider>
-          <EnhancedErrorBoundary>
-            <ProjectProvider>
-              <AIResourceProvider>
-                <PredictiveAnalyticsProvider>
-                  <RealtimeCollaborationProvider>
-                    <MessageProvider>
-                      <BrowserRouter>
-                        <App />
-                      </BrowserRouter>
-                    </MessageProvider>
-                  </RealtimeCollaborationProvider>
-                </PredictiveAnalyticsProvider>
-              </AIResourceProvider>
-            </ProjectProvider>
-          </EnhancedErrorBoundary>
-        </AuthProvider>
-      </ToastProvider>
-    </React.StrictMode>
+    <ToastProvider>
+      <AuthProvider>
+        <EnhancedErrorBoundary>
+          <ProjectProvider>
+            <AIResourceProvider>
+              <PredictiveAnalyticsProvider>
+                <RealtimeCollaborationProvider>
+                  <MessageProvider>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </MessageProvider>
+                </RealtimeCollaborationProvider>
+              </PredictiveAnalyticsProvider>
+            </AIResourceProvider>
+          </ProjectProvider>
+        </EnhancedErrorBoundary>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 

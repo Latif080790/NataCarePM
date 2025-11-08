@@ -136,6 +136,23 @@ export const ROLES_CONFIG: Role[] = [
       'view_documents',
     ],
   },
+  {
+    id: 'user',
+    name: 'User',
+    permissions: [
+      'view_dashboard',
+      'view_rab',
+      'view_gantt',
+      'view_daily_reports',
+      'view_progress',
+      'view_attendance',
+      'view_finances',
+      'view_evm',
+      'view_logistics',
+      'view_documents',
+      'view_reports',
+    ],
+  },
 ];
 
 export const navLinksConfig = [
@@ -372,21 +389,16 @@ export const navLinksConfig = [
 export const hasPermission = (user: User | null, permission: Permission): boolean => {
   // Development mode: if no user or role, allow all permissions for testing
   if (!user) {
-    console.warn('⚠️ No user found - allowing all permissions for development');
     return true; // Allow access in development
   }
 
   const userRole = ROLES_CONFIG.find((r) => r.id === user.roleId);
   if (!userRole) {
-    console.warn(
-      `⚠️ No role found for roleId: ${user.roleId} - allowing all permissions for development`
-    );
-    return true; // Allow access if role not configured
+    // Silently allow access if role not configured (development mode)
+    return true;
   }
 
-  const hasAccess = userRole.permissions.includes(permission);
-  console.log(`🔐 Permission check: ${permission} for role ${userRole.name} = ${hasAccess}`);
-  return hasAccess;
+  return userRole.permissions.includes(permission);
 };
 
 export const formatCurrency = (value: number) => {

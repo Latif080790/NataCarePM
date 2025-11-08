@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
 import { Task } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/FormControls';
 import { taskService } from '@/api/taskService';
@@ -87,6 +88,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
   const [zoom, setZoom] = useState(1);
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragMode, setDragMode] = useState<'move' | 'resize-start' | 'resize-end' | null>(null);
 
   const ganttRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -272,32 +274,34 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
     return headers;
   }, [ganttData.projectStart, ganttData.projectEnd, settings.timeScale]);
 
-  // Drag and drop handlers
-  const handleTaskMouseDown = useCallback((e: React.MouseEvent, taskId: string) => {
-    if (e.button !== 0) return; // Only left click
+  // Drag and drop handlers with resize support
+  const handleTaskMouseDown = useCallback(
+    (e: React.MouseEvent, taskId: string, mode: 'move' | 'resize-start' | 'resize-end' = 'move') => {
+      if (e.button !== 0) return; // Only left click
 
-    e.preventDefault();
-    setDraggedTask(taskId);
+      e.preventDefault();
+      e.stopPropagation();
+      setDraggedTask(taskId);
+      setDragMode(mode);
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  }, []);
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    },
+    []
+  );
 
   const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!draggedTask || !timelineRef.current) return;
+    (_e: MouseEvent) => {
+      if (!draggedTask || !timelineRef.current || !dragMode) return;
 
-      const timelineRect = timelineRef.current.getBoundingClientRect();
-      const dayWidth = timelineRect.width / timelineHeaders.length;
-      const newDayIndex = Math.floor((e.clientX - timelineRect.left - dragOffset.x) / dayWidth);
-
-      // Update task position visually (you'd implement this with state)
-      console.log(`Moving task ${draggedTask} to day ${newDayIndex}`);
+      // Visual feedback could be added here in the future
+      // For now, just track the mouse movement
+      console.log('Dragging task:', draggedTask, 'Mode:', dragMode);
     },
-    [draggedTask, dragOffset, timelineHeaders.length]
+    [draggedTask, dragMode]
   );
 
   const handleMouseUp = useCallback(
@@ -328,6 +332,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
       }
 
       setDraggedTask(null);
+      setDragMode(null);
       setDragOffset({ x: 0, y: 0 });
     },
     [draggedTask, dragOffset, timelineHeaders, projectId, currentUser, addToast]
@@ -707,24 +712,37 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                         {startIndex >= 0 && endIndex >= 0 && (
                           <div
                             className={`
-                                                            absolute h-6 rounded cursor-move transition-all hover:h-8
-                                                            ${
-                                                              task.isOnCriticalPath &&
-                                                              settings.showCriticalPath
-                                                                ? 'bg-red-500 border-red-600'
-                                                                : 'bg-persimmon border-persimmon-dark'
-                                                            }
-                                                            ${draggedTask === task.id ? 'opacity-50' : ''}
-                                                        `}
+                              absolute h-6 rounded transition-all hover:h-8 group
+                              ${
+                                task.isOnCriticalPath && settings.showCriticalPath
+                                  ? 'bg-red-500 border-red-600'
+                                  : 'bg-persimmon border-persimmon-dark'
+                              }
+                              ${draggedTask === task.id ? 'opacity-50 ring-2 ring-blue-400' : ''}
+                            `}
                             style={{
                               left: `${(startIndex / timelineHeaders.length) * 100}%`,
                               width: `${((endIndex - startIndex + 1) / timelineHeaders.length) * 100}%`,
                               zIndex: draggedTask === task.id ? 20 : 10,
                             }}
-                            onMouseDown={(e) => handleTaskMouseDown(e, task.id)}
+                            onMouseDown={(e) => handleTaskMouseDown(e, task.id, 'move')}
                             onClick={() => handleTaskClick(task)}
                             title={`${task.title} (${formatDate(task.startDate.toISOString())} - ${formatDate(task.endDate.toISOString())})`}
                           >
+                            {/* Resize Handle - Start */}
+                            <div
+                              className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize bg-white bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onMouseDown={(e) => handleTaskMouseDown(e, task.id, 'resize-start')}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+
+                            {/* Resize Handle - End */}
+                            <div
+                              className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize bg-white bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onMouseDown={(e) => handleTaskMouseDown(e, task.id, 'resize-end')}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+
                             {/* Progress Bar */}
                             {settings.showProgress && (
                               <div
