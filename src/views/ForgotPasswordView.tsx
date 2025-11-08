@@ -16,7 +16,7 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
   const [sentEmail, setSentEmail] = useState('');
   const [error, setError] = useState('');
 
-  const { register, handleSubmit, formState: { errors } } = useValidatedForm<PasswordResetRequestData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting: formSubmitting } } = useValidatedForm<PasswordResetRequestData>({
     schema: passwordResetRequestSchema,
     onSubmit: async (data) => {
       setIsSubmitting(true);
@@ -59,9 +59,8 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
             </CardProDescription>
           </CardProHeader>
           <CardProContent>
-            <p className="text-sm text-gray-600 text-center mb-4">
-              Periksa inbox email Anda dan klik link untuk mereset password. Link akan kadaluarsa
-              dalam 1 jam.
+            <p className="text-sm text-gray-600 text-center mb-4" data-testid="reset-success-message">
+              Periksa inbox email Anda dan klik link untuk mereset password. Link akan kadaluarsa dalam 1 jam.
             </p>
             <ButtonPro variant="outline" icon={ArrowLeft} onClick={onBack} className="w-full">
               Kembali ke Login
@@ -80,7 +79,7 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
           <CardProDescription>Masukkan email Anda untuk menerima link reset password</CardProDescription>
         </CardProHeader>
         <CardProContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <FormField
               name="email"
               label="Email"
@@ -93,14 +92,27 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
               helpText="Masukkan email yang terdaftar di akun Anda"
             />
 
+            {/* Inline validation message (client-side) */}
+            {errors.email && (
+              <div className="text-sm text-red-600" data-testid="email-error-msg">
+                {errors.email.message as string}
+              </div>
+            )}
+
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-md">
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
-            <ButtonPro type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Mengirim...' : 'Kirim Link Reset'}
+            <ButtonPro
+              type="submit"
+              variant="primary"
+              className="w-full"
+              disabled={isSubmitting || formSubmitting}
+              data-testid="submit-reset"
+            >
+              {isSubmitting || formSubmitting ? 'Mengirim...' : 'Kirim Link Reset'}
             </ButtonPro>
 
             <ButtonPro
