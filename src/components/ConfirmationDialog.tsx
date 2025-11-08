@@ -1,4 +1,4 @@
-import { Button } from '@/components/Button';
+import { ButtonPro } from '@/components/ButtonPro';
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -17,8 +17,8 @@ export default function ConfirmationDialog({ isOpen, onClose, onConfirm, title, 
         <h2 className="text-lg font-bold mb-4">{title}</h2>
         <p className="text-sm text-gray-600 mb-6">{description}</p>
         <div className="flex justify-end gap-4">
-          <Button variant="outline" onClick={onClose}>Batal</Button>
-          <Button variant="destructive" onClick={onConfirm}>Hapus</Button>
+          <ButtonPro variant="outline" onClick={onClose}>Batal</ButtonPro>
+          <ButtonPro variant="primary" onClick={onConfirm} className="bg-red-600 hover:bg-red-700">Hapus</ButtonPro>
         </div>
       </div>
     </div>

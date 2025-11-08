@@ -4,6 +4,8 @@ import {
   query,
   where,
   Timestamp,
+  doc,
+  getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import {

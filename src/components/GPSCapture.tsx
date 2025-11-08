@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import { MapPin, Loader, Check, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/Button';
+import { ButtonPro } from '@/components/ButtonPro';
 import { trackGPSCapture } from '@/utils/mobileAnalytics';
 
 interface GPSCaptureProps {
@@ -101,10 +101,10 @@ export function GPSCapture({ onCapture, workSiteLocation }: GPSCaptureProps) {
 
   return (
     <div className="space-y-4">
-      <Button onClick={captureLocation} disabled={loading} className="w-full">
+      <ButtonPro onClick={captureLocation} disabled={loading} variant="primary" className="w-full">
         {loading ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : <MapPin className="w-4 h-4 mr-2" />}
         {loading ? 'Getting Location...' : 'Capture Location'}
-      </Button>
+      </ButtonPro>
 
       {error && (
         <div className="p-3 bg-red-50 text-red-700 rounded flex items-center gap-2">

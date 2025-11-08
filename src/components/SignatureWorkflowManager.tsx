@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-import { Card, CardContent } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Modal } from '@/components/Modal';
 import {
   Signature,
@@ -262,8 +262,8 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
     ).length;
 
     return (
-      <Card key={workflow.id} className="mb-4">
-        <CardContent className="p-4">
+      <CardPro key={workflow.id} className="mb-4">
+        <div className="p-4">
           <div
             className="flex items-center justify-between cursor-pointer"
             onClick={() => toggleWorkflowExpansion(workflow.id)}
@@ -290,7 +290,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
 
             <div className="flex items-center space-x-2">
               {!workflow.isCompleted && !workflow.isCancelled && (
-                <Button
+                <ButtonPro
                   size="sm"
                   variant="outline"
                   onClick={(e) => {
@@ -300,10 +300,10 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                 >
                   <Mail className="w-4 h-4 mr-1" />
                   Remind
-                </Button>
+                </ButtonPro>
               )}
 
-              <Button
+              <ButtonPro
                 size="sm"
                 variant="outline"
                 onClick={(e) => {
@@ -314,7 +314,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
               >
                 <Eye className="w-4 h-4 mr-1" />
                 Details
-              </Button>
+              </ButtonPro>
 
               {isExpanded ? (
                 <ChevronDown className="w-5 h-5" />
@@ -355,13 +355,13 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                           </span>
                         )}
                         {!signature && !workflow.isCompleted && (
-                          <Button
+                          <ButtonPro
                             size="sm"
                             variant="outline"
                             onClick={() => handleSendReminder(workflow.id, email)}
                           >
                             <Send className="w-3 h-3" />
-                          </Button>
+                          </ButtonPro>
                         )}
                       </div>
                     </div>
@@ -377,21 +377,21 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                 </div>
                 <div className="flex items-center space-x-2">
                   {!workflow.isCompleted && !workflow.isCancelled && (
-                    <Button
+                    <ButtonPro
                       size="sm"
                       variant="outline"
                       onClick={() => handleCancelWorkflow(workflow.id)}
                     >
                       <X className="w-4 h-4 mr-1" />
                       Cancel
-                    </Button>
+                    </ButtonPro>
                   )}
                 </div>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
     );
   };
 
@@ -406,49 +406,49 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
               Manage digital signature workflows and track signing progress
             </p>
           </div>
-          <Button
+          <ButtonPro
             onClick={() => setShowCreateModal(true)}
-            className="bg-blue-600 hover:bg-blue-700"
+            variant="primary"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Workflow
-          </Button>
+          </ButtonPro>
         </div>
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-4 text-center">
+          <CardPro>
+            <div className="p-4 text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {workflows.filter((w) => !w.isCompleted && !w.isCancelled).length}
               </div>
               <div className="text-sm text-gray-500">Active Workflows</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
+            </div>
+          </CardPro>
+          <CardPro>
+            <div className="p-4 text-center">
               <div className="text-2xl font-bold text-green-600">
                 {workflows.filter((w) => w.isCompleted).length}
               </div>
               <div className="text-sm text-gray-500">Completed</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
+            </div>
+          </CardPro>
+          <CardPro>
+            <div className="p-4 text-center">
               <div className="text-2xl font-bold text-red-600">
                 {workflows.filter((w) => new Date() > w.deadline && !w.isCompleted).length}
               </div>
               <div className="text-sm text-gray-500">Overdue</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
+            </div>
+          </CardPro>
+          <CardPro>
+            <div className="p-4 text-center">
               <div className="text-2xl font-bold text-gray-600">
                 {workflows.reduce((sum, w) => sum + w.signatures.length, 0)}
               </div>
               <div className="text-sm text-gray-500">Total Signatures</div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardPro>
         </div>
 
         {/* Workflows List */}
@@ -465,10 +465,10 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
             <p className="text-gray-500 mb-6">
               Create your first signature workflow to get started
             </p>
-            <Button onClick={() => setShowCreateModal(true)}>
+            <ButtonPro onClick={() => setShowCreateModal(true)} variant="primary">
               <Plus className="w-4 h-4 mr-2" />
               Create First Workflow
-            </Button>
+            </ButtonPro>
           </div>
         )}
 
@@ -530,10 +530,10 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="block text-sm font-medium text-gray-700">Signers</label>
-                <Button size="sm" variant="outline" onClick={addSigner}>
+                <ButtonPro size="sm" variant="outline" onClick={addSigner}>
                   <Plus className="w-4 h-4 mr-1" />
                   Add Signer
-                </Button>
+                </ButtonPro>
               </div>
 
               <div className="space-y-3">
@@ -583,9 +583,12 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                           />
                           Required
                         </label>
-                        <Button size="sm" variant="outline" onClick={() => removeSigner(index)}>
+                        <button 
+                          onClick={() => removeSigner(index)}
+                          className="p-1 rounded hover:bg-red-50 text-red-600 hover:text-red-800 transition-colors"
+                        >
                           <X className="w-3 h-3" />
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -595,10 +598,10 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                   <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                     <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">No signers added yet</p>
-                    <Button onClick={addSigner} className="mt-2">
+                    <ButtonPro onClick={addSigner} variant="primary" className="mt-2">
                       <Plus className="w-4 h-4 mr-2" />
                       Add First Signer
-                    </Button>
+                    </ButtonPro>
                   </div>
                 )}
               </div>
@@ -666,7 +669,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
 
             {/* Actions */}
             <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
-              <Button
+              <ButtonPro
                 variant="outline"
                 onClick={() => {
                   setShowCreateModal(false);
@@ -674,10 +677,11 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                 }}
               >
                 Cancel
-              </Button>
-              <Button
+              </ButtonPro>
+              <ButtonPro
                 onClick={handleCreateWorkflow}
                 disabled={isLoading || !selectedDocumentId || signers.length === 0}
+                variant="primary"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -685,7 +689,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                   <Zap className="w-4 h-4 mr-2" />
                 )}
                 Create Workflow
-              </Button>
+              </ButtonPro>
             </div>
           </div>
         </Modal>

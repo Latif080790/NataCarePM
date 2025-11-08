@@ -1,10 +1,10 @@
 // React default import removed (using automatic JSX runtime)
 import { useState } from 'react';
 import { RabItem, AhspData, EnhancedRabItem } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
+import { CardPro } from '@/components/CardPro';
 import { formatCurrency } from '@/constants';
 import { Modal } from '@/components/Modal';
-import { Button } from '@/components/Button';
+import { ButtonPro } from '@/components/ButtonPro';
 import {
   Download,
   Calculator,
@@ -54,13 +54,13 @@ export default function EnhancedRabAhspView({
   // Safe guard: Check if items and ahspData are defined
   if (!items || !ahspData) {
     return (
-      <Card>
-        <CardContent>
+      <CardPro>
+        <div className="p-6">
           <div className="flex items-center justify-center p-8">
             <p className="text-palladium">Loading data...</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
     );
   }
 
@@ -169,8 +169,8 @@ export default function EnhancedRabAhspView({
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Total Items</p>
@@ -178,11 +178,11 @@ export default function EnhancedRabAhspView({
               </div>
               <BarChart3 className="w-8 h-8 text-persimmon" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Base Budget</p>
@@ -190,11 +190,11 @@ export default function EnhancedRabAhspView({
               </div>
               <Calculator className="w-8 h-8 text-blue-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Adjusted Budget</p>
@@ -204,11 +204,11 @@ export default function EnhancedRabAhspView({
               </div>
               <TrendingUp className="w-8 h-8 text-persimmon" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <div className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Budget Impact</p>
@@ -222,25 +222,25 @@ export default function EnhancedRabAhspView({
               </div>
               <AlertTriangle className="w-8 h-8 text-yellow-500" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardPro>
       </div>
 
       {/* Enhanced RAB Table */}
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <CardPro>
+        <div className="p-6 pb-4 flex flex-row justify-between items-center border-b border-gray-200">
           <div>
-            <CardTitle>Enhanced RAB Analysis</CardTitle>
-            <CardDescription>
+            <h2 className="text-xl font-semibold text-night-black">Enhanced RAB Analysis</h2>
+            <p className="text-sm text-palladium mt-1">
               Comprehensive cost analysis with risk assessment and regional adjustments
-            </CardDescription>
+            </p>
           </div>
-          <Button variant="outline" onClick={handleExportCsv}>
+          <ButtonPro variant="outline" onClick={handleExportCsv}>
             <Download className="w-4 h-4 mr-2" />
             Export Enhanced RAB
-          </Button>
-        </CardHeader>
-        <CardContent>
+          </ButtonPro>
+        </div>
+        <div className="p-6 pt-4">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-night-black">
               <thead className="bg-violet-essence/50 text-xs uppercase">
@@ -339,14 +339,13 @@ export default function EnhancedRabAhspView({
                           {formatCurrency((item.volume || 0) * projectedPrice)}
                         </td>
                         <td className="p-3 text-right">
-                          <Button 
+                          <ButtonPro 
                             variant="outline" 
-                            size="sm"
                             onClick={() => onNavigate && onNavigate('rab_approval', { rabItemId: item.id })}
                           >
                             <CheckSquare className="w-4 h-4 mr-1" />
                             Approval
-                          </Button>
+                          </ButtonPro>
                         </td>
                       </tr>
 
@@ -445,34 +444,34 @@ export default function EnhancedRabAhspView({
               </tfoot>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
     </div>
   );
 
   return (
     <div className="space-y-6">
       {/* Enhanced Navigation Tabs */}
-      <Card>
-        <CardContent className="p-4">
+      <CardPro>
+        <div className="p-4">
           <div className="flex flex-wrap gap-2">
             {tabConfig.map((tab) => {
               const Icon = tab.icon;
               return (
-                <Button
+                <ButtonPro
                   key={tab.id}
-                  variant={activeTab === tab.id ? 'default' : 'outline'}
+                  variant={activeTab === tab.id ? 'primary' : 'outline'}
                   onClick={() => setActiveTab(tab.id as AnalysisTab)}
                   className="flex items-center gap-2"
                 >
                   <Icon className="w-4 h-4" />
                   {tab.label}
-                </Button>
+                </ButtonPro>
               );
             })}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardPro>
 
       {/* Tab Content */}
       {activeTab === 'overview' && renderOverviewTab()}

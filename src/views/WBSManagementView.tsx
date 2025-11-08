@@ -344,31 +344,6 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
     }
   };
 
-  // Filter and search
-  const filteredHierarchy = useMemo(() => {
-    if (!hierarchy) return null;
-
-    let filtered = hierarchy.flatList;
-
-    // Apply status filter
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter((e) => e.status === filterStatus);
-    }
-
-    // Apply search
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (e) =>
-          e.code.toLowerCase().includes(term) ||
-          e.name.toLowerCase().includes(term) ||
-          e.description?.toLowerCase().includes(term)
-      );
-    }
-
-    return filtered;
-  }, [hierarchy, filterStatus, searchTerm]);
-
   // Calculate totals
   const totals = useMemo(() => {
     if (!hierarchy) return { budget: 0, actual: 0, commitments: 0, variance: 0 };

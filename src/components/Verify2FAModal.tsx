@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/Modal';
-import { Button } from '@/components/Button';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Shield, AlertCircle, Key } from 'lucide-react';
 
 interface Verify2FAModalProps {
@@ -130,22 +130,23 @@ export const Verify2FAModal = ({
         </div>
 
         <div className="flex space-x-3 pt-4">
-          <Button
+          <ButtonPro
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={handleClose}
             className="flex-1"
             disabled={loading}
           >
             Batal
-          </Button>
-          <Button
+          </ButtonPro>
+          <ButtonPro
             type="submit"
+            variant="primary"
             className="flex-1"
             disabled={!isValidCode || loading}
           >
             {loading ? 'Memverifikasi...' : 'Verifikasi'}
-          </Button>
+          </ButtonPro>
         </div>
 
         <div className="text-center">

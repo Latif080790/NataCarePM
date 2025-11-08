@@ -18,16 +18,16 @@ const mockSignOut = vi.fn();
 const mockOnAuthStateChanged = vi.fn();
 const mockUpdateProfile = vi.fn();
 
-// Mock Firebase Firestore methods
-const mockDoc = vi.fn();
+// Mock Firebase Firestore - defined in vi.mock factory below
 const mockGetDoc = vi.fn();
-const mockSetDoc = vi.fn();
-const mockUpdateDoc = vi.fn();
-const mockCollection = vi.fn();
 
 // Mock rate limiter
 const mockRateLimiter = {
-  checkLimit: vi.fn().mockReturnValue({ allowed: true }),
+  checkLimit: vi.fn().mockReturnValue({ 
+    allowed: true,
+    remaining: 10,
+    resetTime: Date.now() + 60000
+  }),
   reset: vi.fn(),
 };
 
@@ -39,20 +39,20 @@ const mockTwoFactorService = {
 };
 
 vi.mock('firebase/auth', () => ({
-  signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
-  createUserWithEmailAndPassword: mockCreateUserWithEmailAndPassword,
-  sendPasswordResetEmail: mockSendPasswordResetEmail,
-  signOut: mockSignOut,
-  onAuthStateChanged: mockOnAuthStateChanged,
-  updateProfile: mockUpdateProfile,
+  signInWithEmailAndPassword: (...args: any[]) => mockSignInWithEmailAndPassword(...args),
+  createUserWithEmailAndPassword: (...args: any[]) => mockCreateUserWithEmailAndPassword(...args),
+  sendPasswordResetEmail: (...args: any[]) => mockSendPasswordResetEmail(...args),
+  signOut: (...args: any[]) => mockSignOut(...args),
+  onAuthStateChanged: (...args: any[]) => mockOnAuthStateChanged(...args),
+  updateProfile: (...args: any[]) => mockUpdateProfile(...args),
 }));
 
 vi.mock('firebase/firestore', () => ({
-  doc: mockDoc,
-  getDoc: mockGetDoc,
-  setDoc: mockSetDoc,
-  updateDoc: mockUpdateDoc,
-  collection: mockCollection,
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  collection: vi.fn(),
 }));
 
 // Mock Firebase config
@@ -86,8 +86,8 @@ vi.mock('@/api/twoFactorService', () => ({
 }));
 
 // Mock response wrapper
-vi.mock('@/utils/responseWrapper', () => {
-  const originalModule = vi.importActual('@/utils/responseWrapper');
+vi.mock('@/utils/responseWrapper', async () => {
+  const originalModule = await vi.importActual('@/utils/responseWrapper');
   return {
     ...originalModule,
     wrapResponse: vi.fn().mockImplementation((data) => ({ success: true, data })),
@@ -100,6 +100,25 @@ vi.mock('@/utils/responseWrapper', () => {
     })),
   };
 });
+
+// Mock auth service
+vi.mock('@/services/authService', () => ({
+  authService: {
+    login: vi.fn().mockResolvedValue({
+      success: true,
+      data: {
+        user: {
+          uid: 'user123',
+          email: 'user@example.com',
+          displayName: 'Test User',
+        },
+        token: 'mock-token',
+      },
+    }),
+    logout: vi.fn().mockResolvedValue({ success: true }),
+    register: vi.fn().mockResolvedValue({ success: true }),
+  },
+}));
 
 describe('Enhanced Security Integration Tests', () => {
   beforeEach(() => {

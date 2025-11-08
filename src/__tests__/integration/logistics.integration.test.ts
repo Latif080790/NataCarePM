@@ -55,6 +55,12 @@ vi.mock('firebase/firestore', () => ({
   },
   orderBy: vi.fn(),
   serverTimestamp: vi.fn(),
+  Timestamp: {
+    now: vi.fn().mockReturnValue({
+      toDate: () => new Date(),
+      toMillis: () => Date.now(),
+    }),
+  },
 }));
 
 // Mock Firebase config

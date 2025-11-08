@@ -8,8 +8,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { enhancedReportingService } from '@/api/enhancedReportingService';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input, Select, Textarea } from '@/components/FormControls';
 import { 
   Plus, 
@@ -306,22 +306,24 @@ const CustomReportBuilderView: React.FC = () => {
           <p className="text-gray-600 mt-1">Create custom reports with your selected data sources and visualizations</p>
         </div>
         <div className="flex gap-2">
-          <Button 
+          <ButtonPro 
             onClick={generateReport} 
             disabled={isGenerating}
+            variant="primary"
             className="flex items-center gap-2"
           >
             <Play className="w-4 h-4" />
             {isGenerating ? 'Generating...' : 'Generate Report'}
-          </Button>
+          </ButtonPro>
           {generatedReport && (
-            <Button 
+            <ButtonPro 
               onClick={() => exportReport('pdf')} 
+              variant="outline"
               className="flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               Export
-            </Button>
+            </ButtonPro>
           )}
         </div>
       </div>
@@ -345,14 +347,14 @@ const CustomReportBuilderView: React.FC = () => {
         {/* Configuration Panel */}
         <div className="lg:col-span-1 space-y-6">
           {/* Report Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <CardPro>
+            <div className="p-6 pb-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Database className="w-5 h-5" />
                 Report Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Report Name</label>
                 <Input
@@ -370,18 +372,18 @@ const CustomReportBuilderView: React.FC = () => {
                   rows={3}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardPro>
 
           {/* Data Sources */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <CardPro>
+            <div className="p-6 pb-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Database className="w-5 h-5" />
                 Data Sources
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-4 space-y-4">
               <div className="space-y-2">
                 {dataSources.map((source) => (
                   <label key={source.id} className="flex items-center">
@@ -401,24 +403,24 @@ const CustomReportBuilderView: React.FC = () => {
                   </label>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardPro>
 
           {/* Fields Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
+          <CardPro>
+            <div className="p-6 pb-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Table className="w-5 h-5" />
                   Report Fields
-                </span>
-                <Button onClick={addField} size="sm" className="flex items-center gap-1">
+                </h3>
+                <ButtonPro onClick={addField} variant="outline" className="flex items-center gap-1">
                   <Plus className="w-4 h-4" />
                   Add Field
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </ButtonPro>
+              </div>
+            </div>
+            <div className="p-6 pt-4 space-y-4">
               {fields.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No fields added yet</p>
               ) : (
@@ -426,14 +428,12 @@ const CustomReportBuilderView: React.FC = () => {
                   <div key={field.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">Field {index + 1}</h3>
-                      <Button 
+                      <button 
                         onClick={() => removeField(index)} 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -493,24 +493,24 @@ const CustomReportBuilderView: React.FC = () => {
                   </div>
                 ))
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </CardPro>
 
           {/* Filters */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
+          <CardPro>
+            <div className="p-6 pb-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Filter className="w-5 h-5" />
                   Filters
-                </span>
-                <Button onClick={addFilter} size="sm" className="flex items-center gap-1">
+                </h3>
+                <ButtonPro onClick={addFilter} variant="outline" className="flex items-center gap-1">
                   <Plus className="w-4 h-4" />
                   Add Filter
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </ButtonPro>
+              </div>
+            </div>
+            <div className="p-6 pt-4 space-y-4">
               {filters.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No filters added yet</p>
               ) : (
@@ -518,14 +518,12 @@ const CustomReportBuilderView: React.FC = () => {
                   <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">Filter {index + 1}</h3>
-                      <Button 
+                      <button 
                         onClick={() => removeFilter(index)} 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -568,27 +566,27 @@ const CustomReportBuilderView: React.FC = () => {
                   </div>
                 ))
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </CardPro>
         </div>
 
         {/* Preview and Visualizations */}
         <div className="lg:col-span-2 space-y-6">
           {/* Visualizations */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
+          <CardPro>
+            <div className="p-6 pb-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
                   Visualizations
-                </span>
-                <Button onClick={addVisualization} size="sm" className="flex items-center gap-1">
+                </h3>
+                <ButtonPro onClick={addVisualization} variant="outline" className="flex items-center gap-1">
                   <Plus className="w-4 h-4" />
                   Add Visualization
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </ButtonPro>
+              </div>
+            </div>
+            <div className="p-6 pt-4 space-y-4">
               {visualizations.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No visualizations added yet</p>
               ) : (
@@ -596,14 +594,12 @@ const CustomReportBuilderView: React.FC = () => {
                   <div key={viz.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
                     <div className="flex justify-between items-start">
                       <h3 className="font-medium">Visualization {index + 1}</h3>
-                      <Button 
+                      <button 
                         onClick={() => removeVisualization(index)} 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -663,16 +659,16 @@ const CustomReportBuilderView: React.FC = () => {
                   </div>
                 ))
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </CardPro>
 
-          {/* Report Preview */}
+          {/* Preview */}
           {generatedReport && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Report Preview</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <CardPro>
+              <div className="p-6 pb-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Report Preview</h3>
+              </div>
+              <div className="p-6 pt-4">
                 <div className="border border-gray-200 rounded-lg p-4">
                   <h3 className="font-bold text-lg mb-2">{generatedReport.name}</h3>
                   <p className="text-gray-600 mb-4">{generatedReport.data.description}</p>
@@ -722,8 +718,8 @@ const CustomReportBuilderView: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardPro>
           )}
         </div>
       </div>

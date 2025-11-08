@@ -21,8 +21,8 @@
 import { useState, useEffect } from 'react';
 import { Project, ProjectMetrics, Notification } from '@/types';
 import { StatCardPro, StatCardSkeleton, StatCardGrid } from '@/components/StatCardPro';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { formatCurrency, formatDate } from '@/constants';
 import {
   DollarSign,
@@ -108,14 +108,14 @@ export default function DashboardPro({
 
             {/* Action Buttons */}
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm">
+              <ButtonPro variant="outline">
                 <Download className="w-4 h-4 mr-2" />
                 Export
-              </Button>
-              <Button variant="primary" size="sm">
+              </ButtonPro>
+              <ButtonPro variant="primary">
                 <Plus className="w-4 h-4 mr-2" />
                 New Task
-              </Button>
+              </ButtonPro>
             </div>
           </div>
 
@@ -184,20 +184,20 @@ export default function DashboardPro({
           {/* Left Column: Charts & Progress */}
           <div className="lg:col-span-2 space-y-6">
             {/* Project Progress Card */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader>
+            <CardPro className="bg-white border border-gray-200 shadow-sm">
+              <div className="p-6 pb-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Project Progress</CardTitle>
-                    <CardDescription>Track completion across all tasks</CardDescription>
+                    <h3 className="text-lg font-semibold text-gray-900">Project Progress</h3>
+                    <p className="text-sm text-gray-500 mt-1">Track completion across all tasks</p>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <TrendingUp className="w-4 h-4 mr-2" />
+                  <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                    <TrendingUp className="w-4 h-4" />
                     View Details
-                  </Button>
+                  </button>
                 </div>
-              </CardHeader>
-              <CardContent>
+              </div>
+              <div className="p-6 pt-4">
                 {/* Progress Bar */}
                 <div className="space-y-4">
                   <div>
@@ -229,16 +229,16 @@ export default function DashboardPro({
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardPro>
 
             {/* Budget Overview Card */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle>Budget Overview</CardTitle>
-                <CardDescription>Financial performance tracking</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <CardPro className="bg-white border border-gray-200 shadow-sm">
+              <div className="p-6 pb-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Budget Overview</h3>
+                <p className="text-sm text-gray-500 mt-1">Financial performance tracking</p>
+              </div>
+              <div className="p-6 pt-4">
                 <div className="space-y-4">
                   {/* Budget Stats */}
                   <div className="grid grid-cols-2 gap-4">
@@ -265,19 +265,19 @@ export default function DashboardPro({
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardPro>
           </div>
 
           {/* Right Column: Sidebar */}
           <div className="space-y-6">
             {/* Recent Activity */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest updates</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <CardPro className="bg-white border border-gray-200 shadow-sm">
+              <div className="p-6 pb-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                <p className="text-sm text-gray-500 mt-1">Latest updates</p>
+              </div>
+              <div className="p-6 pt-4">
                 <div className="space-y-4">
                   {recentReports.slice(0, 5).map((report, index) => (
                     <div key={index} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
@@ -302,16 +302,16 @@ export default function DashboardPro({
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardPro>
 
             {/* Notifications */}
-            <Card className="bg-white border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>{notifications.length} unread</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <CardPro className="bg-white border border-gray-200 shadow-sm">
+              <div className="p-6 pb-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                <p className="text-sm text-gray-500 mt-1">{notifications.length} unread</p>
+              </div>
+              <div className="p-6 pt-4">
                 <div className="space-y-3">
                   {notifications.slice(0, 5).map((notif) => (
                     <div
@@ -342,8 +342,8 @@ export default function DashboardPro({
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardPro>
           </div>
         </div>
       </div>

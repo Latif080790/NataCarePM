@@ -6,6 +6,8 @@ const mockCollection = vi.fn();
 const mockGetDocs = vi.fn();
 const mockQuery = vi.fn();
 const mockWhere = vi.fn();
+const mockDoc = vi.fn();
+const mockGetDoc = vi.fn();
 
 vi.mock('firebase/firestore', () => ({
   get collection() {
@@ -19,6 +21,12 @@ vi.mock('firebase/firestore', () => ({
   },
   get where() {
     return mockWhere;
+  },
+  get doc() {
+    return mockDoc;
+  },
+  get getDoc() {
+    return mockGetDoc;
   },
   Timestamp: {
     now: vi.fn().mockReturnValue({
@@ -136,6 +144,14 @@ describe('Cost Control Integration Tests', () => {
           }
         ],
       };
+
+      // Mock getDoc for project progress
+      mockGetDoc.mockResolvedValueOnce({
+        exists: () => true,
+        data: () => ({
+          progress: 60,
+        }),
+      });
 
       // Mock all the aggregation functions
       mockGetDocs.mockResolvedValueOnce({

@@ -290,7 +290,7 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
 
         mockGetDoc.mockResolvedValue(mockDocSnap);
         mockDeleteDoc.mockResolvedValue(undefined);
-        mockGetDocs.mockResolvedValue({ forEach: jest.fn() }); // No related docs
+        mockGetDocs.mockResolvedValue({ forEach: vi.fn() }); // No related docs
 
         const result = await intelligentDocumentService.deleteDocument('doc-123');
 
@@ -318,7 +318,7 @@ describe('Intelligent Document Service - Comprehensive Tests', () => {
           .mockRejectedValueOnce(new Error('Delete failed'))
           .mockRejectedValueOnce(new Error('Delete failed'))
           .mockResolvedValueOnce(undefined); // Success on 3rd attempt
-        mockGetDocs.mockResolvedValue({ forEach: jest.fn() }); // No related docs
+        mockGetDocs.mockResolvedValue({ forEach: vi.fn() }); // No related docs
 
         // Due to retry logic, it should eventually succeed
         const result = await intelligentDocumentService.deleteDocument('doc-123');

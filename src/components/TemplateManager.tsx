@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactElement } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Modal } from '@/components/Modal';
 import {
   FileText,
@@ -426,25 +426,25 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
         <option value="usage">Usage Count</option>
       </select>
 
-      <Button variant="outline" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+      <ButtonPro variant="outline" onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
         {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
-      </Button>
+      </ButtonPro>
 
-      <Button variant="outline" onClick={loadTemplates} disabled={isLoading}>
+      <ButtonPro variant="outline" onClick={loadTemplates} disabled={isLoading}>
         <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-      </Button>
+      </ButtonPro>
     </div>
   );
 
   // Render template card
   const renderTemplateCard = (template: DocumentTemplate) => (
-    <Card key={template.id} className="cursor-pointer hover:shadow-lg transition-shadow">
-      <CardHeader className="pb-3">
+    <CardPro key={template.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+      <div className="p-6 pb-4 border-b border-gray-200">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
             {getTemplateIcon(template.category)}
             <div>
-              <CardTitle className="text-base font-medium">{template.name}</CardTitle>
+              <h3 className="text-base font-medium text-gray-900">{template.name}</h3>
               <p className="text-sm text-gray-500 mt-1">{template.description}</p>
             </div>
           </div>
@@ -456,9 +456,9 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
             )}
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="pt-0">
+      <div className="p-6 pt-4">
         <div className="flex items-center justify-between mb-3">
           <span
             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(template.category)}`}
@@ -508,19 +508,20 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center space-x-2">
-            <Button
+            <ButtonPro
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedTemplate(template);
                 setShowGenerateModal(true);
               }}
+              variant="primary"
             >
               <Zap className="w-4 h-4 mr-1" />
               Generate
-            </Button>
+            </ButtonPro>
 
-            <Button
+            <ButtonPro
               size="sm"
               variant="outline"
               onClick={(e) => {
@@ -531,13 +532,12 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
             >
               <Eye className="w-4 h-4 mr-1" />
               Preview
-            </Button>
+            </ButtonPro>
           </div>
 
           <div className="flex items-center space-x-1">
-            <Button
-              size="sm"
-              variant="outline"
+            <button
+              className="p-2 rounded hover:bg-gray-100 text-gray-600 hover:text-blue-600 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedTemplate(template);
@@ -546,26 +546,25 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
               }}
             >
               <Edit className="w-3 h-3" />
-            </Button>
+            </button>
 
-            <Button
-              size="sm"
-              variant="outline"
+            <button
+              className="p-2 rounded hover:bg-red-50 text-red-600 hover:text-red-800 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteTemplate(template.id);
               }}
             >
               <Trash2 className="w-3 h-3" />
-            </Button>
+            </button>
           </div>
         </div>
 
         <div className="text-xs text-gray-500 mt-2">
           Updated {new Date(template.updatedAt).toLocaleDateString()}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </CardPro>
   );
 
   return (
@@ -580,13 +579,13 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <Button
+            <ButtonPro
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 hover:bg-blue-700"
+              variant="primary"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Template
-            </Button>
+            </ButtonPro>
           </div>
         </div>
 
@@ -615,10 +614,10 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                 : 'Get started by creating your first template'}
             </p>
             {!searchQuery && categoryFilter === 'all' && (
-              <Button onClick={() => setShowCreateModal(true)}>
+              <ButtonPro onClick={() => setShowCreateModal(true)} variant="primary">
                 <Plus className="w-4 h-4 mr-2" />
                 Create First Template
-              </Button>
+              </ButtonPro>
             )}
           </div>
         )}
@@ -711,10 +710,10 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                 <label className="block text-sm font-medium text-gray-700">
                   Template Variables
                 </label>
-                <Button size="sm" variant="outline" onClick={addVariable}>
+                <ButtonPro size="sm" variant="outline" onClick={addVariable}>
                   <Plus className="w-4 h-4 mr-1" />
                   Add Variable
-                </Button>
+                </ButtonPro>
               </div>
 
               <div className="space-y-3">
@@ -759,9 +758,12 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                           />
                           Required
                         </label>
-                        <Button size="sm" variant="outline" onClick={() => removeVariable(index)}>
+                        <button 
+                          onClick={() => removeVariable(index)}
+                          className="p-1 rounded hover:bg-red-50 text-red-600 hover:text-red-800 transition-colors"
+                        >
                           <Trash2 className="w-3 h-3" />
-                        </Button>
+                        </button>
                       </div>
                     </div>
 
@@ -814,7 +816,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
 
             {/* Actions */}
             <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
-              <Button
+              <ButtonPro
                 variant="outline"
                 onClick={() => {
                   setShowCreateModal(false);
@@ -823,10 +825,11 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                 }}
               >
                 Cancel
-              </Button>
-              <Button
+              </ButtonPro>
+              <ButtonPro
                 onClick={showCreateModal ? handleCreateTemplate : handleUpdateTemplate}
                 disabled={isLoading || !formData.name || !formData.content}
+                variant="primary"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -834,7 +837,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                   <CheckCircle className="w-4 h-4 mr-2" />
                 )}
                 {showCreateModal ? 'Create Template' : 'Update Template'}
-              </Button>
+              </ButtonPro>
             </div>
           </div>
         </Modal>
@@ -918,7 +921,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                 ))}
 
                 <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
-                  <Button
+                  <ButtonPro
                     variant="outline"
                     onClick={() => {
                       setShowGenerateModal(false);
@@ -926,15 +929,15 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                     }}
                   >
                     Cancel
-                  </Button>
-                  <Button onClick={handleGenerateDocument} disabled={isLoading}>
+                  </ButtonPro>
+                  <ButtonPro onClick={handleGenerateDocument} disabled={isLoading} variant="primary">
                     {isLoading ? (
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                     ) : (
                       <Zap className="w-4 h-4 mr-2" />
                     )}
                     Generate Document
-                  </Button>
+                  </ButtonPro>
                 </div>
               </div>
             )}
