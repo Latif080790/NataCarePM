@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { AuditLog } from '@/types';
-// import { formatDate } from '@/constants'; // Disabled: unused
 
 interface AuditTrailViewProps {
   auditLog: AuditLog[];
@@ -8,17 +7,17 @@ interface AuditTrailViewProps {
 
 export default function AuditTrailView({ auditLog }: AuditTrailViewProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Jejak Audit (Audit Trail)</CardTitle>
-        <CardDescription>
+    <CardPro variant="elevated" className="hover:shadow-lg transition-shadow">
+      <CardProHeader>
+        <CardProTitle>Jejak Audit (Audit Trail)</CardProTitle>
+        <CardProDescription>
           Catatan kronologis dari semua aktivitas penting dalam proyek.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </CardProDescription>
+      </CardProHeader>
+      <CardProContent>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left text-night-black">
-            <thead className="bg-violet-essence/50 text-xs uppercase">
+          <table className="w-full text-sm text-left text-gray-900">
+            <thead className="bg-gray-100 text-xs uppercase text-gray-700">
               <tr>
                 <th className="p-3">Waktu</th>
                 <th className="p-3">Pengguna</th>
@@ -29,22 +28,22 @@ export default function AuditTrailView({ auditLog }: AuditTrailViewProps) {
               {auditLog.map((log) => (
                 <tr
                   key={log.id}
-                  className="border-b border-violet-essence hover:bg-violet-essence/30"
+                  className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                 >
-                  <td className="p-3 whitespace-nowrap">
+                  <td className="p-3 whitespace-nowrap text-gray-600">
                     {new Date(log.timestamp).toLocaleString('id-ID', {
                       dateStyle: 'medium',
                       timeStyle: 'short',
                     })}
                   </td>
-                  <td className="p-3 font-medium">{log.userName}</td>
-                  <td className="p-3">{log.action}</td>
+                  <td className="p-3 font-medium text-gray-900">{log.userName}</td>
+                  <td className="p-3 text-gray-700">{log.action}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </CardContent>
-    </Card>
+      </CardProContent>
+    </CardPro>
   );
 }

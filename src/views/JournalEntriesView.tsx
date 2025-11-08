@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import {
   Plus,
@@ -142,13 +142,13 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
               <p className="text-sm text-gray-500">Record and manage accounting transactions</p>
             </div>
           </div>
-          <Button
+          <ButtonPro
             onClick={() => onNavigate?.('journal-entry-form')}
-            className="flex items-center gap-2"
+            variant="primary"
+            icon={Plus}
           >
-            <Plus className="w-4 h-4" />
             New Entry
-          </Button>
+          </ButtonPro>
         </div>
 
         {/* Summary Cards */}
@@ -156,16 +156,16 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
           {statuses.slice(1).map((status) => {
             const count = entries.filter((e) => e.status === status.value).length;
             return (
-              <Card key={status.value} className="p-4">
+              <CardPro key={status.value} className="p-4">
                 <div className="text-sm text-gray-500 mb-1">{status.label}</div>
                 <div className="text-2xl font-bold text-gray-900">{count}</div>
-              </Card>
+              </CardPro>
             );
           })}
         </div>
 
         {/* Filters */}
-        <Card className="p-4 mb-4">
+        <CardPro className="p-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -174,7 +174,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                 placeholder="Search entries..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -182,7 +182,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as JournalEntryStatus | 'all')}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 transition-shadow"
               >
                 {statuses.map((status) => (
                   <option key={status.value} value={status.value}>
@@ -192,10 +192,10 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
               </select>
             </div>
           </div>
-        </Card>
+        </CardPro>
 
         {/* Entries Table */}
-        <Card>
+        <CardPro>
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -205,9 +205,9 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
             <div className="p-12 text-center">
               <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No journal entries found</p>
-              <Button onClick={() => onNavigate?.('journal-entry-form')} className="mt-4">
+              <ButtonPro onClick={() => onNavigate?.('journal-entry-form')} variant="primary" className="mt-4">
                 Create First Entry
-              </Button>
+              </ButtonPro>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -272,7 +272,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                               setSelectedEntry(entry);
                               setShowDetails(true);
                             }}
-                            className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                            className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
@@ -280,7 +280,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                           {entry.status === 'pending_approval' && (
                             <button
                               onClick={() => handleApprove(entry.id)}
-                              className="p-2 hover:bg-green-50 rounded text-green-600"
+                              className="p-2 hover:bg-green-50 rounded text-green-600 transition-colors"
                               title="Approve"
                             >
                               <Check className="w-4 h-4" />
@@ -289,7 +289,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                           {entry.status === 'approved' && (
                             <button
                               onClick={() => handlePost(entry.id)}
-                              className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                              className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
                               title="Post"
                             >
                               <Send className="w-4 h-4" />
@@ -298,7 +298,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                           {entry.status === 'posted' && (
                             <button
                               onClick={() => handleVoid(entry.id)}
-                              className="p-2 hover:bg-red-50 rounded text-red-600"
+                              className="p-2 hover:bg-red-50 rounded text-red-600 transition-colors"
                               title="Void"
                             >
                               <X className="w-4 h-4" />
@@ -312,13 +312,13 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
               </table>
             </div>
           )}
-        </Card>
+        </CardPro>
       </div>
 
       {/* Details Modal */}
       {showDetails && selectedEntry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <CardPro className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Journal Entry Details</h2>
@@ -409,12 +409,12 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
               </div>
 
               <div className="mt-6 flex justify-end gap-2">
-                <Button onClick={() => setShowDetails(false)} className="bg-gray-200 text-gray-800">
+                <ButtonPro variant="secondary" onClick={() => setShowDetails(false)}>
                   Close
-                </Button>
+                </ButtonPro>
               </div>
             </div>
-          </Card>
+          </CardPro>
         </div>
       )}
     </div>

@@ -5,8 +5,8 @@ import React, { useState } from 'react';
  */
 
 import MonitoringDashboard from '@/components/MonitoringDashboard';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import {
   useSystemHealth,
   useDashboardAnalytics,
@@ -86,56 +86,55 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
           </div>
 
           {/* Refresh Button */}
-          <Button
+          <ButtonPro
             variant="outline"
             onClick={handleRefreshAll}
             disabled={healthLoading || analyticsLoading}
-            className="flex items-center gap-2"
           >
             <span className={healthLoading || analyticsLoading ? 'animate-spin' : ''}>🔄</span>
-            Refresh
-          </Button>
+            {' '}Refresh
+          </ButtonPro>
         </div>
       </div>
 
       {/* Quick Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="text-center">
+        <CardPro className="text-center">
           <div className="text-2xl font-bold text-blue-600">{currentMetrics?.activeUsers || 0}</div>
           <div className="text-sm text-gray-600">Active Users</div>
           {metricsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </Card>
+        </CardPro>
 
-        <Card className="text-center">
+        <CardPro className="text-center">
           <div className="text-2xl font-bold text-green-600">
             {analytics?.summary?.totalActivities || 0}
           </div>
           <div className="text-sm text-gray-600">Total Activities ({timeRange})</div>
           {analyticsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </Card>
+        </CardPro>
 
-        <Card className="text-center">
+        <CardPro className="text-center">
           <div className="text-2xl font-bold text-red-600">{errors.length}</div>
           <div className="text-sm text-gray-600">Unresolved Errors</div>
           {errorsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </Card>
+        </CardPro>
 
-        <Card className="text-center">
+        <CardPro className="text-center">
           <div className="text-2xl font-bold text-purple-600">
             {currentMetrics ? Math.round(currentMetrics.responseTime) : 0}ms
           </div>
           <div className="text-sm text-gray-600">Avg Response Time</div>
           {metricsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </Card>
+        </CardPro>
       </div>
 
       {/* Advanced Controls */}
-      <Card>
+      <CardPro>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Monitoring Controls</h3>
-          <Button variant="outline" onClick={() => setShowAdvanced(!showAdvanced)} size="sm">
+          <ButtonPro variant="outline" onClick={() => setShowAdvanced(!showAdvanced)}>
             {showAdvanced ? 'Hide' : 'Show'} Advanced
-          </Button>
+          </ButtonPro>
         </div>
 
         {showAdvanced && (
@@ -145,7 +144,7 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
                 <label className="text-sm font-medium text-gray-700">Monitoring Interval</label>
                 <select className="w-full p-2 border rounded-lg">
                   <option value="30000">30 seconds</option>
-                  <option value="60000" selected>
+                  <option value="60000">
                     1 minute
                   </option>
                   <option value="300000">5 minutes</option>
@@ -156,7 +155,7 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
                 <label className="text-sm font-medium text-gray-700">Error Threshold</label>
                 <select className="w-full p-2 border rounded-lg">
                   <option value="5">5 errors/min</option>
-                  <option value="10" selected>
+                  <option value="10">
                     10 errors/min
                   </option>
                   <option value="20">20 errors/min</option>
@@ -179,26 +178,26 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
             </div>
 
             <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm">
+              <ButtonPro variant="outline">
                 Export Data
-              </Button>
-              <Button variant="outline" size="sm">
+              </ButtonPro>
+              <ButtonPro variant="outline">
                 Clear Cache
-              </Button>
-              <Button variant="outline" size="sm">
+              </ButtonPro>
+              <ButtonPro variant="outline">
                 Download Logs
-              </Button>
+              </ButtonPro>
             </div>
           </div>
         )}
-      </Card>
+      </CardPro>
 
       {/* Main Monitoring Dashboard */}
       <MonitoringDashboard showControls={false} className="bg-white rounded-lg border" />
 
       {/* System Information */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <CardPro>
           <h3 className="text-lg font-semibold mb-4">System Information</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -222,9 +221,9 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
               </span>
             </div>
           </div>
-        </Card>
+        </CardPro>
 
-        <Card>
+        <CardPro>
           <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -250,7 +249,7 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
               <span className="font-medium">99.9%</span>
             </div>
           </div>
-        </Card>
+        </CardPro>
       </div>
     </div>
   );

@@ -1,43 +1,37 @@
-// import React from 'react'; // Disabled: unused
-
 import { Worker } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { PlusCircle } from 'lucide-react';
 
 interface MasterDataViewProps {
   workers: Worker[];
-  // In a real app, you'd have callbacks to add/edit/delete workers
-  // onAddWorker: (worker: Omit<Worker, 'id'>) => void;
 }
 
 export default function MasterDataView({ workers }: MasterDataViewProps) {
-  // In a real app, you might have state for tabs: const [activeTab, setActiveTab] = useState('workers');
-
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle>Master Data</CardTitle>
-            <CardDescription>
-              Kelola data referensi seperti pekerja, material, dan pemasok.
-            </CardDescription>
+      <CardPro variant="elevated" className="hover:shadow-lg transition-shadow">
+        <CardProHeader>
+          <div className="flex flex-row justify-between items-center">
+            <div>
+              <CardProTitle>Master Data</CardProTitle>
+              <CardProDescription>
+                Kelola data referensi seperti pekerja, material, dan pemasok.
+              </CardProDescription>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {/* Tab implementation would go here */}
+        </CardProHeader>
+        <CardProContent>
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Daftar Tenaga Kerja</h3>
-              <Button>
-                <PlusCircle className="w-4 h-4 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Daftar Tenaga Kerja</h3>
+              <ButtonPro variant="primary" icon={PlusCircle}>
                 Tambah Pekerja
-              </Button>
+              </ButtonPro>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left text-night-black">
-                <thead className="bg-violet-essence/50 text-xs uppercase">
+              <table className="w-full text-sm text-left text-gray-900">
+                <thead className="bg-gray-100 text-xs uppercase text-gray-700">
                   <tr>
                     <th className="p-3">ID Pekerja</th>
                     <th className="p-3">Nama Lengkap</th>
@@ -48,22 +42,19 @@ export default function MasterDataView({ workers }: MasterDataViewProps) {
                   {workers.map((worker) => (
                     <tr
                       key={worker.id}
-                      className="border-b border-violet-essence hover:bg-violet-essence/30"
+                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                     >
-                      <td className="p-3 font-mono">{worker.id}</td>
-                      <td className="p-3 font-medium">{worker.name}</td>
-                      <td className="p-3">{worker.type}</td>
+                      <td className="p-3 font-mono text-gray-600">{worker.id}</td>
+                      <td className="p-3 font-medium text-gray-900">{worker.name}</td>
+                      <td className="p-3 text-gray-700">{worker.type}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-
-          {/* Placeholder for other master data, e.g., Materials */}
-          {/* <div className="mt-8"> ... Table for Materials ... </div> */}
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
     </div>
   );
 }

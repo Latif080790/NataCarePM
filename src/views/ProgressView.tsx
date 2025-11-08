@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { Progress } from '@/components/Progress';
 import { WorkProgress } from '@/types';
@@ -59,15 +59,15 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Update Progres Manual (Berdasarkan Volume)</CardTitle>
-        <CardDescription>
+    <CardPro variant="elevated">
+      <CardProHeader>
+        <CardProTitle>Update Progres Manual (Berdasarkan Volume)</CardProTitle>
+        <CardProDescription>
           Sesuaikan total volume pekerjaan yang telah selesai. Sistem akan otomatis membuat laporan
           harian baru untuk selisihnya. Gunakan hanya untuk koreksi.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </CardProDescription>
+      </CardProHeader>
+      <CardProContent>
         <div className="space-y-4">
           {itemsWithProgress.map((item) => {
             const currentVolume = progressState.get(item.id) || 0;
@@ -107,9 +107,11 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
           })}
         </div>
         <div className="text-right mt-6">
-          <Button onClick={handleSaveChanges}>Simpan Perubahan & Buat Laporan</Button>
+          <ButtonPro variant="primary" onClick={handleSaveChanges}>
+            Simpan Perubahan & Buat Laporan
+          </ButtonPro>
         </div>
-      </CardContent>
-    </Card>
+      </CardProContent>
+    </CardPro>
   );
 }

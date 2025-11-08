@@ -1,8 +1,8 @@
 // React default import removed (using automatic JSX runtime)
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
-import { Spinner } from '@/components/Spinner';
+import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
+import { LoadingState } from '@/components/StateComponents';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
@@ -45,42 +45,41 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
 
   if (emailSent) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-alabaster">
-        <Card className="w-full max-w-sm">
-          <CardHeader className="text-center">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <CardPro variant="elevated" className="w-full max-w-sm">
+          <CardProHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="rounded-full bg-green-100 p-3">
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Email Terkirim</CardTitle>
-            <CardDescription>
+            <CardProTitle className="text-2xl">Email Terkirim</CardProTitle>
+            <CardProDescription>
               Kami telah mengirimkan link reset password ke <strong>{sentEmail}</strong>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-palladium text-center mb-4">
+            </CardProDescription>
+          </CardProHeader>
+          <CardProContent>
+            <p className="text-sm text-gray-600 text-center mb-4">
               Periksa inbox email Anda dan klik link untuk mereset password. Link akan kadaluarsa
               dalam 1 jam.
             </p>
-            <Button onClick={onBack} variant="outline" className="w-full">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+            <ButtonPro variant="outline" icon={ArrowLeft} onClick={onBack} className="w-full">
               Kembali ke Login
-            </Button>
-          </CardContent>
-        </Card>
+            </ButtonPro>
+          </CardProContent>
+        </CardPro>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-alabaster">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Lupa Password</CardTitle>
-          <CardDescription>Masukkan email Anda untuk menerima link reset password</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <CardPro variant="elevated" className="w-full max-w-sm">
+        <CardProHeader className="text-center">
+          <CardProTitle className="text-2xl">Lupa Password</CardProTitle>
+          <CardProDescription>Masukkan email Anda untuk menerima link reset password</CardProDescription>
+        </CardProHeader>
+        <CardProContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormField
               name="email"
@@ -100,31 +99,23 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Spinner size="sm" /> Mengirim...
-                </>
-              ) : (
-                <>
-                  <Mail className="w-4 h-4 mr-2" /> Kirim Link Reset
-                </>
-              )}
-            </Button>
+            <ButtonPro type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Mengirim...' : 'Kirim Link Reset'}
+            </ButtonPro>
 
-            <Button
+            <ButtonPro
               type="button"
               onClick={onBack}
-              variant="ghost"
+              variant="outline"
+              icon={ArrowLeft}
               className="w-full"
               disabled={isSubmitting}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
               Kembali ke Login
-            </Button>
+            </ButtonPro>
           </form>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
     </div>
   );
 }

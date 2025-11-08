@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import {
   CreditCard,
@@ -160,15 +160,14 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
               <p className="text-sm text-gray-500">Manage vendor invoices and payments</p>
             </div>
           </div>
-          <Button onClick={() => onNavigate?.('ap-form')} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
+          <ButtonPro onClick={() => onNavigate?.('ap-form')} variant="primary" icon={Plus}>
             New Invoice
-          </Button>
+          </ButtonPro>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="p-4">
+          <CardPro className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-gray-500 mb-1">Total Payable</div>
@@ -178,11 +177,11 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
               </div>
               <DollarSign className="w-8 h-8 text-red-600" />
             </div>
-          </Card>
+          </CardPro>
 
           {agingReport &&
             agingReport.brackets.map((bracket) => (
-              <Card key={bracket.bracket} className="p-4">
+              <CardPro key={bracket.bracket} className="p-4">
                 <div className="text-sm text-gray-500 mb-1">{bracket.bracket} Days</div>
                 <div className="text-2xl font-bold text-gray-900">{bracket.count}</div>
                 <div className="text-sm text-gray-600 mt-1">
@@ -190,16 +189,16 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                   <div
-                    className="bg-red-600 h-2 rounded-full"
+                    className="bg-red-600 h-2 rounded-full transition-all"
                     style={{ width: `${bracket.percentage}%` }}
                   />
                 </div>
-              </Card>
+              </CardPro>
             ))}
         </div>
 
         {/* Filters */}
-        <Card className="p-4 mb-4">
+        <CardPro className="p-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -208,7 +207,7 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
                 placeholder="Search invoices..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -216,7 +215,7 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as PayableStatus | 'all')}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 transition-shadow"
               >
                 {statuses.map((status) => (
                   <option key={status.value} value={status.value}>
@@ -226,10 +225,10 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
               </select>
             </div>
           </div>
-        </Card>
+        </CardPro>
 
         {/* Payables Table */}
-        <Card>
+        <CardPro>
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -239,9 +238,9 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
             <div className="p-12 text-center">
               <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No payables found</p>
-              <Button onClick={() => onNavigate?.('ap-form')} className="mt-4">
+              <ButtonPro onClick={() => onNavigate?.('ap-form')} variant="primary" className="mt-4">
                 Create First Invoice
-              </Button>
+              </ButtonPro>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -278,7 +277,7 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
                   {filteredPayables.map((ap) => {
                     const isOverdue = new Date(ap.dueDate) < new Date() && ap.status !== 'paid';
                     return (
-                      <tr key={ap.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={ap.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                         <td className="py-3 px-4">
                           <div className="font-medium text-gray-900">{ap.apNumber}</div>
                         </td>
@@ -315,7 +314,7 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
                                 setSelectedPayable(ap);
                                 setShowDetails(true);
                               }}
-                              className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                              className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
                               title="View Details"
                             >
                               <Eye className="w-4 h-4" />
@@ -323,7 +322,7 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
                             {ap.status === 'pending' && (
                               <button
                                 onClick={() => handleApprove(ap.id)}
-                                className="p-2 hover:bg-green-50 rounded text-green-600"
+                                className="p-2 hover:bg-green-50 rounded text-green-600 transition-colors"
                                 title="Approve"
                               >
                                 <CheckCircle className="w-4 h-4" />
@@ -335,7 +334,7 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
                                   setSelectedPayable(ap);
                                   setShowPaymentModal(true);
                                 }}
-                                className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                                className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
                                 title="Record Payment"
                               >
                                 <DollarSign className="w-4 h-4" />
@@ -350,29 +349,29 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
               </table>
             </div>
           )}
-        </Card>
+        </CardPro>
       </div>
 
       {/* Details Modal - Similar to Journal Entries */}
       {showDetails && selectedPayable && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <CardPro className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Invoice Details</h2>
                 <button
                   onClick={() => setShowDetails(false)}
-                  className="p-2 hover:bg-gray-100 rounded"
+                  className="p-2 hover:bg-gray-100 rounded transition-colors"
                 >
                   <Clock className="w-5 h-5" />
                 </button>
               </div>
               {/* Add detailed view content here */}
               <div className="flex justify-end">
-                <Button onClick={() => setShowDetails(false)}>Close</Button>
+                <ButtonPro onClick={() => setShowDetails(false)} variant="secondary">Close</ButtonPro>
               </div>
             </div>
-          </Card>
+          </CardPro>
         </div>
       )}
     </div>

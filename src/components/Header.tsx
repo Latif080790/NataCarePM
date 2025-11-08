@@ -19,7 +19,7 @@ export default function Header({ children }: HeaderProps) {
   }
 
   return (
-    <header className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-6 glass border-b border-violet-essence/20 flex-shrink-0 min-h-[80px] sticky top-0 z-40 backdrop-blur-xl gap-4">
+    <header className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 md:p-6 bg-white border-b border-gray-200 flex-shrink-0 min-h-[80px] sticky top-0 z-40 shadow-sm gap-4">
       <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 w-full md:w-auto">
         {/* Enhanced Project Switcher */}
         <div className="w-full md:w-72">
@@ -28,7 +28,7 @@ export default function Header({ children }: HeaderProps) {
               value={currentProject?.id || ''}
               onChange={(e) => setCurrentProjectId(e.target.value)}
               disabled={loading}
-              className="font-semibold text-night-black bg-brilliance/50 border-violet-essence/30 rounded-xl px-4 py-3 glass-subtle backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-precious-persimmon/20 focus:border-precious-persimmon/50 w-full"
+              className="font-semibold text-gray-900 bg-white border-gray-300 rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
               aria-label="Select project"
             >
               {workspaces.map((ws) => (
@@ -43,16 +43,16 @@ export default function Header({ children }: HeaderProps) {
             </Select>
             {loading && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <div className="w-4 h-4 rounded-full border-2 border-precious-persimmon/20 border-t-precious-persimmon animate-spin"></div>
+                <div className="w-4 h-4 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin"></div>
               </div>
             )}
           </div>
         </div>
 
         {/* Enhanced Project Location */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl glass-subtle border border-violet-essence/20">
-          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-          <p className="text-sm text-palladium font-medium">
+        <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          <p className="text-sm text-gray-600 font-medium">
             {currentProject?.location || 'No location set'}
           </p>
         </div>
@@ -73,24 +73,24 @@ export default function Header({ children }: HeaderProps) {
         </div>
 
         {/* Enhanced User Menu */}
-        <div className="flex items-center gap-3 p-2 rounded-2xl glass-subtle border border-violet-essence/20 hover:border-violet-essence/40 transition-all duration-300">
+        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 hover:border-gray-300 transition-all duration-300 shadow-sm">
           <div className="relative">
             <img
               src={currentUser.avatarUrl}
               alt={currentUser.name}
-              className="w-10 h-10 rounded-xl shadow-md border-2 border-violet-essence/20 hover:border-precious-persimmon/50 transition-all duration-300"
+              className="w-10 h-10 rounded-lg shadow-md border-2 border-gray-200 hover:border-blue-500 transition-all duration-300"
             />
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-brilliance animate-pulse"></div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
           </div>
 
           <div className="hidden lg:block min-w-0">
-            <p className="font-semibold text-sm text-night-black truncate">{currentUser.name}</p>
-            <p className="text-xs text-palladium truncate">{workspaces[0]?.name}</p>
+            <p className="font-semibold text-sm text-gray-900 truncate">{currentUser.name}</p>
+            <p className="text-xs text-gray-600 truncate">{workspaces[0]?.name}</p>
           </div>
 
           <button
             onClick={logout}
-            className="p-2 rounded-xl hover:bg-red-500/10 text-palladium hover:text-red-400 transition-all duration-300 group border border-transparent hover:border-red-400/20"
+            className="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all duration-300 group border border-transparent hover:border-red-200"
             title="Logout"
             aria-label="Logout"
           >

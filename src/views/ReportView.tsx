@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Download } from 'lucide-react';
 import { Project, ProjectMetrics } from '@/types';
 import { formatCurrency, getTodayDateString } from '@/constants';
@@ -39,20 +39,19 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
   }, [startDate, endDate, project]);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between items-center flex-wrap gap-4">
+    <CardPro variant="elevated">
+      <CardProHeader className="flex flex-row justify-between items-center flex-wrap gap-4">
         <div>
-          <CardTitle>Pusat Laporan</CardTitle>
-          <CardDescription>
+          <CardProTitle>Pusat Laporan</CardProTitle>
+          <CardProDescription>
             Hasilkan laporan PDF ringkas mengenai status dan kinerja proyek.
-          </CardDescription>
+          </CardProDescription>
         </div>
-        <Button>
-          <Download className="w-4 h-4 mr-2" />
+        <ButtonPro variant="primary" icon={Download}>
           Unduh Laporan PDF
-        </Button>
-      </CardHeader>
-      <CardContent>
+        </ButtonPro>
+      </CardProHeader>
+      <CardProContent>
         <div className="flex items-center gap-4 mb-6 p-4 bg-violet-essence/30 rounded-lg">
           <div className="flex-1">
             <label className="text-sm font-medium">Tanggal Mulai</label>
@@ -104,7 +103,7 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </CardProContent>
+    </CardPro>
   );
 }

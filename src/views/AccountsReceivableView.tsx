@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import {
   Receipt,
@@ -181,15 +181,14 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
               <p className="text-sm text-gray-500">Manage customer invoices and payments</p>
             </div>
           </div>
-          <Button onClick={() => onNavigate?.('ar-form')} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
+          <ButtonPro onClick={() => onNavigate?.('ar-form')} variant="primary" icon={Plus}>
             New Invoice
-          </Button>
+          </ButtonPro>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="p-4">
+          <CardPro className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-gray-500 mb-1">Total Receivable</div>
@@ -199,11 +198,11 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
               </div>
               <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
-          </Card>
+          </CardPro>
 
           {agingReport &&
             agingReport.brackets.slice(0, 3).map((bracket) => (
-              <Card key={bracket.bracket} className="p-4">
+              <CardPro key={bracket.bracket} className="p-4">
                 <div className="text-sm text-gray-500 mb-1">{bracket.bracket} Days</div>
                 <div className="text-2xl font-bold text-gray-900">{bracket.count}</div>
                 <div className="text-sm text-gray-600 mt-1">
@@ -211,16 +210,16 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                   <div
-                    className="bg-green-600 h-2 rounded-full"
+                    className="bg-green-600 h-2 rounded-full transition-all"
                     style={{ width: `${bracket.percentage}%` }}
                   />
                 </div>
-              </Card>
+              </CardPro>
             ))}
         </div>
 
         {/* Filters */}
-        <Card className="p-4 mb-4">
+        <CardPro className="p-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -229,7 +228,7 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
                 placeholder="Search invoices..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -237,7 +236,7 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as ReceivableStatus | 'all')}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 transition-shadow"
               >
                 {statuses.map((status) => (
                   <option key={status.value} value={status.value}>
@@ -247,10 +246,10 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
               </select>
             </div>
           </div>
-        </Card>
+        </CardPro>
 
         {/* Receivables Table */}
-        <Card>
+        <CardPro>
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -260,9 +259,9 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
             <div className="p-12 text-center">
               <Receipt className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No receivables found</p>
-              <Button onClick={() => onNavigate?.('ar-form')} className="mt-4">
+              <ButtonPro onClick={() => onNavigate?.('ar-form')} variant="primary" className="mt-4">
                 Create First Invoice
-              </Button>
+              </ButtonPro>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -299,7 +298,7 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
                   {filteredReceivables.map((ar) => {
                     const isOverdue = new Date(ar.dueDate) < new Date() && ar.status !== 'paid';
                     return (
-                      <tr key={ar.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr key={ar.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                         <td className="py-3 px-4">
                           <div className="font-medium text-gray-900">{ar.arNumber}</div>
                         </td>
@@ -370,7 +369,7 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
               </table>
             </div>
           )}
-        </Card>
+        </CardPro>
       </div>
     </div>
   );

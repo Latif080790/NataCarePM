@@ -1,6 +1,6 @@
 import { taskService } from '@/api/taskService';
-import { Button } from '@/components/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/Card';
+import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro, CardProContent, CardProDescription, CardProHeader, CardProTitle } from '@/components/CardPro';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import { Input, Select } from '@/components/FormControls';
 import TaskDetailModal from '@/components/TaskDetailModal';
@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { Task } from '@/types';
 import { sanitizeBasic } from '@/utils/sanitizer';
-import { Calendar, CheckCircle, PlusCircle, Search, Tag } from 'lucide-react';
+import { Calendar, CheckCircle, PlusCircle, Search, Tag, User as UserIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 interface TaskListViewProps {
@@ -141,7 +141,7 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>Memuat tasks...</p>
+        <p className="text-gray-600">Memuat tasks...</p>
       </div>
     );
   }
@@ -150,56 +150,55 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
     <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-palladium">Total Tasks</p>
+        <CardPro>
+          <CardProContent className="p-4">
+            <p className="text-sm text-gray-600">Total Tasks</p>
             <p className="text-2xl font-bold">{stats.total}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-palladium">To Do</p>
+          </CardProContent>
+        </CardPro>
+        <CardPro>
+          <CardProContent className="p-4">
+            <p className="text-sm text-gray-600">To Do</p>
             <p className="text-2xl font-bold text-gray-600">{stats.todo}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-palladium">In Progress</p>
+          </CardProContent>
+        </CardPro>
+        <CardPro>
+          <CardProContent className="p-4">
+            <p className="text-sm text-gray-600">In Progress</p>
             <p className="text-2xl font-bold text-blue-600">{stats.inProgress}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-palladium">Done</p>
+          </CardProContent>
+        </CardPro>
+        <CardPro>
+          <CardProContent className="p-4">
+            <p className="text-sm text-gray-600">Done</p>
             <p className="text-2xl font-bold text-green-600">{stats.done}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-palladium">Blocked</p>
+          </CardProContent>
+        </CardPro>
+        <CardPro>
+          <CardProContent className="p-4">
+            <p className="text-sm text-gray-600">Blocked</p>
             <p className="text-2xl font-bold text-red-600">{stats.blocked}</p>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       </div>
 
       {/* Main Task List Card */}
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <CardPro variant="elevated" className="hover:shadow-lg transition-shadow">
+        <CardProHeader className="flex flex-row justify-between items-center">
           <div>
-            <CardTitle>Daftar Task</CardTitle>
-            <CardDescription>Kelola semua task proyek Anda</CardDescription>
+            <CardProTitle>Daftar Task</CardProTitle>
+            <CardProDescription>Kelola semua task proyek Anda</CardProDescription>
           </div>
-          <Button onClick={() => setShowCreateModal(true)}>
-            <PlusCircle className="w-4 h-4 mr-2" />
+          <ButtonPro onClick={() => setShowCreateModal(true)} variant="primary" icon={PlusCircle}>
             Buat Task Baru
-          </Button>
-        </CardHeader>
-        <CardContent>
+          </ButtonPro>
+        </CardProHeader>
+        <CardProContent>
           {/* Filters */}
           <div className="flex flex-wrap gap-3 mb-4">
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-palladium" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   type="text"
                   placeholder="Cari task..."
@@ -242,20 +241,20 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
           {/* Task List */}
           <div className="space-y-3">
             {filteredTasks.length === 0 ? (
-              <div className="text-center py-12 text-palladium">
+              <div className="text-center py-12 text-gray-600">
                 <p>Tidak ada task yang sesuai dengan filter.</p>
               </div>
             ) : (
               filteredTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="border border-violet-essence rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer"
                   onClick={() => handleTaskClick(task)}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg">{task.title}</h3>
+                        <h3 className="font-semibold text-lg text-gray-900">{task.title}</h3>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(task.status)}`}
                         >
@@ -268,11 +267,11 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
                         </span>
                       </div>
                       <div
-                        className="text-sm text-palladium mb-3"
+                        className="text-sm text-gray-600 mb-3"
                         dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
                       />
 
-                      <div className="flex items-center gap-4 text-xs text-palladium">
+                      <div className="flex items-center gap-4 text-xs text-gray-600">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           <span
@@ -306,12 +305,12 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
 
                     <div className="flex flex-col items-end gap-2">
                       <div className="text-right">
-                        <div className="text-xs text-palladium mb-1">Progress</div>
-                        <div className="text-2xl font-bold">{task.progress}%</div>
+                        <div className="text-xs text-gray-600 mb-1">Progress</div>
+                        <div className="text-2xl font-bold text-gray-900">{task.progress}%</div>
                       </div>
                       <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-persimmon transition-all"
+                          className="h-full bg-orange-500 transition-all"
                           style={{ width: `${task.progress}%` }}
                         />
                       </div>
@@ -321,8 +320,8 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
               ))
             )}
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       {/* Create Task Modal */}
       {showCreateModal && (

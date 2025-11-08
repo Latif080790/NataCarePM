@@ -1,8 +1,8 @@
 // React default import removed (using automatic JSX runtime)
 import { useState } from 'react';
 import { DailyReport, RabItem, Worker, WorkProgress } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { Modal } from '@/components/Modal';
 import { formatDate, getTodayDateString, hasPermission } from '@/constants';
 import { PlusCircle, Sun, Cloud, CloudRain } from 'lucide-react';
@@ -85,22 +85,21 @@ export default function DailyReportView({
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <CardPro variant="elevated">
+        <CardProHeader className="flex flex-row justify-between items-center">
           <div>
-            <CardTitle>Laporan Harian Proyek</CardTitle>
-            <CardDescription>
+            <CardProTitle>Laporan Harian Proyek</CardProTitle>
+            <CardProDescription>
               Catatan harian mengenai progres, cuaca, tenaga kerja, dan material.
-            </CardDescription>
+            </CardProDescription>
           </div>
           {canCreateReport && (
-            <Button onClick={() => setIsModalOpen(true)}>
-              <PlusCircle className="w-4 h-4 mr-2" />
+            <ButtonPro variant="primary" icon={PlusCircle} onClick={() => setIsModalOpen(true)}>
               Buat Laporan Baru
-            </Button>
+            </ButtonPro>
           )}
-        </CardHeader>
-        <CardContent>
+        </CardProHeader>
+        <CardProContent>
           <div className="space-y-4">
             {dailyReports
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -116,9 +115,9 @@ export default function DailyReportView({
                         Cuaca: {report.weather} <WeatherIcon weather={report.weather} />
                       </p>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => setSelectedReport(report)}>
+                    <ButtonPro variant="outline" size="sm" onClick={() => setSelectedReport(report)}>
                       Lihat Detail & Komentar
-                    </Button>
+                    </ButtonPro>
                   </div>
                   <p className="text-sm mt-2 italic">"{report.notes}"</p>
                   <div className="text-xs mt-2 text-palladium">
@@ -128,8 +127,8 @@ export default function DailyReportView({
                 </div>
               ))}
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       <Modal
         isOpen={isModalOpen}
@@ -187,12 +186,14 @@ export default function DailyReportView({
               />
             </div>
           ))}
-          <Button variant="outline" size="sm" onClick={handleAddWorkProgress}>
-            + Tambah Progres
-          </Button>
+          <ButtonPro variant="outline" size="sm" icon={PlusCircle} onClick={handleAddWorkProgress}>
+            Tambah Progres
+          </ButtonPro>
 
           <div className="text-right pt-4">
-            <Button onClick={handleSubmit}>Simpan Laporan</Button>
+            <ButtonPro variant="primary" onClick={handleSubmit}>
+              Simpan Laporan
+            </ButtonPro>
           </div>
         </div>
       </Modal>

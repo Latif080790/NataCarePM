@@ -48,7 +48,6 @@ const AuditTrailView = lazy(() => import('@/views/AuditTrailView'));
 const ProfileView = lazy(() => import('@/views/ProfileView'));
 const TaskListView = lazy(() => import('@/views/TaskListView'));
 const TasksView = lazy(() => import('@/views/TasksView'));
-const KanbanBoardView = lazy(() => import('@/views/KanbanBoardView'));
 const KanbanView = lazy(() => import('@/views/KanbanView'));
 const DependencyGraphView = lazy(() => import('@/views/DependencyGraphView'));
 const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView'));
@@ -75,7 +74,6 @@ const MaterialRequestView = lazy(() => import('@/views/MaterialRequestView'));
 const VendorManagementView = lazy(() => import('@/views/VendorManagementView'));
 const InventoryManagementView = lazy(() => import('@/views/InventoryManagementView'));
 const IntegrationDashboardView = lazy(() => import('@/views/IntegrationDashboardView'));
-const CostControlDashboardView = lazy(() => import('@/views/CostControlDashboardView'));
 
 // Phase 4: AI & Analytics Views (lazy-loaded)
 const AIResourceOptimizationView = lazy(() => import('@/views/AIResourceOptimizationView'));
@@ -406,11 +404,6 @@ function ProtectedApp() {
                 <KanbanView {...viewProps} />
               </ViewErrorBoundary>
             } />
-            <Route path="/tasks/kanban/board" element={
-              <ViewErrorBoundary viewName="Kanban Board">
-                <KanbanBoardView {...viewProps} />
-              </ViewErrorBoundary>
-            } />
             <Route path="/tasks/dependencies" element={
               <ViewErrorBoundary viewName="Dependency Graph">
                 <DependencyGraphView {...viewProps} />
@@ -507,11 +500,6 @@ function ProtectedApp() {
             <Route path="/logistics/integration" element={
               <ViewErrorBoundary viewName="Integration Dashboard">
                 <IntegrationDashboardView {...viewProps} />
-              </ViewErrorBoundary>
-            } />
-            <Route path="/finance/cost-control" element={
-              <ViewErrorBoundary viewName="Cost Control Dashboard">
-                <CostControlDashboardView {...viewProps} />
               </ViewErrorBoundary>
             } />
             <Route path="/logistics" element={

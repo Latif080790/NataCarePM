@@ -86,7 +86,7 @@ const ChatView: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Loading chats...</p>
         </div>
       </div>
@@ -101,7 +101,7 @@ const ChatView: React.FC = () => {
           <p className="text-red-700 mt-1">{chatsError}</p>
           <button
             onClick={() => fetchUserChats()}
-            className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
           >
             Retry
           </button>
@@ -122,7 +122,7 @@ const ChatView: React.FC = () => {
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition-shadow"
             />
             <svg
               className="absolute right-3 top-2.5 h-5 w-5 text-gray-400"
@@ -150,8 +150,8 @@ const ChatView: React.FC = () => {
               {filteredChats.map((chat) => (
                 <li
                   key={chat.id}
-                  className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                    currentChat?.id === chat.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+                  className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                    currentChat?.id === chat.id ? 'bg-blue-50 border-r-2 border-blue-600' : ''
                   }`}
                   onClick={() => selectChat(chat)}
                 >
@@ -215,7 +215,7 @@ const ChatView: React.FC = () => {
               {messagesLoading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-4"></div>
                     <p className="text-gray-600">Loading messages...</p>
                   </div>
                 </div>
@@ -226,7 +226,7 @@ const ChatView: React.FC = () => {
                     <p className="text-red-700 mt-1">{messagesError}</p>
                     <button
                       onClick={() => fetchMessages(currentChat.id)}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                     >
                       Retry
                     </button>
@@ -242,10 +242,10 @@ const ChatView: React.FC = () => {
                       }`}
                     >
                       <div
-                        className={`max-w-xs md:max-w-md px-4 py-2 rounded-lg ${
+                        className={`max-w-xs md:max-w-md px-4 py-2 rounded-lg shadow-sm ${
                           message.senderId === currentUser?.id
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-gray-800'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-900'
                         }`}
                       >
                         {message.senderId !== currentUser?.id && (
@@ -279,15 +279,15 @@ const ChatView: React.FC = () => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none transition-shadow"
                   rows={2}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!newMessage.trim()}
-                  className={`ml-2 px-4 py-2 rounded-lg ${
+                  className={`ml-2 px-4 py-2 rounded-lg transition-colors ${
                     newMessage.trim()
-                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   }`}
                 >

@@ -1,13 +1,13 @@
 import { User } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { UserPlus, Trash2 } from 'lucide-react';
 import { ROLES_CONFIG, hasPermission } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { userService } from '@/api/userService';
-import { Spinner } from '@/components/Spinner';
+import { LoadingState } from '@/components/StateComponents';
 
 export default function UserManagementView() {
   const { currentUser } = useAuth();
@@ -70,34 +70,35 @@ export default function UserManagementView() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spinner />
+        <LoadingState message="Memuat pengguna..." />
       </div>
     );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
+    return <div className="text-red-600 text-center p-4 bg-red-50 border border-red-200 rounded-lg">{error}</div>;
   }
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle>Manajemen Pengguna</CardTitle>
-            <CardDescription>Kelola akses dan peran pengguna untuk proyek ini.</CardDescription>
+      <CardPro variant="elevated" className="hover:shadow-lg transition-shadow">
+        <CardProHeader>
+          <div className="flex flex-row justify-between items-center w-full">
+            <div>
+              <CardProTitle>Manajemen Pengguna</CardProTitle>
+              <CardProDescription>Kelola akses dan peran pengguna untuk proyek ini.</CardProDescription>
+            </div>
+            {hasPermission(currentUser, 'manage_users') && (
+              <ButtonPro variant="primary" icon={UserPlus}>
+                Undang User Baru
+              </ButtonPro>
+            )}
           </div>
-          {hasPermission(currentUser, 'manage_users') && (
-            <Button>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Undang User Baru
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
+        </CardProHeader>
+        <CardProContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-night-black">
-              <thead className="bg-violet-essence/50 text-xs uppercase">
+            <table className="w-full text-sm text-left text-gray-900">
+              <thead className="bg-gray-100 text-xs uppercase text-gray-700">
                 <tr>
                   <th className="p-3">Nama</th>
                   <th className="p-3">Peran (Role)</th>
@@ -110,16 +111,16 @@ export default function UserManagementView() {
                   return (
                     <tr
                       key={user.id}
-                      className="border-b border-violet-essence hover:bg-violet-essence/30"
+                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                       <td className="p-3">
                         <div className="flex items-center gap-3">
                           <img
                             src={user.avatarUrl}
                             alt={user.name}
-                            className="w-8 h-8 rounded-full"
+                            className="w-8 h-8 rounded-full border-2 border-gray-200"
                           />
-                          <span className="font-medium">{user.name}</span>
+                          <span className="font-medium text-gray-900">{user.name}</span>
                         </div>
                       </td>
                       <td className="p-3">
@@ -134,16 +135,15 @@ export default function UserManagementView() {
                       <td className="p-3 text-center">
                         {hasPermission(currentUser, 'manage_users') && (
                           <div className="flex justify-center gap-2">
-                            <Button variant="outline" size="sm">
+                            <ButtonPro variant="outline" size="sm">
                               Edit
-                            </Button>
-                            <Button
-                              variant="destructive"
+                            </ButtonPro>
+                            <ButtonPro
+                              variant="danger"
                               size="sm"
+                              icon={Trash2}
                               onClick={() => handleDelete(user)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            />
                           </div>
                         )}
                       </td>
@@ -153,8 +153,8 @@ export default function UserManagementView() {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
       {userToDelete && (
         <ConfirmationDialog
           isOpen={!!userToDelete}

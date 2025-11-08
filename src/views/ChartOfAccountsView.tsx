@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/Card';
-import { Button } from '@/components/Button';
+import { CardPro } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import BreadcrumbNavigation from '@/components/BreadcrumbNavigation';
 import {
   BookOpen,
@@ -123,13 +123,13 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
 
     return (
       <React.Fragment key={account.id}>
-        <tr className="border-b border-gray-100 hover:bg-gray-50">
+        <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
           <td className="py-3 px-4" style={{ paddingLeft: `${level * 24 + 16}px` }}>
             <div className="flex items-center gap-2">
               {hasChildren && (
                 <button
                   onClick={() => toggleExpand(account.id)}
-                  className="p-1 hover:bg-gray-200 rounded"
+                  className="p-1 hover:bg-gray-200 rounded transition-colors"
                 >
                   {isExpanded ? (
                     <ChevronDown className="w-4 h-4" />
@@ -177,14 +177,14 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
                   // TODO: Implement edit form
                   console.log('Edit account:', account);
                 }}
-                className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
                 title="Edit"
               >
                 <Edit className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDelete(account.id)}
-                className="p-2 hover:bg-red-50 rounded text-red-600"
+                className="p-2 hover:bg-red-50 rounded text-red-600 transition-colors"
                 title="Delete"
               >
                 <Trash2 className="w-4 h-4" />
@@ -220,16 +220,16 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
               <p className="text-sm text-gray-500">Manage your company's accounts structure</p>
             </div>
           </div>
-          <Button
+          <ButtonPro
             onClick={() => {
               // TODO: Implement create form
               console.log('Create new account');
             }}
-            className="flex items-center gap-2"
+            variant="primary"
+            icon={Plus}
           >
-            <Plus className="w-4 h-4" />
             New Account
-          </Button>
+          </ButtonPro>
         </div>
 
         {/* Summary Cards */}
@@ -241,19 +241,19 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
               0
             );
             return (
-              <Card key={type.value} className="p-4">
+              <CardPro key={type.value} className="p-4">
                 <div className="text-sm text-gray-500 mb-1">{type.label}</div>
                 <div className="text-2xl font-bold text-gray-900">{typeAccounts.length}</div>
                 <div className="text-sm text-gray-600 mt-1">
                   Balance: {formatCurrency(totalBalance)}
                 </div>
-              </Card>
+              </CardPro>
             );
           })}
         </div>
 
         {/* Filters */}
-        <Card className="p-4 mb-4">
+        <CardPro className="p-4 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -262,7 +262,7 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
                 placeholder="Search accounts..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -270,7 +270,7 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value as AccountType | 'all')}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 transition-shadow"
               >
                 {accountTypes.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -280,10 +280,10 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
               </select>
             </div>
           </div>
-        </Card>
+        </CardPro>
 
         {/* Accounts Table */}
-        <Card>
+        <CardPro>
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -293,9 +293,9 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
             <div className="p-12 text-center">
               <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No accounts found</p>
-              <Button onClick={() => console.log('Create first account')} className="mt-4">
+              <ButtonPro onClick={() => console.log('Create first account')} variant="primary" className="mt-4">
                 Create First Account
-              </Button>
+              </ButtonPro>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -323,7 +323,7 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
               </table>
             </div>
           )}
-        </Card>
+        </CardPro>
       </div>
     </div>
   );

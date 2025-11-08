@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { Termin, Expense } from '@/types';
 import { formatCurrency, formatDate } from '@/constants';
 
@@ -28,12 +28,12 @@ export default function CashflowView({ termins, expenses }: CashflowViewProps) {
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Arus Kas Proyek</CardTitle>
-        <CardDescription>Monitor aliran masuk dan keluar dana proyek.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <CardPro variant="elevated" className="hover:shadow-lg transition-shadow">
+      <CardProHeader>
+        <CardProTitle>Arus Kas Proyek</CardProTitle>
+        <CardProDescription>Monitor aliran masuk dan keluar dana proyek.</CardProDescription>
+      </CardProHeader>
+      <CardProContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <StatBox
             label="Total Pemasukan"
@@ -52,8 +52,8 @@ export default function CashflowView({ termins, expenses }: CashflowViewProps) {
           />
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-night-black">
-            <thead className="bg-violet-essence/50 text-xs uppercase">
+          <table className="w-full text-sm text-gray-900">
+            <thead className="bg-gray-100 text-xs uppercase text-gray-700">
               <tr>
                 <th className="p-3 text-left">Tanggal</th>
                 <th className="p-3 text-left">Deskripsi</th>
@@ -65,10 +65,10 @@ export default function CashflowView({ termins, expenses }: CashflowViewProps) {
               {combinedFlows.map((flow, index) => (
                 <tr
                   key={index}
-                  className="border-b border-violet-essence hover:bg-violet-essence/30"
+                  className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                 >
-                  <td className="p-2">{formatDate(flow.date)}</td>
-                  <td className="p-2">{flow.description}</td>
+                  <td className="p-2 text-gray-700">{formatDate(flow.date)}</td>
+                  <td className="p-2 text-gray-900">{flow.description}</td>
                   <td className="p-2 text-right text-green-600 font-medium">
                     {flow.type === 'income' ? formatCurrency(flow.amount) : '-'}
                   </td>
@@ -80,14 +80,14 @@ export default function CashflowView({ termins, expenses }: CashflowViewProps) {
             </tbody>
           </table>
         </div>
-      </CardContent>
-    </Card>
+      </CardProContent>
+    </CardPro>
   );
 }
 
 const StatBox = ({ label, value, color }: { label: string; value: string; color: string }) => (
-  <div className="p-4 bg-violet-essence/30 rounded-lg text-center">
-    <p className="text-sm text-palladium">{label}</p>
+  <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+    <p className="text-sm text-gray-600">{label}</p>
     <p className={`text-2xl font-bold ${color}`}>{value}</p>
   </div>
 );

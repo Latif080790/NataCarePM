@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { RabItem, AhspData } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
+import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { ButtonPro } from '@/components/ButtonPro';
 import { formatCurrency } from '@/constants';
 import { Modal } from '@/components/Modal';
-import { Button } from '@/components/Button';
 import { Download } from 'lucide-react';
 
 interface RabAhspViewProps {
@@ -17,13 +17,13 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
   // Safe guard: Check if items and ahspData are defined
   if (!items || !ahspData) {
     return (
-      <Card>
-        <CardContent>
+      <CardPro variant="elevated">
+        <CardProContent>
           <div className="flex items-center justify-center p-8">
-            <p className="text-palladium">Loading data...</p>
+            <p className="text-gray-600">Loading data...</p>
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
     );
   }
 
@@ -64,20 +64,19 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row justify-between items-center">
+      <CardPro variant="elevated">
+        <CardProHeader className="flex flex-row justify-between items-center">
           <div>
-            <CardTitle>Rencana Anggaran Biaya (RAB)</CardTitle>
-            <CardDescription>
+            <CardProTitle>Rencana Anggaran Biaya (RAB)</CardProTitle>
+            <CardProDescription>
               Rincian item pekerjaan beserta anggaran biaya yang direncanakan.
-            </CardDescription>
+            </CardProDescription>
           </div>
-          <Button variant="outline" onClick={handleExportCsv}>
-            <Download className="w-4 h-4 mr-2" />
+          <ButtonPro variant="outline" icon={Download} onClick={handleExportCsv}>
             Ekspor ke CSV
-          </Button>
-        </CardHeader>
-        <CardContent>
+          </ButtonPro>
+        </CardProHeader>
+        <CardProContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-night-black">
               <thead className="bg-violet-essence/50 text-xs uppercase">
@@ -132,8 +131,8 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
               </tfoot>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       {selectedItem && (
         <Modal

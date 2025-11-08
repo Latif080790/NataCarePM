@@ -8,9 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { generateTOTPSecret, enrollTOTP, getTOTPStatus } from '@/api/totpAuthService';
-import { Button } from '@/components/Button';
-import { Card } from '@/components/Card';
-import { Spinner } from '@/components/Spinner';
+import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro } from '@/components/CardPro';
+import { LoadingState } from '@/components/StateComponents';
 import { Shield, Smartphone, Key, CheckCircle, Copy, AlertCircle } from 'lucide-react';
 
 type SetupStep = 'intro' | 'qrcode' | 'verify' | 'backup' | 'complete';
@@ -175,12 +175,12 @@ const Setup2FAView = () => {
       </div>
 
       <div className="flex space-x-3 pt-4">
-        <Button variant="ghost" onClick={() => navigate('/profile')} className="flex-1">
+        <ButtonPro variant="outline" onClick={() => navigate('/profile')} className="flex-1">
           Batal
-        </Button>
-        <Button onClick={() => setCurrentStep('qrcode')} className="flex-1">
+        </ButtonPro>
+        <ButtonPro variant="primary" onClick={() => setCurrentStep('qrcode')} className="flex-1">
           Mulai Setup
-        </Button>
+        </ButtonPro>
       </div>
     </div>
   );
@@ -193,8 +193,8 @@ const Setup2FAView = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
+        <div className="py-12">
+          <LoadingState />
         </div>
       ) : (
         <>
@@ -227,12 +227,12 @@ const Setup2FAView = () => {
           </div>
 
           <div className="flex space-x-3">
-            <Button variant="ghost" onClick={() => setCurrentStep('intro')} className="flex-1">
+            <ButtonPro variant="outline" onClick={() => setCurrentStep('intro')} className="flex-1">
               Kembali
-            </Button>
-            <Button onClick={() => setCurrentStep('verify')} className="flex-1">
+            </ButtonPro>
+            <ButtonPro variant="primary" onClick={() => setCurrentStep('verify')} className="flex-1">
               Lanjutkan
-            </Button>
+            </ButtonPro>
           </div>
         </>
       )}
@@ -272,16 +272,17 @@ const Setup2FAView = () => {
       </div>
 
       <div className="flex space-x-3">
-        <Button variant="ghost" onClick={() => setCurrentStep('qrcode')} className="flex-1" disabled={loading}>
+        <ButtonPro variant="outline" onClick={() => setCurrentStep('qrcode')} className="flex-1" disabled={loading}>
           Kembali
-        </Button>
-        <Button
+        </ButtonPro>
+        <ButtonPro
+          variant="primary"
           onClick={handleVerifyAndEnroll}
           className="flex-1"
           disabled={loading || verificationCode.length !== 6}
         >
           {loading ? 'Memverifikasi...' : 'Verifikasi'}
-        </Button>
+        </ButtonPro>
       </div>
     </div>
   );
@@ -322,20 +323,19 @@ const Setup2FAView = () => {
         </div>
 
         <div className="flex space-x-2">
-          <Button variant="secondary" onClick={handleCopyBackupCodes} className="flex-1">
-            <Copy className="w-4 h-4 mr-2" />
+          <ButtonPro variant="secondary" icon={Copy} onClick={handleCopyBackupCodes} className="flex-1">
             Salin
-          </Button>
-          <Button variant="secondary" onClick={handleDownloadBackupCodes} className="flex-1">
+          </ButtonPro>
+          <ButtonPro variant="secondary" onClick={handleDownloadBackupCodes} className="flex-1">
             Unduh
-          </Button>
+          </ButtonPro>
         </div>
       </div>
 
       <div className="flex space-x-3">
-        <Button onClick={handleComplete} className="flex-1">
+        <ButtonPro variant="primary" onClick={handleComplete} className="flex-1">
           Saya Sudah Menyimpan Kode
-        </Button>
+        </ButtonPro>
       </div>
     </div>
   );
@@ -371,9 +371,9 @@ const Setup2FAView = () => {
         </ul>
       </div>
 
-      <Button onClick={() => navigate('/profile')} className="w-full">
+      <ButtonPro variant="primary" onClick={() => navigate('/profile')} className="w-full">
         Selesai
-      </Button>
+      </ButtonPro>
     </div>
   );
 
@@ -427,9 +427,9 @@ const Setup2FAView = () => {
         )}
 
         {/* Main card */}
-        <Card className="glass-card">
+        <CardPro variant="elevated" className="bg-white">
           <div className="p-8">{renderStep()}</div>
-        </Card>
+        </CardPro>
 
         {/* Help text */}
         {currentStep !== 'complete' && (

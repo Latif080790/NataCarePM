@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { ProjectMetrics } from '@/types';
 import { formatCurrency } from '@/constants';
 
@@ -10,14 +10,14 @@ export default function StrategicCostView({ projectMetrics }: StrategicCostViewP
   const { totalBudget, actualCost, earnedValue, plannedValue, evm } = projectMetrics;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Kontrol Biaya Strategis (Earned Value Management)</CardTitle>
-        <CardDescription>
+    <CardPro variant="elevated" className="hover:shadow-lg transition-shadow">
+      <CardProHeader>
+        <CardProTitle>Kontrol Biaya Strategis (Earned Value Management)</CardProTitle>
+        <CardProDescription>
           Analisis kinerja proyek menggunakan metrik Nilai Hasil (Earned Value).
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </CardProDescription>
+      </CardProHeader>
+      <CardProContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InfoItem label="Total Anggaran (BAC)" value={formatCurrency(totalBudget)} />
           <InfoItem label="Biaya Aktual (AC)" value={formatCurrency(actualCost)} />
@@ -44,9 +44,9 @@ export default function StrategicCostView({ projectMetrics }: StrategicCostViewP
             isNegative={evm.spi < 1}
           />
         </div>
-        <div className="mt-6 p-4 bg-violet-essence/30 rounded-lg">
-          <h4 className="font-semibold mb-2">Interpretasi</h4>
-          <p className="text-sm text-palladium">
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold mb-2 text-gray-900">Interpretasi</h4>
+          <p className="text-sm text-gray-700">
             <strong>CPI {evm.cpi.toFixed(2)}:</strong>{' '}
             {evm.cpi >= 1
               ? 'Biaya lebih efisien dari rencana (under budget).'
@@ -58,8 +58,8 @@ export default function StrategicCostView({ projectMetrics }: StrategicCostViewP
               : 'Jadwal terlambat dari rencana (behind schedule).'}
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </CardProContent>
+    </CardPro>
   );
 }
 
@@ -72,8 +72,8 @@ const InfoItem = ({
   value: string;
   isNegative?: boolean;
 }) => (
-  <div className="p-3 bg-violet-essence/30 rounded-md">
-    <p className="text-sm text-palladium">{label}</p>
-    <p className={`text-xl font-bold ${isNegative ? 'text-red-500' : 'text-green-500'}`}>{value}</p>
+  <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+    <p className="text-sm text-gray-600">{label}</p>
+    <p className={`text-xl font-bold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>{value}</p>
   </div>
 );
