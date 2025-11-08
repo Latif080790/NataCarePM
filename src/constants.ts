@@ -234,6 +234,18 @@ export const navLinksConfig = [
         requiredPermission: 'view_dashboard',
       },
       {
+        id: 'resources',
+        name: 'Resource Allocation',
+        icon: Users,
+        requiredPermission: 'view_dashboard',
+      },
+      {
+        id: 'timeline',
+        name: 'Timeline Tracking',
+        icon: CalendarDays,
+        requiredPermission: 'view_dashboard',
+      },
+      {
         id: 'notifications',
         name: 'Notification Center',
         icon: Bell,

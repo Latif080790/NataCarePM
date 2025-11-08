@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useMemo, useEffect } from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input, Select, Textarea } from './FormControls';
@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Spinner } from './Spinner';
-import { Calendar, Tag, AlertCircle, Plus, X } from 'lucide-react';
+import { Calendar, Tag, AlertCircle, Plus, X, GitBranch, Info } from 'lucide-react';
 import { getTodayDateString } from '@/constants';
 import { taskSchema } from '@/schemas/projectSchemas';
 
@@ -37,11 +37,73 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
     assignedTo: [] as string[],
     tags: [] as string[],
     rabItemId: undefined as number | undefined,
+    dependencies: [] as string[], // Task IDs that this task depends on
   });
 
   const [newTag, setNewTag] = useState('');
   const [availableUsers] = useState<User[]>(currentProject?.members || []);
   const [availableRabItems] = useState<RabItem[]>(currentProject?.items || []);
+  const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+
+  // Load available tasks when modal opens
+  useEffect(() => {
+    if (isOpen && currentProject) {
+      setLoadingTasks(true);
+      taskService.getTasksByProject(currentProject.id)
+        .then((response: any) => {
+          if (response.success) {
+            // Only show incomplete tasks that can be dependencies
+            const incompleteTasks = response.data.filter(
+              (task: Task) => task.status !== 'completed'
+            );
+            setAvailableTasks(incompleteTasks);
+          }
+        })
+        .catch((error: any) => {
+          console.error('Error loading tasks:', error);
+        })
+        .finally(() => {
+          setLoadingTasks(false);
+        });
+    }
+  }, [isOpen, currentProject]);
+
+  // Check for circular dependencies
+  const checkCircularDependency = (taskId: string, visited: Set<string> = new Set()): boolean => {
+    if (visited.has(taskId)) {
+      return true; // Circular dependency detected
+    }
+
+    visited.add(taskId);
+
+    const task = availableTasks.find((t) => t.id === taskId);
+    if (!task || !task.dependencies) {
+      return false;
+    }
+
+    for (const depId of task.dependencies) {
+      if (checkCircularDependency(depId, new Set(visited))) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Get dependency warnings
+  const dependencyWarnings = useMemo(() => {
+    const warnings: string[] = [];
+    
+    for (const depId of formData.dependencies) {
+      if (checkCircularDependency(depId)) {
+        const task = availableTasks.find((t) => t.id === depId);
+        warnings.push(`Circular dependency detected with "${task?.title}"`);
+      }
+    }
+
+    return warnings;
+  }, [formData.dependencies, availableTasks]);
 
   // Validation using Zod schema
   const validateForm = (): boolean => {
@@ -101,7 +163,7 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
         dueDate: formData.dueDate,
         assignedTo: formData.assignedTo,
         createdBy: currentUser.id,
-        dependencies: [],
+        dependencies: formData.dependencies,
         subtasks: [],
         progress: 0,
         tags: formData.tags,
@@ -146,6 +208,7 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
       assignedTo: [],
       tags: [],
       rabItemId: undefined,
+      dependencies: [],
     });
     setNewTag('');
     setErrors({});
@@ -183,6 +246,16 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
       assignedTo: prev.assignedTo.includes(userId)
         ? prev.assignedTo.filter((id) => id !== userId)
         : [...prev.assignedTo, userId],
+    }));
+  };
+
+  // Handle dependency management
+  const handleToggleDependency = (taskId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      dependencies: prev.dependencies.includes(taskId)
+        ? prev.dependencies.filter((id) => id !== taskId)
+        : [...prev.dependencies, taskId],
     }));
   };
 
@@ -384,6 +457,100 @@ export default function CreateTaskModal({ isOpen, onClose, onTaskCreated }: Crea
           </Select>
           <p className="text-xs text-palladium mt-1">
             Link task ke item pekerjaan dalam RAB untuk tracking progres
+          </p>
+        </div>
+
+        {/* Task Dependencies */}
+        <div>
+          <label className="block text-sm font-medium text-night-black mb-1 flex items-center gap-2">
+            <GitBranch className="w-4 h-4" />
+            Task Dependencies (Predecessor Tasks)
+          </label>
+          
+          {loadingTasks ? (
+            <div className="flex items-center justify-center py-4 border border-violet-essence rounded-md">
+              <Spinner size="sm" />
+              <span className="ml-2 text-sm text-palladium">Loading tasks...</span>
+            </div>
+          ) : availableTasks.length === 0 ? (
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-md text-sm text-palladium text-center">
+              <Info className="w-5 h-5 mx-auto mb-2 text-gray-400" />
+              No available tasks to set as dependencies
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2 max-h-40 overflow-y-auto border border-violet-essence rounded-md p-3">
+                {availableTasks.map((task) => (
+                  <label
+                    key={task.id}
+                    className="flex items-start space-x-2 cursor-pointer hover:bg-violet-essence/20 p-2 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.dependencies.includes(task.id)}
+                      onChange={() => handleToggleDependency(task.id)}
+                      disabled={isSubmitting}
+                      className="rounded border-gray-300 mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{task.title}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          task.priority === 'critical' ? 'bg-red-100 text-red-700' :
+                          task.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                          task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {task.priority}
+                        </span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          task.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                          task.status === 'blocked' ? 'bg-red-100 text-red-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {task.status}
+                        </span>
+                        {task.dueDate && (
+                          <span className="text-xs text-palladium">
+                            Due: {new Date(task.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              
+              {formData.dependencies.length > 0 && (
+                <p className="text-xs text-palladium mt-2">
+                  {formData.dependencies.length} task(s) selected as dependencies - this task will be blocked until they are completed
+                </p>
+              )}
+
+              {/* Circular Dependency Warnings */}
+              {dependencyWarnings.length > 0 && (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="text-sm font-semibold text-red-800 mb-1">Dependency Conflicts</h5>
+                      <ul className="text-xs text-red-700 space-y-1">
+                        {dependencyWarnings.map((warning, idx) => (
+                          <li key={idx}>• {warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          
+          <p className="text-xs text-palladium mt-1 flex items-start gap-1">
+            <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <span>
+              Select tasks that must be completed before this task can start. Dependencies help maintain proper work sequence and prevent conflicts.
+            </span>
           </p>
         </div>
 

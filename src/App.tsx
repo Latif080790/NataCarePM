@@ -51,6 +51,7 @@ const TasksView = lazy(() => import('@/views/TasksView'));
 const KanbanView = lazy(() => import('@/views/KanbanView'));
 const DependencyGraphView = lazy(() => import('@/views/DependencyGraphView'));
 const ResourceAllocationView = lazy(() => import('@/views/ResourceAllocationView'));
+const TimelineTrackingView = lazy(() => import('@/views/TimelineTrackingView'));
 const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView'));
 const MonitoringView = lazy(() => import('@/views/MonitoringView'));
 const IntegratedAnalyticsView = lazy(() =>
@@ -417,6 +418,11 @@ function ProtectedApp() {
             <Route path="/resources" element={
               <ViewErrorBoundary viewName="Resource Allocation">
                 <ResourceAllocationView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/timeline" element={
+              <ViewErrorBoundary viewName="Timeline Tracking">
+                <TimelineTrackingView {...viewProps} />
               </ViewErrorBoundary>
             } />
             <Route path="/notifications" element={

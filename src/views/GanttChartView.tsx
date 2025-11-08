@@ -87,8 +87,9 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragMode, setDragMode] = useState<'move' | 'resize-start' | 'resize-end' | null>(null);
+  const [dragPreview, setDragPreview] = useState<{ startDate: Date; endDate: Date } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const ganttRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -274,68 +275,180 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
     return headers;
   }, [ganttData.projectStart, ganttData.projectEnd, settings.timeScale]);
 
-  // Drag and drop handlers with resize support
+  // Drag and drop handlers with full resize support
   const handleTaskMouseDown = useCallback(
     (e: React.MouseEvent, taskId: string, mode: 'move' | 'resize-start' | 'resize-end' = 'move') => {
       if (e.button !== 0) return; // Only left click
 
       e.preventDefault();
       e.stopPropagation();
+      
+      const task = filteredTasks.find((t) => t.id === taskId);
+      if (!task) return;
+
       setDraggedTask(taskId);
       setDragMode(mode);
-
-      const rect = e.currentTarget.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+      setIsDragging(true);
+      setDragPreview({
+        startDate: new Date(task.startDate),
+        endDate: new Date(task.endDate),
       });
     },
-    []
+    [filteredTasks]
   );
 
   const handleMouseMove = useCallback(
-    (_e: MouseEvent) => {
-      if (!draggedTask || !timelineRef.current || !dragMode) return;
-
-      // Visual feedback could be added here in the future
-      // For now, just track the mouse movement
-      console.log('Dragging task:', draggedTask, 'Mode:', dragMode);
-    },
-    [draggedTask, dragMode]
-  );
-
-  const handleMouseUp = useCallback(
-    async (e: MouseEvent) => {
-      if (!draggedTask || !timelineRef.current || !currentUser || !projectId) return;
+    (e: MouseEvent) => {
+      if (!draggedTask || !timelineRef.current || !dragMode || !dragPreview) return;
 
       const timelineRect = timelineRef.current.getBoundingClientRect();
       const dayWidth = timelineRect.width / timelineHeaders.length;
-      const newDayIndex = Math.floor((e.clientX - timelineRect.left - dragOffset.x) / dayWidth);
+      const relativeX = e.clientX - timelineRect.left;
+      const dayIndex = Math.floor(relativeX / dayWidth);
 
-      if (newDayIndex >= 0 && newDayIndex < timelineHeaders.length) {
-        const newDate = timelineHeaders[newDayIndex].date;
+      if (dayIndex < 0 || dayIndex >= timelineHeaders.length) return;
 
+      const newDate = new Date(timelineHeaders[dayIndex].date);
+      const task = filteredTasks.find((t) => t.id === draggedTask);
+      if (!task) return;
+
+      let newStartDate = new Date(task.startDate);
+      let newEndDate = new Date(task.endDate);
+
+      if (dragMode === 'move') {
+        // Move entire task
+        const duration = Math.ceil(
+          (task.endDate.getTime() - task.startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        newStartDate = new Date(newDate);
+        newEndDate = new Date(newDate);
+        newEndDate.setDate(newEndDate.getDate() + duration);
+      } else if (dragMode === 'resize-start') {
+        // Resize from start (change start date)
+        newStartDate = new Date(newDate);
+        // Ensure start date is before end date
+        if (newStartDate >= task.endDate) {
+          newStartDate = new Date(task.endDate);
+          newStartDate.setDate(newStartDate.getDate() - 1);
+        }
+      } else if (dragMode === 'resize-end') {
+        // Resize from end (change end date)
+        newEndDate = new Date(newDate);
+        // Ensure end date is after start date
+        if (newEndDate <= task.startDate) {
+          newEndDate = new Date(task.startDate);
+          newEndDate.setDate(newEndDate.getDate() + 1);
+        }
+      }
+
+      setDragPreview({
+        startDate: newStartDate,
+        endDate: newEndDate,
+      });
+    },
+    [draggedTask, dragMode, dragPreview, timelineHeaders, filteredTasks]
+  );
+
+  const handleMouseUp = useCallback(
+    async (_e: MouseEvent) => {
+      if (!draggedTask || !dragPreview || !currentUser || !projectId) {
+        setDraggedTask(null);
+        setDragMode(null);
+        setDragPreview(null);
+        setIsDragging(false);
+        return;
+      }
+
+      const task = tasks.find((t) => t.id === draggedTask);
+      if (!task) {
+        setDraggedTask(null);
+        setDragMode(null);
+        setDragPreview(null);
+        setIsDragging(false);
+        return;
+      }
+
+      try {
+        // Update task with new dates
+        await taskService.updateTask(
+          projectId,
+          draggedTask,
+          {
+            dueDate: dragPreview.endDate.toISOString().split('T')[0],
+            // If task has startDate field, update it too
+            ...(task.startDate && {
+              startDate: dragPreview.startDate.toISOString().split('T')[0],
+            }),
+          },
+          currentUser
+        );
+
+        // If auto-schedule is enabled and task has dependents, reschedule them
+        if (settings.autoSchedule) {
+          await rescheduleDependentTasks(draggedTask, dragPreview.endDate);
+        }
+
+        addToast(
+          `Task "${task.title}" berhasil ${dragMode === 'move' ? 'dipindahkan' : 'diubah durasinya'}`,
+          'success'
+        );
+      } catch (error: any) {
+        console.error('Error updating task:', error);
+        addToast(`Gagal mengupdate task: ${error.message}`, 'error');
+      } finally {
+        setDraggedTask(null);
+        setDragMode(null);
+        setDragPreview(null);
+        setIsDragging(false);
+      }
+    },
+    [draggedTask, dragPreview, projectId, currentUser, addToast, settings.autoSchedule, tasks, dragMode]
+  );
+
+  // Reschedule dependent tasks when a task is moved
+  const rescheduleDependentTasks = useCallback(
+    async (taskId: string, newEndDate: Date) => {
+      if (!projectId || !currentUser) return;
+
+      // Find all tasks that depend on this task
+      const dependentTasks = tasks.filter((t) => t.dependencies && t.dependencies.includes(taskId));
+
+      for (const depTask of dependentTasks) {
         try {
+          // Calculate new start date (day after dependency ends)
+          const newStartDate = new Date(newEndDate);
+          newStartDate.setDate(newStartDate.getDate() + 1);
+
+          // Calculate new end date based on task duration
+          const currentStart = depTask.startDate ? new Date(depTask.startDate) : new Date(depTask.createdAt);
+          const currentEnd = new Date(depTask.dueDate);
+          const duration = Math.ceil(
+            (currentEnd.getTime() - currentStart.getTime()) / (1000 * 60 * 60 * 24)
+          );
+
+          const newDepEndDate = new Date(newStartDate);
+          newDepEndDate.setDate(newDepEndDate.getDate() + duration);
+
           await taskService.updateTask(
             projectId,
-            draggedTask,
+            depTask.id,
             {
-              dueDate: newDate.toISOString().split('T')[0],
+              dueDate: newDepEndDate.toISOString().split('T')[0],
+              ...(depTask.startDate && {
+                startDate: newStartDate.toISOString().split('T')[0],
+              }),
             },
             currentUser
           );
 
-          addToast('Task berhasil dipindahkan', 'success');
-        } catch (error: any) {
-          addToast(`Error: ${error.message}`, 'error');
+          // Recursively reschedule tasks that depend on this one
+          await rescheduleDependentTasks(depTask.id, newDepEndDate);
+        } catch (error) {
+          console.error('Error rescheduling dependent task:', error);
         }
       }
-
-      setDraggedTask(null);
-      setDragMode(null);
-      setDragOffset({ x: 0, y: 0 });
     },
-    [draggedTask, dragOffset, timelineHeaders, projectId, currentUser, addToast]
+    [tasks, projectId, currentUser]
   );
 
   // Mouse event listeners
@@ -708,17 +821,46 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                           gridTemplateColumns: `repeat(${timelineHeaders.length}, minmax(40px, 1fr))`,
                         }}
                       >
+                        {/* Drag Preview (Ghost Task) */}
+                        {draggedTask === task.id && dragPreview && (
+                          (() => {
+                            const previewStartIndex = timelineHeaders.findIndex(
+                              (h) => h.date.toDateString() === dragPreview.startDate.toDateString()
+                            );
+                            const previewEndIndex = timelineHeaders.findIndex(
+                              (h) => h.date.toDateString() === dragPreview.endDate.toDateString()
+                            );
+
+                            return previewStartIndex >= 0 && previewEndIndex >= 0 ? (
+                              <div
+                                className="absolute h-6 rounded bg-blue-400 border-2 border-blue-600 opacity-60"
+                                style={{
+                                  left: `${(previewStartIndex / timelineHeaders.length) * 100}%`,
+                                  width: `${((previewEndIndex - previewStartIndex + 1) / timelineHeaders.length) * 100}%`,
+                                  zIndex: 30,
+                                  pointerEvents: 'none',
+                                }}
+                              >
+                                <div className="absolute inset-0 flex items-center justify-center text-white text-xs font-semibold">
+                                  Preview
+                                </div>
+                              </div>
+                            ) : null;
+                          })()
+                        )}
+
                         {/* Task Bar */}
                         {startIndex >= 0 && endIndex >= 0 && (
                           <div
                             className={`
-                              absolute h-6 rounded transition-all hover:h-8 group
+                              absolute h-6 rounded transition-all hover:h-8 group cursor-move
                               ${
                                 task.isOnCriticalPath && settings.showCriticalPath
                                   ? 'bg-red-500 border-red-600'
                                   : 'bg-persimmon border-persimmon-dark'
                               }
-                              ${draggedTask === task.id ? 'opacity-50 ring-2 ring-blue-400' : ''}
+                              ${draggedTask === task.id ? 'opacity-40 ring-2 ring-blue-500' : 'opacity-100'}
+                              ${isDragging && draggedTask === task.id ? 'cursor-grabbing' : 'cursor-grab'}
                             `}
                             style={{
                               left: `${(startIndex / timelineHeaders.length) * 100}%`,
@@ -726,7 +868,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                               zIndex: draggedTask === task.id ? 20 : 10,
                             }}
                             onMouseDown={(e) => handleTaskMouseDown(e, task.id, 'move')}
-                            onClick={() => handleTaskClick(task)}
+                            onClick={() => !isDragging && handleTaskClick(task)}
                             title={`${task.title} (${formatDate(task.startDate.toISOString())} - ${formatDate(task.endDate.toISOString())})`}
                           >
                             {/* Resize Handle - Start */}
