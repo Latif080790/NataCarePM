@@ -129,6 +129,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: ['es2015', 'chrome79', 'safari13', 'firefox72', 'edge79'],
+      sourcemap: mode === 'production' ? 'hidden' : true, // Hidden source maps for production (for error tracking)
       rollupOptions: {
         input: 'index.html',
         external: [
@@ -139,30 +140,49 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              // Split vendor libraries into separate chunks
+              // Split vendor libraries into separate chunks for better caching
               if (id.includes('firebase')) return 'firebase';
+              if (id.includes('@google-cloud')) return 'google-cloud';
               if (id.includes('tensorflow')) return 'tensorflow';
               if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
               if (id.includes('framer-motion')) return 'framer-motion';
-              if (id.includes('recharts')) return 'recharts';
+              if (id.includes('recharts') || id.includes('chart')) return 'charts';
+              if (id.includes('@sentry')) return 'sentry';
+              if (id.includes('tesseract')) return 'tesseract';
               return 'vendor';
             }
+            // Lazy-loaded views are automatically split by dynamic imports
             if (id.includes('/src/views/')) {
               const viewName = id.split('/').pop()?.split('.')[0];
               return viewName ? `views/${viewName}` : undefined;
             }
+            // Split contexts into separate chunk
+            if (id.includes('/src/contexts/')) return 'contexts';
+            // Split utils into separate chunk
+            if (id.includes('/src/utils/')) return 'utils';
+            // Default: no manual chunking
+            return undefined;
           },
         },
       },
-      chunkSizeWarningLimit: 1000,
-      minify: 'terser', // Re-enable minification
+      chunkSizeWarningLimit: 1000, // Warn for chunks > 1MB
+      minify: 'terser', // Re-enable minification for production
       terserOptions: {
         compress: {
-          drop_console: true,
+          drop_console: mode === 'production', // Remove console logs in production
           drop_debugger: true,
+          pure_funcs: mode === 'production' ? ['console.log', 'console.debug', 'console.info'] : [],
+        },
+        mangle: {
+          safari10: true, // Fix Safari 10 bugs
+        },
+        format: {
+          comments: false, // Remove comments
         },
       },
       reportCompressedSize: true,
+      cssCodeSplit: true, // Split CSS into separate files per chunk
+      assetsInlineLimit: 4096, // Inline assets < 4KB as base64
     },
   };
 });
