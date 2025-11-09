@@ -9,12 +9,14 @@ import { createRoot } from 'react-dom/client';
 import Root from './Root';
 import { registerServiceWorker } from '@/utils/serviceWorkerRegistration';
 import { initAppCheck, enableAppCheckDebugMode } from '@/appCheckConfig';
+import { initCSPMonitoring } from '@/utils/cspMonitoring';
 
-// Initialize App Check (production only by default)
+// Initialize Security Features
 if (import.meta.env.DEV) {
   enableAppCheckDebugMode();
 }
 initAppCheck();
+initCSPMonitoring();
 
 // Global error handler for mobile debugging
 window.addEventListener('error', (event) => {
