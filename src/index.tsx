@@ -10,6 +10,7 @@ import Root from './Root';
 import { registerServiceWorker } from '@/utils/serviceWorkerRegistration';
 import { initAppCheck, enableAppCheckDebugMode } from '@/appCheckConfig';
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
+import { initGA4 } from '@/utils/analytics';
 
 // Initialize Security Features
 if (import.meta.env.DEV) {
@@ -17,6 +18,9 @@ if (import.meta.env.DEV) {
 }
 initAppCheck();
 initCSPMonitoring();
+
+// Initialize Analytics
+initGA4();
 
 // Global error handler for mobile debugging
 window.addEventListener('error', (event) => {

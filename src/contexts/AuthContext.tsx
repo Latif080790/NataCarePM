@@ -8,6 +8,7 @@ import { auth } from '@/firebaseConfig';
 import { authService } from '@/services/authService';
 import { logger } from '@/utils/logger.enhanced';
 import { rateLimiter } from '@/utils/rateLimiter';
+import { trackLogin, trackSignUp, clearUserProperties } from '@/utils/analytics';
 import { 
   onAuthStateChanged, 
   signOut,
@@ -176,6 +177,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         );
         rateLimiter.reset(email, 'login');
         
+        // Track successful login
+        trackLogin('email');
+        
       } catch (authError: any) {
         // Check if this is a multi-factor auth error
         if (authError.code === 'auth/multi-factor-auth-required') {
@@ -219,6 +223,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!response.success) {
         throw new Error(response.error?.message || 'Registration failed');
       }
+
+      // Track successful signup
+      trackSignUp('email');
 
       // Registration successful, user will be set by auth state listener after email verification
     } catch (err) {
@@ -332,6 +339,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!response.success) {
         throw new Error(response.error?.message || 'Logout failed');
       }
+
+      // Clear analytics user properties
+      clearUserProperties();
 
       await signOut(auth);
       setCurrentUser(null);
