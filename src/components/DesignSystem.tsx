@@ -98,3 +98,7 @@ export type { InputProProps } from './InputPro';
 
 export { CommandPalettePro, useCommandPalette } from './CommandPalettePro';
 export type { CommandItem } from './CommandPalettePro';
+
+// Security Components
+export { TwoFactorAuth } from './TwoFactorAuth';
+export { TwoFactorManagement } from './TwoFactorManagement';

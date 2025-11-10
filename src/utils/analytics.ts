@@ -40,10 +40,7 @@ export const initGA4 = (): void => {
       window.dataLayer!.push(arguments);
     };
 
-    // Set default timestamp
-    window.gtag('js', new Date());
-
-    // Configure GA4
+    // Set default configuration - using 'config' command instead of 'js'
     window.gtag('config', measurementId, {
       send_page_view: true,
       cookie_flags: 'SameSite=None;Secure',

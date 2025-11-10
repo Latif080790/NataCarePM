@@ -8,15 +8,17 @@ import 'regenerator-runtime/runtime';
 import { createRoot } from 'react-dom/client';
 import Root from './Root';
 import { registerServiceWorker } from '@/utils/serviceWorkerRegistration';
-import { initAppCheck, enableAppCheckDebugMode } from '@/appCheckConfig';
+// TEMPORARILY DISABLED - App Check causing 400 errors in production
+// import { initAppCheck, enableAppCheckDebugMode } from '@/appCheckConfig';
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
 import { initGA4 } from '@/utils/analytics';
 
 // Initialize Security Features
-if (import.meta.env.DEV) {
-  enableAppCheckDebugMode();
-}
-initAppCheck();
+// TEMPORARILY DISABLED - App Check causing 400 errors in production
+// if (import.meta.env.DEV) {
+//   enableAppCheckDebugMode();
+// }
+// initAppCheck();
 initCSPMonitoring();
 
 // Initialize Analytics

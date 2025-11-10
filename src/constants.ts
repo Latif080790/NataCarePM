@@ -422,13 +422,61 @@ export const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-export const formatDate = (dateString: string | Date) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(date);
+export const formatDate = (dateInput: string | Date | { toDate?: () => Date } | null | undefined): string => {
+  try {
+    // Handle null/undefined
+    if (!dateInput) {
+      return '-';
+    }
+
+    // Handle Firestore Timestamp (has toDate method)
+    if (typeof dateInput === 'object' && 'toDate' in dateInput && typeof dateInput.toDate === 'function') {
+      const date = dateInput.toDate();
+      if (isNaN(date.getTime())) return '-';
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(date);
+    }
+
+    // Handle Date object
+    if (dateInput instanceof Date) {
+      if (isNaN(dateInput.getTime())) {
+        console.warn('[formatDate] Invalid Date object:', dateInput);
+        return '-';
+      }
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(dateInput);
+    }
+
+    // Handle string (only possibility left after above checks)
+    if (typeof dateInput === 'string') {
+      const date = new Date(dateInput);
+      
+      // Validate date
+      if (isNaN(date.getTime())) {
+        console.warn('[formatDate] Invalid date string:', dateInput);
+        return '-';
+      }
+
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(date);
+    }
+
+    // Fallback for unexpected types
+    console.warn('[formatDate] Unexpected date type:', typeof dateInput, dateInput);
+    return '-';
+  } catch (error) {
+    console.error('[formatDate] Error formatting date:', error, dateInput);
+    return '-';
+  }
 };
 
 export const getTodayDateString = (): string => {

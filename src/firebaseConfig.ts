@@ -6,7 +6,12 @@
  */
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  type Firestore,
+  enableIndexedDbPersistence,
+  CACHE_SIZE_UNLIMITED
+} from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
@@ -47,8 +52,31 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+// Initialize Firestore with v10 stable settings
 const db: Firestore = getFirestore(app);
+
+// Enable offline persistence (v10 stable API)
+// This uses IndexedDB for caching and automatically uses long-polling when needed
+enableIndexedDbPersistence(db, {
+  cacheSizeBytes: CACHE_SIZE_UNLIMITED
+}).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('[Firebase] Persistence failed: Multiple tabs open');
+  } else if (err.code === 'unimplemented') {
+    console.warn('[Firebase] Persistence not available in this browser');
+  } else {
+    console.error('[Firebase] Persistence error:', err);
+  }
+});
+
+console.log('[Firebase] Initialized with v10 stable API + offline persistence');
+
 const auth: Auth = getAuth(app);
 const storage: FirebaseStorage = getStorage(app);
+
+// Log Firebase initialization
+console.log('[Firebase] Successfully initialized');
+console.log('[Firebase] Project ID:', firebaseConfig.projectId);
+console.log('[Firebase] Auth Domain:', firebaseConfig.authDomain);
 
 export { app, db, auth, storage };

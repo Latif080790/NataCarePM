@@ -42,6 +42,7 @@ import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWr
 import { validators, firebaseValidators } from '@/utils/validators';
 import { withRetry } from '@/utils/retryWrapper';
 import { logger } from '@/utils/logger';
+import { waitForAuth, requireAuth, withAuthRetry } from '@/utils/authGuard';
 
 /**
  * Helper to convert Firestore doc to TypeScript types
@@ -215,15 +216,14 @@ export const projectService = {
     const result = await safeAsync(async () => {
       logger.info('projectService:getWorkspaces', 'Fetching workspaces');
 
-      // Fetch projects with retry
-      const projectsSnapshot = await withRetry(() => getDocs(collection(db, 'projects')), {
-        maxAttempts: 3,
-        onRetry: (attempt: number, error: Error) => {
-          logger.warn('projectService:getWorkspaces', `Retry attempt ${attempt}`, {
-            error: error.message,
-          });
-        },
-      });
+      // ✅ FIX: Ensure user is authenticated before Firestore query
+      await requireAuth('getWorkspaces');
+
+      // Fetch projects with retry and auth check
+      const projectsSnapshot = await withAuthRetry(
+        () => getDocs(collection(db, 'projects')),
+        'getWorkspaces:fetchProjects'
+      );
 
       const projects = projectsSnapshot.docs.map((d: QueryDocumentSnapshot<DocumentData>) =>
         docToType<Project>(d)
@@ -257,22 +257,22 @@ export const projectService = {
   getProjectById: async (projectId: string): Promise<APIResponse<Project>> => {
     logger.time('projectService:getProjectById');
     const result = await safeAsync(async () => {
-      // Validate input
+      logger.info('projectService:getProjectById', 'Fetching project', { projectId });
+
+      // Validate project ID
       validateProjectId(projectId, 'getProjectById');
+      
+      // ✅ FIX: Ensure user is authenticated before Firestore query
+      await requireAuth('getProjectById');
 
       logger.info('projectService:getProjectById', 'Fetching project', { projectId });
 
-      // Fetch with retry
+      // Fetch project with auth retry
       const docRef = doc(db, 'projects', projectId);
-      const docSnap = await withRetry(() => getDoc(docRef), {
-        maxAttempts: 3,
-        onRetry: (attempt: number, error: Error) => {
-          logger.warn('projectService:getProjectById', `Retry attempt ${attempt}`, {
-            projectId,
-            error: error.message,
-          });
-        },
-      });
+      const docSnap = await withAuthRetry(
+        () => getDoc(docRef),
+        'getProjectById:fetchProject'
+      );
 
       if (!docSnap.exists()) {
         throw new APIError(ErrorCodes.NOT_FOUND, 'Project not found', 404, { projectId });

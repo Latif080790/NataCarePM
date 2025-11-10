@@ -104,6 +104,7 @@ const CommandPalette = lazy(() =>
 const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
+const SentryTestPanel = lazy(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
 const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
 const ChatView = lazy(() => import('@/views/ChatView'));
 const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderView'));
@@ -635,6 +636,9 @@ function ProtectedApp() {
       </Suspense>
       <Suspense fallback={null}>
         <UserFeedbackWidget position="bottom-right" />
+      </Suspense>
+      <Suspense fallback={null}>
+        <SentryTestPanel />
       </Suspense>
       <OfflineIndicator />
       <LiveCursors containerId="app-container" showLabels />

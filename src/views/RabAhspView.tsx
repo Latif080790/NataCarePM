@@ -40,15 +40,21 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
   };
 
   const handleExportCsv = () => {
+    // Guard: Check if items exist and is array
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      console.warn('[RabAhspView] No items to export');
+      return;
+    }
+
     const headers = ['No', 'Uraian Pekerjaan', 'Volume', 'Satuan', 'Harga Satuan', 'Jumlah Harga'];
     const rows = items.map((item) =>
       [
-        item.no,
-        `"${item.uraian.replace(/"/g, '""')}"`, // Escape quotes
-        item.volume,
-        item.satuan,
-        item.hargaSatuan,
-        item.volume * item.hargaSatuan,
+        item?.no || '',
+        `"${(item?.uraian || '').replace(/"/g, '""')}"`, // Escape quotes
+        item?.volume || 0,
+        item?.satuan || '',
+        item?.hargaSatuan || 0,
+        (item?.volume || 0) * (item?.hargaSatuan || 0),
       ].join(',')
     );
 
@@ -90,9 +96,16 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => {
-                  // Safe guard for undefined properties
-                  if (!item) return null;
+                {(!items || !Array.isArray(items) || items.length === 0) ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-gray-500">
+                      No data available
+                    </td>
+                  </tr>
+                ) : (
+                  items.map((item) => {
+                    // Safe guard for undefined properties
+                    if (!item) return null;
 
                   const hasAhspData = ahspData?.labors?.[item.ahspId];
 
@@ -119,7 +132,7 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
                       </td>
                     </tr>
                   );
-                })}
+                }))}
               </tbody>
               <tfoot>
                 <tr className="font-bold bg-violet-essence/50 text-base">

@@ -74,10 +74,8 @@ export const initSentry = async (): Promise<void> => {
             // Mask all inputs
             maskAllInputs: true,
           }),
-          // Capture console errors
-          new Sentry.CaptureConsole({
-            levels: ['error', 'assert'],
-          }),
+          // Note: CaptureConsole has been removed as it's deprecated in @sentry/react v8
+          // Console errors are automatically captured by default
         ],
 
         // Filter out certain errors

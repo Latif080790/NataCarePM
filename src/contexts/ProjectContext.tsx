@@ -25,6 +25,7 @@ import { useToast } from './ToastContext';
 import { getTodayDateString } from '@/constants';
 
 import { logger } from '@/utils/logger.enhanced';
+import { waitForAuth } from '@/utils/authGuard';
 
 interface ProjectContextType {
   workspaces: Workspace[];
@@ -91,6 +92,16 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
       try {
         setLoading(true);
         setError(null);
+        
+        // ✅ FIX: Wait for auth state to be ready before Firestore queries
+        await waitForAuth();
+        
+        if (!currentUser) {
+          logger.warn('ProjectContext:fetchInitialData - User logged out during fetch', {});
+          setLoading(false);
+          return;
+        }
+        
         const [wsRes, ahspRes, workersRes] = await Promise.all([
           projectService.getWorkspaces(),
           projectService.getAhspData(),

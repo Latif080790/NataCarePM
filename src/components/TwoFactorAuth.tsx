@@ -29,7 +29,7 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ onSuccess, onCance
   const [verificationId, setVerificationId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const { toast } = useToast();
+  const { addToast } = useToast();
   const auth = getAuth();
 
   /**
@@ -87,11 +87,11 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ onSuccess, onCance
 
       setVerificationId(verificationId);
       setStep('verify');
-      toast.success('Verification code sent to your phone');
+      addToast('Verification code sent to your phone', 'success');
     } catch (err: any) {
       console.error('Error sending verification code:', err);
       setError(err.message || 'Failed to send verification code');
-      toast.error('Failed to send verification code');
+      addToast('Failed to send verification code', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +123,7 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ onSuccess, onCance
       await multiFactor(user).enroll(multiFactorAssertion, 'Phone Number');
 
       setStep('complete');
-      toast.success('Two-factor authentication enabled successfully!');
+      addToast('Two-factor authentication enabled successfully!', 'success');
       
       setTimeout(() => {
         onSuccess?.();
@@ -131,7 +131,7 @@ export const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ onSuccess, onCance
     } catch (err: any) {
       console.error('Error verifying code:', err);
       setError(err.message || 'Invalid verification code');
-      toast.error('Failed to verify code');
+      addToast('Failed to verify code', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -329,7 +329,7 @@ interface TwoFactorManagementProps {
 export const TwoFactorManagement: React.FC<TwoFactorManagementProps> = ({ user }) => {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [showEnrollment, setShowEnrollment] = useState(false);
-  const { toast } = useToast();
+  const { addToast } = useToast();
   const auth = getAuth();
 
   React.useEffect(() => {
@@ -352,11 +352,11 @@ export const TwoFactorManagement: React.FC<TwoFactorManagementProps> = ({ user }
       if (enrolledFactors.length > 0) {
         await multiFactor(currentUser).unenroll(enrolledFactors[0]);
         setIs2FAEnabled(false);
-        toast.success('Two-factor authentication disabled');
+        addToast('Two-factor authentication disabled', 'success');
       }
     } catch (error: any) {
       console.error('Error disabling 2FA:', error);
-      toast.error('Failed to disable 2FA');
+      addToast('Failed to disable 2FA', 'error');
     }
   };
 

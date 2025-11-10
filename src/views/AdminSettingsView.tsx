@@ -154,7 +154,7 @@ const SecuritySettings: React.FC<{ user: any }> = ({ user }) => {
             <span className="text-xs text-green-600 font-medium">Active</span>
           </div>
         </div>
-        <ButtonPro variant="danger-outline">Sign Out All Devices</ButtonPro>
+        <ButtonPro variant="danger">Sign Out All Devices</ButtonPro>
       </div>
 
       {/* Login History */}
@@ -326,7 +326,7 @@ const DataBackupSettings: React.FC = () => {
       <div className="space-y-3">
         <ButtonPro variant="primary">Download My Data</ButtonPro>
         <ButtonPro variant="outline">Request Manual Backup</ButtonPro>
-        <ButtonPro variant="danger-outline">Delete All My Data</ButtonPro>
+        <ButtonPro variant="danger">Delete All My Data</ButtonPro>
       </div>
     </div>
   );
