@@ -89,21 +89,29 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
                 </tr>
               </thead>
               <tbody>
-                {expenses
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map((expense) => (
-                    <tr
-                      key={expense.id}
-                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="p-3 text-gray-700">{formatDate(expense.date)}</td>
-                      <td className="p-3 font-medium text-gray-900">{expense.description}</td>
-                      <td className="p-3 text-gray-700">{expense.type}</td>
-                      <td className="p-3 text-right font-semibold text-gray-900">
-                        {formatCurrency(expense.amount)}
-                      </td>
-                    </tr>
-                  ))}
+                {(!expenses || expenses.length === 0) ? (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-gray-500">
+                      Belum ada pengeluaran tercatat. Klik "Tambah Pengeluaran" untuk memulai.
+                    </td>
+                  </tr>
+                ) : (
+                  expenses
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    .map((expense) => (
+                      <tr
+                        key={expense.id}
+                        className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="p-3 text-gray-700">{formatDate(expense.date)}</td>
+                        <td className="p-3 font-medium text-gray-900">{expense.description}</td>
+                        <td className="p-3 text-gray-700">{expense.type}</td>
+                        <td className="p-3 text-right font-semibold text-gray-900">
+                          {formatCurrency(expense.amount)}
+                        </td>
+                      </tr>
+                    ))
+                )}
               </tbody>
             </table>
           </div>

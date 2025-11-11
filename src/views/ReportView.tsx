@@ -21,7 +21,11 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    const filteredExpenses = project.expenses.filter((e) => {
+    // ✅ FIX: Add defensive checks for undefined arrays
+    const safeExpenses = project?.expenses || [];
+    const safeDailyReports = project?.dailyReports || [];
+
+    const filteredExpenses = safeExpenses.filter((e) => {
       const eDate = new Date(e.date);
       return eDate >= start && eDate <= end;
     });
@@ -31,7 +35,7 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
     // This is a simplified calculation for demo purposes. A real implementation would be more complex.
     return {
       periodCost,
-      itemsCompleted: project.dailyReports.filter((r) => {
+      itemsCompleted: safeDailyReports.filter((r) => {
         const rDate = new Date(r.date);
         return rDate >= start && rDate <= end;
       }).length,

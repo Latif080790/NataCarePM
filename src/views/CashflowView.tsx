@@ -8,18 +8,22 @@ interface CashflowViewProps {
 }
 
 export default function CashflowView({ termins, expenses }: CashflowViewProps) {
-  const totalIncome = termins.reduce((sum, t) => sum + (t.status === 'Dibayar' ? t.amount : 0), 0);
-  const totalExpense = expenses.reduce((sum, e) => sum + e.amount, 0);
+  // ✅ FIX: Add defensive checks for undefined arrays
+  const safeTermins = termins || [];
+  const safeExpenses = expenses || [];
+  
+  const totalIncome = safeTermins.reduce((sum, t) => sum + (t.status === 'Dibayar' ? t.amount : 0), 0);
+  const totalExpense = safeExpenses.reduce((sum, e) => sum + e.amount, 0);
   const cashBalance = totalIncome - totalExpense;
 
   const combinedFlows = [
-    ...termins.map((t) => ({
+    ...safeTermins.map((t) => ({
       date: t.date,
       description: `Penerimaan Termin: ${t.description}`,
       amount: t.amount,
       type: 'income' as const,
     })),
-    ...expenses.map((e) => ({
+    ...safeExpenses.map((e) => ({
       date: e.date,
       description: e.description,
       amount: e.amount,

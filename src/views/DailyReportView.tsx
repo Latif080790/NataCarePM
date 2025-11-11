@@ -101,9 +101,15 @@ export default function DailyReportView({
         </CardProHeader>
         <CardProContent>
           <div className="space-y-4">
-            {dailyReports
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .map((report) => (
+            {(!dailyReports || dailyReports.length === 0) ? (
+              <div className="text-center py-8 text-palladium">
+                <p>Belum ada laporan harian.</p>
+                <p className="text-sm mt-2">Klik tombol "Buat Laporan Baru" untuk memulai.</p>
+              </div>
+            ) : (
+              dailyReports
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((report) => (
                 <div
                   key={report.id}
                   className="p-4 border border-violet-essence rounded-lg hover:shadow-md transition-shadow"
@@ -125,7 +131,8 @@ export default function DailyReportView({
                     hadir.
                   </div>
                 </div>
-              ))}
+              ))
+            )}
           </div>
         </CardProContent>
       </CardPro>

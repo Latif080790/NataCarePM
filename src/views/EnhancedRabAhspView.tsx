@@ -1,5 +1,5 @@
 // React default import removed (using automatic JSX runtime)
-import { useState } from 'react';
+import React, { useState, useEffect, Component, ErrorInfo, ReactNode, Suspense, lazy } from 'react';
 import { RabItem, AhspData, EnhancedRabItem } from '@/types';
 import { CardPro } from '@/components/CardPro';
 import { formatCurrency } from '@/constants';
@@ -17,52 +17,221 @@ import {
   ChevronDown,
   CheckSquare,
 } from 'lucide-react';
-import PriceEscalationManager from '@/components/PriceEscalationManager';
-import VarianceAnalysisComponent from '@/components/VarianceAnalysisComponent';
-import SensitivityAnalysisComponent from '@/components/SensitivityAnalysisComponent';
-import RegionalPriceAdjustment from '@/components/RegionalPriceAdjustment';
+
+// Lazy load advanced analysis components to isolate errors
+const PriceEscalationManager = lazy(() => import('@/components/PriceEscalationManager').catch(err => {
+  console.error('[EnhancedRabAhspView] Failed to load PriceEscalationManager:', err);
+  return { default: () => <div className="p-4 text-red-600">Failed to load Price Escalation Manager</div> };
+}));
+
+const VarianceAnalysisComponent = lazy(() => import('@/components/VarianceAnalysisComponent').catch(err => {
+  console.error('[EnhancedRabAhspView] Failed to load VarianceAnalysisComponent:', err);
+  return { default: () => <div className="p-4 text-red-600">Failed to load Variance Analysis</div> };
+}));
+
+const SensitivityAnalysisComponent = lazy(() => import('@/components/SensitivityAnalysisComponent').catch(err => {
+  console.error('[EnhancedRabAhspView] Failed to load SensitivityAnalysisComponent:', err);
+  return { default: () => <div className="p-4 text-red-600">Failed to load Sensitivity Analysis</div> };
+}));
+
+const RegionalPriceAdjustment = lazy(() => import('@/components/RegionalPriceAdjustment').catch(err => {
+  console.error('[EnhancedRabAhspView] Failed to load RegionalPriceAdjustment:', err);
+  return { default: () => <div className="p-4 text-red-600">Failed to load Regional Price Adjustment</div> };
+}));
+
 import EnhancedRabService from '@/api/enhancedRabService';
+import { useProject } from '@/contexts/ProjectContext';
+import { useToast } from '@/contexts/ToastContext';
+
+// Error Boundary untuk catch React error #31
+class RabErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('[RabErrorBoundary] Caught error:', error);
+    console.error('[RabErrorBoundary] Error info:', errorInfo);
+    console.error('[RabErrorBoundary] Error message:', error.message);
+    console.error('[RabErrorBoundary] Error stack:', error.stack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <CardPro>
+          <div className="p-6 text-center">
+            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-red-600 mb-2">
+              Error Loading RAB & AHSP
+            </h3>
+            <p className="text-sm text-slate-600 mb-4">
+              {this.state.error?.message || 'Unknown error occurred'}
+            </p>
+            <pre className="text-xs bg-slate-100 p-4 rounded overflow-auto max-h-64 text-left">
+              {this.state.error?.stack}
+            </pre>
+            <ButtonPro
+              variant="primary"
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="mt-4"
+            >
+              Reload Page
+            </ButtonPro>
+          </div>
+        </CardPro>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 interface EnhancedRabAhspViewProps {
-  items: RabItem[];
-  ahspData: AhspData;
+  items?: RabItem[];
+  ahspData?: AhspData;
   projectLocation?: string;
+  projectId?: string;
   onNavigate?: (viewId: string, params?: any) => void;
 }
 
 type AnalysisTab = 'overview' | 'escalation' | 'variance' | 'sensitivity' | 'regional';
 
-export default function EnhancedRabAhspView({
-  items,
-  ahspData,
+// Main component function
+function EnhancedRabAhspView({
+  items: propsItems,
+  ahspData: propsAhspData,
   projectLocation,
+  projectId,
   onNavigate,
 }: EnhancedRabAhspViewProps) {
+  const { currentProject } = useProject();
+  const { addToast } = useToast();
+  
+  const [items, setItems] = useState<RabItem[]>(propsItems || []);
+  const [ahspData, setAhspData] = useState<AhspData | null>(propsAhspData || null);
+  const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<RabItem | null>(null);
   const [activeTab, setActiveTab] = useState<AnalysisTab>('overview');
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
-  const [enhancedItems, setEnhancedItems] = useState<EnhancedRabItem[]>(() =>
-    items.map((item) =>
+  
+  // ✅ Fetch data if not provided via props
+  useEffect(() => {
+    const fetchData = async () => {
+      if (propsItems && propsAhspData) {
+        // Data already provided via props
+        setItems(propsItems);
+        setAhspData(propsAhspData);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch data from project
+      if (!currentProject?.id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        // TODO: Replace with actual API calls when ready
+        // const rabItems = await rabService.getRabItems(currentProject.id);
+        // const ahsp = await ahspService.getAhspData(currentProject.id);
+        
+        // For now, use sample data or empty array
+        setItems([]);
+        setAhspData(null);
+        
+        // ✅ FIX: addToast signature is (message, type) not ({type, message})
+        addToast('RAB & AHSP data will be loaded from your project', 'info');
+      } catch (error) {
+        console.error('Error fetching RAB data:', error);
+        // ✅ FIX: addToast signature is (message, type) not ({type, message})
+        addToast('Failed to load RAB data', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentProject?.id, propsItems, propsAhspData, addToast]);
+  
+  // ✅ FIX: Initialize enhancedItems safely - only map if items exists
+  const [enhancedItems, setEnhancedItems] = useState<EnhancedRabItem[]>([]);
+
+  // Update enhancedItems when items change
+  useEffect(() => {
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      setEnhancedItems([]);
+      return;
+    }
+    
+    const enhanced = items.map((item) =>
       EnhancedRabService.createEnhancedRabItem(item, {
         includeHistoricalData: true,
         calculateProjections: true,
-        region: projectLocation,
+        region: projectLocation || currentProject?.location,
       })
-    )
-  );
+    );
+    setEnhancedItems(enhanced);
+  }, [items, projectLocation, currentProject?.location]);
 
-  // Safe guard: Check if items and ahspData are defined
-  if (!items || !ahspData) {
+  // Loading state
+  if (loading) {
     return (
       <CardPro>
         <div className="p-6">
           <div className="flex items-center justify-center p-8">
-            <p className="text-palladium">Loading data...</p>
+            <div className="flex flex-col items-center space-y-3">
+              <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-sm font-medium text-slate-700">Loading RAB & AHSP data...</p>
+            </div>
           </div>
         </div>
       </CardPro>
     );
   }
+
+  // No data state - IMPROVED with better messaging
+  if (!items || items.length === 0) {
+    console.log('[EnhancedRabAhspView] No items data');
+    return (
+      <CardPro>
+        <div className="p-6">
+          <div className="flex flex-col items-center justify-center p-8 space-y-4">
+            <AlertTriangle className="w-16 h-16 text-amber-500" />
+            <div className="text-center">
+              <p className="text-lg font-semibold text-slate-900">No RAB Data Available</p>
+              <p className="text-sm text-slate-600 mt-2">
+                There are no RAB items in this project yet.
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                RAB items need to be added to your project in Firestore.
+              </p>
+            </div>
+          </div>
+        </div>
+      </CardPro>
+    );
+  }
+
+  // Missing AHSP data - show RAB but with limited functionality
+  if (!ahspData) {
+    console.log('[EnhancedRabAhspView] No AHSP data');
+  }
+
+  console.log('[EnhancedRabAhspView] Rendering with items:', items.length);
 
   const totalBudget = items.reduce(
     (sum, item) => sum + (item?.volume || 0) * (item?.hargaSatuan || 0),
@@ -474,43 +643,89 @@ export default function EnhancedRabAhspView({
       </CardPro>
 
       {/* Tab Content */}
-      {activeTab === 'overview' && renderOverviewTab()}
-      {activeTab === 'escalation' && (
-        <PriceEscalationManager
-          rabItems={enhancedItems}
-          onUpdateEscalation={(escalation) => {
-            // Handle escalation updates
-            console.log('Escalation updated:', escalation);
-          }}
-        />
-      )}
-      {activeTab === 'variance' && <VarianceAnalysisComponent rabItems={enhancedItems} />}
-      {activeTab === 'sensitivity' && (
-        <SensitivityAnalysisComponent
-          rabItems={enhancedItems}
-          onUpdateSensitivity={(itemId, factors) => {
-            // Handle sensitivity updates
-            setEnhancedItems((prev) =>
-              prev.map((item) =>
-                item.id === itemId ? { ...item, sensitivityFactors: factors } : item
-              )
+      <Suspense fallback={
+        <CardPro>
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading analysis component...</p>
+          </div>
+        </CardPro>
+      }>
+        {(() => {
+          try {
+            console.log('[EnhancedRabAhspView] Rendering tab:', activeTab);
+            
+            if (activeTab === 'overview') {
+              return renderOverviewTab();
+            }
+            
+            if (activeTab === 'escalation') {
+              return (
+                <PriceEscalationManager
+                  rabItems={enhancedItems}
+                  onUpdateEscalation={(escalation) => {
+                    console.log('Escalation updated:', escalation);
+                  }}
+                />
+              );
+            }
+            
+            if (activeTab === 'variance') {
+              return <VarianceAnalysisComponent rabItems={enhancedItems} />;
+            }
+            
+            if (activeTab === 'sensitivity') {
+              return (
+                <SensitivityAnalysisComponent
+                  rabItems={enhancedItems}
+                  onUpdateSensitivity={(itemId, factors) => {
+                    setEnhancedItems((prev) =>
+                      prev.map((item) =>
+                        item.id === itemId ? { ...item, sensitivityFactors: factors } : item
+                      )
+                    );
+                  }}
+                />
+              );
+            }
+            
+            if (activeTab === 'regional') {
+              return (
+                <RegionalPriceAdjustment
+                  rabItems={enhancedItems}
+                  onUpdateRegionalFactors={(itemId, factors) => {
+                    setEnhancedItems((prev) =>
+                      prev.map((item) =>
+                        item.id === itemId ? { ...item, regionalFactors: factors } : item
+                      )
+                    );
+                  }}
+                />
+              );
+            }
+            
+            return null;
+          } catch (err) {
+            console.error('[EnhancedRabAhspView] Tab render error:', err);
+            return (
+              <CardPro>
+                <div className="p-6 text-center">
+                  <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                  <p className="text-red-600 font-semibold">Error Rendering Tab</p>
+                  <p className="text-sm text-slate-600 mt-2">{String(err)}</p>
+                  <ButtonPro
+                    variant="outline"
+                    onClick={() => setActiveTab('overview')}
+                    className="mt-4"
+                  >
+                    Back to Overview
+                  </ButtonPro>
+                </div>
+              </CardPro>
             );
-          }}
-        />
-      )}
-      {activeTab === 'regional' && (
-        <RegionalPriceAdjustment
-          rabItems={enhancedItems}
-          onUpdateRegionalFactors={(itemId, factors) => {
-            // Handle regional factor updates
-            setEnhancedItems((prev) =>
-              prev.map((item) =>
-                item.id === itemId ? { ...item, regionalFactors: factors } : item
-              )
-            );
-          }}
-        />
-      )}
+          }
+        })()}
+      </Suspense>
 
       {/* AHSP Detail Modal */}
       {selectedItem && (
@@ -556,3 +771,13 @@ export default function EnhancedRabAhspView({
     </div>
   );
 }
+
+// Export with Error Boundary wrapper
+export default function EnhancedRabAhspViewWithBoundary(props: EnhancedRabAhspViewProps) {
+  return (
+    <RabErrorBoundary>
+      <EnhancedRabAhspView {...props} />
+    </RabErrorBoundary>
+  );
+}
+

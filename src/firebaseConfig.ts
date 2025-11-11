@@ -52,30 +52,45 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+// CRITICAL LOG - Check if this appears in console!
+console.log('%c[FIREBASE CONFIG] App initialized!', 'color: #00FF00; font-weight: bold; font-size: 16px');
+console.log('[FIREBASE] Using SDK v10.14.1');
+
 // Initialize Firestore with v10 stable settings
 const db: Firestore = getFirestore(app);
 
-// Enable offline persistence (v10 stable API)
-// This uses IndexedDB for caching and automatically uses long-polling when needed
-enableIndexedDbPersistence(db, {
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED
-}).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    console.warn('[Firebase] Persistence failed: Multiple tabs open');
-  } else if (err.code === 'unimplemented') {
-    console.warn('[Firebase] Persistence not available in this browser');
-  } else {
-    console.error('[Firebase] Persistence error:', err);
-  }
-});
+console.log('%c[FIREBASE CONFIG] Firestore initialized!', 'color: #00FF00; font-weight: bold; font-size: 16px');
 
-console.log('[Firebase] Initialized with v10 stable API + offline persistence');
+// ⚠️ TEMPORARILY DISABLED: Offline persistence to fix 400 errors
+// Re-enable after clearing browser cache and verifying app works
+// 
+// Issue: IndexedDB persistence can cause 400 Bad Request errors if cache is corrupted
+// Solution: Disable persistence, clear cache, test, then re-enable
+//
+// try {
+//   enableIndexedDbPersistence(db, {
+//     cacheSizeBytes: CACHE_SIZE_UNLIMITED
+//   }).then(() => {
+//     console.log('%c[FIREBASE] ✅ Offline persistence ENABLED', 'color: #00FF00; font-weight: bold');
+//   }).catch((err) => {
+//     if (err.code === 'failed-precondition') {
+//       console.warn('[Firebase] ⚠️ Persistence failed: Multiple tabs open - using memory only');
+//     } else if (err.code === 'unimplemented') {
+//       console.warn('[Firebase] ⚠️ Persistence not available in this browser - using memory only');
+//     } else {
+//       console.warn('[Firebase] ⚠️ Persistence error (app will still work):', err.message);
+//     }
+//   });
+// } catch (err) {
+//   console.warn('[Firebase] ⚠️ Could not enable persistence, continuing without it:', err);
+// }
+
+console.log('%c[FIREBASE] ⚠️ Persistence DISABLED (debugging 400 errors)', 'color: #FFA500; font-weight: bold');
 
 const auth: Auth = getAuth(app);
 const storage: FirebaseStorage = getStorage(app);
 
-// Log Firebase initialization
-console.log('[Firebase] Successfully initialized');
+console.log('%c[FIREBASE] ✅ ALL INITIALIZED SUCCESSFULLY!', 'color: #00FF00; font-weight: bold; font-size: 18px');
 console.log('[Firebase] Project ID:', firebaseConfig.projectId);
 console.log('[Firebase] Auth Domain:', firebaseConfig.authDomain);
 

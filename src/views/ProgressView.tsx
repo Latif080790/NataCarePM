@@ -15,6 +15,9 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
   const [progressState, setProgressState] = useState<Map<number, number>>(new Map());
 
   useEffect(() => {
+    // ✅ FIX: Add defensive check for itemsWithProgress
+    if (!itemsWithProgress || !Array.isArray(itemsWithProgress)) return;
+    
     const newMap = new Map<number, number>();
     itemsWithProgress.forEach((item) => {
       newMap.set(item.id, item.completedVolume || 0);
@@ -69,7 +72,12 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
       </CardProHeader>
       <CardProContent>
         <div className="space-y-4">
-          {itemsWithProgress.map((item) => {
+          {(!itemsWithProgress || itemsWithProgress.length === 0) ? (
+            <div className="text-center py-8 text-palladium">
+              <p>Tidak ada item RAB untuk di-update progressnya.</p>
+            </div>
+          ) : (
+            itemsWithProgress.map((item) => {
             const currentVolume = progressState.get(item.id) || 0;
             const progressPercent = item.volume > 0 ? (currentVolume / item.volume) * 100 : 0;
             return (
@@ -104,7 +112,7 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
         <div className="text-right mt-6">
           <ButtonPro variant="primary" onClick={handleSaveChanges}>

@@ -107,6 +107,9 @@ export default function DokumenView({ documents }: DokumenViewProps) {
 
   // Enhanced documents with versions (mock data for demo)
   const enhancedDocuments: DocumentWithVersions[] = useMemo(() => {
+    // ✅ FIX: Add defensive check for documents
+    if (!documents || !Array.isArray(documents)) return [];
+    
     return documents.map((doc) => ({
       ...doc,
       versions: [

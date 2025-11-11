@@ -39,6 +39,7 @@ const AttendanceView = lazy(() => import('@/views/AttendanceView'));
 const FinanceView = lazy(() => import('@/views/FinanceView'));
 const CashflowView = lazy(() => import('@/views/CashflowView'));
 const StrategicCostView = lazy(() => import('@/views/StrategicCostView'));
+const CostControlDashboardView = lazy(() => import('@/views/CostControlDashboardView'));
 const LogisticsView = lazy(() => import('@/views/LogisticsView'));
 const DokumenView = lazy(() => import('@/views/DokumenView'));
 const ReportView = lazy(() => import('@/views/ReportView'));
@@ -322,6 +323,7 @@ function ProtectedApp() {
   // Simplified view props - each view will fetch its own data
   const getViewProps = (): any => ({
     project: currentProject,
+    projectId: currentProject?.id,  // ✅ Add projectId for views that need it
     projectMetrics: projectMetrics,
     recentReports: currentProject?.dailyReports || [],
     notifications: [],
@@ -467,6 +469,11 @@ function ProtectedApp() {
             <Route path="/finance/strategic" element={
               <ViewErrorBoundary viewName="Strategic Cost">
                 <StrategicCostView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/finance/cost-control" element={
+              <ViewErrorBoundary viewName="Cost Control Dashboard">
+                <CostControlDashboardView {...viewProps} />
               </ViewErrorBoundary>
             } />
             <Route path="/finance/chart-of-accounts" element={

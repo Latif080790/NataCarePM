@@ -57,6 +57,9 @@ export default function LogisticsView({
   };
 
   const filteredInventory = useMemo(() => {
+    // ✅ FIX: Add defensive check for inventory
+    if (!inventory || !Array.isArray(inventory)) return [];
+    
     return inventory.filter((item) =>
       item.materialName.toLowerCase().includes(searchTerm.toLowerCase())
     );

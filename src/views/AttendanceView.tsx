@@ -45,9 +45,12 @@ export default function AttendanceView({
   useEffect(() => {
     // Populate local state based on global state for the selected date
     const attendanceMap = new Map<string, Attendance['status']>();
-    const recordsForDate = attendances.filter((a) => a.date === selectedDate);
+    
+    // ✅ FIX: Add null check for attendances
+    const recordsForDate = (attendances || []).filter((a) => a.date === selectedDate);
 
-    workers.forEach((worker) => {
+    // ✅ FIX: Add null check for workers
+    (workers || []).forEach((worker) => {
       const record = recordsForDate.find((r) => r.workerId === worker.id);
       // Default to 'Alpa' if no record found for a worker on that day
       attendanceMap.set(worker.id, record ? record.status : 'Alpa');
@@ -128,30 +131,38 @@ export default function AttendanceView({
                 </tr>
               </thead>
               <tbody>
-                {workers.map((worker) => (
-                  <tr
-                    key={worker.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="p-3 font-medium">{worker.name}</td>
-                    <td className="p-3">{worker.type}</td>
-                    <td className="p-3 text-center">
-                      <Select
-                        value={localAttendance.get(worker.id) || 'Alpa'}
-                        onChange={(e) =>
-                          handleStatusChange(worker.id, e.target.value as Attendance['status'])
-                        }
-                        className="max-w-xs mx-auto"
-                        disabled={!canManage}
-                      >
-                        <option>Hadir</option>
-                        <option>Sakit</option>
-                        <option>Izin</option>
-                        <option>Alpa</option>
-                      </Select>
+                {(!workers || workers.length === 0) ? (
+                  <tr>
+                    <td colSpan={3} className="p-8 text-center text-gray-500">
+                      Tidak ada data pekerja. Silakan tambahkan pekerja terlebih dahulu.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  workers.map((worker) => (
+                    <tr
+                      key={worker.id}
+                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="p-3 font-medium">{worker.name}</td>
+                      <td className="p-3">{worker.type}</td>
+                      <td className="p-3 text-center">
+                        <Select
+                          value={localAttendance.get(worker.id) || 'Alpa'}
+                          onChange={(e) =>
+                            handleStatusChange(worker.id, e.target.value as Attendance['status'])
+                          }
+                          className="max-w-xs mx-auto"
+                          disabled={!canManage}
+                        >
+                          <option>Hadir</option>
+                          <option>Sakit</option>
+                          <option>Izin</option>
+                          <option>Alpa</option>
+                        </Select>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
