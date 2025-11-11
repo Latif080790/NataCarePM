@@ -19,7 +19,73 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Enterprise Color Palette
+        // ✅ NataCarePM Design System (Primary Palette)
+        'night-black': {
+          DEFAULT: '#2f3035',
+          50: '#f7f7f8',
+          100: '#eeeef0',
+          200: '#dddde1',
+          300: '#cbcbd2',
+          700: '#2f3035',
+          800: '#25262a',
+        },
+        'palladium': {
+          DEFAULT: '#b1b1b1',
+          50: '#f8f8f8',
+          100: '#e8e8e8',
+          200: '#d8d8d8',
+          300: '#c8c8c8',
+          400: '#b1b1b1',
+        },
+        'persimmon': {
+          DEFAULT: '#f87941',
+          50: '#fef3ed',
+          100: '#f87941',
+          200: '#f66b28',
+          300: '#f45d0f',
+        },
+        'no-way-rose': {
+          DEFAULT: '#f9b095',
+          50: '#fef5f2',
+          100: '#f9b095',
+          200: '#f7a082',
+        },
+        'violet-essence': {
+          DEFAULT: '#e6e4e6',
+          50: '#f5f4f5',
+          100: '#e6e4e6',
+          200: '#d2cfd2',
+        },
+        'brilliance': {
+          DEFAULT: '#fdfcfc',
+          50: '#fdfcfc',
+          100: '#fbfafa',
+          200: '#f8f7f7',
+        },
+        
+        // ✅ Semantic Colors (Design System)
+        'success': {
+          DEFAULT: '#10b981',
+          light: '#34d399',
+          bg: 'rgba(16, 185, 129, 0.1)',
+        },
+        'warning': {
+          DEFAULT: '#f59e0b',
+          light: '#fbbf24',
+          bg: 'rgba(245, 158, 11, 0.1)',
+        },
+        'error': {
+          DEFAULT: '#ef4444',
+          light: '#f87171',
+          bg: 'rgba(239, 68, 68, 0.1)',
+        },
+        'info': {
+          DEFAULT: '#3b82f6',
+          light: '#60a5fa',
+          bg: 'rgba(59, 130, 246, 0.1)',
+        },
+        
+        // Enterprise Color Palette (Legacy - Keep for compatibility)
         'accent-coral': '#FF6B6B',
         'accent-coral-dark': '#EE5A52',
         'accent-blue': '#4ECDC4',

@@ -80,13 +80,13 @@ const CostControlDashboardView: React.FC = () => {
 
   const getStatusColor = (status: string): string => {
     const colors: Record<string, string> = {
-      on_track: 'text-green-600',
-      over_budget: 'text-red-600',
-      under_budget: 'text-blue-600',
-      behind_schedule: 'text-orange-600',
-      ahead_of_schedule: 'text-green-600',
-      critical: 'text-red-600',
-      at_risk: 'text-orange-600',
+      on_track: 'text-success',
+      over_budget: 'text-error',
+      under_budget: 'text-info',
+      behind_schedule: 'text-warning',
+      ahead_of_schedule: 'text-success',
+      critical: 'text-error',
+      at_risk: 'text-warning',
     };
     return colors[status] || 'text-gray-600';
   };
@@ -143,7 +143,7 @@ const CostControlDashboardView: React.FC = () => {
             </div>
             <div className="mt-4">
               <div className="flex items-center text-sm">
-                <span className={evmMetrics.cv >= 0 ? 'text-green-600' : 'text-red-600'}>
+                <span className={evmMetrics.cv >= 0 ? 'text-success' : 'text-error'}>
                   CV: {formatCurrency(evmMetrics.cv)}
                 </span>
               </div>
@@ -200,24 +200,24 @@ const CostControlDashboardView: React.FC = () => {
           {/* Earned Value */}
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-700 font-medium">Earned Value</p>
-            <p className="text-xl font-bold mt-1 text-blue-900">{formatCurrency(evmMetrics.ev)}</p>
-            <p className="text-xs text-blue-600 mt-2">EV (BCWP)</p>
+            <p className="text-xl font-bold mt-1 text-info">{formatCurrency(evmMetrics.ev)}</p>
+            <p className="text-xs text-info mt-2">EV (BCWP)</p>
           </div>
 
           {/* Planned Value */}
           <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">
             <p className="text-sm text-green-700 font-medium">Planned Value</p>
-            <p className="text-xl font-bold mt-1 text-green-900">{formatCurrency(evmMetrics.pv)}</p>
-            <p className="text-xs text-green-600 mt-2">PV (BCWS)</p>
+            <p className="text-xl font-bold mt-1 text-success">{formatCurrency(evmMetrics.pv)}</p>
+            <p className="text-xs text-success mt-2">PV (BCWS)</p>
           </div>
 
           {/* EAC */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
             <p className="text-sm text-orange-700 font-medium">Estimate at Completion</p>
-            <p className="text-xl font-bold mt-1 text-orange-900">
+            <p className="text-xl font-bold mt-1 text-persimmon">
               {formatCurrency(evmMetrics.eac)}
             </p>
-            <p className="text-xs text-orange-600 mt-2">EAC (Forecast)</p>
+            <p className="text-xs text-persimmon mt-2">EAC (Forecast)</p>
           </div>
 
           {/* VAC */}
@@ -265,7 +265,7 @@ const CostControlDashboardView: React.FC = () => {
                         >
                           {alert.severity.toUpperCase()}
                         </span>
-                        <p className="font-medium text-gray-900">{alert.title}</p>
+                        <p className="font-medium text-night-black">{alert.title}</p>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">{alert.message}</p>
                       {alert.affectedWBS && (
@@ -290,10 +290,10 @@ const CostControlDashboardView: React.FC = () => {
                     <span
                       className={`text-3xl font-bold ${
                         evmMetrics.healthScore >= 80
-                          ? 'text-green-600'
+                          ? 'text-success'
                           : evmMetrics.healthScore >= 60
-                            ? 'text-yellow-600'
-                            : 'text-red-600'
+                            ? 'text-warning'
+                            : 'text-error'
                       }`}
                     >
                       {evmMetrics.healthScore.toFixed(0)}%
@@ -326,7 +326,7 @@ const CostControlDashboardView: React.FC = () => {
             <div>
               <span className="text-gray-600">Cost Health: </span>
               <span
-                className={`font-medium ${evmMetrics.cpi >= 0.95 ? 'text-green-600' : 'text-red-600'}`}
+                className={`font-medium ${evmMetrics.cpi >= 0.95 ? 'text-success' : 'text-error'}`}
               >
                 {evmMetrics.cpi >= 0.95 ? 'Good' : 'Poor'}
               </span>
@@ -334,7 +334,7 @@ const CostControlDashboardView: React.FC = () => {
             <div>
               <span className="text-gray-600">Schedule Health: </span>
               <span
-                className={`font-medium ${evmMetrics.spi >= 0.95 ? 'text-green-600' : 'text-red-600'}`}
+                className={`font-medium ${evmMetrics.spi >= 0.95 ? 'text-success' : 'text-error'}`}
               >
                 {evmMetrics.spi >= 0.95 ? 'Good' : 'Poor'}
               </span>
@@ -408,20 +408,20 @@ const CostControlDashboardView: React.FC = () => {
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-blue-700">Planned Value (PV)</span>
-                <Activity className="w-5 h-5 text-blue-600" />
+                <Activity className="w-5 h-5 text-info" />
               </div>
-              <p className="text-2xl font-bold text-blue-900">{formatCurrency(evmMetrics.pv)}</p>
-              <p className="text-xs text-blue-600 mt-1">BCWS - Budgeted Cost of Work Scheduled</p>
+              <p className="text-2xl font-bold text-info">{formatCurrency(evmMetrics.pv)}</p>
+              <p className="text-xs text-info mt-1">BCWS - Budgeted Cost of Work Scheduled</p>
             </div>
 
             {/* Earned Value */}
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-green-700">Earned Value (EV)</span>
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-success" />
               </div>
-              <p className="text-2xl font-bold text-green-900">{formatCurrency(evmMetrics.ev)}</p>
-              <p className="text-xs text-green-600 mt-1">BCWP - Budgeted Cost of Work Performed</p>
+              <p className="text-2xl font-bold text-success">{formatCurrency(evmMetrics.ev)}</p>
+              <p className="text-xs text-success mt-1">BCWP - Budgeted Cost of Work Performed</p>
             </div>
 
             {/* Actual Cost */}
@@ -443,7 +443,7 @@ const CostControlDashboardView: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cost Variance (CV):</span>
                   <span
-                    className={`font-bold ${evmMetrics.cv >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    className={`font-bold ${evmMetrics.cv >= 0 ? 'text-success' : 'text-error'}`}
                   >
                     {formatCurrency(evmMetrics.cv)}
                   </span>
@@ -451,7 +451,7 @@ const CostControlDashboardView: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cost Performance Index (CPI):</span>
                   <span
-                    className={`font-bold ${evmMetrics.cpi >= 1 ? 'text-green-600' : 'text-red-600'}`}
+                    className={`font-bold ${evmMetrics.cpi >= 1 ? 'text-success' : 'text-error'}`}
                   >
                     {evmMetrics.cpi.toFixed(3)}
                   </span>
@@ -472,7 +472,7 @@ const CostControlDashboardView: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Schedule Variance (SV):</span>
                   <span
-                    className={`font-bold ${evmMetrics.sv >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    className={`font-bold ${evmMetrics.sv >= 0 ? 'text-success' : 'text-error'}`}
                   >
                     {formatCurrency(evmMetrics.sv)}
                   </span>
@@ -480,7 +480,7 @@ const CostControlDashboardView: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Schedule Performance Index (SPI):</span>
                   <span
-                    className={`font-bold ${evmMetrics.spi >= 1 ? 'text-green-600' : 'text-red-600'}`}
+                    className={`font-bold ${evmMetrics.spi >= 1 ? 'text-success' : 'text-error'}`}
                   >
                     {evmMetrics.spi.toFixed(3)}
                   </span>
@@ -515,7 +515,7 @@ const CostControlDashboardView: React.FC = () => {
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">Variance at Completion (VAC)</p>
                 <p
-                  className={`text-xl font-bold ${evmMetrics.vac >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  className={`text-xl font-bold ${evmMetrics.vac >= 0 ? 'text-success' : 'text-error'}`}
                 >
                   {formatCurrency(evmMetrics.vac)}
                 </p>
@@ -524,10 +524,10 @@ const CostControlDashboardView: React.FC = () => {
 
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <div className="flex items-start space-x-3">
-                <Target className="w-5 h-5 text-blue-600 mt-0.5" />
+                <Target className="w-5 h-5 text-info mt-0.5" />
                 <div className="flex-1">
-                  <p className="font-medium text-blue-900">To-Complete Performance Index (TCPI)</p>
-                  <p className="text-2xl font-bold text-blue-900 mt-1">
+                  <p className="font-medium text-info">To-Complete Performance Index (TCPI)</p>
+                  <p className="text-2xl font-bold text-info mt-1">
                     {evmMetrics.tcpi.toFixed(3)}
                   </p>
                   <p className="text-sm text-blue-700 mt-2">
@@ -564,10 +564,10 @@ const CostControlDashboardView: React.FC = () => {
             <p className="text-sm text-green-700 font-medium mb-1">
               Selected Forecast (CPI Method)
             </p>
-            <p className="text-2xl font-bold text-green-900">
+            <p className="text-2xl font-bold text-success">
               {formatCurrency(forecast.selectedEAC)}
             </p>
-            <p className="text-sm text-green-600 mt-2">
+            <p className="text-sm text-success mt-2">
               Confidence Level: {forecast.confidenceLevel.toFixed(0)}% • Estimated completion in{' '}
               {forecast.daysRemaining} days
             </p>
@@ -625,7 +625,7 @@ const CostControlDashboardView: React.FC = () => {
                     <td className="px-6 py-4 text-right">{formatCurrency(item.committedAmount)}</td>
                     <td className="px-6 py-4 text-right">{formatCurrency(item.remainingBudget)}</td>
                     <td className="px-6 py-4 text-right">
-                      <span className={item.variance >= 0 ? 'text-green-600' : 'text-red-600'}>
+                      <span className={item.variance >= 0 ? 'text-success' : 'text-error'}>
                         {formatCurrency(item.variance)} ({item.variancePercent.toFixed(1)}%)
                       </span>
                     </td>
@@ -649,7 +649,7 @@ const CostControlDashboardView: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+        <RefreshCw className="w-8 h-8 animate-spin text-info" />
       </div>
     );
   }
@@ -669,8 +669,8 @@ const CostControlDashboardView: React.FC = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-              <BarChart3 className="w-8 h-8 mr-3 text-blue-600" />
+            <h1 className="text-2xl font-bold text-night-black flex items-center">
+              <BarChart3 className="w-8 h-8 mr-3 text-info" />
               Cost Control Dashboard
             </h1>
             <p className="text-gray-600 mt-1">
@@ -720,7 +720,7 @@ const CostControlDashboardView: React.FC = () => {
                 onClick={() => setSelectedTab(tab.id as any)}
                 className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   selectedTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-blue-500 text-info'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >

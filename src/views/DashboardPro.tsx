@@ -24,6 +24,7 @@ import { StatCardPro, StatCardSkeleton, StatCardGrid } from '@/components/StatCa
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
 import { formatCurrency, formatDate } from '@/constants';
+import { safeMap, hasItems } from '@/utils/safeOperations';
 import {
   DollarSign,
   Target,
@@ -87,7 +88,7 @@ export default function DashboardPro({
           <div className="flex items-center justify-between mb-3">
             {/* Project Title */}
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+              <h1 className="text-3xl font-bold text-night-black mb-1">
                 {project.name}
               </h1>
               <div className="flex items-center gap-6 text-sm text-gray-600">
@@ -131,7 +132,7 @@ export default function DashboardPro({
       <div className="max-w-7xl mx-auto px-6 pb-8">
         {/* Key Metrics Grid */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Key Metrics</h2>
+          <h2 className="text-xl font-semibold text-night-black mb-4">Key Metrics</h2>
           
           {isLoading ? (
             <StatCardGrid>
@@ -188,7 +189,7 @@ export default function DashboardPro({
               <div className="p-6 pb-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Project Progress</h3>
+                    <h3 className="text-lg font-semibold text-night-black">Project Progress</h3>
                     <p className="text-sm text-gray-500 mt-1">Track completion across all tasks</p>
                   </div>
                   <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
@@ -203,7 +204,7 @@ export default function DashboardPro({
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-700">Overall Completion</span>
-                      <span className="text-sm font-bold text-gray-900">{progress.toFixed(1)}%</span>
+                      <span className="text-sm font-bold text-night-black">{progress.toFixed(1)}%</span>
                     </div>
                     <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                       <div
@@ -217,15 +218,15 @@ export default function DashboardPro({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Planning</p>
-                      <p className="text-lg font-semibold text-gray-900">100%</p>
+                      <p className="text-lg font-semibold text-night-black">100%</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Execution</p>
-                      <p className="text-lg font-semibold text-gray-900">{Math.max(0, Math.min(100, (progress - 10) * 1.5)).toFixed(0)}%</p>
+                      <p className="text-lg font-semibold text-night-black">{Math.max(0, Math.min(100, (progress - 10) * 1.5)).toFixed(0)}%</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Closing</p>
-                      <p className="text-lg font-semibold text-gray-900">{Math.max(0, (progress - 80) * 5).toFixed(0)}%</p>
+                      <p className="text-lg font-semibold text-night-black">{Math.max(0, (progress - 80) * 5).toFixed(0)}%</p>
                     </div>
                   </div>
                 </div>
@@ -235,7 +236,7 @@ export default function DashboardPro({
             {/* Budget Overview Card */}
             <CardPro className="bg-white border border-gray-200 shadow-sm">
               <div className="p-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Budget Overview</h3>
+                <h3 className="text-lg font-semibold text-night-black">Budget Overview</h3>
                 <p className="text-sm text-gray-500 mt-1">Financial performance tracking</p>
               </div>
               <div className="p-6 pt-4">
@@ -243,12 +244,12 @@ export default function DashboardPro({
                   {/* Budget Stats */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                      <p className="text-sm text-blue-600 mb-1">Planned Budget</p>
-                      <p className="text-xl font-bold text-blue-900">{formatCurrency(totalBudget)}</p>
+                      <p className="text-sm text-info mb-1">Planned Budget</p>
+                      <p className="text-xl font-bold text-info">{formatCurrency(totalBudget)}</p>
                     </div>
                     <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-                      <p className="text-sm text-green-600 mb-1">Actual Cost</p>
-                      <p className="text-xl font-bold text-green-900">{formatCurrency(actualCost)}</p>
+                      <p className="text-sm text-success mb-1">Actual Cost</p>
+                      <p className="text-xl font-bold text-success">{formatCurrency(actualCost)}</p>
                     </div>
                   </div>
 
@@ -259,7 +260,7 @@ export default function DashboardPro({
                         <p className="text-sm font-medium text-gray-700">Cost Performance Index</p>
                         <p className="text-xs text-gray-500">CPI = Earned Value / Actual Cost</p>
                       </div>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-2xl font-bold text-night-black">
                         {projectMetrics.evm?.cpi?.toFixed(2) || '1.00'}
                       </p>
                     </div>
@@ -274,28 +275,32 @@ export default function DashboardPro({
             {/* Recent Activity */}
             <CardPro className="bg-white border border-gray-200 shadow-sm">
               <div className="p-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                <h3 className="text-lg font-semibold text-night-black">Recent Activity</h3>
                 <p className="text-sm text-gray-500 mt-1">Latest updates</p>
               </div>
               <div className="p-6 pt-4">
                 <div className="space-y-4">
-                  {recentReports.slice(0, 5).map((report, index) => (
-                    <div key={index} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-4 h-4 text-blue-600" />
+                  {safeMap(
+                    recentReports?.slice(0, 5) || [],
+                    (report, index) => (
+                      <div key={index} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-4 h-4 text-info" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-night-black truncate">
+                            Daily Report
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {formatDate(report.date)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          Daily Report
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formatDate(report.date)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                    []
+                  )}
 
-                  {recentReports.length === 0 && (
+                  {!hasItems(recentReports) && (
                     <div className="text-center py-8 text-gray-500">
                       <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">No recent activity</p>
@@ -308,27 +313,29 @@ export default function DashboardPro({
             {/* Notifications */}
             <CardPro className="bg-white border border-gray-200 shadow-sm">
               <div className="p-6 pb-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-                <p className="text-sm text-gray-500 mt-1">{notifications.length} unread</p>
+                <h3 className="text-lg font-semibold text-night-black">Notifications</h3>
+                <p className="text-sm text-gray-500 mt-1">{notifications?.length || 0} unread</p>
               </div>
               <div className="p-6 pt-4">
                 <div className="space-y-3">
-                  {notifications.slice(0, 5).map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`p-3 rounded-lg border ${
-                        notif.isRead
-                          ? 'bg-gray-50 border-gray-200'
-                          : 'bg-blue-50 border-blue-200'
-                      }`}
-                    >
+                  {safeMap(
+                    notifications?.slice(0, 5) || [],
+                    (notif) => (
+                      <div
+                        key={notif.id}
+                        className={`p-3 rounded-lg border ${
+                          notif.isRead
+                            ? 'bg-gray-50 border-gray-200'
+                            : 'bg-blue-50 border-blue-200'
+                        }`}
+                      >
                       <div className="flex items-start gap-2">
-                        {notif.type === 'warning' && <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />}
-                        {notif.type === 'error' && <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />}
-                        {notif.type === 'info' && <Bell className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />}
-                        {notif.type === 'success' && <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />}
+                        {notif.type === 'warning' && <AlertCircle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />}
+                        {notif.type === 'error' && <AlertCircle className="w-4 h-4 text-error flex-shrink-0 mt-0.5" />}
+                        {notif.type === 'info' && <Bell className="w-4 h-4 text-info flex-shrink-0 mt-0.5" />}
+                        {notif.type === 'success' && <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{notif.title}</p>
+                          <p className="text-sm font-medium text-night-black">{notif.title}</p>
                           <p className="text-xs text-gray-600 mt-1">{notif.message}</p>
                         </div>
                       </div>

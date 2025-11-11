@@ -82,11 +82,11 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
   const getHealthIcon = () => {
     switch (health?.status) {
       case 'healthy':
-        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
+        return <CheckCircle2 className="w-5 h-5 text-success" />;
       case 'warning':
         return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
       case 'critical':
-        return <AlertTriangle className="w-5 h-5 text-red-600" />;
+        return <AlertTriangle className="w-5 h-5 text-error" />;
       default:
         return <Activity className="w-5 h-5 text-gray-600" />;
     }
@@ -134,7 +134,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
       key: 'message',
       header: 'Message',
       render: (row) => (
-        <span className="text-sm text-gray-900 truncate max-w-md">{row.message}</span>
+        <span className="text-sm text-night-black truncate max-w-md">{row.message}</span>
       ),
     },
     {
@@ -172,7 +172,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
               ) : (
                 getHealthIcon()
               )}
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-night-black">
                 {healthLoading ? 'Checking...' : health?.status || 'Unknown'}
               </span>
               {health?.status === 'healthy' && (
@@ -363,7 +363,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
         <GridLayout>
           <CardPro>
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">System Health Score</h3>
+              <h3 className="text-lg font-semibold text-night-black">System Health Score</h3>
               <p className="text-sm text-gray-600">Overall system performance</p>
             </div>
             <div className="p-6">
@@ -383,7 +383,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
 
           <CardPro>
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Resource Usage</h3>
+              <h3 className="text-lg font-semibold text-night-black">Resource Usage</h3>
               <p className="text-sm text-gray-600">Current system resource consumption</p>
             </div>
             <div className="p-6">
@@ -395,7 +395,7 @@ export const MonitoringViewPro: React.FC<MonitoringViewProProps> = ({ className 
                   <div key={metric.label}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-gray-700">{metric.label}</span>
-                      <span className="text-sm font-bold text-gray-900">{metric.value}%</span>
+                      <span className="text-sm font-bold text-night-black">{metric.value}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div

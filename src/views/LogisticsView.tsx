@@ -81,7 +81,7 @@ export default function LogisticsView({
           </CardProHeader>
           <CardProContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left text-gray-900">
+              <table className="w-full text-sm text-left text-night-black">
                 <thead className="bg-gray-100 text-xs uppercase text-gray-700">
                   <tr>
                     <th className="p-3">PR No.</th>
@@ -91,41 +91,51 @@ export default function LogisticsView({
                   </tr>
                 </thead>
                 <tbody>
-                  {purchaseOrders.map((po) => (
-                    <tr
-                      key={po.id}
-                      className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => setSelectedPO(po)}
-                    >
-                      <td className="p-3 font-medium text-gray-900">{po.prNumber}</td>
-                      <td className="p-3 truncate text-gray-700" style={{ maxWidth: '300px' }}>
-                        {po.items
-                          .map((i) => `${i.materialName} (${i.quantity} ${i.unit})`)
-                          .join(', ')}
-                      </td>
-                      <td className="p-3">
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full font-semibold ${getStatusColor(po.status)}`}
-                        >
-                          {po.status}
-                        </span>
-                      </td>
-                      <td className="p-3 text-center">
-                        {po.status === 'Menunggu Persetujuan' && canApprovePO && (
-                          <ButtonPro
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onUpdatePOStatus(po.id, 'Disetujuan');
-                            }}
+                  {purchaseOrders && purchaseOrders.length > 0 ? (
+                    purchaseOrders.map((po) => (
+                      <tr
+                        key={po.id}
+                        className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => setSelectedPO(po)}
+                      >
+                        <td className="p-3 font-medium text-night-black">{po.prNumber}</td>
+                        <td className="p-3 truncate text-gray-700" style={{ maxWidth: '300px' }}>
+                          {po.items && Array.isArray(po.items) && po.items.length > 0
+                            ? po.items
+                                .map((i) => `${i.materialName} (${i.quantity} ${i.unit})`)
+                                .join(', ')
+                            : 'No items'}
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className={`px-2 py-1 text-xs rounded-full font-semibold ${getStatusColor(po.status)}`}
                           >
-                            Setujui
-                          </ButtonPro>
-                        )}
+                            {po.status}
+                          </span>
+                        </td>
+                        <td className="p-3 text-center">
+                          {po.status === 'Menunggu Persetujuan' && canApprovePO && (
+                            <ButtonPro
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onUpdatePOStatus(po.id, 'Disetujuan');
+                              }}
+                            >
+                              Setujui
+                            </ButtonPro>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="p-6 text-center text-gray-500">
+                        No purchase orders found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -145,7 +155,7 @@ export default function LogisticsView({
           </CardProHeader>
           <CardProContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left text-gray-900">
+              <table className="w-full text-sm text-left text-night-black">
                 <thead className="bg-gray-100 text-xs uppercase text-gray-700">
                   <tr>
                     <th className="p-3">Nama Material</th>
@@ -160,7 +170,7 @@ export default function LogisticsView({
                       key={item.materialName}
                       className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                     >
-                      <td className="p-3 font-medium text-gray-900">{item.materialName}</td>
+                      <td className="p-3 font-medium text-night-black">{item.materialName}</td>
                       <td className="p-3 text-right text-gray-700">{item.quantity.toFixed(2)}</td>
                       <td className="p-3 text-gray-700">{item.unit}</td>
                       <td className="p-3">

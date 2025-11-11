@@ -12,21 +12,55 @@ interface ReportViewProps {
   project: Project;
 }
 
+/**
+ * Helper to safely convert any date value to Date object
+ * Handles: Date objects, date strings, Firestore Timestamps
+ */
+function toSafeDate(value: any): Date {
+  if (!value) return new Date();
+  
+  // If already a Date object
+  if (value instanceof Date) return value;
+  
+  // If Firestore Timestamp (has toDate method)
+  if (value && typeof value.toDate === 'function') {
+    return value.toDate();
+  }
+  
+  // If string or number, try to parse
+  try {
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? new Date() : date;
+  } catch {
+    return new Date();
+  }
+}
+
+/**
+ * Convert any date to YYYY-MM-DD string for input[type="date"]
+ */
+function toDateInputString(value: any): string {
+  const date = toSafeDate(value);
+  return date.toISOString().split('T')[0];
+}
+
 export default function ReportView({ projectMetrics, project }: ReportViewProps) {
   const { totalBudget, actualCost, overallProgress, evm } = projectMetrics;
-  const [startDate, setStartDate] = useState(project.startDate);
+  
+  // ✅ FIX: Convert Firestore Timestamp to date string for input
+  const [startDate, setStartDate] = useState(() => toDateInputString(project?.startDate || new Date()));
   const [endDate, setEndDate] = useState(getTodayDateString());
 
   const filteredMetrics = useMemo(() => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = toSafeDate(startDate);
+    const end = toSafeDate(endDate);
 
     // ✅ FIX: Add defensive checks for undefined arrays
     const safeExpenses = project?.expenses || [];
     const safeDailyReports = project?.dailyReports || [];
 
     const filteredExpenses = safeExpenses.filter((e) => {
-      const eDate = new Date(e.date);
+      const eDate = toSafeDate(e.date);
       return eDate >= start && eDate <= end;
     });
 
@@ -36,7 +70,7 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
     return {
       periodCost,
       itemsCompleted: safeDailyReports.filter((r) => {
-        const rDate = new Date(r.date);
+        const rDate = toSafeDate(r.date);
         return rDate >= start && rDate <= end;
       }).length,
     };

@@ -146,10 +146,15 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   // Effect for REAL-TIME streaming of the selected project and notifications
   useEffect(() => {
     if (!currentProjectId) return;
+    
+    // ✅ FIX: Track if component is still mounted to prevent state updates after unmount
+    let isMounted = true;
     setLoading(true);
     setError(null);
 
     const unsubscribeProject = projectService.streamProjectById(currentProjectId, (project) => {
+      if (!isMounted) return; // Prevent updates if component unmounted
+      
       if (project) {
         // Ensure all required properties exist with defaults
         const safeProject = {
@@ -173,12 +178,22 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
 
     const unsubscribeNotifications = projectService.streamNotifications((notifs) => {
+      if (!isMounted) return; // Prevent updates if component unmounted
       setNotifications(notifs || []);
     });
 
+    // ✅ FIX: Cleanup function called when component unmounts or projectId changes
     return () => {
-      unsubscribeProject();
-      unsubscribeNotifications();
+      isMounted = false; // Mark as unmounted
+      
+      // Call unsubscribe functions to detach Firestore listeners
+      try {
+        unsubscribeProject();
+        unsubscribeNotifications();
+        logger.info('ProjectContext: Firestore listeners cleaned up', { projectId: currentProjectId });
+      } catch (err) {
+        logger.error('ProjectContext: Error during listener cleanup', { error: err });
+      }
     };
   }, [currentProjectId]);
 

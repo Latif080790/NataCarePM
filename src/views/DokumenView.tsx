@@ -6,6 +6,7 @@ import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
 import { Input } from '@/components/FormControls';
 import { Modal } from '@/components/Modal';
+import { safeMap, safeFilter, safeReduce, hasItems } from '@/utils/safeOperations';
 import {
   Upload,
   Download,
@@ -108,46 +109,54 @@ export default function DokumenView({ documents }: DokumenViewProps) {
   // Enhanced documents with versions (mock data for demo)
   const enhancedDocuments: DocumentWithVersions[] = useMemo(() => {
     // ✅ FIX: Add defensive check for documents
-    if (!documents || !Array.isArray(documents)) return [];
+    if (!hasItems(documents)) return [];
     
-    return documents.map((doc) => ({
-      ...doc,
-      versions: [
-        {
-          id: `${doc.id}_v1`,
-          documentId: doc.id,
-          version: '1.0',
-          name: doc.name,
-          url: doc.url,
-          uploadDate: doc.uploadDate,
-          uploadedBy: 'John Doe',
-          changeLog: 'Initial version',
-          size: Math.floor(Math.random() * 10000000) + 100000,
-          fileSize: Math.floor(Math.random() * 10000000) + 100000,
-          comments: 'Initial upload',
-        },
-      ],
-      currentVersion: '1.0',
-      tags: ['construction', 'project'],
-      lastModified: doc.uploadDate,
-      modifiedBy: 'John Doe',
-      isArchived: false,
-    }));
+    return safeMap(
+      documents,
+      (doc) => ({
+        ...doc,
+        versions: [
+          {
+            id: `${doc.id}_v1`,
+            documentId: doc.id,
+            version: '1.0',
+            name: doc.name,
+            url: doc.url,
+            uploadDate: doc.uploadDate,
+            uploadedBy: 'John Doe',
+            changeLog: 'Initial version',
+            size: Math.floor(Math.random() * 10000000) + 100000,
+            fileSize: Math.floor(Math.random() * 10000000) + 100000,
+            comments: 'Initial upload',
+          },
+        ],
+        currentVersion: '1.0',
+        tags: ['construction', 'project'],
+        lastModified: doc.uploadDate,
+        modifiedBy: 'John Doe',
+        isArchived: false,
+      }),
+      []
+    );
   }, [documents]);
 
   // Filter and search documents
   const filteredDocuments = useMemo(() => {
-    return enhancedDocuments.filter((doc) => {
-      const matchesSearch =
-        doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    return safeFilter(
+      enhancedDocuments,
+      (doc) => {
+        const matchesSearch =
+          doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          doc.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (doc.tags || []).some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()));
 
-      const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
-      const matchesArchived = showArchived ? doc.isArchived : !doc.isArchived;
+        const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
+        const matchesArchived = showArchived ? doc.isArchived : !doc.isArchived;
 
-      return matchesSearch && matchesCategory && matchesArchived;
-    });
+        return matchesSearch && matchesCategory && matchesArchived;
+      },
+      []
+    );
   }, [enhancedDocuments, searchTerm, selectedCategory, showArchived]);
 
   const handleDocumentClick = (doc: DocumentWithVersions) => {
@@ -253,17 +262,21 @@ export default function DokumenView({ documents }: DokumenViewProps) {
           </div>
         </div>
 
-        {doc.tags.length > 0 && (
+        {hasItems(doc.tags) && (
           <div className="flex flex-wrap gap-1 mt-3">
-            {doc.tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center px-2 py-1 bg-violet-essence text-night-black text-xs rounded-full"
-              >
-                <Tag className="w-3 h-3 mr-1" />
-                {tag}
-              </span>
-            ))}
+            {safeMap(
+              doc.tags,
+              (tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center px-2 py-1 bg-violet-essence text-night-black text-xs rounded-full"
+                >
+                  <Tag className="w-3 h-3 mr-1" />
+                  {tag}
+                </span>
+              ),
+              []
+            )}
           </div>
         )}
       </div>
@@ -318,11 +331,15 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="px-3 py-2 border border-palladium rounded-lg bg-white text-night-black"
               >
-                {documentTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type === 'all' ? 'Semua Kategori' : type}
-                  </option>
-                ))}
+                {safeMap(
+                  documentTypes,
+                  (type) => (
+                    <option key={type} value={type}>
+                      {type === 'all' ? 'Semua Kategori' : type}
+                    </option>
+                  ),
+                  []
+                )}
               </select>
 
               <ButtonPro
@@ -366,9 +383,11 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                   <p className="text-sm text-white opacity-70">Dokumen Baru (7 hari)</p>
                   <p className="text-2xl font-bold text-white">
                     {
-                      filteredDocuments.filter(
+                      safeFilter(
+                        filteredDocuments,
                         (doc) =>
-                          new Date(doc.uploadDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                          new Date(doc.uploadDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+                        []
                       ).length
                     }
                   </p>
@@ -382,7 +401,11 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                 <div>
                   <p className="text-sm text-white opacity-70">Total Versi</p>
                   <p className="text-2xl font-bold text-white">
-                    {filteredDocuments.reduce((sum, doc) => sum + doc.versions.length, 0)}
+                    {safeReduce(
+                      filteredDocuments,
+                      (sum, doc) => sum + (doc.versions?.length || 0),
+                      0
+                    )}
                   </p>
                 </div>
                 <History className="w-8 h-8 text-white opacity-70" />
@@ -395,9 +418,11 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                   <p className="text-sm text-white opacity-70">Ukuran Total</p>
                   <p className="text-2xl font-bold text-white">
                     {getFileSize(
-                      filteredDocuments.reduce(
+                      safeReduce(
+                        filteredDocuments,
                         (sum, doc) =>
-                          sum + doc.versions.reduce((vSum, version) => vSum + version.size, 0),
+                          sum +
+                          safeReduce(doc.versions || [], (vSum, version) => vSum + (version.size || 0), 0),
                         0
                       )
                     )}
@@ -411,7 +436,7 @@ export default function DokumenView({ documents }: DokumenViewProps) {
           {/* Documents Display */}
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredDocuments.map(renderDocumentCard)}
+              {safeMap(filteredDocuments, renderDocumentCard, [])}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -428,42 +453,48 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDocuments.map((doc) => (
-                    <tr
-                      key={doc.id}
-                      className="border-b border-violet-essence hover:bg-violet-essence/30"
-                    >
-                      <td className="p-3">
-                        <div className="flex items-center gap-3">
-                          {getFileIcon(doc.name)}
-                          <div>
-                            <p className="font-medium">{doc.name}</p>
-                            <p className="text-xs text-palladium">oleh {doc.modifiedBy}</p>
+                  {safeMap(
+                    filteredDocuments,
+                    (doc) => (
+                      <tr
+                        key={doc.id}
+                        className="border-b border-violet-essence hover:bg-violet-essence/30"
+                      >
+                        <td className="p-3">
+                          <div className="flex items-center gap-3">
+                            {getFileIcon(doc.name)}
+                            <div>
+                              <p className="font-medium">{doc.name}</p>
+                              <p className="text-xs text-palladium">oleh {doc.modifiedBy}</p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="p-3">{doc.category}</td>
-                      <td className="p-3">
-                        <span className="px-2 py-1 bg-violet-essence rounded text-xs">
-                          v{doc.currentVersion}
-                        </span>
-                      </td>
-                      <td className="p-3">{getFileSize(doc.versions[0]?.size || 0)}</td>
-                      <td className="p-3">{formatDate(doc.lastModified)}</td>
-                      <td className="p-3">
-                        <div className="flex flex-wrap gap-1">
-                          {doc.tags.slice(0, 2).map((tag) => (
-                            <span key={tag} className="px-1 py-0.5 bg-gray-200 rounded text-xs">
-                              {tag}
-                            </span>
-                          ))}
-                          {doc.tags.length > 2 && (
-                            <span className="px-1 py-0.5 bg-gray-200 rounded text-xs">
-                              +{doc.tags.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                        </td>
+                        <td className="p-3">{doc.category}</td>
+                        <td className="p-3">
+                          <span className="px-2 py-1 bg-violet-essence rounded text-xs">
+                            v{doc.currentVersion}
+                          </span>
+                        </td>
+                        <td className="p-3">{getFileSize(doc.versions?.[0]?.size || 0)}</td>
+                        <td className="p-3">{formatDate(doc.lastModified)}</td>
+                        <td className="p-3">
+                          <div className="flex flex-wrap gap-1">
+                            {safeMap(
+                              (doc.tags || []).slice(0, 2),
+                              (tag) => (
+                                <span key={tag} className="px-1 py-0.5 bg-gray-200 rounded text-xs">
+                                  {tag}
+                                </span>
+                              ),
+                              []
+                            )}
+                            {(doc.tags?.length || 0) > 2 && (
+                              <span className="px-1 py-0.5 bg-gray-200 rounded text-xs">
+                                +{(doc.tags?.length || 0) - 2}
+                              </span>
+                            )}
+                          </div>
+                        </td>
                       <td className="p-3">
                         <div className="flex items-center justify-center gap-1">
                           <a 
@@ -511,7 +542,9 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ),
+                  []
+                )}
                 </tbody>
               </table>
             </div>
@@ -581,7 +614,7 @@ export default function DokumenView({ documents }: DokumenViewProps) {
                 Preview akan ditampilkan di sini untuk format file yang didukung
               </p>
               <p className="text-sm text-palladium mt-2">
-                Ukuran: {getFileSize(selectedDocument.versions[0]?.size || 0)}
+                Ukuran: {getFileSize(selectedDocument.versions?.[0]?.size || 0)}
               </p>
             </div>
 
@@ -595,11 +628,15 @@ export default function DokumenView({ documents }: DokumenViewProps) {
               <div>
                 <p className="font-semibold">Tags</p>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {selectedDocument.tags.map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-violet-essence rounded text-xs">
-                      {tag}
-                    </span>
-                  ))}
+                  {safeMap(
+                    selectedDocument.tags || [],
+                    (tag) => (
+                      <span key={tag} className="px-2 py-1 bg-violet-essence rounded text-xs">
+                        {tag}
+                      </span>
+                    ),
+                    []
+                  )}
                 </div>
               </div>
             </div>
@@ -622,32 +659,36 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             <h2 className="text-xl font-bold mb-4">Riwayat Versi: {selectedDocument.name}</h2>
 
             <div className="space-y-3">
-              {selectedDocument.versions.map((version) => (
-                <div key={version.id} className="border border-palladium rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">Versi {version.version}</p>
-                      <p className="text-sm text-palladium">
-                        {formatDate(version.uploadDate)} oleh {version.uploadedBy}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-palladium">{getFileSize(version.size)}</span>
-                      <a 
-                        href={version.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                      </a>
+              {safeMap(
+                selectedDocument.versions || [],
+                (version) => (
+                  <div key={version.id} className="border border-palladium rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">Versi {version.version}</p>
+                        <p className="text-sm text-palladium">
+                          {formatDate(version.uploadDate)} oleh {version.uploadedBy}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-palladium">{getFileSize(version.size)}</span>
+                        <a 
+                          href={version.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-2 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          <Download className="w-4 h-4" />
+                        </a>
                     </div>
                   </div>
                   {version.changeLog && (
                     <p className="text-sm text-palladium mt-2">Perubahan: {version.changeLog}</p>
                   )}
                 </div>
-              ))}
+              ),
+              []
+            )}
             </div>
           </div>
         </Modal>

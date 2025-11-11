@@ -114,11 +114,11 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'text-red-600 bg-red-100 border-red-200';
+        return 'text-error bg-red-100 border-red-200';
       case 'medium':
         return 'text-yellow-600 bg-yellow-100 border-yellow-200';
       case 'low':
-        return 'text-green-600 bg-green-100 border-green-200';
+        return 'text-success bg-green-100 border-green-200';
       default:
         return 'text-gray-600 bg-gray-100 border-gray-200';
     }
@@ -168,7 +168,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
       <div className="mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-night-black mb-2">
               📋 Kanban Board
             </h1>
             <p className="text-gray-600">
@@ -310,7 +310,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
                         <div className="space-y-3">
                           {/* Task Header */}
                           <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1">
+                            <h4 className="text-sm font-semibold text-night-black line-clamp-2 flex-1">
                               {task.title}
                             </h4>
                             <div className="flex items-center gap-1 ml-2">
@@ -319,7 +319,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
                                   e.stopPropagation();
                                   setSelectedTask(task);
                                 }}
-                                className="p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                                className="p-1 text-gray-400 hover:text-info rounded transition-colors"
                               >
                                 <Eye className="w-3 h-3" />
                               </button>
@@ -327,7 +327,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                 }}
-                                className="p-1 text-gray-400 hover:text-green-600 rounded transition-colors"
+                                className="p-1 text-gray-400 hover:text-success rounded transition-colors"
                               >
                                 <Edit3 className="w-3 h-3" />
                               </button>
@@ -419,19 +419,19 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <CardPro className="p-5 bg-blue-50 border-blue-200">
             <div className="text-center">
-              <p className="text-3xl font-bold text-blue-600">
+              <p className="text-3xl font-bold text-info">
                 {kanbanAnalytics.completionRate.toFixed(0)}%
               </p>
               <p className="text-blue-700 text-sm">Completion Rate</p>
-              <p className="text-blue-600 text-xs mt-1">↗️ +5.2% from last week</p>
+              <p className="text-info text-xs mt-1">↗️ +5.2% from last week</p>
             </div>
           </CardPro>
 
           <CardPro className="p-5 bg-green-50 border-green-200">
             <div className="text-center">
-              <p className="text-3xl font-bold text-green-600">{kanbanAnalytics.cycleTime}</p>
+              <p className="text-3xl font-bold text-success">{kanbanAnalytics.cycleTime}</p>
               <p className="text-green-700 text-sm">Avg Cycle Time</p>
-              <p className="text-green-600 text-xs mt-1">↘️ -0.8 days improvement</p>
+              <p className="text-success text-xs mt-1">↘️ -0.8 days improvement</p>
             </div>
           </CardPro>
 

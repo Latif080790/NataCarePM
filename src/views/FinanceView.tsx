@@ -19,9 +19,9 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
     return (
       <div className="flex flex-col items-center justify-center h-[600px] text-center p-8">
         <Lock className="w-16 h-16 text-gray-400 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Access Restricted</h2>
         <p className="text-gray-600 mb-4">{reason}</p>
-        {suggestedAction && <p className="text-sm text-blue-600">{suggestedAction}</p>}
+        {suggestedAction && <p className="text-sm text-info">{suggestedAction}</p>}
       </div>
     );
   }
@@ -65,10 +65,10 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
               <span className="text-sm font-medium text-gray-600">Total Anggaran</span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-2xl font-bold text-blue-600">
+              <span className="text-2xl font-bold text-info">
                 {formatCurrency(actualCost)}
               </span>
-              <span className="text-lg font-semibold text-gray-900">
+              <span className="text-lg font-semibold text-night-black">
                 {formatCurrency(totalBudget)}
               </span>
             </div>
@@ -79,7 +79,7 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-900">
+            <table className="w-full text-sm text-left text-night-black">
               <thead className="bg-gray-100 text-xs uppercase text-gray-700">
                 <tr>
                   <th className="p-3">Tanggal</th>
@@ -104,9 +104,9 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
                         className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                       >
                         <td className="p-3 text-gray-700">{formatDate(expense.date)}</td>
-                        <td className="p-3 font-medium text-gray-900">{expense.description}</td>
+                        <td className="p-3 font-medium text-night-black">{expense.description}</td>
                         <td className="p-3 text-gray-700">{expense.type}</td>
-                        <td className="p-3 text-right font-semibold text-gray-900">
+                        <td className="p-3 text-right font-semibold text-night-black">
                           {formatCurrency(expense.amount)}
                         </td>
                       </tr>

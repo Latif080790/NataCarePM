@@ -54,9 +54,9 @@ export default function FinanceViewPro({
       >
         <div className="flex flex-col items-center justify-center h-[600px] text-center p-8">
           <Lock className="w-16 h-16 text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+          <h2 className="text-2xl font-bold text-night-black mb-2">Access Restricted</h2>
           <p className="text-gray-600 mb-4">{reason}</p>
-          {suggestedAction && <p className="text-sm text-blue-600">{suggestedAction}</p>}
+          {suggestedAction && <p className="text-sm text-info">{suggestedAction}</p>}
         </div>
       </EnterpriseLayout>
     );
@@ -91,7 +91,7 @@ export default function FinanceViewPro({
       header: 'Description',
       sortable: true,
       render: (expense) => (
-        <span className="font-medium text-gray-900">{expense.description}</span>
+        <span className="font-medium text-night-black">{expense.description}</span>
       ),
     },
     {
@@ -106,7 +106,7 @@ export default function FinanceViewPro({
       sortable: true,
       align: 'right',
       render: (expense) => (
-        <span className="font-semibold text-gray-900">{formatCurrency(expense.amount)}</span>
+        <span className="font-semibold text-night-black">{formatCurrency(expense.amount)}</span>
       ),
     },
   ];
@@ -237,7 +237,7 @@ export default function FinanceViewPro({
                     {((amount / actualCost) * 100).toFixed(1)}%
                   </BadgePro>
                 </div>
-                <p className="text-xl font-bold text-gray-900">{formatCurrency(amount)}</p>
+                <p className="text-xl font-bold text-night-black">{formatCurrency(amount)}</p>
               </div>
             ))}
           </div>

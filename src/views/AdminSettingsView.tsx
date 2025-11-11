@@ -45,7 +45,7 @@ export const AdminSettingsView: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto bg-white rounded-lg border border-red-200 p-6 text-center">
           <Shield className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <h2 className="text-xl font-bold text-night-black mb-2">Access Denied</h2>
           <p className="text-gray-600">Only administrators can access this page.</p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export const AdminSettingsView: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <Settings className="w-8 h-8 text-primary-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
+          <h1 className="text-3xl font-bold text-night-black">Admin Settings</h1>
         </div>
         <p className="text-gray-600">
           Manage security, preferences, and system configuration
@@ -108,7 +108,7 @@ const SecuritySettings: React.FC<{ user: any }> = ({ user }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Security Settings</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Security Settings</h2>
         <p className="text-gray-600">
           Manage your account security and authentication methods
         </p>
@@ -121,7 +121,7 @@ const SecuritySettings: React.FC<{ user: any }> = ({ user }) => {
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-night-black mb-2">
               Password
             </h3>
             <p className="text-sm text-gray-600">
@@ -137,7 +137,7 @@ const SecuritySettings: React.FC<{ user: any }> = ({ user }) => {
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-night-black mb-2">
               Active Sessions
             </h3>
             <p className="text-sm text-gray-600">
@@ -148,10 +148,10 @@ const SecuritySettings: React.FC<{ user: any }> = ({ user }) => {
         <div className="space-y-3 mb-4">
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div>
-              <div className="font-medium text-gray-900">Current Session</div>
+              <div className="font-medium text-night-black">Current Session</div>
               <div className="text-sm text-gray-500">Windows · Chrome · Jakarta, Indonesia</div>
             </div>
-            <span className="text-xs text-green-600 font-medium">Active</span>
+            <span className="text-xs text-success font-medium">Active</span>
           </div>
         </div>
         <ButtonPro variant="danger">Sign Out All Devices</ButtonPro>
@@ -159,23 +159,23 @@ const SecuritySettings: React.FC<{ user: any }> = ({ user }) => {
 
       {/* Login History */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-night-black mb-4">
           Recent Login Activity
         </h3>
         <div className="space-y-2">
           <div className="flex items-center justify-between p-3 border-b border-gray-100">
             <div>
-              <div className="text-sm font-medium text-gray-900">Successful login</div>
+              <div className="text-sm font-medium text-night-black">Successful login</div>
               <div className="text-xs text-gray-500">Jakarta, Indonesia · 2 hours ago</div>
             </div>
-            <div className="text-xs text-green-600">✓</div>
+            <div className="text-xs text-success">✓</div>
           </div>
           <div className="flex items-center justify-between p-3 border-b border-gray-100">
             <div>
-              <div className="text-sm font-medium text-gray-900">Successful login</div>
+              <div className="text-sm font-medium text-night-black">Successful login</div>
               <div className="text-xs text-gray-500">Jakarta, Indonesia · 1 day ago</div>
             </div>
-            <div className="text-xs text-green-600">✓</div>
+            <div className="text-xs text-success">✓</div>
           </div>
         </div>
       </div>
@@ -190,7 +190,7 @@ const ProfileSettings: React.FC<{ user: any }> = ({ user }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Settings</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Profile Settings</h2>
         <p className="text-gray-600">Update your personal information</p>
       </div>
 
@@ -245,7 +245,7 @@ const NotificationSettings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Notification Preferences</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Notification Preferences</h2>
         <p className="text-gray-600">Choose how you want to be notified</p>
       </div>
 
@@ -259,7 +259,7 @@ const NotificationSettings: React.FC = () => {
           <label key={item.label} className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
             <input type="checkbox" className="w-5 h-5 text-primary-600" />
             <div>
-              <div className="font-medium text-gray-900">{item.label}</div>
+              <div className="font-medium text-night-black">{item.label}</div>
               <div className="text-sm text-gray-500">{item.description}</div>
             </div>
           </label>
@@ -276,13 +276,13 @@ const PrivacySettings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Privacy Settings</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Privacy Settings</h2>
         <p className="text-gray-600">Control your privacy and data sharing</p>
       </div>
 
       <div className="space-y-4">
         <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-2">Profile Visibility</h3>
+          <h3 className="font-semibold text-night-black mb-2">Profile Visibility</h3>
           <select className="w-full px-4 py-2 border border-gray-300 rounded-lg">
             <option>Everyone</option>
             <option>Team Members Only</option>
@@ -291,7 +291,7 @@ const PrivacySettings: React.FC = () => {
         </div>
 
         <div className="p-4 border border-gray-200 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-2">Data Collection</h3>
+          <h3 className="font-semibold text-night-black mb-2">Data Collection</h3>
           <label className="flex items-center gap-3 mt-2">
             <input type="checkbox" className="w-5 h-5 text-primary-600" />
             <span className="text-sm text-gray-700">Allow analytics data collection</span>
@@ -309,16 +309,16 @@ const DataBackupSettings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Data & Backup</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Data & Backup</h2>
         <p className="text-gray-600">Manage your data and backups</p>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 mb-2">Automatic Backups Enabled</h3>
+        <h3 className="font-semibold text-info mb-2">Automatic Backups Enabled</h3>
         <p className="text-sm text-blue-700">
           Your data is automatically backed up daily at 2:00 AM UTC
         </p>
-        <p className="text-xs text-blue-600 mt-2">
+        <p className="text-xs text-info mt-2">
           Last backup: Today at 02:00 AM · Next backup: Tomorrow at 02:00 AM
         </p>
       </div>
@@ -339,7 +339,7 @@ const ActivityLogSettings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Activity Log</h2>
+        <h2 className="text-2xl font-bold text-night-black mb-2">Activity Log</h2>
         <p className="text-gray-600">View your recent account activity</p>
       </div>
 
@@ -352,12 +352,12 @@ const ActivityLogSettings: React.FC = () => {
         ].map((log, i) => (
           <div key={i} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
             <div>
-              <div className="font-medium text-gray-900">{log.action}</div>
+              <div className="font-medium text-night-black">{log.action}</div>
               <div className="text-sm text-gray-500">{log.time}</div>
             </div>
             <span
               className={`text-xs font-medium ${
-                log.status === 'success' ? 'text-green-600' : 'text-orange-600'
+                log.status === 'success' ? 'text-success' : 'text-warning'
               }`}
             >
               {log.status === 'success' ? '✓' : '⚠'}

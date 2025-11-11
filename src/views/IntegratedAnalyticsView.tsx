@@ -144,13 +144,13 @@ export const IntegratedAnalyticsView: React.FC = () => {
     if (!kpiMetrics) return { status: 'Unknown', color: 'text-gray-600', icon: AlertTriangle };
 
     if (kpiMetrics.overallHealthScore >= 85) {
-      return { status: 'Excellent', color: 'text-green-600', icon: CheckCircle };
+      return { status: 'Excellent', color: 'text-success', icon: CheckCircle };
     } else if (kpiMetrics.overallHealthScore >= 70) {
-      return { status: 'Good', color: 'text-blue-600', icon: CheckCircle };
+      return { status: 'Good', color: 'text-info', icon: CheckCircle };
     } else if (kpiMetrics.overallHealthScore >= 55) {
-      return { status: 'Fair', color: 'text-yellow-600', icon: AlertTriangle };
+      return { status: 'Fair', color: 'text-warning', icon: AlertTriangle };
     } else {
-      return { status: 'Poor', color: 'text-red-600', icon: AlertTriangle };
+      return { status: 'Poor', color: 'text-error', icon: AlertTriangle };
     }
   };
 
@@ -167,7 +167,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
       <div className="p-6">
         <CardPro className="p-8 text-center">
           <Target className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Project Selected</h2>
+          <h2 className="text-xl font-semibold text-night-black mb-2">No Project Selected</h2>
           <p className="text-gray-600">Please select a project to view analytics dashboard.</p>
         </CardPro>
       </div>
@@ -183,7 +183,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
       <div className="bg-white rounded-lg border p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Integrated Analytics Dashboard</h1>
+            <h1 className="text-2xl font-bold text-night-black">Integrated Analytics Dashboard</h1>
             <p className="text-gray-600">
               Comprehensive project analysis for {currentProject.name}
             </p>
@@ -218,10 +218,10 @@ export const IntegratedAnalyticsView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-medium text-gray-900">Total Budget</h3>
+            <h3 className="font-medium text-night-black">Total Budget</h3>
             <DollarSign className="w-4 h-4 text-gray-400" />
           </div>
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-info">
             {formatCurrency(budgetAtCompletion)}
           </div>
           <p className="text-sm text-gray-600">Project budget allocation</p>
@@ -229,10 +229,10 @@ export const IntegratedAnalyticsView: React.FC = () => {
 
         <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-medium text-gray-900">EVM Health</h3>
+            <h3 className="font-medium text-night-black">EVM Health</h3>
             <BarChart3 className="w-4 h-4 text-gray-400" />
           </div>
-          <div className="text-2xl font-bold text-green-600">
+          <div className="text-2xl font-bold text-success">
             {evmMetrics?.healthScore || 0}/100
           </div>
           <p className="text-sm text-gray-600">EVM performance score</p>
@@ -240,7 +240,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
 
         <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-medium text-gray-900">Task Progress</h3>
+            <h3 className="font-medium text-night-black">Task Progress</h3>
             <Target className="w-4 h-4 text-gray-400" />
           </div>
           <div className="text-2xl font-bold text-purple-600">
@@ -254,16 +254,16 @@ export const IntegratedAnalyticsView: React.FC = () => {
 
         <CardPro className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-medium text-gray-900">Risk Level</h3>
+            <h3 className="font-medium text-night-black">Risk Level</h3>
             <AlertTriangle className="w-4 h-4 text-gray-400" />
           </div>
           <div
             className={`text-2xl font-bold ${
               (kpiMetrics?.riskExposure || 0) > 40
-                ? 'text-red-600'
+                ? 'text-error'
                 : (kpiMetrics?.riskExposure || 0) > 25
-                  ? 'text-yellow-600'
-                  : 'text-green-600'
+                  ? 'text-warning'
+                  : 'text-success'
             }`}
           >
             {evmMetrics?.performanceStatus || 'Unknown'}
@@ -288,7 +288,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-blue-500 text-info'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -320,10 +320,10 @@ export const IntegratedAnalyticsView: React.FC = () => {
                         <span
                           className={`font-medium ${
                             financialForecast.riskAssessment.overallRiskLevel === 'Low'
-                              ? 'text-green-600'
+                              ? 'text-success'
                               : financialForecast.riskAssessment.overallRiskLevel === 'Medium'
-                                ? 'text-yellow-600'
-                                : 'text-red-600'
+                                ? 'text-warning'
+                                : 'text-error'
                           }`}
                         >
                           {financialForecast.riskAssessment.overallRiskLevel}
@@ -350,8 +350,8 @@ export const IntegratedAnalyticsView: React.FC = () => {
                         <span
                           className={`font-medium ${
                             evmMetrics.costPerformanceIndex >= 1.0
-                              ? 'text-green-600'
-                              : 'text-red-600'
+                              ? 'text-success'
+                              : 'text-error'
                           }`}
                         >
                           {evmMetrics.costPerformanceIndex.toFixed(2)}
@@ -362,8 +362,8 @@ export const IntegratedAnalyticsView: React.FC = () => {
                         <span
                           className={`font-medium ${
                             evmMetrics.schedulePerformanceIndex >= 1.0
-                              ? 'text-green-600'
-                              : 'text-red-600'
+                              ? 'text-success'
+                              : 'text-error'
                           }`}
                         >
                           {evmMetrics.schedulePerformanceIndex.toFixed(2)}
@@ -398,10 +398,10 @@ export const IntegratedAnalyticsView: React.FC = () => {
                         <span
                           className={`font-medium ${
                             kpiMetrics.performanceTrend === 'Improving'
-                              ? 'text-green-600'
+                              ? 'text-success'
                               : kpiMetrics.performanceTrend === 'Declining'
-                                ? 'text-red-600'
-                                : 'text-blue-600'
+                                ? 'text-error'
+                                : 'text-info'
                           }`}
                         >
                           {kpiMetrics.performanceTrend}

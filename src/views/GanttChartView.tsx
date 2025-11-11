@@ -8,6 +8,7 @@ import { taskService } from '@/api/taskService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
+import { safeMap, safeFilter, safeReduce, hasItems } from '@/utils/safeOperations';
 import TaskDetailModal from '@/components/TaskDetailModal';
 import CreateTaskModal from '@/components/CreateTaskModal';
 import {
@@ -109,19 +110,25 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
 
   // Simple critical path calculation - MOVED HERE to avoid hoisting issues
   const calculateCriticalPath = useCallback((ganttTasks: GanttTask[]): string[] => {
+    if (!hasItems(ganttTasks)) return [];
+    
     // Find the longest path through the network
-    const taskMap = new Map(ganttTasks.map((gt) => [gt.id, gt]));
+    const taskMap = new Map(safeMap(ganttTasks, (gt) => [gt.id, gt], []));
 
     // Find tasks with no successors (end tasks)
-    const endTasks = ganttTasks.filter(
-      (gt) => !ganttTasks.some((other) => other.dependencies.includes(gt.id))
+    const endTasks = safeFilter(
+      ganttTasks,
+      (gt) => !ganttTasks.some((other) => other.dependencies?.includes(gt.id)),
+      []
     );
 
-    if (endTasks.length === 0) return [];
+    if (!hasItems(endTasks)) return [];
 
     // Find the end task with the latest finish
-    const latestEndTask = endTasks.reduce((latest, current) =>
-      current.endDate > latest.endDate ? current : latest
+    const latestEndTask = safeReduce(
+      endTasks,
+      (latest, current) => (current.endDate > latest.endDate ? current : latest),
+      endTasks[0]
     );
 
     // Trace back through dependencies to find critical path
@@ -156,14 +163,13 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
 
   // Calculate project timeline and critical path
   const ganttData = useMemo(() => {
-    if (tasks.length === 0)
+    if (!hasItems(tasks))
       return { ganttTasks: [], projectStart: new Date(), projectEnd: new Date(), criticalPath: [] };
 
     // Convert tasks to gantt format
-    const taskMap = new Map(tasks.map((task) => [task.id, task]));
-    const projectStart = new Date(
-      Math.min(...tasks.map((t) => new Date(t.dueDate).getTime() - 7 * 24 * 60 * 60 * 1000))
-    );
+    const taskMap = new Map(safeMap(tasks, (task) => [task.id, task], []));
+    const taskDates = safeMap(tasks, (t) => new Date(t.dueDate).getTime() - 7 * 24 * 60 * 60 * 1000, []);
+    const projectStart = hasItems(taskDates) ? new Date(Math.min(...taskDates)) : new Date();
 
     // Calculate task scheduling with dependencies
     const ganttTasks: GanttTask[] = [];
@@ -226,17 +232,19 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
       gt.isOnCriticalPath = criticalPath.includes(gt.id);
     });
 
-    const projectEnd = new Date(Math.max(...ganttTasks.map((gt) => gt.endDate.getTime())));
+    const ganttEndDates = safeMap(ganttTasks, (gt) => gt.endDate.getTime(), []);
+    const projectEnd = hasItems(ganttEndDates) ? new Date(Math.max(...ganttEndDates)) : new Date();
 
     return { ganttTasks, projectStart, projectEnd, criticalPath };
   }, [tasks, settings.autoSchedule, calculateCriticalPath]);
 
   // Filter tasks based on search and settings
   const filteredTasks = useMemo(() => {
-    return ganttData.ganttTasks.filter((task) => {
-      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    });
+    return safeFilter(
+      ganttData.ganttTasks,
+      (task) => task.title.toLowerCase().includes(searchTerm.toLowerCase()),
+      []
+    );
   }, [ganttData.ganttTasks, searchTerm]);
 
   // Generate timeline headers
@@ -411,7 +419,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
       if (!projectId || !currentUser) return;
 
       // Find all tasks that depend on this task
-      const dependentTasks = tasks.filter((t) => t.dependencies && t.dependencies.includes(taskId));
+      const dependentTasks = safeFilter(
+        tasks,
+        (t) => t.dependencies && t.dependencies.includes(taskId),
+        []
+      );
 
       for (const depTask of dependentTasks) {
         try {
@@ -478,11 +490,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
   };
 
   const handleTaskUpdated = (updatedTask: Task) => {
-    setTasks((prev) => prev.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
+    setTasks((prev) => safeMap(prev, (t) => (t.id === updatedTask.id ? updatedTask : t), prev));
   };
 
   const handleTaskDeleted = (taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setTasks((prev) => safeFilter(prev, (t) => t.id !== taskId, prev));
     setShowDetailModal(false);
     setSelectedTask(null);
   };
@@ -491,16 +503,20 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
     const exportData = {
       project: currentProject?.name,
       exportDate: new Date().toISOString(),
-      tasks: filteredTasks.map((task) => ({
-        title: task.title,
-        startDate: task.startDate.toISOString(),
-        endDate: task.endDate.toISOString(),
-        duration: task.duration,
-        progress: task.progress,
-        status: task.status,
-        priority: task.priority,
-        isOnCriticalPath: task.isOnCriticalPath,
-      })),
+      tasks: safeMap(
+        filteredTasks,
+        (task) => ({
+          title: task.title,
+          startDate: task.startDate.toISOString(),
+          endDate: task.endDate.toISOString(),
+          duration: task.duration,
+          progress: task.progress,
+          status: task.status,
+          priority: task.priority,
+          isOnCriticalPath: task.isOnCriticalPath,
+        }),
+        []
+      ),
       criticalPath: ganttData.criticalPath,
     };
 
@@ -594,7 +610,7 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Critical Path</p>
-                <p className="text-2xl font-bold text-red-600">{ganttData.criticalPath.length}</p>
+                <p className="text-2xl font-bold text-error">{ganttData.criticalPath.length}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
@@ -624,9 +640,9 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Avg Progress</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-success">
                   {Math.round(
-                    filteredTasks.reduce((sum, t) => sum + t.progress, 0) /
+                    safeReduce(filteredTasks, (sum, t) => sum + t.progress, 0) /
                       (filteredTasks.length || 1)
                   )}
                   %
@@ -757,23 +773,29 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                       gridTemplateColumns: `repeat(${timelineHeaders.length}, minmax(40px, 1fr))`,
                     }}
                   >
-                    {timelineHeaders.map((header, index) => (
-                      <div
-                        key={index}
-                        className={`p-2 text-center text-xs border-r ${
-                          header.isWeekend && !settings.showWeekends ? 'hidden' : ''
-                        } ${header.isWeekend ? 'bg-gray-100' : ''}`}
-                      >
-                        {header.label}
-                      </div>
-                    ))}
+                    {safeMap(
+                      timelineHeaders,
+                      (header, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 text-center text-xs border-r ${
+                            header.isWeekend && !settings.showWeekends ? 'hidden' : ''
+                          } ${header.isWeekend ? 'bg-gray-100' : ''}`}
+                        >
+                          {header.label}
+                        </div>
+                      ),
+                      []
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Task Rows */}
               <div className="divide-y">
-                {filteredTasks.map((task) => {
+                {safeMap(
+                  filteredTasks,
+                  (task) => {
                   const startIndex = timelineHeaders.findIndex(
                     (h) => h.date.toDateString() === task.startDate.toDateString()
                   );
@@ -902,9 +924,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
 
                         {/* Dependencies */}
                         {settings.showDependencies &&
-                          task.dependencies.map((depId) => {
-                            const depTask = filteredTasks.find((t) => t.id === depId);
-                            if (!depTask) return null;
+                          safeMap(
+                            task.dependencies || [],
+                            (depId) => {
+                              const depTask = filteredTasks.find((t) => t.id === depId);
+                              if (!depTask) return null;
 
                             const depEndIndex = timelineHeaders.findIndex(
                               (h) => h.date.toDateString() === depTask.endDate.toDateString()
@@ -926,11 +950,15 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                               );
                             }
                             return null;
-                          })}
+                          },
+                          []
+                        )}
                       </div>
                     </div>
                   );
-                })}
+                  },
+                  []
+                )}
               </div>
             </div>
           </div>

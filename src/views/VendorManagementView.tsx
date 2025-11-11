@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { safeMap, safeFilter, hasItems } from '@/utils/safeOperations';
 import {
   Store,
   Plus,
@@ -264,9 +265,11 @@ const VendorManagementView: React.FC = () => {
     const config = RATING_CONFIG[rating];
     return (
       <span className={`rating-badge rating-${config.color}`}>
-        {[...Array(config.stars)].map((_, i) => (
-          <Star key={i} size={14} fill="currentColor" />
-        ))}
+        {safeMap(
+          [...Array(config.stars)],
+          (_, i) => <Star key={i} size={14} fill="currentColor" />,
+          []
+        )}
         <span>{config.label}</span>
       </span>
     );
@@ -309,9 +312,11 @@ const VendorManagementView: React.FC = () => {
 
     if (searchTerm && searchTerm.length < 3) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(
+      result = safeFilter(
+        result,
         (v) =>
-          v.vendorName.toLowerCase().includes(term) || v.vendorCode.toLowerCase().includes(term)
+          v.vendorName.toLowerCase().includes(term) || v.vendorCode.toLowerCase().includes(term),
+        []
       );
     }
 
@@ -462,11 +467,15 @@ const VendorManagementView: React.FC = () => {
               }}
             >
               <option value="">Filter by Status...</option>
-              {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>
-                  {config.label}
-                </option>
-              ))}
+              {safeMap(
+                Object.entries(STATUS_CONFIG),
+                ([key, config]) => (
+                  <option key={key} value={key}>
+                    {config.label}
+                  </option>
+                ),
+                []
+              )}
             </select>
 
             <select
@@ -479,11 +488,15 @@ const VendorManagementView: React.FC = () => {
               }}
             >
               <option value="">Filter by Category...</option>
-              {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>
-                  {config.label}
-                </option>
-              ))}
+              {safeMap(
+                Object.entries(CATEGORY_CONFIG),
+                ([key, config]) => (
+                  <option key={key} value={key}>
+                    {config.label}
+                  </option>
+                ),
+                []
+              )}
             </select>
 
             <select
@@ -496,11 +509,15 @@ const VendorManagementView: React.FC = () => {
               }}
             >
               <option value="">Filter by Rating...</option>
-              {Object.entries(RATING_CONFIG).map(([key, config]) => (
-                <option key={key} value={key}>
-                  {config.label}
-                </option>
-              ))}
+              {safeMap(
+                Object.entries(RATING_CONFIG),
+                ([key, config]) => (
+                  <option key={key} value={key}>
+                    {config.label}
+                  </option>
+                ),
+                []
+              )}
             </select>
           </div>
 
@@ -522,28 +539,38 @@ const VendorManagementView: React.FC = () => {
         {(statusFilter.length > 0 || categoryFilter.length > 0 || ratingFilter.length > 0) && (
           <div className="active-filters">
             <span className="filter-label">Active Filters:</span>
-            {statusFilter.map((status) => (
-              <span key={status} className="filter-tag">
-                {STATUS_CONFIG[status].label}
-                <button onClick={() => setStatusFilter(statusFilter.filter((s) => s !== status))}>
-                  ×
-                </button>
-              </span>
-            ))}
-            {categoryFilter.map((cat) => (
-              <span key={cat} className="filter-tag">
-                {CATEGORY_CONFIG[cat].label}
-                <button onClick={() => setCategoryFilter(categoryFilter.filter((c) => c !== cat))}>
-                  ×
-                </button>
-              </span>
-            ))}
-            {ratingFilter.map((rating) => (
-              <span key={rating} className="filter-tag">
-                {RATING_CONFIG[rating].label}
-                <button onClick={() => setRatingFilter(ratingFilter.filter((r) => r !== rating))}>
-                  ×
-                </button>
+            {safeMap(
+              statusFilter,
+              (status) => (
+                <span key={status} className="filter-tag">
+                  {STATUS_CONFIG[status].label}
+                  <button onClick={() => setStatusFilter(safeFilter(statusFilter, (s) => s !== status, []))}>
+                    ×
+                  </button>
+                </span>
+              ),
+              []
+            )}
+            {safeMap(
+              categoryFilter,
+              (cat) => (
+                <span key={cat} className="filter-tag">
+                  {CATEGORY_CONFIG[cat].label}
+                  <button onClick={() => setCategoryFilter(safeFilter(categoryFilter, (c) => c !== cat, []))}>
+                    ×
+                  </button>
+                </span>
+              ),
+              []
+            )}
+            {safeMap(
+              ratingFilter,
+              (rating) => (
+                <span key={rating} className="filter-tag">
+                  {RATING_CONFIG[rating].label}
+                  <button onClick={() => setRatingFilter(safeFilter(ratingFilter, (r) => r !== rating, []))}>
+                    ×
+                  </button>
               </span>
             ))}
           </div>
@@ -583,18 +610,20 @@ const VendorManagementView: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredVendors.map((vendor) => (
-                  <tr key={vendor.id} className={vendor.isBlacklisted ? 'row-blacklisted' : ''}>
-                    <td>
-                      <strong>{vendor.vendorCode}</strong>
-                    </td>
-                    <td>
-                      <div>
-                        <div className="vendor-name">{vendor.vendorName}</div>
-                        <small className="text-muted">{vendor.legalName}</small>
-                      </div>
-                    </td>
-                    <td>{CATEGORY_CONFIG[vendor.category].label}</td>
+                {safeMap(
+                  filteredVendors,
+                  (vendor) => (
+                    <tr key={vendor.id} className={vendor.isBlacklisted ? 'row-blacklisted' : ''}>
+                      <td>
+                        <strong>{vendor.vendorCode}</strong>
+                      </td>
+                      <td>
+                        <div>
+                          <div className="vendor-name">{vendor.vendorName}</div>
+                          <small className="text-muted">{vendor.legalName}</small>
+                        </div>
+                      </td>
+                      <td>{CATEGORY_CONFIG[vendor.category].label}</td>
                     <td>{renderStatusBadge(vendor.status)}</td>
                     <td>{renderRatingBadge(vendor.overallRating)}</td>
                     <td>{renderPerformanceIndicator(vendor.performance.performanceScore)}</td>
@@ -656,7 +685,9 @@ const VendorManagementView: React.FC = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ),
+                []
+              )}
               </tbody>
             </table>
           </div>

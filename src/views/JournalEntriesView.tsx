@@ -138,7 +138,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
               <FileText className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Journal Entries</h1>
+              <h1 className="text-2xl font-bold text-night-black">Journal Entries</h1>
               <p className="text-sm text-gray-500">Record and manage accounting transactions</p>
             </div>
           </div>
@@ -158,7 +158,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
             return (
               <CardPro key={status.value} className="p-4">
                 <div className="text-sm text-gray-500 mb-1">{status.label}</div>
-                <div className="text-2xl font-bold text-gray-900">{count}</div>
+                <div className="text-2xl font-bold text-night-black">{count}</div>
               </CardPro>
             );
           })}
@@ -241,7 +241,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                   {filteredEntries.map((entry) => (
                     <tr key={entry.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900">{entry.entryNumber}</div>
+                        <div className="font-medium text-night-black">{entry.entryNumber}</div>
                         {entry.reference && (
                           <div className="text-sm text-gray-500">Ref: {entry.reference}</div>
                         )}
@@ -272,7 +272,7 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
                               setSelectedEntry(entry);
                               setShowDetails(true);
                             }}
-                            className="p-2 hover:bg-blue-50 rounded text-blue-600 transition-colors"
+                            className="p-2 hover:bg-blue-50 rounded text-info transition-colors"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
