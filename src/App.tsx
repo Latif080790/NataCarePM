@@ -75,6 +75,7 @@ const WBSManagementView = lazy(() => import('@/views/WBSManagementView'));
 const GoodsReceiptView = lazy(() => import('@/views/GoodsReceiptView'));
 const MaterialRequestView = lazy(() => import('@/views/MaterialRequestView'));
 const VendorManagementView = lazy(() => import('@/views/VendorManagementView'));
+const VendorTestView = lazy(() => import('@/views/VendorTestView'));
 const InventoryManagementView = lazy(() => import('@/views/InventoryManagementView'));
 const IntegrationDashboardView = lazy(() => import('@/views/IntegrationDashboardView'));
 
@@ -514,6 +515,11 @@ function ProtectedApp() {
             <Route path="/logistics/vendor-management" element={
               <ViewErrorBoundary viewName="Vendor Management">
                 <VendorManagementView {...viewProps} />
+              </ViewErrorBoundary>
+            } />
+            <Route path="/logistics/vendor-test" element={
+              <ViewErrorBoundary viewName="Vendor Test">
+                <VendorTestView />
               </ViewErrorBoundary>
             } />
             <Route path="/logistics/inventory" element={

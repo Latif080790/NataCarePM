@@ -9,6 +9,7 @@ import { authService } from '@/services/authService';
 import { logger } from '@/utils/logger.enhanced';
 import { rateLimiter } from '@/utils/rateLimiter';
 import { trackLogin, trackSignUp, clearUserProperties } from '@/utils/analytics';
+import { jwtUtils } from '@/utils/jwtUtils';
 import { 
   onAuthStateChanged, 
   signOut,
@@ -68,6 +69,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
   }, []);
 
+  // Initialize JWT utilities on mount
+  useEffect(() => {
+    jwtUtils.initializeJWT();
+    
+    return () => {
+      // Cleanup on unmount
+      jwtUtils.stopAutoRefresh();
+    };
+  }, []);
+
   // Listen to auth state changes
   useEffect(() => {
     // Timeout fallback: set loading false after 3 seconds max
@@ -81,6 +92,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (user) {
         try {
+          // Get and store ID token
+          const idToken = await user.getIdToken();
+          jwtUtils.storeToken(idToken, 3600); // Store for 1 hour
+          
+          // Start auto-refresh
+          jwtUtils.startAutoRefresh();
+          
           const appUser = await authService.getCurrentUser();
           if (appUser) {
             setCurrentUser(appUser);
@@ -112,6 +130,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           });
         }
       } else {
+        // User logged out, cleanup JWT
+        jwtUtils.cleanupJWT();
         setCurrentUser(null);
       }
       setLoading(false);
@@ -168,6 +188,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         // Record successful login
         const user = auth.currentUser;
+        if (user) {
+          // Get and store ID token
+          const idToken = await user.getIdToken();
+          jwtUtils.storeToken(idToken, 3600); // Store for 1 hour
+          jwtUtils.startAutoRefresh();
+        }
+        
         await recordLoginAttempt(
           email, 
           true, 
@@ -333,6 +360,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setError(null);
       setLoading(true);
+
+      // Cleanup JWT before logout
+      jwtUtils.cleanupJWT();
 
       const response = await authService.logout();
       

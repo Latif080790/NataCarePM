@@ -57,6 +57,24 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
+    // Vendors - allow authenticated users
+    match /vendors/{vendorId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
+    // Vendor Evaluations
+    match /vendor_evaluations/{evaluationId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
+    // Vendor Blacklist
+    match /vendor_blacklist/{blacklistId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
     // Monitoring/Logs - allow all authenticated for debugging
     match /systemMetrics/{metricId} {
       allow read, write: if isAuthenticated();

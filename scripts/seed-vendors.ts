@@ -439,6 +439,9 @@ const SAMPLE_VENDORS = [
   }
 ];
 
+// Export for external scripts
+export const vendors = SAMPLE_VENDORS;
+
 export async function seedVendors() {
   console.log('🌱 Starting vendor seeding...');
   
