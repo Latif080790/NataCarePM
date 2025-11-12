@@ -99,13 +99,15 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
     },
     optimizeDeps: {
-      force: true, // Force re-optimization
-      include: ['react', 'react-dom'], // Ensure single copy of React
+      include: ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client'], 
+      exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
     },
     resolve: {
       dedupe: ['react', 'react-dom'], // Prevent duplicate React instances
       alias: {
         '@': path.resolve(__dirname, './src'),
+        'react': path.resolve(__dirname, 'node_modules/react'),
+        'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
       },
     },
     plugins: [
@@ -121,7 +123,7 @@ export default defineConfig(({ mode }) => {
     ],
     esbuild: {
       jsx: 'automatic',
-      jsxImportSource: 'react',
+      jsxDev: mode !== 'production',
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

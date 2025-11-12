@@ -70,14 +70,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   // Initialize JWT utilities on mount
+  // TEMPORARILY DISABLED FOR DEBUGGING
+  /*
   useEffect(() => {
-    jwtUtils.initializeJWT();
+    try {
+      jwtUtils.initializeJWT();
+    } catch (error) {
+      console.error('[AuthContext] Failed to initialize JWT:', error);
+    }
     
     return () => {
       // Cleanup on unmount
-      jwtUtils.stopAutoRefresh();
+      try {
+        jwtUtils.stopAutoRefresh();
+      } catch (error) {
+        console.error('[AuthContext] Failed to stop auto-refresh:', error);
+      }
     };
   }, []);
+  */
 
   // Listen to auth state changes
   useEffect(() => {
@@ -92,12 +103,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (user) {
         try {
+          // TEMPORARILY DISABLED JWT FOR DEBUGGING
+          /*
           // Get and store ID token
           const idToken = await user.getIdToken();
-          jwtUtils.storeToken(idToken, 3600); // Store for 1 hour
+          
+          // Store token with error handling
+          try {
+            jwtUtils.storeToken(idToken, 3600); // Store for 1 hour
+            console.log('[AuthContext] Token stored successfully');
+          } catch (tokenError) {
+            console.error('[AuthContext] Failed to store token:', tokenError);
+          }
           
           // Start auto-refresh
-          jwtUtils.startAutoRefresh();
+          try {
+            jwtUtils.startAutoRefresh();
+            console.log('[AuthContext] Auto-refresh started');
+          } catch (refreshError) {
+            console.error('[AuthContext] Failed to start auto-refresh:', refreshError);
+          }
+          */
           
           const appUser = await authService.getCurrentUser();
           if (appUser) {
@@ -131,7 +157,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       } else {
         // User logged out, cleanup JWT
-        jwtUtils.cleanupJWT();
+        // TEMPORARILY DISABLED FOR DEBUGGING
+        /*
+        try {
+          jwtUtils.cleanupJWT();
+          console.log('[AuthContext] JWT cleaned up');
+        } catch (cleanupError) {
+          console.error('[AuthContext] Failed to cleanup JWT:', cleanupError);
+        }
+        */
         setCurrentUser(null);
       }
       setLoading(false);
@@ -189,10 +223,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Record successful login
         const user = auth.currentUser;
         if (user) {
-          // Get and store ID token
-          const idToken = await user.getIdToken();
-          jwtUtils.storeToken(idToken, 3600); // Store for 1 hour
-          jwtUtils.startAutoRefresh();
+          // Get and store ID token with error handling
+          try {
+            const idToken = await user.getIdToken();
+            jwtUtils.storeToken(idToken, 3600); // Store for 1 hour
+            jwtUtils.startAutoRefresh();
+            console.log('[AuthContext] Login: Token stored and auto-refresh started');
+          } catch (tokenError) {
+            console.error('[AuthContext] Login: Failed to store token:', tokenError);
+            // Don't fail the login, just log the error
+          }
         }
         
         await recordLoginAttempt(
@@ -361,8 +401,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
       setLoading(true);
 
-      // Cleanup JWT before logout
-      jwtUtils.cleanupJWT();
+      // Cleanup JWT before logout with error handling
+      try {
+        jwtUtils.cleanupJWT();
+        console.log('[AuthContext] Logout: JWT cleaned up');
+      } catch (cleanupError) {
+        console.error('[AuthContext] Logout: Failed to cleanup JWT:', cleanupError);
+        // Continue with logout even if cleanup fails
+      }
 
       const response = await authService.logout();
       

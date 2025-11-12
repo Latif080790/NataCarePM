@@ -357,23 +357,33 @@ export function getUserIdFromToken(token: string): string | null {
  * Should be called on app startup
  */
 export function initializeJWT(): void {
-  console.log('🔐 Initializing JWT utilities...');
-  
-  // Check if we have a valid stored token
-  const tokenInfo = getTokenInfo();
-  
-  if (tokenInfo) {
-    if (tokenInfo.isExpired) {
-      console.log('⚠️ Stored token is expired, clearing...');
-      clearStoredToken();
+  try {
+    console.log('🔐 Initializing JWT utilities...');
+    
+    // Check if we have a valid stored token
+    const tokenInfo = getTokenInfo();
+    
+    if (tokenInfo) {
+      if (tokenInfo.isExpired) {
+        console.log('⚠️ Stored token is expired, clearing...');
+        clearStoredToken();
+      } else {
+        console.log(`✅ Valid token found, expires in ${Math.round(tokenInfo.timeUntilExpiry / 1000)}s`);
+        
+        // Start auto-refresh
+        startAutoRefresh();
+      }
     } else {
-      console.log(`✅ Valid token found, expires in ${Math.round(tokenInfo.timeUntilExpiry / 1000)}s`);
-      
-      // Start auto-refresh
-      startAutoRefresh();
+      console.log('ℹ️ No stored token found');
     }
-  } else {
-    console.log('ℹ️ No stored token found');
+  } catch (error) {
+    console.error('❌ Error initializing JWT:', error);
+    // Clear potentially corrupted data
+    try {
+      clearStoredToken();
+    } catch (e) {
+      console.error('Failed to clear token:', e);
+    }
   }
 }
 
@@ -382,9 +392,13 @@ export function initializeJWT(): void {
  * Should be called on logout
  */
 export function cleanupJWT(): void {
-  console.log('🧹 Cleaning up JWT utilities...');
-  stopAutoRefresh();
-  clearStoredToken();
+  try {
+    console.log('🧹 Cleaning up JWT utilities...');
+    stopAutoRefresh();
+    clearStoredToken();
+  } catch (error) {
+    console.error('❌ Error cleaning up JWT:', error);
+  }
 }
 
 // ============================================================================
