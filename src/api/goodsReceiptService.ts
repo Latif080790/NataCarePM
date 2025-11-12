@@ -48,7 +48,7 @@ import { auditHelper } from '@/utils/auditHelper';
 
 const GR_COLLECTION = 'goodsReceipts';
 const PO_COLLECTION = 'purchaseOrders';
-const INVENTORY_COLLECTION = 'inventoryTransactions';
+// const INVENTORY_COLLECTION = 'inventoryTransactions'; // Reserved for future inventory integration
 const WAREHOUSE_COLLECTION = 'warehouses';
 
 // ============================================================================
@@ -114,7 +114,7 @@ async function generateGRNumber(projectId: string): Promise<string> {
 export async function createGoodsReceipt(
   input: CreateGRInput,
   userId: string,
-  userName: string
+  _userName: string  // Reserved for future audit logging
 ): Promise<GoodsReceipt> {
   try {
     // Fetch PO details
@@ -260,9 +260,6 @@ export async function createGoodsReceipt(
     });
 
     return grResult;
-      ...newGR,
-      items: updatedItems,
-    };
   } catch (error) {
     console.error('Error creating goods receipt:', error);
     throw error;
@@ -797,8 +794,8 @@ async function updateWBSFromGR(gr: GoodsReceipt): Promise<void> {
  * TODO: Implement actual WBS lookup logic
  */
 async function getWBSElementForMaterial(
-  materialId: string,
-  projectId: string
+  _materialId: string,
+  _projectId: string
 ): Promise<string | null> {
   // This will be implemented when WBS service is enhanced
   // For now, return null (no WBS allocation)

@@ -4,8 +4,6 @@ import LiveCursors from '@/components/LiveCursors';
 import MainLayout from '@/components/MainLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import { ViewErrorBoundary } from '@/components/ViewErrorBoundary';
-import PerformanceDashboard from '@/components/PerformanceDashboard';
-import { MobileBottomNav } from '@/components/MobileBottomNav';
 import '@/styles/enterprise-design-system.css';
 import '@/styles/mobile-responsive.css';
 import { lazy, Suspense, useEffect, useState } from 'react';
@@ -17,7 +15,6 @@ import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 // Priority 2C: Monitoring & Analytics initialization
 import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
 import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
-import { performanceMonitor } from '@/utils/performanceMonitor';
 import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
@@ -28,74 +25,17 @@ import ModernLoginView from '@/views/ModernLoginView';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 
 
-// Lazy-loaded Views (loaded on demand)
+// Lazy-loaded Views (loaded on demand) - Only views actually used in Routes
 const DashboardView = lazy(() => import('@/views/DashboardWrapper'));
-const RabAhspView = lazy(() => import('@/views/RabAhspView'));
-const EnhancedRabAhspView = lazy(() => import('@/views/EnhancedRabAhspView'));
-const GanttChartView = lazy(() => import('@/views/GanttChartView'));
-const DailyReportView = lazy(() => import('@/views/DailyReportView'));
-const ProgressView = lazy(() => import('@/views/ProgressView'));
-const AttendanceView = lazy(() => import('@/views/AttendanceView'));
-const FinanceView = lazy(() => import('@/views/FinanceView'));
-const CashflowView = lazy(() => import('@/views/CashflowView'));
-const StrategicCostView = lazy(() => import('@/views/StrategicCostView'));
-const CostControlDashboardView = lazy(() => import('@/views/CostControlDashboardView'));
-const LogisticsView = lazy(() => import('@/views/LogisticsView'));
-const DokumenView = lazy(() => import('@/views/DokumenView'));
-const ReportView = lazy(() => import('@/views/ReportView'));
-const UserManagementView = lazy(() => import('@/views/UserManagementView'));
-const MasterDataView = lazy(() => import('@/views/MasterDataView'));
-const AuditTrailView = lazy(() => import('@/views/AuditTrailView'));
 const EnhancedAuditLogView = lazy(() => import('@/views/EnhancedAuditLogView'));
 const AuditTestingView = lazy(() => import('@/views/AuditTestingView'));
-// const AuditDashboardView = lazy(() => import('@/views/AuditDashboardView'));
-const ProfileView = lazy(() => import('@/views/ProfileView'));
-const TaskListView = lazy(() => import('@/views/TaskListView'));
-const TasksView = lazy(() => import('@/views/TasksView'));
-const KanbanView = lazy(() => import('@/views/KanbanView'));
-const DependencyGraphView = lazy(() => import('@/views/DependencyGraphView'));
-const ResourceAllocationView = lazy(() => import('@/views/ResourceAllocationView'));
-const TimelineTrackingView = lazy(() => import('@/views/TimelineTrackingView'));
-const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView'));
-const MonitoringView = lazy(() => import('@/views/MonitoringView'));
-const IntegratedAnalyticsView = lazy(() =>
-  import('@/views/IntegratedAnalyticsView').then((module) => ({
-    default: module.IntegratedAnalyticsView,
-  }))
-);
-const IntelligentDocumentSystem = lazy(() => import('@/views/IntelligentDocumentSystem'));
-
-// Finance & Accounting Module Views (lazy-loaded)
-const ChartOfAccountsView = lazy(() => import('@/views/ChartOfAccountsView'));
-const JournalEntriesView = lazy(() => import('@/views/JournalEntriesView'));
-const AccountsPayableView = lazy(() => import('@/views/AccountsPayableView'));
-const AccountsReceivableView = lazy(() => import('@/views/AccountsReceivableView'));
-
-// WBS Module (lazy-loaded)
-const WBSManagementView = lazy(() => import('@/views/WBSManagementView'));
-
-// Logistics Module (lazy-loaded)
-const GoodsReceiptView = lazy(() => import('@/views/GoodsReceiptView'));
-const MaterialRequestView = lazy(() => import('@/views/MaterialRequestView'));
-const VendorManagementView = lazy(() => import('@/views/VendorManagementView'));
-const VendorTestView = lazy(() => import('@/views/VendorTestView'));
 const IPRestrictionTestView = lazy(() => import('@/views/IPRestrictionTestView'));
-const InventoryManagementView = lazy(() => import('@/views/InventoryManagementView'));
-const IntegrationDashboardView = lazy(() => import('@/views/IntegrationDashboardView'));
-
-// Phase 4: AI & Analytics Views (lazy-loaded)
-const AIResourceOptimizationView = lazy(() => import('@/views/AIResourceOptimizationView'));
-const PredictiveAnalyticsView = lazy(() => import('@/views/PredictiveAnalyticsView'));
-
-// Unauthorized View
-const UnauthorizedView = lazy(() => import('@/views/UnauthorizedView'));
 
 import { monitoringService } from '@/api/monitoringService';
-import PerformanceMonitor from '@/components/PerformanceMonitor';
 import { Spinner } from '@/components/Spinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
-import { useProjectCalculations } from '@/hooks/useProjectCalculations';
+// import { useProjectCalculations } from '@/hooks/useProjectCalculations'; // Currently unused
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
@@ -111,42 +51,6 @@ const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
 const SentryTestPanel = lazy(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
-const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
-const ChatView = lazy(() => import('@/views/ChatView'));
-const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderView'));
-const RabApprovalWorkflowView = lazy(() => import('@/views/RabApprovalWorkflowView'));
-
-// Error Boundary Fallback Component
-function _ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen bg-red-50 p-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Application Error</h2>
-        <p className="text-gray-700 mb-4">
-          An error occurred while loading the application. This has been reported to our team.
-        </p>
-        <details className="bg-gray-100 p-4 rounded mb-4 text-sm">
-          <summary className="font-medium cursor-pointer">Error details</summary>
-          <p className="mt-2 text-red-500">{error.message}</p>
-        </details>
-        <div className="flex gap-2">
-          <button
-            onClick={resetError}
-            className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-          >
-            Try Again
-          </button>
-          <button
-            onClick={() => (window.location.href = '/')}
-            className="flex-1 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
-          >
-            Go Home
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /**
  * Komponen ini menangani rute yang dilindungi (setelah login)
@@ -161,9 +65,8 @@ function ProtectedApp() {
   // 🔒 Initialize session timeout hook
   useSessionTimeout();
 
-  // 📊 Initialize monitoring hooks
-
-  const { projectMetrics } = useProjectCalculations(currentProject);
+  // 📊 Initialize monitoring hooks (currently disabled)
+  // const { projectMetrics } = useProjectCalculations(currentProject);
 
   // 📊 Initialize monitoring service
   // TEMPORARILY DISABLED - Monitoring causes re-render issues
@@ -326,22 +229,21 @@ function ProtectedApp() {
   }
 
   // Simplified view props - each view will fetch its own data
-  const getViewProps = (): any => ({
-    project: currentProject,
-    projectId: currentProject?.id,  // ✅ Add projectId for views that need it
-    projectMetrics: projectMetrics,
-    recentReports: currentProject?.dailyReports || [],
-    notifications: [],
-    updateAiInsight: async () => {
-      // Placeholder for AI insight update
-      console.log('Update AI insight');
-    },
-    loading: projectLoading,
-    error: projectError,
-    user: currentUser,
-  });
-
-  const viewProps = getViewProps();
+  // Note: getViewProps() is kept for potential future use but not currently needed
+  // since views fetch their own data via contexts
+  // const getViewProps = (): any => ({
+  //   project: currentProject,
+  //   projectId: currentProject?.id,
+  //   projectMetrics: projectMetrics,
+  //   recentReports: currentProject?.dailyReports || [],
+  //   notifications: [],
+  //   updateAiInsight: async () => {
+  //     console.log('Update AI insight');
+  //   },
+  //   loading: projectLoading,
+  //   error: projectError,
+  //   user: currentUser,
+  // });
 
   return (
     <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>

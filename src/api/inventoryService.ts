@@ -390,7 +390,7 @@ export async function deleteMaterial(materialId: string): Promise<void> {
 export async function checkStockAvailability(
   materialId: string,
   requiredQuantity: number,
-  warehouseId?: string
+  _warehouseId?: string  // Reserved for future multi-warehouse support
 ): Promise<{
   available: boolean;
   currentStock: number;
@@ -925,8 +925,8 @@ export async function updateStockCountItem(
  */
 export async function completeStockCount(
   countId: string,
-  userId: string,
-  userName: string
+  _userId: string,  // Reserved for future audit logging
+  _userName: string  // Reserved for future audit logging
 ): Promise<void> {
   const docRef = doc(db, 'stock_counts', countId);
   await updateDoc(docRef, {
@@ -1281,7 +1281,8 @@ export async function addWarehouseLocation(
 /**
  * Get inventory summary
  */
-export async function getInventorySummary(projectId: string): Promise<InventorySummary> {
+export async function getInventorySummary(_projectId: string): Promise<InventorySummary> {
+  // projectId reserved for future multi-project inventory support
   const materials = await getMaterials();
   const alerts = await getStockAlerts(false);
   const warehouses = await getWarehouses();

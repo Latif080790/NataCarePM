@@ -22,7 +22,7 @@ import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 import { User as AppUser } from '@/types';
 import { rateLimiter } from '@/utils/rateLimiter';
-import { twoFactorService } from '@/api/twoFactorService';
+// import { twoFactorService } from '@/api/twoFactorService'; // Reserved for future 2FA implementation
 import { logger } from '@/utils/logger';
 import { APIResponse, APIError, ErrorCodes, wrapResponse, wrapError } from '@/utils/responseWrapper';
 import { ipRestriction } from '@/middleware/ipRestriction';

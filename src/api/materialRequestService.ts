@@ -42,7 +42,7 @@ import { auditHelper } from '@/utils/auditHelper';
 // ============================================================================
 
 const MR_COLLECTION = 'materialRequests';
-const INVENTORY_COLLECTION = 'materials';
+// const INVENTORY_COLLECTION = 'materials'; // Reserved for future inventory checking
 const PO_COLLECTION = 'purchaseOrders';
 
 // ============================================================================
@@ -201,7 +201,7 @@ export async function createMaterialRequest(
  */
 async function checkInventoryStock(
   materialCode: string,
-  projectId: string
+  _projectId: string  // Reserved for future multi-project inventory support
 ): Promise<{
   currentStock: number;
   reorderPoint: number;
@@ -325,7 +325,7 @@ export async function getMaterialRequests(
  * Get MRs pending approval for specific user
  */
 export async function getPendingApprovals(
-  userId: string,
+  _userId: string,  // Reserved for future user-specific filtering
   role: 'site_manager' | 'pm' | 'budget_controller'
 ): Promise<MaterialRequest[]> {
   try {
@@ -470,7 +470,7 @@ export async function submitMaterialRequest(mrId: string, userId: string): Promi
 export async function approveMaterialRequest(
   input: ApproveMRInput,
   approverId: string,
-  approverName: string
+  _approverName: string  // Reserved for future audit logging
 ): Promise<void> {
   try {
     const mr = await getMaterialRequestById(input.mrId);

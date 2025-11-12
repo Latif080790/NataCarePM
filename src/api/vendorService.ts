@@ -49,7 +49,7 @@ import { auditHelper } from '@/utils/auditHelper';
 const VENDORS_COLLECTION = 'vendors';
 const EVALUATIONS_COLLECTION = 'vendor_evaluations';
 const BLACKLIST_COLLECTION = 'vendor_blacklist';
-const DOCUMENTS_COLLECTION = 'vendor_documents';
+// const DOCUMENTS_COLLECTION = 'vendor_documents'; // Reserved for future document management
 
 // ============================================================================
 // VENDOR CODE GENERATION
@@ -92,7 +92,7 @@ async function generateVendorCode(): Promise<string> {
 export async function createVendor(
   input: CreateVendorInput,
   userId: string,
-  userName: string
+  _userName: string  // Reserved for future audit logging
 ): Promise<Vendor> {
   try {
     const vendorCode = await generateVendorCode();

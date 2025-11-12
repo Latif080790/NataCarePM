@@ -5,7 +5,7 @@
  * Day 5 - Integration Testing
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { generateSampleAuditData, testAuditLogging } from '@/utils/generateSampleAuditData';
 import { Card } from '@/components/Card';
 
