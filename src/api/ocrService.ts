@@ -11,18 +11,32 @@ import {
   ExtractedSignature,
   ExtractedTable,
 } from '@/types';
-import Tesseract from 'tesseract.js';
+
+// ✅ OPTIMIZATION: Dynamic import for Tesseract.js (large library ~2MB)
+// Only loads when OCR is actually needed
+type TesseractModule = typeof import('tesseract.js');
+type TesseractWorker = import('tesseract.js').Worker;
 
 // AI-Powered OCR Service for Construction Documents
 export class OCRService {
   private supportedFormats: string[] = ['pdf', 'jpg', 'jpeg', 'png', 'tiff', 'bmp'];
-  private tesseractWorker: Tesseract.Worker | null = null;
+  private tesseractWorker: TesseractWorker | null = null;
+  private tesseractModule: TesseractModule | null = null;
   private processingStatus: Map<string, { status: string; progress: number; result?: OCRResult }> =
     new Map();
 
   constructor() {
-    // Initialize Tesseract worker
-    this.initializeTesseract();
+    // Don't initialize immediately - wait until needed
+  }
+
+  /**
+   * ✅ OPTIMIZATION: Lazy load Tesseract.js on first use
+   */
+  private async loadTesseract(): Promise<TesseractModule> {
+    if (!this.tesseractModule) {
+      this.tesseractModule = await import('tesseract.js');
+    }
+    return this.tesseractModule;
   }
 
   /**
@@ -30,6 +44,7 @@ export class OCRService {
    */
   private async initializeTesseract(): Promise<void> {
     try {
+      const Tesseract = await this.loadTesseract();
       this.tesseractWorker = await Tesseract.createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {

@@ -646,6 +646,222 @@ const insight = await generateAiInsight({
 - `SECURITY_IMPLEMENTATION_README.md` - Security best practices
 - `firebaseConfig.ts` - Firebase setup and configuration
 
+## Technical Debt & Improvement Opportunities
+
+### High-Priority Improvements
+
+#### 1. **Complete TODO Items in Services**
+Several services have incomplete implementations that should be addressed:
+
+**goodsReceiptService.ts:**
+```typescript
+// TODO: Sum quantities from existing GRs for this PO item (line 139)
+// Current: Uses default calculation, needs actual query implementation
+
+// TODO: Implement actual WBS lookup logic (line 794)
+// TODO: Implement actual WBS cost update (line 813)
+// Current: Returns mock data, needs integration with WBS service
+
+// TODO: Calculate on-time delivery rate (line 973)
+// Current: Hardcoded to 85%, needs actual date comparison logic
+```
+
+**materialRequestService.ts:**
+```typescript
+// TODO: Query actual inventory collection (line 219)
+// Current: Returns empty array, needs inventory integration
+
+// TODO: Fetch from vendor service (line 780)
+// Current: Empty string, needs vendor service integration
+```
+
+**notificationService.ts:**
+```typescript
+// TODO: Get webhook URL from user preferences (line 362)
+// TODO: Implement proper email template (line 699)
+```
+
+#### 2. **Add Performance Optimizations**
+While code splitting and lazy loading are implemented, additional optimizations needed:
+
+**Missing React.memo() on Heavy Components:**
+```typescript
+// Components that should be memoized:
+// - Chart components (LineChart, GaugeChart, SCurveChart)
+// - Complex table rows in TablePro
+// - Dashboard widgets
+// - List items in inventory/logistics views
+
+// Example:
+export const ExpensiveChart = React.memo(ChartComponent, (prevProps, nextProps) => {
+  return prevProps.data === nextProps.data;
+});
+```
+
+**Missing useMemo() for Expensive Calculations:**
+```typescript
+// In RAB/AHSP calculations:
+const costBreakdown = useMemo(() => 
+  EnhancedRabService.calculateCostBreakdown(basePrice, ...percentages),
+  [basePrice, ...percentages]
+);
+
+// In variance analysis:
+const varianceMetrics = useMemo(() =>
+  EnhancedRabService.calculateVarianceAnalysis(budget, actual, ...),
+  [budget, actual, ...]
+);
+```
+
+**Missing Debouncing/Throttling:**
+```typescript
+// Search inputs need debouncing:
+import { debounce } from '@/utils/performanceOptimization';
+
+const handleSearch = debounce((searchTerm: string) => {
+  // Perform search
+}, 300);
+
+// Scroll handlers need throttling:
+const handleScroll = throttle(() => {
+  // Handle scroll
+}, 100);
+```
+
+#### 3. **Firestore Query Optimization**
+Current queries can be optimized:
+
+**Batch Reads Instead of Multiple Single Reads:**
+```typescript
+// ❌ Current: Multiple individual reads
+const doc1 = await getDoc(doc(db, 'collection', 'id1'));
+const doc2 = await getDoc(doc(db, 'collection', 'id2'));
+
+// ✅ Better: Batch read
+const docRefs = ids.map(id => doc(db, 'collection', id));
+const docs = await Promise.all(docRefs.map(ref => getDoc(ref)));
+```
+
+**Add Composite Indexes for Complex Queries:**
+```typescript
+// Add to firestore.indexes.json for queries like:
+query(collection(db, 'rabItems'), 
+  where('projectId', '==', pid),
+  where('kategori', '==', 'material'),
+  orderBy('hargaSatuan', 'desc')
+);
+```
+
+**Implement Query Pagination:**
+```typescript
+// For large datasets, implement cursor-based pagination:
+const firstPage = query(collection(db, 'items'), limit(50));
+const snapshot = await getDocs(firstPage);
+const lastVisible = snapshot.docs[snapshot.docs.length - 1];
+
+// Next page:
+const nextPage = query(
+  collection(db, 'items'),
+  startAfter(lastVisible),
+  limit(50)
+);
+```
+
+#### 4. **Cache Implementation**
+Implement intelligent caching layer:
+
+```typescript
+// Use withCache from responseWrapper for expensive operations:
+import { withCache } from '@/utils/responseWrapper';
+
+const getProjectAnalytics = async (projectId: string) => {
+  return await withCache(
+    `analytics_${projectId}`,
+    async () => {
+      // Expensive calculation
+      return calculateProjectMetrics(projectId);
+    },
+    300000, // 5 minutes cache
+    'analyticsService.getProjectAnalytics'
+  );
+};
+```
+
+#### 5. **Error Recovery Patterns**
+Enhance error handling with automatic retry:
+
+```typescript
+// Use withAuthRetry for critical operations:
+import { withAuthRetry } from '@/utils/authGuard';
+
+const criticalOperation = await withAuthRetry(
+  async () => {
+    // Operation that might fail due to auth timing
+    return await updateDocument(data);
+  },
+  'criticalUpdate',
+  3 // max retries
+);
+```
+
+#### 6. **Type Safety Improvements**
+Strengthen TypeScript usage:
+
+```typescript
+// ❌ Avoid: any types in TODO comments
+const data: any = await fetchData();
+
+// ✅ Better: Define proper interfaces
+interface GoodsReceiptData {
+  batchNumber?: string;
+  serialNumber?: string;
+  // ... other fields
+}
+```
+
+#### 7. **Virtual Scrolling for Large Lists**
+Implement for inventory, transactions, and other large datasets:
+
+```typescript
+import { FixedSizeList } from 'react-window';
+
+// For lists > 100 items:
+<FixedSizeList
+  height={600}
+  itemCount={items.length}
+  itemSize={50}
+  width="100%"
+>
+  {({ index, style }) => (
+    <div style={style}>
+      {renderItem(items[index])}
+    </div>
+  )}
+</FixedSizeList>
+```
+
+### Medium-Priority Improvements
+
+#### 8. **Logging Consistency**
+Replace `console.log` with structured logger:
+```typescript
+// ❌ Avoid
+console.log('Debug info:', data);
+
+// ✅ Use
+logger.debug('Debug info', { data });
+```
+
+#### 9. **Bundle Size Optimization**
+- Replace full lodash imports with specific functions
+- Use dynamic imports for heavy libraries (xlsx, jspdf)
+- Lazy load Tesseract.js OCR worker only when needed
+
+#### 10. **Mobile Performance**
+- Add `React.lazy()` + Suspense for mobile-specific views
+- Implement touch gesture optimizations
+- Add viewport-based lazy loading for images
+
 ## Troubleshooting
 
 **"Missing or insufficient permissions"** → Use `waitForAuth()` before Firestore queries  

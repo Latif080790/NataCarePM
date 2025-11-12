@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { CardPro, CardProContent, CardProHeader, CardProTitle } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
 import { PurchaseOrder, InventoryItem, AhspData, POItem } from '@/types';
@@ -8,6 +8,7 @@ import { PODetailsModal } from '@/components/PODetailsModal';
 import { Input } from '@/components/FormControls';
 import { PlusCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { debounce } from '@/utils/performanceOptimization';
 
 interface LogisticsViewProps {
   purchaseOrders: PurchaseOrder[];
@@ -28,6 +29,20 @@ export default function LogisticsView({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  // Debounce search input to reduce filter calculations (300ms delay)
+  const debouncedSetSearch = useRef(
+    debounce((value: string) => {
+      setDebouncedSearchTerm(value);
+    }, 300)
+  ).current;
+
+  // Handle search input with debounce
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value); // Update immediately for UI responsiveness
+    debouncedSetSearch(value); // Debounced for filtering
+  }, [debouncedSetSearch]);
 
   const canApprovePO = hasPermission(currentUser, 'approve_po');
   const canCreatePO = hasPermission(currentUser, 'create_po');
@@ -61,9 +76,9 @@ export default function LogisticsView({
     if (!inventory || !Array.isArray(inventory)) return [];
     
     return inventory.filter((item) =>
-      item.materialName.toLowerCase().includes(searchTerm.toLowerCase())
+      item.materialName.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     );
-  }, [inventory, searchTerm]);
+  }, [inventory, debouncedSearchTerm]);
 
   return (
     <>
@@ -148,7 +163,7 @@ export default function LogisticsView({
               <Input
                 placeholder="Cari material..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="max-w-xs"
               />
             </div>

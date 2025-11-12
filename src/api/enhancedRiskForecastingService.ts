@@ -9,6 +9,7 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import * as tf from '@tensorflow/tfjs';
 import type {
   RiskForecast,
   PredictedRisk,
@@ -221,7 +222,7 @@ class RiskFeatureEngineer {
   private static calculateQualityScore(dailyReports: DailyReport[]): number {
     if (dailyReports.length === 0) return 85; // Default score
     
-    const qualityEntries = dailyReports.flatMap(r => 
+    const qualityEntries = dailyReports.flatMap(_r => 
       [] // DailyReport doesn't have entries property
     );
     
@@ -350,7 +351,7 @@ class RiskTransformerModel {
    */
   async train(
     features: number[][],
-    labels: number[],
+    _labels: number[], // Reserved for future use
     config: any
   ): Promise<tf.LayersModel> {
     const model = await this.buildTransformer(config);
@@ -621,11 +622,13 @@ class EnhancedRiskForecastingService {
   async generateForecast(projectId: string): Promise<RiskForecast> {
     const startTime = Date.now();
 
-    // Fetch project data
-    const project = await this.fetchProject(projectId);
-    const historicalRisks = await this.fetchHistoricalRisks(projectId);
-    const externalFactors = await this.fetchExternalFactors();
-    const dailyReports = await this.fetchDailyReports(projectId);
+    // ✅ OPTIMIZATION: Batch read - fetch all data in parallel
+    const [project, historicalRisks, externalFactors, dailyReports] = await Promise.all([
+      this.fetchProject(projectId),
+      this.fetchHistoricalRisks(projectId),
+      this.fetchExternalFactors(),
+      this.fetchDailyReports(projectId)
+    ]);
     
     // Extract features
     const features = RiskFeatureEngineer.extractProjectRiskFeatures(
@@ -775,7 +778,7 @@ class EnhancedRiskForecastingService {
   /**
    * Generate Risk Predictions
    */
-  private async generateRiskPredictions(projectId: string, features: any): Promise<PredictedRisk[]> {
+  private async generateRiskPredictions(_projectId: string, features: any): Promise<PredictedRisk[]> {
     const predictedRisks: PredictedRisk[] = [];
     
     // Predict risk categories
@@ -1067,7 +1070,7 @@ class EnhancedRiskForecastingService {
   /**
    * Identify Emerging Risks
    */
-  private identifyEmergingRisks(historicalRisks: Risk[], features: any): EmergingRisk[] {
+  private identifyEmergingRisks(_historicalRisks: Risk[], features: any): EmergingRisk[] {
     const emergingRisks: EmergingRisk[] = [];
     
     // Check for increasing risk trend

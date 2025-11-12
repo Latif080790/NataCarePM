@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { logger } from '@/utils/logger.enhanced';
 import {
   Package,
   AlertTriangle,
@@ -37,6 +38,7 @@ import {
   MaterialDetailsModal,
   TransactionModal,
 } from '@/components/InventoryModals';
+import { debounce } from '@/utils/performanceOptimization';
 
 const InventoryManagementView: React.FC = () => {
   const { currentUser } = useAuth();
@@ -49,6 +51,20 @@ const InventoryManagementView: React.FC = () => {
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  // Debounce search to reduce API calls (300ms delay)
+  const debouncedSetSearchQuery = useRef(
+    debounce((value: string) => {
+      setDebouncedSearchQuery(value);
+    }, 300)
+  ).current;
+
+  // Handle search input with debounce
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value); // Update immediately for UI
+    debouncedSetSearchQuery(value); // Debounced for API call
+  }, [debouncedSetSearchQuery]);
 
   // Filters
   const [selectedCategory, setSelectedCategory] = useState<MaterialCategory | 'all'>('all');
@@ -72,7 +88,9 @@ const InventoryManagementView: React.FC = () => {
     try {
       await Promise.all([loadMaterials(), loadSummary(), loadAlerts()]);
     } catch (error) {
-      console.error('Error loading data:', error);
+      logger.error('Error loading inventory data', error as Error, { 
+        component: 'InventoryManagementView'
+      });
       addToast('Error loading inventory data', 'error');
     } finally {
       setLoading(false);
@@ -80,9 +98,8 @@ const InventoryManagementView: React.FC = () => {
   };
 
   const loadMaterials = async () => {
+    let filters: any = {};
     try {
-      const filters: any = {};
-
       if (selectedCategory !== 'all') {
         filters.category = selectedCategory;
       }
@@ -95,23 +112,28 @@ const InventoryManagementView: React.FC = () => {
         filters.lowStock = true;
       } else if (stockFilter === 'out') {
         filters.outOfStock = true;
-      }
+      };
 
-      if (searchQuery.length >= 3) {
-        filters.search = searchQuery;
+      if (debouncedSearchQuery.length >= 3) {
+        filters.search = debouncedSearchQuery;
       }
 
       const data = await getMaterials(filters);
       setMaterials(data);
     } catch (error) {
-      console.error('Error loading materials:', error);
+      logger.error('Error loading materials', error as Error, { 
+        component: 'InventoryManagementView',
+        filters 
+      });
       throw error;
     }
   };
 
   const loadSummary = async () => {
     if (!currentProject?.id) {
-      console.warn('No project selected');
+      logger.warn('No project selected for inventory summary', { 
+        component: 'InventoryManagementView' 
+      });
       return;
     }
 
@@ -119,7 +141,10 @@ const InventoryManagementView: React.FC = () => {
       const data = await getInventorySummary(currentProject.id);
       setSummary(data);
     } catch (error) {
-      console.error('Error loading summary:', error);
+      logger.error('Error loading inventory summary', error as Error, { 
+        component: 'InventoryManagementView',
+        projectId: currentProject.id
+      });
       throw error;
     }
   };
@@ -129,7 +154,9 @@ const InventoryManagementView: React.FC = () => {
       const data = await getStockAlerts(false); // Unresolved alerts only
       setAlerts(data);
     } catch (error) {
-      console.error('Error loading alerts:', error);
+      logger.error('Error loading stock alerts', error as Error, { 
+        component: 'InventoryManagementView'
+      });
       throw error;
     }
   };
@@ -141,10 +168,10 @@ const InventoryManagementView: React.FC = () => {
   }, [selectedCategory, selectedStatus, stockFilter]);
 
   useEffect(() => {
-    if (searchQuery.length >= 3 || searchQuery.length === 0) {
+    if (debouncedSearchQuery.length >= 3 || debouncedSearchQuery.length === 0) {
       loadMaterials();
     }
-  }, [searchQuery]);
+  }, [debouncedSearchQuery]);
 
   const handleDeleteMaterial = async (materialId: string) => {
     if (
@@ -161,7 +188,10 @@ const InventoryManagementView: React.FC = () => {
       loadMaterials();
       loadSummary();
     } catch (error) {
-      console.error('Error deleting material:', error);
+      logger.error('Error discontinuing material', error as Error, { 
+        component: 'InventoryManagementView',
+        materialId
+      });
       addToast('Error discontinuing material', 'error');
     }
   };
@@ -365,7 +395,7 @@ const InventoryManagementView: React.FC = () => {
               type="text"
               placeholder="Search materials..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

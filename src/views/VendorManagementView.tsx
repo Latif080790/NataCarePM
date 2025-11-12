@@ -11,8 +11,8 @@
  * Created: October 2025
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { safeMap, safeFilter, hasItems } from '@/utils/safeOperations';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { safeMap, safeFilter } from '@/utils/safeOperations';
 import {
   Store,
   Plus,
@@ -56,6 +56,8 @@ import {
   EvaluateVendorModal,
   BlacklistVendorModal,
 } from '@/components/VendorModals';
+import { debounce } from '@/utils/performanceOptimization';
+import { logger } from '@/utils/logger.enhanced';
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -144,7 +146,10 @@ const VendorManagementView: React.FC = () => {
       const data = await getVendors(filters);
       setVendors(data);
     } catch (error) {
-      console.error('Error loading vendors:', error);
+      logger.error('Error loading vendors', error as Error, {
+        component: 'VendorManagementView',
+        filters: { status: statusFilter, category: categoryFilter, rating: ratingFilter }
+      });
       addToast('Failed to load vendors', 'error');
     } finally {
       setLoading(false);
@@ -156,7 +161,9 @@ const VendorManagementView: React.FC = () => {
       const data = await getVendorSummary();
       setSummary(data);
     } catch (error) {
-      console.error('Error loading vendor summary:', error);
+      logger.error('Error loading vendor summary', error as Error, {
+        component: 'VendorManagementView'
+      });
     }
   };
 
@@ -233,19 +240,29 @@ const VendorManagementView: React.FC = () => {
     }
   };
 
-  const handleSearch = async (term: string) => {
-    setSearchTerm(term);
-    if (term.length >= 3) {
-      try {
-        const results = await searchVendors(term);
-        setVendors(results);
-      } catch (error) {
-        console.error('Error searching vendors:', error);
+  // Debounced API search to reduce unnecessary calls (300ms delay)
+  const debouncedSearchAPI = useRef(
+    debounce(async (term: string) => {
+      if (term.length >= 3) {
+        try {
+          const results = await searchVendors(term);
+          setVendors(results);
+        } catch (error) {
+          logger.error('Error searching vendors', error as Error, {
+            component: 'VendorManagementView',
+            searchTerm: term
+          });
+        }
+      } else if (term.length === 0) {
+        loadVendors();
       }
-    } else if (term.length === 0) {
-      loadVendors();
-    }
-  };
+    }, 300)
+  ).current;
+
+  const handleSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+    debouncedSearchAPI(term);
+  }, [debouncedSearchAPI]);
 
   // ============================================================================
   // RENDER HELPERS

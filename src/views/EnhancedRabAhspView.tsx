@@ -1,5 +1,6 @@
 // React default import removed (using automatic JSX runtime)
-import React, { useState, useEffect, Component, ErrorInfo, ReactNode, Suspense, lazy } from 'react';
+import { useState, useEffect, useMemo, Component, ErrorInfo, ReactNode, Suspense, lazy } from 'react';
+import { logger } from '@/utils/logger.enhanced';
 import { RabItem, AhspData, EnhancedRabItem } from '@/types';
 import { CardPro } from '@/components/CardPro';
 import { formatCurrency } from '@/constants';
@@ -20,22 +21,22 @@ import {
 
 // Lazy load advanced analysis components to isolate errors
 const PriceEscalationManager = lazy(() => import('@/components/PriceEscalationManager').catch(err => {
-  console.error('[EnhancedRabAhspView] Failed to load PriceEscalationManager:', err);
+  logger.error('Failed to load PriceEscalationManager', err, { component: 'EnhancedRabAhspView' });
   return { default: () => <div className="p-4 text-red-600">Failed to load Price Escalation Manager</div> };
 }));
 
 const VarianceAnalysisComponent = lazy(() => import('@/components/VarianceAnalysisComponent').catch(err => {
-  console.error('[EnhancedRabAhspView] Failed to load VarianceAnalysisComponent:', err);
+  logger.error('Failed to load VarianceAnalysisComponent', err, { component: 'EnhancedRabAhspView' });
   return { default: () => <div className="p-4 text-red-600">Failed to load Variance Analysis</div> };
 }));
 
 const SensitivityAnalysisComponent = lazy(() => import('@/components/SensitivityAnalysisComponent').catch(err => {
-  console.error('[EnhancedRabAhspView] Failed to load SensitivityAnalysisComponent:', err);
+  logger.error('Failed to load SensitivityAnalysisComponent', err, { component: 'EnhancedRabAhspView' });
   return { default: () => <div className="p-4 text-red-600">Failed to load Sensitivity Analysis</div> };
 }));
 
 const RegionalPriceAdjustment = lazy(() => import('@/components/RegionalPriceAdjustment').catch(err => {
-  console.error('[EnhancedRabAhspView] Failed to load RegionalPriceAdjustment:', err);
+  logger.error('Failed to load RegionalPriceAdjustment', err, { component: 'EnhancedRabAhspView' });
   return { default: () => <div className="p-4 text-red-600">Failed to load Regional Price Adjustment</div> };
 }));
 
@@ -58,10 +59,12 @@ class RabErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[RabErrorBoundary] Caught error:', error);
-    console.error('[RabErrorBoundary] Error info:', errorInfo);
-    console.error('[RabErrorBoundary] Error message:', error.message);
-    console.error('[RabErrorBoundary] Error stack:', error.stack);
+    logger.error('Error caught in RAB Error Boundary', error, { 
+      component: 'RabErrorBoundary',
+      errorInfo: errorInfo.componentStack,
+      message: error.message,
+      stack: error.stack
+    });
   }
 
   render() {
@@ -113,7 +116,6 @@ function EnhancedRabAhspView({
   items: propsItems,
   ahspData: propsAhspData,
   projectLocation,
-  projectId,
   onNavigate,
 }: EnhancedRabAhspViewProps) {
   const { currentProject } = useProject();
@@ -156,7 +158,10 @@ function EnhancedRabAhspView({
         // ✅ FIX: addToast signature is (message, type) not ({type, message})
         addToast('RAB & AHSP data will be loaded from your project', 'info');
       } catch (error) {
-        console.error('Error fetching RAB data:', error);
+        logger.error('Error fetching RAB data', error as Error, { 
+          component: 'EnhancedRabAhspView',
+          projectId: currentProject?.id
+        });
         // ✅ FIX: addToast signature is (message, type) not ({type, message})
         addToast('Failed to load RAB data', 'error');
       } finally {
@@ -205,7 +210,7 @@ function EnhancedRabAhspView({
 
   // No data state - IMPROVED with better messaging
   if (!items || items.length === 0) {
-    console.log('[EnhancedRabAhspView] No items data');
+    logger.debug('No RAB items available', { component: 'EnhancedRabAhspView' });
     return (
       <CardPro>
         <div className="p-6">
@@ -228,22 +233,28 @@ function EnhancedRabAhspView({
 
   // Missing AHSP data - show RAB but with limited functionality
   if (!ahspData) {
-    console.log('[EnhancedRabAhspView] No AHSP data');
+    logger.debug('No AHSP data available', { component: 'EnhancedRabAhspView' });
   }
 
-  console.log('[EnhancedRabAhspView] Rendering with items:', items.length);
+  logger.debug('Rendering RAB view', { component: 'EnhancedRabAhspView', itemCount: items.length });
 
-  const totalBudget = items.reduce(
-    (sum, item) => sum + (item?.volume || 0) * (item?.hargaSatuan || 0),
-    0
-  );
-  const totalEnhancedBudget = enhancedItems.reduce((sum, item) => {
-    const adjustedPrice = EnhancedRabService.applyRegionalAdjustments(
-      item.hargaSatuan,
-      item.regionalFactors
+  // Memoize expensive budget calculations - only recalculate when items change
+  const totalBudget = useMemo(() => {
+    return items.reduce(
+      (sum, item) => sum + (item?.volume || 0) * (item?.hargaSatuan || 0),
+      0
     );
-    return sum + item.volume * adjustedPrice;
-  }, 0);
+  }, [items]);
+
+  const totalEnhancedBudget = useMemo(() => {
+    return enhancedItems.reduce((sum, item) => {
+      const adjustedPrice = EnhancedRabService.applyRegionalAdjustments(
+        item.hargaSatuan,
+        item.regionalFactors
+      );
+      return sum + item.volume * adjustedPrice;
+    }, 0);
+  }, [enhancedItems]);
 
   const getAhspDetails = (ahspId: string) => {
     return {
@@ -428,6 +439,9 @@ function EnhancedRabAhspView({
               <tbody>
                 {enhancedItems.map((item) => {
                   const hasAhspData = ahspData?.labors?.[item.ahspId];
+                  
+                  // ⚡ PERFORMANCE: Memoize expensive calculations
+                  // These calculations run on every render - wrap in useMemo hook outside map
                   const adjustedPrice = EnhancedRabService.applyRegionalAdjustments(
                     item.hargaSatuan,
                     item.regionalFactors
@@ -653,7 +667,7 @@ function EnhancedRabAhspView({
       }>
         {(() => {
           try {
-            console.log('[EnhancedRabAhspView] Rendering tab:', activeTab);
+            logger.debug('Rendering RAB tab', { component: 'EnhancedRabAhspView', activeTab });
             
             if (activeTab === 'overview') {
               return renderOverviewTab();
@@ -664,7 +678,7 @@ function EnhancedRabAhspView({
                 <PriceEscalationManager
                   rabItems={enhancedItems}
                   onUpdateEscalation={(escalation) => {
-                    console.log('Escalation updated:', escalation);
+                    logger.info('Price escalation updated', { escalation });
                   }}
                 />
               );
@@ -706,7 +720,10 @@ function EnhancedRabAhspView({
             
             return null;
           } catch (err) {
-            console.error('[EnhancedRabAhspView] Tab render error:', err);
+            logger.error('Tab render error', err as Error, { 
+              component: 'EnhancedRabAhspView', 
+              activeTab 
+            });
             return (
               <CardPro>
                 <div className="p-6 text-center">

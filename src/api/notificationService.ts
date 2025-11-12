@@ -14,6 +14,7 @@ import {
     doc,
     getDoc,
     getDocs,
+    limit,
     orderBy,
     query,
     Timestamp,
@@ -79,7 +80,7 @@ export const getNotifications = async (
   let q = query(
     collection(db, 'notifications'),
     orderBy('createdAt', 'desc'),
-    firestoreLimit(limitCount)
+    limit(limitCount)
   );
 
   if (filters?.recipientId) {
@@ -359,33 +360,48 @@ const sendPushNotification = async (notification: Notification): Promise<void> =
 };
 
 const sendWebhook = async (notification: Notification): Promise<void> => {
-  // TODO: Get webhook URL from user preferences
-  const webhookUrl = notification.data?.webhookUrl;
+  try {
+    // ✅ IMPLEMENTATION: Get webhook URL from user preferences
+    let webhookUrl = notification.data?.webhookUrl;
 
-  if (!webhookUrl) {
-    throw new Error('Webhook URL not provided');
+    // If not in notification data, try to get from user preferences
+    if (!webhookUrl && notification.recipientId) {
+      const userDoc = await getDoc(doc(db, 'users', notification.recipientId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        webhookUrl = userData?.webhookUrl || userData?.preferences?.webhookUrl;
+      }
+    }
+
+    if (!webhookUrl) {
+      throw new Error('Webhook URL not configured for user');
+    }
+
+    // Send webhook notification
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        type: notification.type,
+        priority: notification.priority,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data,
+        timestamp: notification.createdAt.toDate().toISOString()
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook returned ${response.status}: ${response.statusText}`);
+    }
+
+    console.log('Webhook notification sent successfully to:', webhookUrl);
+  } catch (error) {
+    console.error('Error sending webhook:', error);
+    throw error;
   }
-
-  console.log('Webhook notification:', {
-    url: webhookUrl,
-    notification,
-  });
-
-  // Placeholder for actual webhook call
-  // await fetch(webhookUrl, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({
-  //     type: notification.type,
-  //     priority: notification.priority,
-  //     title: notification.title,
-  //     message: notification.message,
-  //     data: notification.data,
-  //     timestamp: notification.createdAt.toDate().toISOString()
-  //   })
-  // });
 };
 
 // ============================================================================
@@ -695,43 +711,226 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-const formatEmailTemplate = (notification: Notification): string => {
-  // TODO: Implement proper email template
+// ✅ IMPLEMENTATION: Proper HTML email template
+export const formatEmailTemplate = (notification: Notification): string => {
+  const priorityColors: Record<NotificationPriority, string> = {
+    [NotificationPriority.LOW]: '#6c757d',
+    [NotificationPriority.NORMAL]: '#0d6efd',
+    [NotificationPriority.HIGH]: '#ff9800',
+    [NotificationPriority.URGENT]: '#dc3545',
+  };
+
+  const typeEmojis: Record<NotificationType, string> = {
+    [NotificationType.INFO]: 'ℹ️',
+    [NotificationType.SUCCESS]: '✅',
+    [NotificationType.WARNING]: '⚠️',
+    [NotificationType.ERROR]: '❌',
+    [NotificationType.ALERT]: '🔔',
+  };
+
+  const priorityColor = priorityColors[notification.priority];
+  const typeEmoji = typeEmojis[notification.type];
+
   return `
-    <html>
-      <body>
-        <h2>${notification.title}</h2>
-        <p>${notification.message}</p>
-        ${
-          notification.actions
-            ? `
-          <div>
-            ${notification.actions
-              .map(
-                (action) => `
-              <a href="${action.url}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-                ${action.label}
-              </a>
-            `
-              )
-              .join('')}
-          </div>
-        `
-            : ''
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${notification.title}</title>
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 0;
         }
-      </body>
+        .email-container {
+          max-width: 600px;
+          margin: 20px auto;
+          background: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .email-header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+        }
+        .email-header h1 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 600;
+        }
+        .priority-badge {
+          display: inline-block;
+          background: ${priorityColor};
+          color: white;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          margin-top: 8px;
+        }
+        .email-body {
+          padding: 30px 20px;
+        }
+        .message-box {
+          background: #f8f9fa;
+          border-left: 4px solid ${priorityColor};
+          padding: 16px;
+          margin: 20px 0;
+          border-radius: 4px;
+        }
+        .message-title {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .message-content {
+          font-size: 14px;
+          color: #555;
+          white-space: pre-wrap;
+        }
+        .action-buttons {
+          margin: 24px 0;
+          text-align: center;
+        }
+        .action-button {
+          display: inline-block;
+          padding: 12px 24px;
+          background: #667eea;
+          color: white !important;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 600;
+          margin: 4px;
+          transition: background 0.3s;
+        }
+        .action-button:hover {
+          background: #5568d3;
+        }
+        .data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+          font-size: 14px;
+        }
+        .data-table th {
+          background: #f1f3f5;
+          padding: 10px;
+          text-align: left;
+          font-weight: 600;
+          border-bottom: 2px solid #dee2e6;
+        }
+        .data-table td {
+          padding: 10px;
+          border-bottom: 1px solid #dee2e6;
+        }
+        .email-footer {
+          background: #f8f9fa;
+          padding: 20px;
+          text-align: center;
+          font-size: 12px;
+          color: #6c757d;
+        }
+        .timestamp {
+          color: #868e96;
+          font-size: 12px;
+          margin-top: 16px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="email-header">
+          <h1>NataCarePM Notification</h1>
+          <span class="priority-badge">${notification.priority} Priority</span>
+        </div>
+        
+        <div class="email-body">
+          <div class="message-box">
+            <div class="message-title">
+              <span>${typeEmoji}</span>
+              <span>${notification.title}</span>
+            </div>
+            <div class="message-content">${notification.message}</div>
+          </div>
+          
+          ${notification.data ? `
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Detail</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(notification.data)
+                  .filter(([key]) => !key.startsWith('_') && key !== 'webhookUrl')
+                  .map(([key, value]) => `
+                    <tr>
+                      <td><strong>${key}</strong></td>
+                      <td>${typeof value === 'object' ? JSON.stringify(value) : String(value)}</td>
+                    </tr>
+                  `)
+                  .join('')}
+              </tbody>
+            </table>
+          ` : ''}
+          
+          ${notification.actions && notification.actions.length > 0 ? `
+            <div class="action-buttons">
+              ${notification.actions
+                .map(action => `
+                  <a href="${action.url}" class="action-button">
+                    ${action.label}
+                  </a>
+                `)
+                .join('')}
+            </div>
+          ` : ''}
+          
+          <div class="timestamp">
+            Sent: ${notification.createdAt.toDate().toLocaleString('id-ID', {
+              dateStyle: 'full',
+              timeStyle: 'short'
+            })}
+          </div>
+        </div>
+        
+        <div class="email-footer">
+          <p>This is an automated notification from <strong>NataCarePM</strong></p>
+          <p>Construction Project Management System</p>
+          <p style="margin-top: 12px; font-size: 11px;">
+            If you have questions, please contact your project administrator.
+          </p>
+        </div>
+      </div>
+    </body>
     </html>
-  `;
+  `.trim();
 };
 
 const getNotificationIcon = (type: NotificationType): string => {
   const icons: Record<NotificationType, string> = {
-    info: 'ℹ️',
-    success: '✅',
-    warning: '⚠️',
-    error: '❌',
-    alert: '🔔',
+    [NotificationType.INFO]: 'ℹ️',
+    [NotificationType.SUCCESS]: '✅',
+    [NotificationType.WARNING]: '⚠️',
+    [NotificationType.ERROR]: '❌',
+    [NotificationType.ALERT]: '🔔',
   };
 
   return icons[type] || 'ℹ️';
 };
+
+// Export for use in email templates and notifications
+export { getNotificationIcon };

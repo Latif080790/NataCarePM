@@ -1,4 +1,5 @@
 // Gauge Chart Components
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './Card';
 
 interface RadialProgressProps {
@@ -15,18 +16,11 @@ interface GaugeChartProps {
   thresholds: number[];
 }
 
-export function GaugeChart({ value, max }: GaugeChartProps) {
-  const percentage = Math.max(0, Math.min(100, (value / max) * 100));
-  return (
-    <RadialProgress
-      title="Performance"
-      description={`${value.toFixed(1)} / ${max}`}
-      value={percentage}
-    />
-  );
-}
-
-export function RadialProgress({ title, description, value, className = '' }: RadialProgressProps) {
+/**
+ * RadialProgress Component - Performance Optimized
+ * Uses React.memo for efficient rendering
+ */
+const RadialProgressComponent = ({ title, description, value, className = '' }: RadialProgressProps) => {
   // Ensure value is a valid number
   const safeValue = isNaN(value) || !isFinite(value) ? 0 : value;
   const normalizedValue = Math.max(0, Math.min(100, safeValue));
@@ -108,4 +102,23 @@ export function RadialProgress({ title, description, value, className = '' }: Ra
       </CardContent>
     </Card>
   );
-}
+};
+
+export const RadialProgress = React.memo(RadialProgressComponent);
+
+/**
+ * GaugeChart Component - Performance Optimized
+ * Uses React.memo to prevent unnecessary re-renders
+ */
+const GaugeChartComponent = ({ value, max }: GaugeChartProps) => {
+  const percentage = Math.max(0, Math.min(100, (value / max) * 100));
+  return (
+    <RadialProgress
+      title="Performance"
+      description={`${value.toFixed(1)} / ${max}`}
+      value={percentage}
+    />
+  );
+};
+
+export const GaugeChart = React.memo(GaugeChartComponent);

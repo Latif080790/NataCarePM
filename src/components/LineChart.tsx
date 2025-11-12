@@ -16,7 +16,12 @@ interface LineChartProps {
   height: number;
 }
 
-export const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => {
+/**
+ * LineChart Component - Performance Optimized
+ * Uses React.memo to prevent unnecessary re-renders when props haven't changed
+ * Custom comparison function ensures deep equality check for data arrays
+ */
+const LineChartComponent: React.FC<LineChartProps> = ({ data, width, height }) => {
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -305,3 +310,38 @@ export const LineChart: React.FC<LineChartProps> = ({ data, width, height }) => 
     </div>
   );
 };
+
+/**
+ * Memoized LineChart with custom comparison
+ * Prevents re-renders when data arrays have the same values
+ */
+export const LineChart = React.memo(LineChartComponent, (prevProps, nextProps) => {
+  // Quick reference equality check first
+  if (prevProps.data === nextProps.data && 
+      prevProps.width === nextProps.width && 
+      prevProps.height === nextProps.height) {
+    return true;
+  }
+
+  // Deep comparison for data arrays
+  const plannedEqual = 
+    prevProps.data.planned.length === nextProps.data.planned.length &&
+    prevProps.data.planned.every((point, index) => 
+      point.day === nextProps.data.planned[index]?.day &&
+      point.cost === nextProps.data.planned[index]?.cost
+    );
+
+  const actualEqual = 
+    prevProps.data.actual.length === nextProps.data.actual.length &&
+    prevProps.data.actual.every((point, index) => 
+      point.day === nextProps.data.actual[index]?.day &&
+      point.cost === nextProps.data.actual[index]?.cost
+    );
+
+  return (
+    plannedEqual && 
+    actualEqual && 
+    prevProps.width === nextProps.width && 
+    prevProps.height === nextProps.height
+  );
+});

@@ -36,6 +36,7 @@ import {
 } from '@/types/logistics';
 import { PurchaseOrder, POItem } from '@/types';
 import { auditHelper } from '@/utils/auditHelper';
+import { getVendorById } from './vendorService';
 
 // ============================================================================
 // CONSTANTS
@@ -216,10 +217,30 @@ async function checkInventoryStock(
       };
     }
 
-    // TODO: Query actual inventory collection
-    // For now, return mock data
-    const currentStock = 0;
-    const reorderPoint = 10;
+    // ✅ IMPLEMENTATION: Query actual inventory collection
+    const inventoryQuery = query(
+      collection(db, 'inventory_materials'),
+      where('materialCode', '==', materialCode),
+      where('projectId', '==', _projectId)
+    );
+
+    const querySnapshot = await getDocs(inventoryQuery);
+
+    if (querySnapshot.empty) {
+      // Material not found in inventory
+      return {
+        currentStock: 0,
+        reorderPoint: 0,
+        stockStatus: 'out_of_stock',
+      };
+    }
+
+    // Get first matching material
+    const inventoryDoc = querySnapshot.docs[0];
+    const inventoryData = inventoryDoc.data();
+
+    const currentStock = inventoryData.availableStock || inventoryData.currentStock || 0;
+    const reorderPoint = inventoryData.minimumStock || inventoryData.reorderPoint || 10;
 
     let stockStatus: 'sufficient' | 'low' | 'out_of_stock';
     if (currentStock === 0) {
@@ -768,6 +789,16 @@ export async function convertMRtoPO(
     // Calculate total
     const totalAmount = poItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
+    // ✅ IMPLEMENTATION: Fetch vendor data from vendorService
+    let vendorName = '';
+    try {
+      const vendor = await getVendorById(input.vendorId);
+      vendorName = vendor?.vendorName || '';
+    } catch (error) {
+      console.warn('Failed to fetch vendor name:', error);
+      // Continue with empty vendor name
+    }
+
     // Create PO
     const newPO: Omit<PurchaseOrder, 'id'> = {
       prNumber: mr.mrNumber, // Link to MR
@@ -777,7 +808,7 @@ export async function convertMRtoPO(
       requester: mr.requestedBy,
       requestDate: mr.requestedAt,
       vendorId: input.vendorId,
-      vendorName: '', // TODO: Fetch from vendor service
+      vendorName,
       totalAmount,
       wbsElementId: mr.items[0]?.wbsElementId, // Use first item's WBS
       grnStatus: 'Belum Diterima',

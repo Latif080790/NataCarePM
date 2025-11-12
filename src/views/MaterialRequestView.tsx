@@ -12,7 +12,8 @@
  * Created: October 2025
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { logger } from '@/utils/logger.enhanced';
 import {
   ClipboardList,
   Plus,
@@ -47,6 +48,7 @@ import {
   ApprovalModal,
   ConvertToPOModal,
 } from '@/components/MaterialRequestModals';
+import { debounce } from '@/utils/performanceOptimization';
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -94,8 +96,22 @@ const MaterialRequestView: React.FC = () => {
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<MRStatus[]>([]);
   const [priorityFilter, setFilterPriority] = useState<MRPriority[]>([]);
+
+  // Debounce search to reduce filter calculations (300ms delay)
+  const debouncedSetSearch = useRef(
+    debounce((value: string) => {
+      setDebouncedSearchTerm(value);
+    }, 300)
+  ).current;
+
+  // Handle search input with debounce
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value); // Update immediately for UI
+    debouncedSetSearch(value); // Debounced for filtering
+  }, [debouncedSetSearch]);
 
   // Summary stats
   const [summary, setSummary] = useState({
@@ -133,7 +149,10 @@ const MaterialRequestView: React.FC = () => {
       const data = await getMaterialRequests(currentProject.id, filters);
       setMRs(data);
     } catch (error) {
-      console.error('Error loading MRs:', error);
+      logger.error('Error loading material requests', error as Error, {
+        component: 'MaterialRequestView',
+        projectId: currentProject.id
+      });
       addToast('Failed to load material requests', 'error');
     } finally {
       setLoading(false);
@@ -147,7 +166,10 @@ const MaterialRequestView: React.FC = () => {
       const data = await getMRSummary(currentProject.id);
       setSummary(data);
     } catch (error) {
-      console.error('Error loading MR summary:', error);
+      logger.error('Error loading MR summary', error as Error, {
+        component: 'MaterialRequestView',
+        projectId: currentProject.id
+      });
     }
   };
 
@@ -167,7 +189,11 @@ const MaterialRequestView: React.FC = () => {
         setPendingApprovals(data);
       }
     } catch (error) {
-      console.error('Error loading pending approvals:', error);
+      logger.error('Error loading pending approvals', error as Error, {
+        component: 'MaterialRequestView',
+        userId: currentUser.uid,
+        role: currentUser.roleId
+      });
     }
   };
 
@@ -274,9 +300,9 @@ const MaterialRequestView: React.FC = () => {
   const filteredMRs = useMemo(() => {
     let result = [...mrs];
 
-    // Apply search
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    // Apply search (using debounced value)
+    if (debouncedSearchTerm) {
+      const term = debouncedSearchTerm.toLowerCase();
       result = result.filter(
         (mr) =>
           mr.mrNumber.toLowerCase().includes(term) ||
@@ -296,7 +322,7 @@ const MaterialRequestView: React.FC = () => {
     }
 
     return result;
-  }, [mrs, searchTerm, statusFilter, priorityFilter]);
+  }, [mrs, debouncedSearchTerm, statusFilter, priorityFilter]);
 
   // ============================================================================
   // PERMISSION CHECK
@@ -404,7 +430,7 @@ const MaterialRequestView: React.FC = () => {
               type="text"
               placeholder="Search by MR number, purpose, or material..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="focus:ring-2 focus:ring-blue-600 transition-shadow"
             />
           </div>

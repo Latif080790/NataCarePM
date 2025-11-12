@@ -3,36 +3,52 @@ import {
   BoundingBox,
   ExtractedData,
 } from '@/types';
-import Tesseract from 'tesseract.js';
 import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWrapper';
 import { logger } from '@/utils/logger.enhanced';
 import { withRetry } from '@/utils/retryWrapper';
 
+// ✅ OPTIMIZATION: Dynamic import for Tesseract.js
+type TesseractModule = typeof import('tesseract.js');
+type TesseractWorker = import('tesseract.js').Worker;
+
 // AI-Powered OCR Service for Construction Documents with Performance Optimizations
 export class OptimizedOCRService {
   private supportedFormats: string[] = ['pdf', 'jpg', 'jpeg', 'png', 'tiff', 'bmp'];
-  private tesseractWorker: Tesseract.Worker | null = null;
+  private tesseractModule: TesseractModule | null = null;
   private processingStatus: Map<string, { status: string; progress: number; result?: any }> =
     new Map();
-  private workerPool: Tesseract.Worker[] = [];
+  private workerPool: TesseractWorker[] = [];
   private maxWorkers: number = 2; // Limit concurrent workers to prevent memory issues
 
   constructor() {
-    // Initialize Tesseract workers
-    this.initializeTesseractWorkers();
+    // Don't initialize immediately - lazy load on first use
+  }
+
+  /**
+   * ✅ OPTIMIZATION: Lazy load Tesseract.js module
+   */
+  private async loadTesseract(): Promise<TesseractModule> {
+    if (!this.tesseractModule) {
+      logger.info('Loading Tesseract.js dynamically');
+      this.tesseractModule = await import('tesseract.js');
+    }
+    return this.tesseractModule;
   }
 
   /**
    * Initialize multiple Tesseract.js workers for parallel processing
+   * Public method - can be called to pre-warm the worker pool
    */
-  private async initializeTesseractWorkers(): Promise<void> {
+  async initializeTesseractWorkers(): Promise<void> {
     try {
       logger.info('Initializing Tesseract worker pool', { workerCount: this.maxWorkers });
+
+      const Tesseract = await this.loadTesseract();
 
       // Create multiple workers for parallel processing
       for (let i = 0; i < this.maxWorkers; i++) {
         const worker = await Tesseract.createWorker('eng', 1, {
-          logger: (m) => {
+          logger: (m: any) => {
             if (m.status === 'recognizing text') {
               logger.debug('OCR Progress', { progress: Math.round(m.progress * 100) });
             }
@@ -51,15 +67,18 @@ export class OptimizedOCRService {
   /**
    * Get available worker from pool
    */
-  private async getWorker(): Promise<Tesseract.Worker> {
+  private async getWorker(): Promise<TesseractWorker> {
+    // Ensure Tesseract is loaded
+    const Tesseract = await this.loadTesseract();
+
     if (this.workerPool.length > 0) {
-      return this.workerPool.pop() as Tesseract.Worker;
+      return this.workerPool.pop() as TesseractWorker;
     }
 
     // If no workers available, create a new one (fallback)
     logger.warn('No available workers in pool, creating new worker');
     return await Tesseract.createWorker('eng', 1, {
-      logger: (m) => {
+      logger: (m: any) => {
         if (m.status === 'recognizing text') {
           logger.debug('OCR Progress', { progress: Math.round(m.progress * 100) });
         }
@@ -70,7 +89,7 @@ export class OptimizedOCRService {
   /**
    * Return worker to pool
    */
-  private returnWorker(worker: Tesseract.Worker): void {
+  private returnWorker(worker: TesseractWorker): void {
     if (this.workerPool.length < this.maxWorkers) {
       this.workerPool.push(worker);
     } else {
@@ -279,6 +298,7 @@ export class OptimizedOCRService {
     file: File
   ): Promise<{ text: string; confidence: number; boundingBoxes: BoundingBox[] }> {
     const worker = await this.getWorker();
+    const Tesseract = await this.loadTesseract();
     
     try {
       logger.debug('Performing OCR with worker');
@@ -579,7 +599,7 @@ export class OptimizedOCRService {
    */
   private async extractSignaturesOptimized(
     text: string, 
-    boundingBoxes: BoundingBox[]
+    _boundingBoxes: BoundingBox[] // Prefix with _ to indicate intentionally unused
   ): Promise<any[]> {
     // Look for signature indicators in text
     const signatureIndicators = ['ttd', 'signature', 'tandatangan', 'signed by'];

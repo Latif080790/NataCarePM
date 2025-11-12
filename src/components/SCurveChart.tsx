@@ -10,7 +10,12 @@ interface SCurveChartProps {
   data: SCurveDataPoint[];
 }
 
-export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
+/**
+ * SCurveChart Component - Performance Optimized
+ * Uses React.memo to prevent unnecessary re-renders when data hasn't changed
+ * Optimized for construction project S-curve visualization
+ */
+const SCurveChartComponent: React.FC<SCurveChartProps> = ({ data }) => {
   const [hoveredPoint, setHoveredPoint] = useState<{
     month: string;
     planned: number;
@@ -278,3 +283,25 @@ export const SCurveChart: React.FC<SCurveChartProps> = ({ data }) => {
     </div>
   );
 };
+
+/**
+ * Memoized SCurveChart with custom comparison
+ * Prevents re-renders when data array has the same values
+ */
+export const SCurveChart = React.memo(SCurveChartComponent, (prevProps, nextProps) => {
+  // Quick reference equality check
+  if (prevProps.data === nextProps.data) {
+    return true;
+  }
+
+  // Deep comparison for data array
+  if (prevProps.data.length !== nextProps.data.length) {
+    return false;
+  }
+
+  return prevProps.data.every((point, index) => 
+    point.month === nextProps.data[index]?.month &&
+    point.planned === nextProps.data[index]?.planned &&
+    point.actual === nextProps.data[index]?.actual
+  );
+});

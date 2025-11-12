@@ -1065,14 +1065,18 @@ export async function linkPOToVendor(
 ): Promise<void> {
   try {
     const poRef = doc(db, `projects/${projectId}/purchaseOrders`, poId);
-    const poDoc = await getDoc(poRef);
+    const vendorRef = doc(db, VENDORS_COLLECTION, vendorId);
+
+    // ✅ OPTIMIZATION: Batch read - fetch both documents in parallel
+    const [poDoc, vendorDoc] = await Promise.all([
+      getDoc(poRef),
+      getDoc(vendorRef)
+    ]);
 
     if (!poDoc.exists()) {
       throw new Error('Purchase Order not found');
     }
 
-    // Get vendor name
-    const vendorDoc = await getDoc(doc(db, VENDORS_COLLECTION, vendorId));
     if (!vendorDoc.exists()) {
       throw new Error('Vendor not found');
     }

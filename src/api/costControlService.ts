@@ -8,6 +8,7 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { withCache } from '@/utils/responseWrapper';
 import {
   CostControlSummary,
   EVMMetrics,
@@ -28,6 +29,32 @@ import {
 // MAIN AGGREGATION FUNCTION
 // ============================================================================
 
+/**
+ * ✅ CACHED VERSION - Get Cost Control Summary with 5-minute cache
+ * Use this for dashboard/analytics to reduce expensive aggregation calls
+ */
+export const getCostControlSummaryCached = async (
+  projectId: string,
+  filters?: CostControlFilters
+): Promise<CostControlSummary> => {
+  const cacheKey = `cost_control_${projectId}_${JSON.stringify(filters || {})}`;
+  const result = await withCache(
+    cacheKey,
+    () => getCostControlSummary(projectId, filters),
+    300000, // 5 minutes cache
+    'costControlService.getCostControlSummaryCached'
+  );
+  
+  if (!result.success || !result.data) {
+    throw new Error(result.error?.message || 'Failed to get cost control summary');
+  }
+  
+  return result.data;
+};
+
+/**
+ * Original uncached version - use for real-time updates
+ */
 export const getCostControlSummary = async (
   projectId: string,
   filters?: CostControlFilters
@@ -326,9 +353,9 @@ export const calculateEVMMetrics = (
 
 const calculateBudgetVsActual = (
   wbsData: WBSCostData[],
-  financeData: FinanceCostData,
-  logisticsData: { totalCost: number },
-  inventoryData: { totalValue: number }
+  _financeData: FinanceCostData,
+  _logisticsData: { totalCost: number },
+  _inventoryData: { totalValue: number }
 ): BudgetVsActual[] => {
   const categories: BudgetVsActual[] = [];
 
@@ -410,7 +437,7 @@ const calculateCostBreakdown = (
 // ============================================================================
 
 const calculateTrendAnalysis = async (
-  projectId: string
+  _projectId: string
 ): Promise<TrendAnalysis> => {
   // Get historical EVM data (mock for now - would come from historical records)
   const dataPoints: TrendData[] = [];
@@ -490,7 +517,7 @@ const calculateTrendAnalysis = async (
 // ============================================================================
 
 const calculateCashFlow = async (
-  projectId: string
+  _projectId: string
 ): Promise<CashFlowSummary> => {
   const projections: CashFlowProjection[] = [];
 
@@ -552,7 +579,7 @@ const calculateCashFlow = async (
 
 const calculateVarianceAnalysis = (
   wbsData: WBSCostData[],
-  evmMetrics: EVMMetrics
+  _evmMetrics: EVMMetrics
 ): VarianceAnalysis[] => {
   return wbsData.map((wbs) => {
     const costVariance = wbs.earned - wbs.actual;
@@ -737,7 +764,7 @@ export const generateCostAlerts = (
 // EXPORT FUNCTIONS
 // ============================================================================
 
-export const exportToExcel = async (summary: CostControlSummary, options: any): Promise<Blob> => {
+export const exportToExcel = async (summary: CostControlSummary, _options: any): Promise<Blob> => {
   // Placeholder for Excel export
   // Would use libraries like xlsx or exceljs
   console.log('Exporting to Excel:', summary);
@@ -746,7 +773,7 @@ export const exportToExcel = async (summary: CostControlSummary, options: any): 
   });
 };
 
-export const exportToPDF = async (summary: CostControlSummary, options: any): Promise<Blob> => {
+export const exportToPDF = async (summary: CostControlSummary, _options: any): Promise<Blob> => {
   // Placeholder for PDF export
   // Would use libraries like jsPDF or pdfmake
   console.log('Exporting to PDF:', summary);
