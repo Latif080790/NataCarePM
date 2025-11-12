@@ -7,10 +7,8 @@
 
 import { initializeApp } from 'firebase/app';
 import { 
-  getFirestore, 
   type Firestore,
-  enableIndexedDbPersistence,
-  CACHE_SIZE_UNLIMITED
+  initializeFirestore
 } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
@@ -56,10 +54,12 @@ const app = initializeApp(firebaseConfig);
 console.log('%c[FIREBASE CONFIG] App initialized!', 'color: #00FF00; font-weight: bold; font-size: 16px');
 console.log('[FIREBASE] Using SDK v10.14.1');
 
-// Initialize Firestore with v10 stable settings
-const db: Firestore = getFirestore(app);
+// Initialize Firestore with v10 stable settings + ignoreUndefinedProperties
+const db: Firestore = initializeFirestore(app, {
+  ignoreUndefinedProperties: true, // FIX: Prevents undefined field errors
+});
 
-console.log('%c[FIREBASE CONFIG] Firestore initialized!', 'color: #00FF00; font-weight: bold; font-size: 16px');
+console.log('%c[FIREBASE CONFIG] Firestore initialized with ignoreUndefinedProperties=true!', 'color: #00FF00; font-weight: bold; font-size: 16px');
 
 // ⚠️ TEMPORARILY DISABLED: Offline persistence to fix 400 errors
 // Re-enable after clearing browser cache and verifying app works

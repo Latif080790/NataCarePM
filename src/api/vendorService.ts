@@ -40,6 +40,7 @@ import {
   VendorSummary,
   PerformanceRating,
 } from '@/types/vendor';
+import { auditHelper } from '@/utils/auditHelper';
 
 // ============================================================================
 // CONSTANTS
@@ -182,7 +183,7 @@ export async function createVendor(
       'performance.vendorId': docRef.id,
     });
 
-    return {
+    const vendor = {
       id: docRef.id,
       ...newVendor,
       performance: {
@@ -190,6 +191,23 @@ export async function createVendor(
         vendorId: docRef.id,
       },
     };
+
+    // Log vendor creation
+    await auditHelper.logCreate({
+      module: 'procurement',
+      subModule: 'vendor_management',
+      entityType: 'vendor',
+      entityId: docRef.id,
+      entityName: input.vendorName,
+      newData: vendor,
+      metadata: {
+        vendorCode,
+        category: input.category,
+        status: 'pending_approval',
+      },
+    });
+
+    return vendor;
   } catch (error) {
     console.error('Error creating vendor:', error);
     throw new Error('Failed to create vendor');
@@ -290,12 +308,32 @@ export async function updateVendor(
 ): Promise<void> {
   try {
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
+    
+    // Get old data for audit trail
+    const oldVendor = await getVendorById(vendorId);
 
     await updateDoc(docRef, {
       ...input,
       updatedBy: userId,
       updatedAt: new Date().toISOString(),
     });
+
+    // Log vendor update
+    if (oldVendor) {
+      await auditHelper.logUpdate({
+        module: 'procurement',
+        subModule: 'vendor_management',
+        entityType: 'vendor',
+        entityId: vendorId,
+        entityName: oldVendor.vendorName,
+        oldData: oldVendor,
+        newData: { ...oldVendor, ...input },
+        metadata: {
+          vendorCode: oldVendor.vendorCode,
+          updatedFields: Object.keys(input),
+        },
+      });
+    }
   } catch (error) {
     console.error('Error updating vendor:', error);
     throw new Error('Failed to update vendor');
@@ -318,12 +356,31 @@ export async function deleteVendor(vendorId: string, userId: string): Promise<vo
       throw new Error(`Cannot delete vendor with ${activePOs.length} active purchase order(s)`);
     }
 
+    // Get vendor data before deletion
+    const vendor = await getVendorById(vendorId);
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       status: 'inactive',
       updatedBy: userId,
       updatedAt: new Date().toISOString(),
     });
+
+    // Log vendor deletion (soft delete)
+    if (vendor) {
+      await auditHelper.logStatusChange({
+        module: 'procurement',
+        entityType: 'vendor',
+        entityId: vendorId,
+        entityName: vendor.vendorName,
+        oldStatus: vendor.status,
+        newStatus: 'inactive',
+        reason: 'Vendor deactivated',
+        metadata: {
+          vendorCode: vendor.vendorCode,
+        },
+      });
+    }
   } catch (error) {
     console.error('Error deleting vendor:', error);
     throw error;
@@ -335,12 +392,33 @@ export async function deleteVendor(vendorId: string, userId: string): Promise<vo
  */
 export async function approveVendor(vendorId: string, userId: string): Promise<void> {
   try {
+    // Get vendor data before approval
+    const vendor = await getVendorById(vendorId);
+
     const docRef = doc(db, VENDORS_COLLECTION, vendorId);
     await updateDoc(docRef, {
       status: 'active',
       updatedBy: userId,
       updatedAt: new Date().toISOString(),
     });
+
+    // Log vendor approval
+    if (vendor) {
+      await auditHelper.logApproval({
+        module: 'procurement',
+        entityType: 'vendor',
+        entityId: vendorId,
+        entityName: vendor.vendorName,
+        approvalStage: 'vendor_registration',
+        decision: 'approved',
+        oldStatus: vendor.status,
+        newStatus: 'active',
+        metadata: {
+          vendorCode: vendor.vendorCode,
+          category: vendor.category,
+        },
+      });
+    }
   } catch (error) {
     console.error('Error approving vendor:', error);
     throw new Error('Failed to approve vendor');
@@ -697,6 +775,28 @@ export async function blacklistVendor(
         isBlacklisted: true,
         status: 'blacklisted',
         blacklistRecords: [...vendor.blacklistRecords, { id: docRef.id, ...blacklist }],
+      });
+
+      // Log vendor blacklisting
+      await auditHelper.logCustom({
+        action: `Vendor blacklisted: ${input.reason}`,
+        actionType: 'update',
+        actionCategory: 'security',
+        module: 'procurement',
+        entityType: 'vendor',
+        entityId: input.vendorId,
+        entityName: vendor.vendorName,
+        beforeSnapshot: { isBlacklisted: false, status: vendor.status },
+        afterSnapshot: { isBlacklisted: true, status: 'blacklisted' },
+        subModule: 'blacklist_management',
+        metadata: {
+          vendorCode: vendor.vendorCode,
+          blacklistReason: input.reason,
+          blacklistCategory: input.category,
+          severity: input.severity,
+          effectiveFrom: input.effectiveFrom,
+          effectiveUntil: input.effectiveUntil,
+        },
       });
     }
 

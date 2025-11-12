@@ -35,6 +35,7 @@ import {
   MRPriority,
 } from '@/types/logistics';
 import { PurchaseOrder, POItem } from '@/types';
+import { auditHelper } from '@/utils/auditHelper';
 
 // ============================================================================
 // CONSTANTS
@@ -156,11 +157,35 @@ export async function createMaterialRequest(
       items: updatedItems,
     });
 
-    return {
+    const createdMR = {
       id: docRef.id,
       ...newMR,
       items: updatedItems,
     };
+
+    // Enhanced audit logging
+    await auditHelper.logCreate({
+      module: 'logistics',
+      entityType: 'material_request',
+      entityId: docRef.id,
+      entityName: mrNumber,
+      newData: {
+        mrNumber,
+        projectId: input.projectId,
+        status: 'draft',
+        priority: input.priority,
+        requiredDate: input.requiredDate,
+        totalItems,
+        totalEstimatedValue,
+      },
+      metadata: {
+        purpose: input.purpose,
+        requestedBy: userName,
+        itemsCount: totalItems,
+      },
+    });
+
+    return createdMR;
   } catch (error) {
     console.error('Error creating material request:', error);
     throw error;
@@ -363,6 +388,30 @@ export async function updateMaterialRequest(
       ...updates,
       updatedAt: new Date().toISOString(),
     });
+
+    // Enhanced audit logging
+    await auditHelper.logUpdate({
+      module: 'logistics',
+      entityType: 'material_request',
+      entityId: mrId,
+      entityName: mr.mrNumber,
+      oldData: {
+        priority: mr.priority,
+        requiredDate: mr.requiredDate,
+        purpose: mr.purpose,
+        totalItems: mr.totalItems,
+      },
+      newData: {
+        priority: updates.priority || mr.priority,
+        requiredDate: updates.requiredDate || mr.requiredDate,
+        purpose: updates.purpose || mr.purpose,
+        totalItems: updates.items?.length || mr.totalItems,
+      },
+      metadata: {
+        mrNumber: mr.mrNumber,
+        updatedFields: Object.keys(updates),
+      },
+    });
   } catch (error) {
     console.error('Error updating material request:', error);
     throw error;
@@ -440,7 +489,43 @@ export async function approveMaterialRequest(
         rejectedAt: now,
         rejectionReason: input.notes,
       });
+
+      // Enhanced audit logging for rejection
+      await auditHelper.logApproval({
+        module: 'logistics',
+        entityType: 'material_request',
+        entityId: input.mrId,
+        entityName: mr.mrNumber,
+        approvalStage: input.approverRole || 'unknown',
+        decision: 'rejected',
+        comments: input.notes,
+        oldStatus: mr.status,
+        newStatus: 'rejected',
+        metadata: {
+          mrNumber: mr.mrNumber,
+          totalEstimatedValue: mr.totalEstimatedValue,
+          rejectionReason: input.notes,
+        },
+      });
+
       return;
+    }
+
+    // Determine new status based on approver role
+    let newStatus: MRStatus = mr.status;
+    switch (input.approverRole) {
+      case 'site_manager':
+        newStatus = 'pm_review';
+        break;
+      case 'pm':
+        newStatus = 'budget_check';
+        break;
+      case 'budget_controller':
+        // Will be set after budget check
+        break;
+      case 'final_approver':
+        newStatus = 'approved';
+        break;
     }
 
     // Handle approval at each stage
@@ -467,12 +552,14 @@ export async function approveMaterialRequest(
         // Check budget availability via WBS
         const budgetStatus = await checkBudgetAvailability(mr);
 
+        newStatus = budgetStatus.status === 'sufficient' ? 'approved' : 'rejected';
+
         await updateDoc(docRef, {
           budgetCheckedBy: approverId,
           budgetCheckedAt: now,
           budgetStatus: budgetStatus.status,
           budgetNotes: `${input.notes}\n\nBudget Analysis: ${budgetStatus.message}`,
-          status: budgetStatus.status === 'sufficient' ? 'approved' : 'rejected',
+          status: newStatus,
         });
         break;
 
@@ -487,6 +574,25 @@ export async function approveMaterialRequest(
       default:
         throw new Error(`Invalid approver role: ${input.approverRole}`);
     }
+
+    // Enhanced audit logging for approval
+    await auditHelper.logApproval({
+      module: 'logistics',
+      entityType: 'material_request',
+      entityId: input.mrId,
+      entityName: mr.mrNumber,
+      approvalStage: input.approverRole || 'unknown',
+      decision: 'approved',
+      comments: input.notes,
+      oldStatus: mr.status,
+      newStatus,
+      metadata: {
+        mrNumber: mr.mrNumber,
+        totalEstimatedValue: mr.totalEstimatedValue,
+        approverRole: input.approverRole,
+        approvalNotes: input.notes,
+      },
+    });
   } catch (error) {
     console.error('Error approving material request:', error);
     throw error;
@@ -700,10 +806,31 @@ export async function convertMRtoPO(
       convertedBy: userId,
     });
 
-    return {
+    const createdPO = {
       id: poRef.id,
       ...newPO,
     };
+
+    // Enhanced audit logging
+    await auditHelper.logStatusChange({
+      module: 'logistics',
+      entityType: 'material_request',
+      entityId: input.mrId,
+      entityName: mr.mrNumber,
+      oldStatus: 'approved',
+      newStatus: 'converted_to_po',
+      metadata: {
+        mrNumber: mr.mrNumber,
+        poNumber: newPO.poNumber,
+        poId: poRef.id,
+        vendorId: input.vendorId,
+        totalAmount,
+        itemsCount: poItems.length,
+        convertedBy: userId,
+      },
+    });
+
+    return createdPO;
   } catch (error) {
     console.error('Error converting MR to PO:', error);
     throw error;
@@ -859,6 +986,24 @@ export async function deleteMaterialRequest(mrId: string): Promise<void> {
 
     const docRef = doc(db, MR_COLLECTION, mrId);
     await deleteDoc(docRef);
+
+    // Enhanced audit logging
+    await auditHelper.logDelete({
+      module: 'logistics',
+      entityType: 'material_request',
+      entityId: mrId,
+      entityName: mr.mrNumber,
+      oldData: {
+        mrNumber: mr.mrNumber,
+        status: mr.status,
+        totalItems: mr.totalItems,
+        totalEstimatedValue: mr.totalEstimatedValue,
+        projectId: mr.projectId,
+      },
+      metadata: {
+        reason: 'Draft MR deleted',
+      },
+    });
   } catch (error) {
     console.error('Error deleting material request:', error);
     throw error;

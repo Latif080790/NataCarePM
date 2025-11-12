@@ -47,6 +47,7 @@ const UserManagementView = lazy(() => import('@/views/UserManagementView'));
 const MasterDataView = lazy(() => import('@/views/MasterDataView'));
 const AuditTrailView = lazy(() => import('@/views/AuditTrailView'));
 const EnhancedAuditLogView = lazy(() => import('@/views/EnhancedAuditLogView'));
+const AuditTestingView = lazy(() => import('@/views/AuditTestingView'));
 // const AuditDashboardView = lazy(() => import('@/views/AuditDashboardView'));
 const ProfileView = lazy(() => import('@/views/ProfileView'));
 const TaskListView = lazy(() => import('@/views/TaskListView'));
@@ -482,6 +483,11 @@ function App() {
           <Route path="settings/audit-trail-enhanced" element={
             <ViewErrorBoundary viewName="Enhanced Audit Trail">
               <EnhancedAuditLogView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="settings/audit-testing" element={
+            <ViewErrorBoundary viewName="Audit Testing">
+              <AuditTestingView />
             </ViewErrorBoundary>
           } />
           {/* <Route path="settings/audit-dashboard" element={

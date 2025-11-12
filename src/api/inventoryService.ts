@@ -40,6 +40,7 @@ import {
   MaterialStatus,
   UnitOfMeasure,
 } from '@/types/inventory';
+import { auditHelper } from '@/utils/auditHelper';
 
 // ============================================================================
 // UTILITIES
@@ -516,6 +517,26 @@ export async function createTransaction(
   const transactionsRef = collection(db, 'inventory_transactions');
   const docRef = await addDoc(transactionsRef, transactionData);
 
+  // Enhanced audit logging
+  await auditHelper.logCreate({
+    module: 'logistics',
+    entityType: 'inventory_transaction',
+    entityId: docRef.id,
+    entityName: transactionCode,
+    newData: {
+      transactionCode,
+      transactionType: input.transactionType,
+      warehouseName,
+      itemsCount: processedItems.length,
+      totalValue,
+      status: requiresApproval ? 'pending_approval' : 'draft',
+    },
+    metadata: {
+      reason: input.reason,
+      createdBy: userName,
+    },
+  });
+
   return docRef.id;
 }
 
@@ -633,6 +654,25 @@ export async function completeTransaction(
       completedBy: { userId, userName },
       items: txnData.items,
     });
+
+    // Enhanced audit logging (after Firestore transaction commit)
+    // Note: This will execute after runTransaction completes
+    setTimeout(async () => {
+      await auditHelper.logStatusChange({
+        module: 'logistics',
+        entityType: 'inventory_transaction',
+        entityId: transactionId,
+        entityName: txnData.transactionCode,
+        oldStatus: txnData.status,
+        newStatus: 'completed',
+        metadata: {
+          transactionType: txnData.transactionType,
+          totalValue: txnData.totalValue,
+          itemsCount: txnData.items.length,
+          completedBy: userName,
+        },
+      });
+    }, 100);
   });
 }
 
@@ -645,13 +685,39 @@ export async function approveTransaction(
   userName: string,
   approvalNotes?: string
 ): Promise<void> {
+  // Get transaction data first
   const docRef = doc(db, 'inventory_transactions', transactionId);
+  const txnDoc = await getDoc(docRef);
+  
+  if (!txnDoc.exists()) {
+    throw new Error('Transaction not found');
+  }
+
+  const txnData = txnDoc.data() as InventoryTransaction;
 
   await updateDoc(docRef, {
     status: TransactionStatus.APPROVED,
     approvedAt: Timestamp.now(),
     approvedBy: { userId, userName },
     approvalNotes,
+  });
+
+  // Enhanced audit logging
+  await auditHelper.logApproval({
+    module: 'logistics',
+    entityType: 'inventory_transaction',
+    entityId: transactionId,
+    entityName: txnData.transactionCode,
+    approvalStage: 'manager_approval',
+    decision: 'approved',
+    comments: approvalNotes,
+    oldStatus: txnData.status,
+    newStatus: 'approved',
+    metadata: {
+      transactionType: txnData.transactionType,
+      totalValue: txnData.totalValue,
+      approver: userName,
+    },
   });
 }
 
@@ -942,6 +1008,26 @@ export async function approveStockCount(
     approvedBy: { userId, userName },
     adjustmentCreated: true,
     adjustmentTransactionId: adjustmentId,
+  });
+
+  // Enhanced audit logging
+  await auditHelper.logApproval({
+    module: 'logistics',
+    entityType: 'stock_count',
+    entityId: countId,
+    entityName: countData.countNumber,
+    approvalStage: 'stock_count_approval',
+    decision: 'approved',
+    oldStatus: 'completed',
+    newStatus: 'approved',
+    metadata: {
+      countNumber: countData.countNumber,
+      warehouseId: countData.warehouseId,
+      itemsCount: countData.items.length,
+      discrepanciesFound: discrepancies.length,
+      adjustmentTransactionId: adjustmentId,
+      approver: userName,
+    },
   });
 
   return adjustmentId;

@@ -100,6 +100,18 @@ service cloud.firestore {
       allow read, write: if isAuthenticated();
     }
     
+    // Enhanced Audit Logs (Day 5)
+    match /enhancedAuditLogs/{auditId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
+    // Goods Receipts
+    match /goodsReceipts/{grId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
     // Deny all other paths
     match /{document=**} {
       allow read, write: if false;

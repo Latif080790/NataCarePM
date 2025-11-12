@@ -40,6 +40,7 @@ import type {
 import { withRetry } from '@/utils/retryWrapper';
 import { APIError, ErrorCodes } from '@/utils/responseWrapper';
 import { createScopedLogger } from '@/utils/logger';
+import { auditHelper } from '@/utils/auditHelper';
 
 import { chartOfAccountsService } from './chartOfAccountsService';
 
@@ -256,6 +257,28 @@ export class JournalEntriesService {
         description: entry.description,
       });
 
+      // Enhanced audit logging
+      await auditHelper.logCreate({
+        module: 'finance',
+        entityType: 'journal_entry',
+        entityId: entryId,
+        entityName: entryNumber,
+        newData: {
+          entryNumber,
+          description: entry.description,
+          entryType: entry.entryType,
+          totalDebit,
+          totalCredit,
+          isBalanced,
+          linesCount: entry.lines.length,
+          status: entry.status || 'draft',
+        },
+        metadata: {
+          entryDate: entry.entryDate.toISOString(),
+          baseCurrency: entry.baseCurrency,
+        },
+      });
+
       logger.success('createJournalEntry', 'Journal entry created successfully', {
         entryId,
         entryNumber,
@@ -408,6 +431,31 @@ export class JournalEntriesService {
       // Audit trail
       await this.addAuditEntry(entryId, 'entry_updated', userId, { updates });
 
+      // Enhanced audit logging
+      await auditHelper.logUpdate({
+        module: 'finance',
+        entityType: 'journal_entry',
+        entityId: entryId,
+        entityName: existing.entryNumber,
+        oldData: {
+          description: existing.description,
+          totalDebit: existing.totalDebit,
+          totalCredit: existing.totalCredit,
+          linesCount: existing.lines?.length || 0,
+        },
+        newData: {
+          description: updates.description || existing.description,
+          totalDebit: updates.totalDebit || existing.totalDebit,
+          totalCredit: updates.totalCredit || existing.totalCredit,
+          linesCount: updates.lines?.length || existing.lines?.length || 0,
+        },
+        metadata: {
+          entryNumber: existing.entryNumber,
+          status: existing.status,
+          updatedFields: Object.keys(updates),
+        },
+      });
+
       logger.success('updateJournalEntry', 'Journal entry updated successfully', { entryId });
 
       return this.getJournalEntry(entryId);
@@ -473,6 +521,26 @@ export class JournalEntriesService {
           400
         );
       }
+
+      // Enhanced audit logging for approval
+      await auditHelper.logApproval({
+        module: 'finance',
+        entityType: 'journal_entry',
+        entityId: entryId,
+        entityName: entry.entryNumber,
+        approvalStage: 'manager_approval',
+        decision: 'approved',
+        oldStatus: 'pending_approval',
+        newStatus: 'approved',
+        metadata: {
+          entryNumber: entry.entryNumber,
+          description: entry.description,
+          totalDebit: entry.totalDebit,
+          totalCredit: entry.totalCredit,
+          submittedBy: entry.submittedBy,
+          submittedAt: entry.submittedAt?.toISOString(),
+        },
+      });
 
       return this.updateJournalEntry(
         entryId,
@@ -725,6 +793,24 @@ export class JournalEntriesService {
       // Audit trail
       await this.addAuditEntry(entryId, 'entry_deleted', userId, {
         entryNumber: entry.entryNumber,
+      });
+
+      // Enhanced audit logging
+      await auditHelper.logDelete({
+        module: 'finance',
+        entityType: 'journal_entry',
+        entityId: entryId,
+        entityName: entry.entryNumber,
+        oldData: {
+          entryNumber: entry.entryNumber,
+          description: entry.description,
+          status: entry.status,
+          totalDebit: entry.totalDebit,
+          totalCredit: entry.totalCredit,
+        },
+        metadata: {
+          reason: 'Draft entry deleted',
+        },
       });
 
       logger.success('deleteJournalEntry', 'Journal entry deleted successfully', { entryId });

@@ -38,15 +38,17 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
             Visualisasi kumulatif biaya yang direncanakan terhadap biaya aktual seiring waktu.
           </CardProDescription>
         </CardProHeader>
-        <CardProContent ref={chartContainerRef}>
-          <LineChart data={sCurveData} width={width || 600} height={300} />
-          <div className="flex justify-center items-center gap-6 mt-4 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <div className="w-8 border-t-2 border-dashed border-gray-400"></div> Biaya
-              Direncanakan
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-1 bg-blue-600"></div> Biaya Aktual
+        <CardProContent>
+          <div ref={chartContainerRef}>
+            <LineChart data={sCurveData} width={width || 600} height={300} />
+            <div className="flex justify-center items-center gap-6 mt-4 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-8 border-t-2 border-dashed border-gray-400"></div> Biaya
+                Direncanakan
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-1 bg-blue-600"></div> Biaya Aktual
+              </div>
             </div>
           </div>
         </CardProContent>

@@ -40,6 +40,7 @@ import {
   GRInspectionPhoto,
 } from '@/types/logistics';
 import { PurchaseOrder } from '@/types';
+import { auditHelper } from '@/utils/auditHelper';
 
 // ============================================================================
 // CONSTANTS
@@ -235,8 +236,30 @@ export async function createGoodsReceipt(
       items: updatedItems,
     });
 
-    return {
+    const grResult = {
       id: docRef.id,
+      ...newGR,
+      items: updatedItems,
+    };
+
+    // Log goods receipt creation
+    await auditHelper.logCreate({
+      module: 'logistics',
+      subModule: 'goods_receipt',
+      entityType: 'goods_receipt',
+      entityId: docRef.id,
+      entityName: grNumber,
+      newData: grResult,
+      metadata: {
+        grNumber,
+        poNumber: po.poNumber,
+        projectId: input.projectId,
+        totalItems,
+        totalValue,
+      },
+    });
+
+    return grResult;
       ...newGR,
       items: updatedItems,
     };
@@ -376,6 +399,21 @@ export async function updateGoodsReceipt(grId: string, updates: UpdateGRInput): 
     await updateDoc(docRef, {
       ...updates,
       updatedAt: new Date().toISOString(),
+    });
+
+    // Log goods receipt update
+    await auditHelper.logUpdate({
+      module: 'logistics',
+      subModule: 'goods_receipt',
+      entityType: 'goods_receipt',
+      entityId: grId,
+      entityName: gr.grNumber,
+      oldData: gr,
+      newData: { ...gr, ...updates },
+      metadata: {
+        grNumber: gr.grNumber,
+        updatedFields: Object.keys(updates),
+      },
     });
   } catch (error) {
     console.error('Error updating goods receipt:', error);
