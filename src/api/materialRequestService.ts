@@ -36,6 +36,7 @@ import {
 } from '@/types/logistics';
 import { PurchaseOrder, POItem } from '@/types';
 import { auditHelper } from '@/utils/auditHelper';
+import { logger } from '@/utils/logger.enhanced';
 import { getVendorById } from './vendorService';
 
 // ============================================================================
@@ -188,7 +189,7 @@ export async function createMaterialRequest(
 
     return createdMR;
   } catch (error) {
-    console.error('Error creating material request:', error);
+    logger.error('Error creating material request', error as Error);
     throw error;
   }
 }
@@ -253,7 +254,7 @@ async function checkInventoryStock(
 
     return { currentStock, reorderPoint, stockStatus };
   } catch (error) {
-    console.error('Error checking inventory stock:', error);
+    logger.error('Error checking inventory stock', error as Error);
     return {
       currentStock: 0,
       reorderPoint: 0,
@@ -283,7 +284,7 @@ export async function getMaterialRequestById(mrId: string): Promise<MaterialRequ
       ...docSnap.data(),
     } as MaterialRequest;
   } catch (error) {
-    console.error('Error fetching material request:', error);
+    logger.error('Error fetching material request', error as Error);
     throw error;
   }
 }
@@ -337,7 +338,7 @@ export async function getMaterialRequests(
 
     return results;
   } catch (error) {
-    console.error('Error fetching material requests:', error);
+    logger.error('Error fetching material requests', error as Error);
     throw error;
   }
 }
@@ -378,7 +379,7 @@ export async function getPendingApprovals(
       ...doc.data(),
     })) as MaterialRequest[];
   } catch (error) {
-    console.error('Error fetching pending approvals:', error);
+    logger.error('Error fetching pending approvals', error as Error);
     throw error;
   }
 }
@@ -434,7 +435,7 @@ export async function updateMaterialRequest(
       },
     });
   } catch (error) {
-    console.error('Error updating material request:', error);
+    logger.error('Error updating material request', error as Error);
     throw error;
   }
 }
@@ -476,7 +477,7 @@ export async function submitMaterialRequest(mrId: string, userId: string): Promi
       status: 'site_manager_review',
     });
   } catch (error) {
-    console.error('Error submitting material request:', error);
+    logger.error('Error submitting material request', error as Error);
     throw error;
   }
 }
@@ -615,7 +616,7 @@ export async function approveMaterialRequest(
       },
     });
   } catch (error) {
-    console.error('Error approving material request:', error);
+    logger.error('Error approving material request', error as Error);
     throw error;
   }
 }
@@ -698,7 +699,7 @@ export async function checkBudgetAvailability(mr: MaterialRequest): Promise<{
           });
         }
       } catch (error) {
-        console.error(`Error checking WBS ${wbsCode}:`, error);
+        logger.error(`Error checking WBS ${wbsCode}:`, error as Error);
         allSufficient = false;
       }
     }
@@ -735,7 +736,7 @@ export async function checkBudgetAvailability(mr: MaterialRequest): Promise<{
       },
     };
   } catch (error) {
-    console.error('Error checking budget:', error);
+    logger.error('Error checking budget', error as Error);
     return {
       status: 'insufficient',
       message: 'Error checking budget availability. Please try again.',
@@ -795,7 +796,7 @@ export async function convertMRtoPO(
       const vendor = await getVendorById(input.vendorId);
       vendorName = vendor?.vendorName || '';
     } catch (error) {
-      console.warn('Failed to fetch vendor name:', error);
+      logger.warn('Failed to fetch vendor name:', error as Error);
       // Continue with empty vendor name
     }
 
@@ -863,7 +864,7 @@ export async function convertMRtoPO(
 
     return createdPO;
   } catch (error) {
-    console.error('Error converting MR to PO:', error);
+    logger.error('Error converting MR to PO', error as Error);
     throw error;
   }
 }
@@ -992,7 +993,7 @@ export async function getMRSummary(projectId: string): Promise<{
       avgApprovalTime,
     };
   } catch (error) {
-    console.error('Error calculating MR summary:', error);
+    logger.error('Error calculating MR summary', error as Error);
     throw error;
   }
 }
@@ -1036,7 +1037,7 @@ export async function deleteMaterialRequest(mrId: string): Promise<void> {
       },
     });
   } catch (error) {
-    console.error('Error deleting material request:', error);
+    logger.error('Error deleting material request', error as Error);
     throw error;
   }
 }

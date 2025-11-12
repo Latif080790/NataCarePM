@@ -8,6 +8,7 @@ import {
   DocumentBranch,
   EncryptionInfo,
 } from '@/types';
+import { logger } from '@/utils/logger.enhanced';
 
 // Document Version Control System (Git-like)
 export class DocumentVersionControl {
@@ -21,7 +22,7 @@ export class DocumentVersionControl {
     this.initializeDefaultBranches();
 
     // TODO: Implement conflict resolver functionality
-    console.log('Conflict resolver initialized:', this.conflictResolver);
+    logger.info('Conflict resolver initialized:', this.conflictResolver);
   }
 
   // Initialize default branches
@@ -280,7 +281,7 @@ export class DocumentVersionControl {
     newContent: Blob | string
   ): Promise<ChangeSet[]> {
     // Use branchName for change tracking
-    console.log('Generating change set for branch:', branchName, 'document:', documentId);
+    logger.info('Generating change set for branch', { branchName, documentId });
 
     if (!parentVersionId) {
       // First version - everything is new

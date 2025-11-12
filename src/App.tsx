@@ -18,7 +18,8 @@ import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentr
 import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
-import ModernLoginView from '@/views/ModernLoginView';
+import ForgotPasswordView from '@/views/ForgotPasswordView';
+import EnterpriseLoginView from '@/views/EnterpriseLoginView';
 
 // Context providers
 
@@ -39,9 +40,9 @@ import { useProject } from '@/contexts/ProjectContext';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { failoverManager } from '@/utils/failoverManager';
 import { healthMonitor } from '@/utils/healthCheck';
-console.log('🔧 monitoringService imported in App.tsx:', monitoringService);
-
 import { logger } from '@/utils/logger.enhanced';
+
+logger.debug('monitoringService imported in App.tsx', { monitoringService });
 
 // Lazy-loaded heavy components
 const CommandPalette = lazy(() =>
@@ -72,7 +73,7 @@ function ProtectedApp() {
   // TEMPORARILY DISABLED - Monitoring causes re-render issues
   useEffect(() => {
     if (currentUser) {
-      console.log('[Monitoring] DISABLED for debugging');
+      logger.debug('Monitoring DISABLED for debugging', { userId: currentUser.id });
       /* DISABLED
       try {
         logger.info('System monitoring started', {
@@ -110,7 +111,7 @@ function ProtectedApp() {
       logger.info('Google Analytics 4 initialized');
 
       // Initialize Performance Monitoring (Web Vitals)
-      console.log('📊 [Performance] Monitoring initialized - tracking Core Web Vitals');
+      logger.info('[Performance] Monitoring initialized - tracking Core Web Vitals');
       
       // Optional: Configure performance reporting endpoint
       // performanceMonitor.configureReporting('/api/performance', 60000);
@@ -302,7 +303,7 @@ function App() {
   // Handle errors
   useEffect(() => {
     if (error) {
-      console.error('App error:', error);
+      logger.error('App error occurred', error instanceof Error ? error : new Error(String(error)));
     }
   }, [error]);
 
@@ -352,8 +353,8 @@ function App() {
         // --- Rute Publik (Belum Login) ---
         <>
           <Route path="/login" element={
-            <ViewErrorBoundary viewName="Login" key="modern-login-final-v1">
-              <ModernLoginView key={Date.now()} />
+            <ViewErrorBoundary viewName="Login" key="enterprise-login-v1">
+              <EnterpriseLoginView key={Date.now()} />
             </ViewErrorBoundary>
           } />
           {/* Paksa semua rute lain ke halaman login */}

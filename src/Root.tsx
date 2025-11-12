@@ -6,11 +6,25 @@ import { RealtimeCollaborationProvider } from '@/contexts/RealtimeCollaborationC
 import { MessageProvider } from '@/contexts/MessageContext';
 import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import App from './App';
+import { validateEnv } from '@/config/envValidation';
+import { logger } from '@/utils/logger.enhanced';
 
-console.log('[Root] Initializing Root component...');
+// Validate environment variables on app startup
+try {
+  validateEnv();
+  logger.info('[Root] Environment validation passed');
+} catch (error) {
+  logger.error('[Root] Environment validation failed', error instanceof Error ? error : new Error(String(error)));
+  // In production, this will prevent app from loading with invalid config
+  if (import.meta.env.PROD) {
+    throw error;
+  }
+}
+
+logger.debug('[Root] Initializing Root component');
 
 function Root() {
-  console.log('[Root] Rendering Root component with all providers...');
+  logger.debug('[Root] Rendering Root component with all providers');
   
   return (
     <React.StrictMode>

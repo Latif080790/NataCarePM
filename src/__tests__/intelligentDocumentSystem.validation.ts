@@ -401,7 +401,8 @@ export class IntelligentDocumentValidator {
         );
 
         // Create signature workflow
-//         const workflow = await intelligentDocumentService.initiateSignatureWorkflow( // Unused variable
+        // Unused variable - initiateSignatureWorkflow returns void
+        await intelligentDocumentService.initiateSignatureWorkflow(
           document.id,
           ['signer1@test.com', 'signer2@test.com'],
           true, // sequential
@@ -851,7 +852,8 @@ export class IntelligentDocumentValidator {
         }
 
         // Test signature integration
-//         const workflow = await intelligentDocumentService.initiateSignatureWorkflow( // Unused variable
+        // Create signature workflow (returns void)
+        await intelligentDocumentService.initiateSignatureWorkflow(
           document.id,
           ['signer@test.com'],
           false,
@@ -1196,61 +1198,67 @@ export class IntelligentDocumentValidator {
 
   // Type validation helpers
   private async validateDocumentType(): Promise<string> {
-//     const testDoc: Partial<IntelligentDocument> = { // Unused variable
-      id: 'test',
-      title: 'Test',
-      category: 'other',
-      status: 'draft',
-    };
+    // Unused variable - just for type checking
+    // const testDoc: Partial<IntelligentDocument> = {
+    //   id: 'test',
+    //   title: 'Test',
+    //   category: 'other',
+    //   status: 'draft',
+    // };
     return 'IntelligentDocument type valid';
   }
 
   private async validateTemplateType(): Promise<string> {
-//     const testTemplate: Partial<DocumentTemplate> = { // Unused variable
-      id: 'test',
-      name: 'Test Template',
-      category: 'report' as any,
-      content: 'Test content',
-    };
+    // Unused variable - just for type checking
+    // const testTemplate: Partial<DocumentTemplate> = {
+    //   id: 'test',
+    //   name: 'Test Template',
+    //   category: 'report' as any,
+    //   content: 'Test content',
+    // };
     return 'DocumentTemplate type valid';
   }
 
   private async validateSignatureType(): Promise<string> {
-//     const testSignature: Partial<DigitalSignature> = { // Unused variable
-      id: 'test',
-      documentId: 'test-doc',
-      signerEmail: 'test@example.com',
-      standard: 'eidas',
-    };
+    // Unused variable - just for type checking
+    // const testSignature: Partial<DigitalSignature> = {
+    //   id: 'test',
+    //   documentId: 'test-doc',
+    //   signerEmail: 'test@example.com',
+    //   standard: 'eidas',
+    // };
     return 'DigitalSignature type valid';
   }
 
   private async validateVersionType(): Promise<string> {
-//     const testVersion: Partial<DocumentVersion> = { // Unused variable
-      id: 'test',
-      documentId: 'test-doc',
-      versionNumber: '1.0.0',
-      createdBy: 'test-user',
-    };
+    // Unused variable - just for type checking
+    // const testVersion: Partial<DocumentVersion> = {
+    //   id: 'test',
+    //   documentId: 'test-doc',
+    //   versionNumber: '1.0.0',
+    //   createdBy: 'test-user',
+    // };
     return 'DocumentVersion type valid';
   }
 
   private async validateOCRType(): Promise<string> {
-//     const testOCR: Partial<OCRResult> = { // Unused variable
-      extractedText: 'Test text',
-      confidence: 0.95,
-      language: 'en',
-    };
+    // Unused variable - just for type checking
+    // const testOCR: Partial<OCRResult> = {
+    //   extractedText: 'Test text',
+    //   confidence: 0.95,
+    //   language: 'en',
+    // };
     return 'OCRResult type valid';
   }
 
   private async validateInsightType(): Promise<string> {
-//     const testInsight: Partial<AIInsight> = { // Unused variable
-      id: 'test',
-      type: 'compliance_check' as any,
-      priority: 'medium',
-      title: 'Test Insight',
-    };
+    // Unused variable - just for type checking
+    // const testInsight: Partial<AIInsight> = {
+    //   id: 'test',
+    //   type: 'compliance_check' as any,
+    //   priority: 'medium',
+    //   title: 'Test Insight',
+    // };
     return 'AIInsight type valid';
   }
 }

@@ -9,6 +9,7 @@ import {
   getDoc
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { logger } from '@/utils/logger.enhanced';
 import type {
   CostForecast,
   ScheduleForecast,
@@ -519,7 +520,7 @@ class EnhancedCostForecastingService {
     // Save to Firestore
     await this.saveForecast(forecast);
 
-    console.log(`Enhanced cost forecast generated in ${Date.now() - startTime}ms`);
+    logger.info(`Enhanced cost forecast generated in ${Date.now() - startTime}ms`);
 
     return forecast;
   }

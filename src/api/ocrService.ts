@@ -11,6 +11,7 @@ import {
   ExtractedSignature,
   ExtractedTable,
 } from '@/types';
+import { logger } from '@/utils/logger.enhanced';
 
 // ✅ OPTIMIZATION: Dynamic import for Tesseract.js (large library ~2MB)
 // Only loads when OCR is actually needed
@@ -48,12 +49,12 @@ export class OCRService {
       this.tesseractWorker = await Tesseract.createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
-            console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+            logger.info(`OCR Progress: ${Math.round(m.progress * 100)}%`);
           }
         },
       });
     } catch (error) {
-      console.error('Failed to initialize Tesseract worker:', error);
+      logger.error('Failed to initialize Tesseract worker', error as Error);
     }
   }
 
@@ -251,10 +252,10 @@ export class OCRService {
         boundingBoxes,
       };
     } catch (error) {
-      console.error('OCR processing error:', error);
+      logger.error('OCR processing error', error as Error);
 
       // Fallback to mock data if OCR fails
-      console.warn('Falling back to mock OCR data due to error');
+      logger.warn('Falling back to mock OCR data due to error');
       return this.getMockOCRData();
     }
   }
@@ -578,7 +579,7 @@ export class OCRService {
   // Extract coordinate information
   private extractCoordinates(text: string, boundingBoxes: BoundingBox[]): ExtractedCoordinate[] {
     // TODO: Use boundingBoxes for more accurate coordinate extraction
-    console.log('Available bounding boxes:', boundingBoxes.length);
+    logger.info('Available bounding boxes', { count: boundingBoxes.length });
     const coordinateRegex = /-\s*(Latitude|Longitude|Elevation):\s*([-+]?\d+(?:\.\d+)?)/gi;
     const coordinates: ExtractedCoordinate[] = [];
     const coordData: { [key: string]: number } = {};
@@ -679,7 +680,7 @@ export class OCRService {
   // Extract tables
   private extractTables(text: string, boundingBoxes: BoundingBox[]): ExtractedTable[] {
     // TODO: Use boundingBoxes for better table detection
-    console.log('Processing table extraction with', boundingBoxes.length, 'bounding boxes');
+    logger.info('Processing table extraction', { boxCount: boundingBoxes.length });
     // Simplified table extraction - in production, use more sophisticated algorithms
     const tables: ExtractedTable[] = [];
 
@@ -781,7 +782,7 @@ export class OCRService {
         if (result.status === 'fulfilled') {
           results.push(result.value);
         } else {
-          console.error('OCR processing failed:', result.reason);
+          logger.error('OCR processing failed in batch', result.reason instanceof Error ? result.reason : new Error(String(result.reason)));
         }
       }
     }

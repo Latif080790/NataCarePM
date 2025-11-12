@@ -41,6 +41,7 @@ import {
   PerformanceRating,
 } from '@/types/vendor';
 import { auditHelper } from '@/utils/auditHelper';
+import { logger } from '@/utils/logger.enhanced';
 
 // ============================================================================
 // CONSTANTS
@@ -209,7 +210,7 @@ export async function createVendor(
 
     return vendor;
   } catch (error) {
-    console.error('Error creating vendor:', error);
+    logger.error('Error creating vendor', error as Error);
     throw new Error('Failed to create vendor');
   }
 }
@@ -231,7 +232,7 @@ export async function getVendorById(vendorId: string): Promise<Vendor | null> {
       ...docSnap.data(),
     } as Vendor;
   } catch (error) {
-    console.error('Error getting vendor:', error);
+    logger.error('Error getting vendor', error as Error);
     throw new Error('Failed to get vendor');
   }
 }
@@ -293,7 +294,7 @@ export async function getVendors(filters?: VendorFilters): Promise<Vendor[]> {
 
     return vendors;
   } catch (error) {
-    console.error('Error getting vendors:', error);
+    logger.error('Error getting vendors', error as Error);
     throw new Error('Failed to get vendors');
   }
 }
@@ -335,7 +336,7 @@ export async function updateVendor(
       });
     }
   } catch (error) {
-    console.error('Error updating vendor:', error);
+    logger.error('Error updating vendor', error as Error);
     throw new Error('Failed to update vendor');
   }
 }
@@ -382,7 +383,7 @@ export async function deleteVendor(vendorId: string, userId: string): Promise<vo
       });
     }
   } catch (error) {
-    console.error('Error deleting vendor:', error);
+    logger.error('Error deleting vendor', error as Error);
     throw error;
   }
 }
@@ -420,7 +421,7 @@ export async function approveVendor(vendorId: string, userId: string): Promise<v
       });
     }
   } catch (error) {
-    console.error('Error approving vendor:', error);
+    logger.error('Error approving vendor', error as Error);
     throw new Error('Failed to approve vendor');
   }
 }
@@ -453,7 +454,7 @@ export async function addVendorContact(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error adding vendor contact:', error);
+    logger.error('Error adding vendor contact', error as Error);
     throw new Error('Failed to add vendor contact');
   }
 }
@@ -480,7 +481,7 @@ export async function updateVendorContact(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error updating vendor contact:', error);
+    logger.error('Error updating vendor contact', error as Error);
     throw new Error('Failed to update vendor contact');
   }
 }
@@ -503,7 +504,7 @@ export async function removeVendorContact(vendorId: string, contactId: string): 
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error removing vendor contact:', error);
+    logger.error('Error removing vendor contact', error as Error);
     throw new Error('Failed to remove vendor contact');
   }
 }
@@ -536,7 +537,7 @@ export async function addVendorBankAccount(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error adding bank account:', error);
+    logger.error('Error adding bank account', error as Error);
     throw new Error('Failed to add bank account');
   }
 }
@@ -588,7 +589,7 @@ export async function updateVendorPerformance(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error updating vendor performance:', error);
+    logger.error('Error updating vendor performance', error as Error);
     throw new Error('Failed to update vendor performance');
   }
 }
@@ -683,7 +684,7 @@ export async function createVendorEvaluation(
       ...evaluation,
     };
   } catch (error) {
-    console.error('Error creating vendor evaluation:', error);
+    logger.error('Error creating vendor evaluation', error as Error);
     throw new Error('Failed to create vendor evaluation');
   }
 }
@@ -733,7 +734,7 @@ export async function getVendorEvaluations(vendorId: string): Promise<VendorEval
       ...doc.data(),
     })) as VendorEvaluation[];
   } catch (error) {
-    console.error('Error getting vendor evaluations:', error);
+    logger.error('Error getting vendor evaluations', error as Error);
     throw new Error('Failed to get vendor evaluations');
   }
 }
@@ -805,7 +806,7 @@ export async function blacklistVendor(
       ...blacklist,
     };
   } catch (error) {
-    console.error('Error blacklisting vendor:', error);
+    logger.error('Error blacklisting vendor', error as Error);
     throw new Error('Failed to blacklist vendor');
   }
 }
@@ -843,7 +844,7 @@ export async function removeFromBlacklist(
       });
     }
   } catch (error) {
-    console.error('Error removing from blacklist:', error);
+    logger.error('Error removing from blacklist', error as Error);
     throw new Error('Failed to remove from blacklist');
   }
 }
@@ -931,7 +932,7 @@ export async function getVendorSummary(): Promise<VendorSummary> {
 
     return summary;
   } catch (error) {
-    console.error('Error getting vendor summary:', error);
+    logger.error('Error getting vendor summary', error as Error);
     throw new Error('Failed to get vendor summary');
   }
 }
@@ -952,7 +953,7 @@ export async function searchVendors(searchTerm: string): Promise<Vendor[]> {
         v.taxId.toLowerCase().includes(term)
     );
   } catch (error) {
-    console.error('Error searching vendors:', error);
+    logger.error('Error searching vendors', error as Error);
     throw new Error('Failed to search vendors');
   }
 }
@@ -1005,7 +1006,7 @@ export async function getVendorPurchaseOrders(
 
     return allPOs;
   } catch (error) {
-    console.error('Error getting vendor purchase orders:', error);
+    logger.error('Error getting vendor purchase orders', error as Error);
     return [];
   }
 }
@@ -1043,7 +1044,7 @@ export async function getVendorStatistics(vendorId: string): Promise<{
       pendingValue,
     };
   } catch (error) {
-    console.error('Error getting vendor statistics:', error);
+    logger.error('Error getting vendor statistics', error as Error);
     return {
       totalPOs: 0,
       activePOs: 0,
@@ -1089,7 +1090,7 @@ export async function linkPOToVendor(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error linking PO to vendor:', error);
+    logger.error('Error linking PO to vendor', error as Error);
     throw error;
   }
 }

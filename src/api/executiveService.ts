@@ -296,7 +296,7 @@ class ExecutiveService {
         ...doc.data(),
       })) as Project[];
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      logger.error('Error fetching projects', error as Error);
       if (error instanceof Error) {
         throw new Error(`Error fetching projects: ${error.message}`);
       }
@@ -783,7 +783,7 @@ class ExecutiveService {
    */
   async acknowledgeAlert(alertId: string, userId: string): Promise<void> {
     // This would update the alert in the database
-    console.log(`Alert ${alertId} acknowledged by ${userId}`);
+    logger.info(`Alert ${alertId} acknowledged by ${userId}`);
   }
 
   /**
@@ -791,7 +791,7 @@ class ExecutiveService {
    */
   async dismissAlert(alertId: string): Promise<void> {
     // This would update or delete the alert
-    console.log(`Alert ${alertId} dismissed`);
+    logger.info(`Alert ${alertId} dismissed`);
   }
 }
 

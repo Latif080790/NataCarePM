@@ -8,6 +8,7 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { logger } from '@/utils/logger.enhanced';
 import { withCache } from '@/utils/responseWrapper';
 import {
   CostControlSummary,
@@ -118,7 +119,7 @@ export const getCostControlSummary = async (
       generatedBy: 'system',
     };
   } catch (error) {
-    console.error('Error generating cost control summary:', error);
+    logger.error('Error generating cost control summary', error as Error);
     if (error instanceof Error) {
       throw new Error(`Error generating cost control summary: ${error.message}`);
     }
@@ -767,7 +768,7 @@ export const generateCostAlerts = (
 export const exportToExcel = async (summary: CostControlSummary, _options: any): Promise<Blob> => {
   // Placeholder for Excel export
   // Would use libraries like xlsx or exceljs
-  console.log('Exporting to Excel:', summary);
+  logger.info('Exporting to Excel:', summary);
   return new Blob(['Excel data'], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
@@ -776,7 +777,7 @@ export const exportToExcel = async (summary: CostControlSummary, _options: any):
 export const exportToPDF = async (summary: CostControlSummary, _options: any): Promise<Blob> => {
   // Placeholder for PDF export
   // Would use libraries like jsPDF or pdfmake
-  console.log('Exporting to PDF:', summary);
+  logger.info('Exporting to PDF:', summary);
   return new Blob(['PDF data'], { type: 'application/pdf' });
 };
 
@@ -858,7 +859,7 @@ export const getWBSBudgetStatus = async (
       status,
     };
   } catch (error) {
-    console.error('Error getting WBS budget status:', error);
+    logger.error('Error getting WBS budget status', error as Error);
     if (error instanceof Error) {
       throw new Error(`Error getting WBS budget status: ${error.message}`);
     }

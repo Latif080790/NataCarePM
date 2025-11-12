@@ -9,6 +9,7 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { logger } from '@/utils/logger.enhanced';
 import * as tf from '@tensorflow/tfjs';
 import type {
   RiskForecast,
@@ -677,7 +678,7 @@ class EnhancedRiskForecastingService {
     // Save to Firestore
     await this.saveForecast(forecast);
 
-    console.log(`Enhanced risk forecast generated in ${Date.now() - startTime}ms`);
+    logger.info(`Enhanced risk forecast generated in ${Date.now() - startTime}ms`);
 
     return forecast;
   }

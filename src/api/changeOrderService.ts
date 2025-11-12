@@ -78,7 +78,7 @@ class ChangeOrderService {
         updatedAt: now,
       };
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error creating change order:', error);
+      logger.error('[ChangeOrderService] Error creating change order', error as Error);
       throw new Error(`Failed to create change order: ${error.message}`);
     }
   }
@@ -116,7 +116,7 @@ class ChangeOrderService {
           })) || [],
       } as ChangeOrder;
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error getting change order:', error);
+      logger.error('[ChangeOrderService] Error getting change order', error as Error);
       throw new Error(`Failed to get change order: ${error.message}`);
     }
   }
@@ -156,7 +156,7 @@ class ChangeOrderService {
         } as ChangeOrder;
       });
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error getting change orders:', error);
+      logger.error('[ChangeOrderService] Error getting change orders', error as Error);
       throw new Error(`Failed to get change orders: ${error.message}`);
     }
   }
@@ -178,7 +178,7 @@ class ChangeOrderService {
 
       await updateDoc(docRef, updateData);
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error updating change order:', error);
+      logger.error('[ChangeOrderService] Error updating change order', error as Error);
       throw new Error(`Failed to update change order: ${error.message}`);
     }
   }
@@ -241,7 +241,7 @@ class ChangeOrderService {
 
       await this.updateChangeOrder(changeOrderId, updates);
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error processing approval:', error);
+      logger.error('[ChangeOrderService] Error processing approval', error as Error);
       throw new Error(`Failed to process approval: ${error.message}`);
     }
   }
@@ -275,7 +275,7 @@ class ChangeOrderService {
 
       return summary;
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error getting summary:', error);
+      logger.error('[ChangeOrderService] Error getting summary', error as Error);
       throw new Error(`Failed to get summary: ${error.message}`);
     }
   }
@@ -288,7 +288,7 @@ class ChangeOrderService {
       const docRef = doc(db, CHANGE_ORDERS_COLLECTION, changeOrderId);
       await deleteDoc(docRef);
     } catch (error: any) {
-      console.error('[ChangeOrderService] Error deleting change order:', error);
+      logger.error('[ChangeOrderService] Error deleting change order', error as Error);
       throw new Error(`Failed to delete change order: ${error.message}`);
     }
   }

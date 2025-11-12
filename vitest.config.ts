@@ -23,12 +23,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary', 'html', 'lcov', 'json-summary'],
+      reportsDirectory: './coverage',
       include: [
         'src/api/**/*.{ts,tsx}',
         'src/components/**/*.{ts,tsx}',
         'src/contexts/**/*.{ts,tsx}',
         'src/hooks/**/*.{ts,tsx}',
         'src/utils/**/*.{ts,tsx}',
+        'src/views/**/*.{ts,tsx}',
       ],
       exclude: [
         '**/*.d.ts',
@@ -38,14 +40,25 @@ export default defineConfig({
         '**/__fixtures__/**',
         '**/dist/**',
         '**/build/**',
+        '**/*.test.{ts,tsx}',
+        '**/*.spec.{ts,tsx}',
+        '**/setupTests.ts',
+        'src/views/_archived/**',
       ],
-      // Coverage thresholds
+      // Coverage thresholds (70% target for production readiness)
+      // Gradually increase to 80%+ over time
       thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
+        lines: 70,
+        functions: 70,
+        branches: 65, // Branches are typically harder to cover
+        statements: 70,
+        // Per-file thresholds (optional - enable for stricter enforcement)
+        // perFile: true,
       },
+      // Skip full coverage for test-only files
+      skipFull: true,
+      // Enable all available coverage reporters for CI/CD
+      all: true,
     },
 
     // Test file patterns

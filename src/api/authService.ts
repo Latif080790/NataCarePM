@@ -65,7 +65,7 @@ export const changePassword = async (
     
     return result.data as APIResponse<PasswordChangeResult>;
   } catch (error: any) {
-    console.error('Error changing password:', error);
+    logger.error('Error changing password', error as Error);
     
     // Handle Firebase Function errors
     if (error.code === 'functions/invalid-argument') {
@@ -188,7 +188,7 @@ async function updateSessionActivity(sessionId: string): Promise<void> {
       lastActivity: Timestamp.now(),
     });
   } catch (error) {
-    console.error('Failed to update session activity:', error);
+    logger.error('Failed to update session activity', error as Error);
   }
 }
 
@@ -213,7 +213,7 @@ async function invalidateUserSessions(userId: string): Promise<void> {
 
     await Promise.all(updatePromises);
   } catch (error) {
-    console.error('Failed to invalidate user sessions:', error);
+    logger.error('Failed to invalidate user sessions', error as Error);
   }
 }
 
@@ -234,7 +234,7 @@ export async function validateSession(sessionId: string): Promise<boolean> {
 
     return isValid;
   } catch (error) {
-    console.error('Session validation error:', error);
+    logger.error('Session validation error', error as Error);
     return false;
   }
 }
@@ -247,7 +247,7 @@ async function logAuthActivity(activity: AuthActivity): Promise<void> {
     const logId = `auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     await setDoc(doc(db, 'authLogs', logId), activity);
   } catch (error) {
-    console.error('Failed to log auth activity:', error);
+    logger.error('Failed to log auth activity', error as Error);
   }
 }
 
@@ -258,7 +258,7 @@ export async function getUserPermissions(userId: string): Promise<Permission[]> 
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (!userDoc.exists()) {
-      console.warn(`User document not found for userId: ${userId}`);
+      logger.warn(`User document not found for userId: ${userId}`);
       return [];
     }
 
@@ -266,19 +266,19 @@ export async function getUserPermissions(userId: string): Promise<Permission[]> 
     const roleId = userData.roleId;
 
     if (!roleId) {
-      console.warn(`User ${userId} has no roleId assigned`);
+      logger.warn(`User ${userId} has no roleId assigned`);
       return [];
     }
 
     const role = ROLES_CONFIG.find(r => r.id === roleId);
     if (!role) {
-      console.warn(`Role not found for roleId: ${roleId}`);
+      logger.warn(`Role not found for roleId: ${roleId}`);
       return [];
     }
 
     return role.permissions || [];
   } catch (error) {
-    console.error('Error getting user permissions:', error);
+    logger.error('Error getting user permissions', error as Error);
     return [];
   }
 }
@@ -294,7 +294,7 @@ export async function getUserRole(userId: string): Promise<string | null> {
     const userData = userDoc.data();
     return userData.roleId || null;
   } catch (error) {
-    console.error('Error getting user role:', error);
+    logger.error('Error getting user role', error as Error);
     return null;
   }
 }

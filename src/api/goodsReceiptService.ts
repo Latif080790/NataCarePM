@@ -41,6 +41,7 @@ import {
 } from '@/types/logistics';
 import { PurchaseOrder } from '@/types';
 import { auditHelper } from '@/utils/auditHelper';
+import { logger } from '@/utils/logger.enhanced';
 
 // ============================================================================
 // CONSTANTS
@@ -74,7 +75,7 @@ async function getWarehouseName(warehouseId: string | undefined): Promise<string
 
     return warehouseId; // Return ID if not found
   } catch (error) {
-    console.error('Error fetching warehouse name:', error);
+    logger.error('Error fetching warehouse name', error as Error, { warehouseId });
     return warehouseId; // Fallback to ID on error
   }
 }
@@ -141,7 +142,11 @@ async function calculatePreviouslyReceivedQuantity(
 
     return totalReceived;
   } catch (error) {
-    console.error('Error calculating previously received quantity:', error);
+    logger.error('Error calculating previously received quantity', error as Error, { 
+      projectId, 
+      poId, 
+      poItemId 
+    });
     return 0; // Fallback to 0 on error
   }
 }
@@ -306,7 +311,10 @@ export async function createGoodsReceipt(
 
     return grResult;
   } catch (error) {
-    console.error('Error creating goods receipt:', error);
+    logger.error('Error creating goods receipt', error as Error, { 
+      poId: input.poId, 
+      projectId: input.projectId 
+    });
     throw error;
   }
 }
@@ -332,7 +340,7 @@ export async function getGoodsReceiptById(grId: string): Promise<GoodsReceipt | 
       ...docSnap.data(),
     } as GoodsReceipt;
   } catch (error) {
-    console.error('Error fetching goods receipt:', error);
+    logger.error('Error fetching goods receipt', error as Error, { grId });
     throw error;
   }
 }
@@ -392,7 +400,10 @@ export async function getGoodsReceipts(
 
     return results;
   } catch (error) {
-    console.error('Error fetching goods receipts:', error);
+    logger.error('Error fetching goods receipts', error as Error, { 
+      projectId, 
+      filters 
+    });
     throw error;
   }
 }
@@ -414,7 +425,7 @@ export async function getGoodsReceiptsByPO(poId: string): Promise<GoodsReceipt[]
       ...doc.data(),
     })) as GoodsReceipt[];
   } catch (error) {
-    console.error('Error fetching GRs by PO:', error);
+    logger.error('Error fetching GRs by PO', error as Error, { poId });
     throw error;
   }
 }
@@ -458,7 +469,10 @@ export async function updateGoodsReceipt(grId: string, updates: UpdateGRInput): 
       },
     });
   } catch (error) {
-    console.error('Error updating goods receipt:', error);
+    logger.error('Error updating goods receipt', error as Error, { 
+      grId, 
+      updates: Object.keys(updates) 
+    });
     throw error;
   }
 }
@@ -512,7 +526,11 @@ export async function updateGRItemQuantity(
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error updating GR item quantity:', error);
+    logger.error('Error updating GR item quantity', error as Error, { 
+      grId, 
+      grItemId, 
+      receivedQuantity 
+    });
     throw error;
   }
 }
@@ -548,7 +566,7 @@ export async function submitGoodsReceipt(grId: string, userId: string): Promise<
       inspectionStatus: 'in-progress',
     });
   } catch (error) {
-    console.error('Error submitting goods receipt:', error);
+    logger.error('Error submitting goods receipt', error as Error, { grId, userId });
     throw error;
   }
 }
@@ -625,7 +643,10 @@ export async function inspectGRItem(
       inspectionCompletedAt: allInspected ? new Date().toISOString() : undefined,
     });
   } catch (error) {
-    console.error('Error inspecting GR item:', error);
+    logger.error('Error inspecting GR item', error as Error, { 
+      grItemId: input.grItemId, 
+      inspectorId 
+    });
     throw error;
   }
 }
@@ -669,7 +690,7 @@ export async function completeGoodsReceipt(grId: string, userId: string): Promis
       wbsUpdated: true,
     });
   } catch (error) {
-    console.error('Error completing goods receipt:', error);
+    logger.error('Error completing goods receipt', error as Error, { grId, userId });
     throw error;
   }
 }
@@ -709,7 +730,7 @@ async function updateInventoryFromGR(gr: GoodsReceipt): Promise<void> {
 
     // Skip if no items to process
     if (inventoryItems.length === 0) {
-      console.log('No accepted items in GR:', gr.id);
+      logger.info('No accepted items in GR', { grId: gr.id, grNumber: gr.grNumber });
       return;
     }
 
@@ -732,9 +753,16 @@ async function updateInventoryFromGR(gr: GoodsReceipt): Promise<void> {
       userName
     );
 
-    console.log('✅ Inventory updated from GR:', gr.grNumber, '- Transaction:', transactionId);
+    logger.info('Inventory updated from GR', { 
+      grNumber: gr.grNumber, 
+      transactionId, 
+      itemCount: inventoryItems.length 
+    });
   } catch (error) {
-    console.error('❌ Error updating inventory from GR:', error);
+    logger.error('Error updating inventory from GR', error as Error, { 
+      grId: gr.id, 
+      grNumber: gr.grNumber 
+    });
     throw error;
   }
 }
@@ -779,7 +807,10 @@ async function updatePOFromGR(gr: GoodsReceipt): Promise<void> {
       status: allCompleted ? 'completed' : po.status,
     });
   } catch (error) {
-    console.error('Error updating PO from GR:', error);
+    logger.error('Error updating PO from GR', error as Error, { 
+      grId: gr.id, 
+      poId: gr.poId 
+    });
     throw error;
   }
 }
@@ -796,7 +827,7 @@ async function updateWBSFromGR(gr: GoodsReceipt): Promise<void> {
     const transactions = await getTransactionsByReference('GR', gr.id);
 
     if (transactions.length === 0) {
-      console.log('No inventory transactions found for GR:', gr.grNumber);
+      logger.info('No inventory transactions found for GR', { grNumber: gr.grNumber });
       return;
     }
 
@@ -821,14 +852,21 @@ async function updateWBSFromGR(gr: GoodsReceipt): Promise<void> {
             unitCost: item.unitCost,
           });
 
-          console.log(`✅ WBS cost updated: ${item.materialCode} - $${item.totalCost}`);
+          logger.debug('WBS cost updated for material', { 
+            materialCode: item.materialCode, 
+            cost: item.totalCost, 
+            wbsElementId 
+          });
         }
       }
     }
 
-    console.log('✅ WBS update completed for GR:', gr.grNumber);
+    logger.info('WBS update completed for GR', { grNumber: gr.grNumber });
   } catch (error) {
-    console.error('❌ Error updating WBS from GR:', error);
+    logger.error('Error updating WBS from GR', error as Error, { 
+      grId: gr.id, 
+      grNumber: gr.grNumber 
+    });
     // Don't throw - this is not critical for GR completion
     // Log error for monitoring but allow GR process to continue
   }
@@ -887,7 +925,10 @@ async function getWBSElementForMaterial(
 
     return null; // No WBS allocation found
   } catch (error) {
-    console.error('Error getting WBS element for material:', error);
+    logger.error('Error getting WBS element for material', error as Error, { 
+      materialId, 
+      projectId 
+    });
     return null;
   }
 }
@@ -906,7 +947,7 @@ async function updateWBSActualCost(
     const wbsDoc = await getDoc(wbsRef);
 
     if (!wbsDoc.exists()) {
-      console.warn(`WBS element ${wbsElementId} not found`);
+      logger.warn('WBS element not found', { wbsElementId });
       return;
     }
 
@@ -929,9 +970,16 @@ async function updateWBSActualCost(
       ]
     });
 
-    console.log(`✅ Updated WBS ${wbsElementId} actual cost: +${costAmount} (total: ${newActualCost})`);
+    logger.info('Updated WBS actual cost from GR', { 
+      wbsElementId, 
+      costAdded: costAmount, 
+      totalActualCost: newActualCost 
+    });
   } catch (error) {
-    console.error('Error updating WBS actual cost:', error);
+    logger.error('Error updating WBS actual cost', error as Error, { 
+      wbsElementId, 
+      costAmount 
+    });
     throw error; // Re-throw to allow caller to handle
   }
 }
@@ -986,7 +1034,7 @@ export async function addGRPhoto(
       items: updatedItems,
     });
   } catch (error) {
-    console.error('Error adding GR photo:', error);
+    logger.error('Error adding GR photo', error as Error, { grId, grItemId, userId });
     throw error;
   }
 }
@@ -1102,7 +1150,7 @@ export async function getGRSummary(projectId: string): Promise<GRSummary> {
       onTimeDeliveryRate,
     };
   } catch (error) {
-    console.error('Error calculating GR summary:', error);
+    logger.error('Error calculating GR summary', error as Error, { projectId });
     throw error;
   }
 }
@@ -1128,7 +1176,8 @@ export async function deleteGoodsReceipt(grId: string): Promise<void> {
     const docRef = doc(db, GR_COLLECTION, grId);
     await deleteDoc(docRef);
   } catch (error) {
-    console.error('Error deleting goods receipt:', error);
+    logger.error('Error deleting goods receipt', error as Error, { grId });
     throw error;
   }
 }
+

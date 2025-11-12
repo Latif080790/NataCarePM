@@ -92,7 +92,7 @@ export const createSignature = async (
     
     return result.data as APIResponse<DigitalSignature>;
   } catch (error: any) {
-    console.error('Error creating digital signature:', error);
+    logger.error('Error creating digital signature', error as Error);
     
     // Handle Firebase Function errors
     if (error.code === 'functions/invalid-argument') {
@@ -145,7 +145,7 @@ export const verifySignature = async (
     
     return result.data as APIResponse<{ isValid: boolean }>;
   } catch (error: any) {
-    console.error('Error verifying digital signature:', error);
+    logger.error('Error verifying digital signature', error as Error);
     
     // Handle Firebase Function errors
     if (error.code === 'functions/invalid-argument') {

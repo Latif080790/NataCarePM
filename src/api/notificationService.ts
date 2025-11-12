@@ -7,6 +7,7 @@ import {
     NotificationPriority,
     NotificationType,
 } from '@/types/automation';
+import { logger } from '@/utils/logger.enhanced';
 import {
     addDoc,
     collection,
@@ -330,7 +331,7 @@ const sendEmail = async (notification: Notification): Promise<void> => {
     throw new Error(result.error || 'Failed to send email');
   }
 
-  console.log('Email sent successfully:', result.messageId);
+  logger.info('Email sent successfully', { messageId: result.messageId });
 };
 
 const sendSMS = async (notification: Notification): Promise<void> => {
@@ -345,7 +346,7 @@ const sendSMS = async (notification: Notification): Promise<void> => {
     throw new Error(result.error || 'Failed to send SMS');
   }
 
-  console.log('SMS sent successfully:', result.messageId);
+  logger.info('SMS sent successfully', { messageId: result.messageId });
 };
 
 const sendPushNotification = async (notification: Notification): Promise<void> => {
@@ -356,7 +357,7 @@ const sendPushNotification = async (notification: Notification): Promise<void> =
     throw new Error(result.error || 'Failed to send push notification');
   }
 
-  console.log('Push notification sent successfully');
+  logger.info('Push notification sent successfully');
 };
 
 const sendWebhook = async (notification: Notification): Promise<void> => {
@@ -397,9 +398,9 @@ const sendWebhook = async (notification: Notification): Promise<void> => {
       throw new Error(`Webhook returned ${response.status}: ${response.statusText}`);
     }
 
-    console.log('Webhook notification sent successfully to:', webhookUrl);
+    logger.info('Webhook notification sent successfully to:', webhookUrl);
   } catch (error) {
-    console.error('Error sending webhook:', error);
+    logger.error('Error sending webhook', error as Error);
     throw error;
   }
 };
@@ -626,7 +627,7 @@ export const sendBatchNotifications = async (
       const id = await createNotification(notification);
       notificationIds.push(id);
     } catch (error) {
-      console.error('Failed to create notification:', error);
+      logger.error('Failed to create notification', error as Error);
     }
   }
 
@@ -654,7 +655,7 @@ export const processScheduledNotifications = async (): Promise<void> => {
     try {
       await sendNotificationChannels(notification.id, notification.channels);
     } catch (error) {
-      console.error(`Failed to send scheduled notification ${notification.id}:`, error);
+      logger.error(`Failed to send scheduled notification ${notification.id}:`, error as Error);
     }
   }
 };

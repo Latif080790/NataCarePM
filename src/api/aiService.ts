@@ -66,7 +66,7 @@ export const generateAIInsight = async (
     
     return result.data as APIResponse<AIInsightResult>;
   } catch (error: any) {
-    console.error('Error generating AI insight:', error);
+    logger.error('Error generating AI insight', error as Error);
     
     // Handle Firebase Function errors
     if (error.code === 'functions/invalid-argument') {
@@ -116,7 +116,7 @@ export const optimizeResources = async (
     
     return result.data as APIResponse<ResourceOptimizationResult>;
   } catch (error: any) {
-    console.error('Error optimizing resources:', error);
+    logger.error('Error optimizing resources', error as Error);
     
     // Handle Firebase Function errors
     if (error.code === 'functions/invalid-argument') {
@@ -187,7 +187,7 @@ export const getProjectContextForAI = async (projectId: string): Promise<any> =>
 
     return summary;
   } catch (error) {
-    console.error('Error getting project context for AI:', error);
+    logger.error('Error getting project context for AI', error as Error);
     throw error;
   }
 };

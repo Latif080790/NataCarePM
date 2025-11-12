@@ -202,6 +202,15 @@ export class RabAhspService {
       validateRabItemId(rabItemId, 'updateRabItem');
       logger.info('Updating RAB item', { projectId, rabItemId });
 
+      // Validate updates before applying
+      if (updates.volume !== undefined && !validators.isPositiveNumber(updates.volume)) {
+        throw new APIError(ErrorCodes.INVALID_INPUT, 'Volume must be a positive number', 400, { volume: updates.volume });
+      }
+
+      if (updates.hargaSatuan !== undefined && !validators.isPositiveNumber(updates.hargaSatuan)) {
+        throw new APIError(ErrorCodes.INVALID_INPUT, 'Unit price must be a positive number', 400, { hargaSatuan: updates.hargaSatuan });
+      }
+
       const docRef = doc(db, `projects/${projectId}/${this.RAB_COLLECTION}`, rabItemId.toString());
       
       await withRetry(() => updateDoc(docRef, updates), { maxAttempts: 3 });
@@ -226,6 +235,13 @@ export class RabAhspService {
       logger.info('Deleting RAB item', { projectId, rabItemId });
 
       const docRef = doc(db, `projects/${projectId}/${this.RAB_COLLECTION}`, rabItemId.toString());
+      
+      // Check if item exists before deleting
+      const docSnap = await withRetry(() => getDoc(docRef), { maxAttempts: 3 });
+      if (!docSnap.exists()) {
+        throw new APIError(ErrorCodes.NOT_FOUND, 'RAB item not found', 404, { rabItemId });
+      }
+
       await withRetry(() => deleteDoc(docRef), { maxAttempts: 3 });
 
       logger.info('RAB item deleted successfully', { projectId, rabItemId });
