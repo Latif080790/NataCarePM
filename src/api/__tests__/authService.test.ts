@@ -74,25 +74,25 @@ global.fetch = vi.fn(() =>
 // Mock sessionStorage - will be properly set in beforeEach
 const sessionStorageData: Record<string, string> = {};
 
-// Mock ROLES_CONFIG
+// Mock ROLES_CONFIG as array (source uses .find())
 vi.mock('@/constants', () => ({
-  ROLES_CONFIG: {
-    admin: {
+  ROLES_CONFIG: [
+    {
       id: 'admin',
       name: 'Administrator',
       permissions: ['manage_users', 'view_all_projects', 'edit_rab'],
     },
-    pm: {
+    {
       id: 'pm',
       name: 'Project Manager',
       permissions: ['view_projects', 'edit_rab', 'approve_po'],
     },
-    viewer: {
+    {
       id: 'viewer',
       name: 'Viewer',
       permissions: ['view_projects'],
     },
-  },
+  ],
 }));
 
 describe('authService', () => {
@@ -502,18 +502,21 @@ describe('authService', () => {
 
   describe('Session Management', () => {
     it('should validate active session', async () => {
-      // Mock getCurrentSessionId to return valid session
-      global.sessionStorage = {
-        getItem: vi.fn().mockReturnValue('session-123'),
-      } as any;
-
-      vi.mocked(getDoc).mockResolvedValue({
+      // Mock session data with proper structure
+      const mockSessionData = {
+        isActive: true,
+        expiresAt: {
+          toDate: () => new Date(Date.now() + 60000), // Future date
+        },
+      };
+      
+      vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
-        data: () => ({
-          isActive: true,
-          expiresAt: Timestamp.fromDate(new Date(Date.now() + 60000)), // Future
-        }),
+        data: () => mockSessionData,
       } as any);
+      
+      // Mock updateDoc for updateSessionActivity
+      vi.mocked(updateDoc).mockResolvedValueOnce(undefined as any);
 
       const { validateSession } = await import('../authService');
       const isValid = await validateSession('session-123');
@@ -523,12 +526,16 @@ describe('authService', () => {
     });
 
     it('should reject expired session', async () => {
-      vi.mocked(getDoc).mockResolvedValue({
+      const mockSessionData = {
+        isActive: true,
+        expiresAt: {
+          toDate: () => new Date(Date.now() - 60000), // Past date
+        },
+      };
+      
+      vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
-        data: () => ({
-          isActive: true,
-          expiresAt: Timestamp.fromDate(new Date(Date.now() - 60000)), // Past
-        }),
+        data: () => mockSessionData,
       } as any);
 
       const { validateSession } = await import('../authService');
@@ -564,17 +571,20 @@ describe('authService', () => {
     });
 
     it('should validate current session via authService', async () => {
-      global.sessionStorage = {
-        getItem: vi.fn().mockReturnValue('session-123'),
-      } as any;
-
-      vi.mocked(getDoc).mockResolvedValue({
+      const mockSessionData = {
+        isActive: true,
+        expiresAt: {
+          toDate: () => new Date(Date.now() + 60000),
+        },
+      };
+      
+      vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
-        data: () => ({
-          isActive: true,
-          expiresAt: Timestamp.fromDate(new Date(Date.now() + 60000)),
-        }),
+        data: () => mockSessionData,
       } as any);
+      
+      // Mock updateDoc for updateSessionActivity
+      vi.mocked(updateDoc).mockResolvedValueOnce(undefined as any);
 
       const isValid = await authService.validateSession();
 
@@ -596,7 +606,7 @@ describe('authService', () => {
 
   describe('RBAC Permissions', () => {
     it('should get user permissions by role', async () => {
-      vi.mocked(getDoc).mockResolvedValue({
+      vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
         data: () => ({
           roleId: 'admin',
@@ -663,6 +673,9 @@ describe('authService', () => {
     });
 
     it('should differentiate permissions by role', async () => {
+      // Clear previous mocks
+      vi.clearAllMocks();
+      
       // Admin permissions
       vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
@@ -689,14 +702,16 @@ describe('authService', () => {
   // ==================== getCurrentUser ====================
 
   describe('getCurrentUser', () => {
-    it('should return current user if logged in', () => {
+    it('should return current user if logged in', async () => {
       const mockCurrentUser = {
         uid: 'user-123',
         email: 'test@example.com',
+        getIdToken: vi.fn().mockResolvedValue('mock-token'),
       };
 
-      const { auth } = require('@/firebaseConfig');
-      auth.currentUser = mockCurrentUser;
+      // Import auth and set currentUser
+      const { auth } = await import('@/firebaseConfig');
+      (auth as any).currentUser = mockCurrentUser;
 
       const currentUser = authService.getCurrentUser();
 
@@ -704,9 +719,10 @@ describe('authService', () => {
       expect(currentUser?.uid).toBe('user-123');
     });
 
-    it('should return null if no user logged in', () => {
-      const { auth } = require('@/firebaseConfig');
-      auth.currentUser = null;
+    it('should return null if no user logged in', async () => {
+      // Import auth and set currentUser to null
+      const { auth } = await import('@/firebaseConfig');
+      (auth as any).currentUser = null;
 
       const currentUser = authService.getCurrentUser();
 
