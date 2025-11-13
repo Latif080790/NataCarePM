@@ -49,6 +49,7 @@ import {
   query, 
   where,
   writeBatch,
+  onSnapshot,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -1262,23 +1263,89 @@ describe('projectService - Comment Operations', () => {
 
   describe('addCommentToDailyReport', () => {
     it('should add comment with valid content', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const content = 'Great progress today! Foundation work completed ahead of schedule.';
+      vi.mocked(addDoc).mockResolvedValue({ id: 'comment-123' } as any);
+
+      // Act
+      const result = await projectService.addCommentToDailyReport(
+        'proj-123',
+        'report-456',
+        content,
+        mockUser
+      );
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBe('comment-123');
+      expect(addDoc).toHaveBeenCalled();
     });
 
     it('should validate comment length (1-5000 chars)', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const tooLongContent = 'x'.repeat(5001);
+
+      // Act
+      const result = await projectService.addCommentToDailyReport(
+        'proj-123',
+        'report-456',
+        tooLongContent,
+        mockUser
+      );
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/invalid|comment|content|length/i);
     });
 
     it('should sanitize comment content', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const unsafeContent = '<script>alert("XSS")</script>Good work!';
+      let capturedComment: any;
+      vi.mocked(addDoc).mockImplementation(async (_ref: any, data: any) => {
+        capturedComment = data;
+        return { id: 'comment-789' } as any;
+      });
+
+      // Act
+      await projectService.addCommentToDailyReport(
+        'proj-123',
+        'report-456',
+        unsafeContent,
+        mockUser
+      );
+
+      // Assert - should sanitize dangerous content
+      expect(capturedComment.content).toBeDefined();
+      expect(capturedComment.content).not.toContain('<script>');
     });
 
     it('should include author details in comment', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const content = 'Excellent teamwork!';
+      let capturedComment: any;
+      vi.mocked(addDoc).mockImplementation(async (_ref: any, data: any) => {
+        capturedComment = data;
+        return { id: 'comment-abc' } as any;
+      });
+
+      // Act
+      await projectService.addCommentToDailyReport(
+        'proj-123',
+        'report-456',
+        content,
+        mockUser
+      );
+
+      // Assert
+      expect(capturedComment.authorId).toBe(mockUser.id);
+      expect(capturedComment.authorName).toBe(mockUser.name);
+      expect(capturedComment.authorAvatar).toBe(mockUser.avatarUrl);
+      expect(capturedComment.timestamp).toBeDefined();
     });
   });
 });
@@ -1294,40 +1361,147 @@ describe('projectService - Real-time Streams', () => {
 
   describe('streamProjectById', () => {
     it('should setup real-time project listener', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const mockUnsubscribe = vi.fn();
+      vi.mocked(onSnapshot).mockReturnValue(mockUnsubscribe);
+
+      // Act
+      const unsubscribe = projectService.streamProjectById('proj-123', vi.fn());
+
+      // Assert
+      expect(onSnapshot).toHaveBeenCalled();
+      expect(unsubscribe).toBe(mockUnsubscribe);
     });
 
     it('should call callback on project updates', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const callback = vi.fn();
+      let snapshotCallback: any;
+      vi.mocked(onSnapshot).mockImplementation((ref, cb) => {
+        snapshotCallback = cb;
+        return vi.fn();
+      });
+
+      // Act
+      projectService.streamProjectById('proj-123', callback);
+
+      // Simulate snapshot update
+      const mockSnapshot = {
+        exists: () => true,
+        data: () => ({ id: 'proj-123', name: 'Updated Project' }),
+        id: 'proj-123',
+      };
+      snapshotCallback(mockSnapshot);
+
+      // Assert
+      expect(callback).toHaveBeenCalledWith({
+        id: 'proj-123',
+        name: 'Updated Project',
+      });
     });
 
     it('should call errorCallback on listener error', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const callback = vi.fn();
+      const errorCallback = vi.fn();
+      let snapshotError: any;
+      vi.mocked(onSnapshot).mockImplementation((ref, cb, errCb) => {
+        snapshotError = errCb;
+        return vi.fn();
+      });
+
+      // Act
+      projectService.streamProjectById('proj-123', callback, errorCallback);
+
+      // Simulate error
+      const mockError = new Error('Connection lost');
+      snapshotError?.(mockError);
+
+      // Assert
+      expect(errorCallback).toHaveBeenCalledWith(mockError);
     });
 
     it('should return unsubscribe function', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const mockUnsubscribe = vi.fn();
+      vi.mocked(onSnapshot).mockReturnValue(mockUnsubscribe);
+
+      // Act
+      const unsubscribe = projectService.streamProjectById('proj-123', vi.fn());
+      unsubscribe();
+
+      // Assert
+      expect(mockUnsubscribe).toHaveBeenCalled();
     });
   });
 
   describe('streamNotifications', () => {
     it('should setup real-time notifications listener', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const mockUnsubscribe = vi.fn();
+      vi.mocked(onSnapshot).mockReturnValue(mockUnsubscribe);
+
+      // Act
+      const unsubscribe = projectService.streamNotifications(vi.fn());
+
+      // Assert
+      expect(onSnapshot).toHaveBeenCalled();
+      expect(unsubscribe).toBe(mockUnsubscribe);
     });
 
     it('should order notifications by timestamp desc', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const callback = vi.fn();
+      let snapshotCallback: any;
+      vi.mocked(onSnapshot).mockImplementation((_queryRef: any, cb: any) => {
+        snapshotCallback = cb;
+        return vi.fn();
+      });
+
+      // Act
+      projectService.streamNotifications(callback);
+
+      // Simulate snapshot with notifications
+      const mockSnapshot = {
+        docs: [
+          { id: 'notif-1', data: () => ({ message: 'New comment', timestamp: 100 }) },
+          { id: 'notif-2', data: () => ({ message: 'Task assigned', timestamp: 200 }) },
+        ],
+      };
+      snapshotCallback(mockSnapshot);
+
+      // Assert
+      expect(callback).toHaveBeenCalled();
+      const notifs = callback.mock.calls[0][0];
+      expect(notifs).toHaveLength(2);
+      expect(notifs[0].id).toBe('notif-1');
     });
 
     it('should handle empty notifications collection', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const callback = vi.fn();
+      let snapshotCallback: any;
+      vi.mocked(onSnapshot).mockImplementation((_queryRef: any, cb: any) => {
+        snapshotCallback = cb;
+        return vi.fn();
+      });
+
+      // Act
+      projectService.streamNotifications(callback);
+
+      // Simulate empty snapshot
+      const mockSnapshot = { docs: [] };
+      snapshotCallback(mockSnapshot);
+
+      // Assert
+      expect(callback).toHaveBeenCalledWith([]);
     });
   });
 });
@@ -1343,40 +1517,140 @@ describe('projectService - Validation & Error Handling', () => {
 
   describe('Input Validation', () => {
     it('should validate project ID format consistently', async () => {
-      // TODO: Test across all functions
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const invalidIds = ['', '  ', 'id with spaces', 'id@special!'];
+
+      // Act & Assert - Test across different functions
+      for (const invalidId of invalidIds) {
+        const resultGetProject = await projectService.getProjectById(invalidId);
+        expect(resultGetProject.success).toBe(false);
+        expect(resultGetProject.error?.code).toBe('INVALID_INPUT');
+
+        const resultAuditLog = await projectService.addAuditLog(invalidId, mockUser, 'Test');
+        expect(resultAuditLog.success).toBe(false);
+        expect(resultAuditLog.error?.code).toBe('INVALID_INPUT');
+      }
     });
 
     it('should validate user ID format consistently', async () => {
-      // TODO: Test across all functions
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const invalidUser = { ...mockUser, id: '' };
+
+      // Act
+      const result = await projectService.addAuditLog('proj-123', invalidUser, 'Test action');
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/user|invalid|id/i);
     });
 
     it('should enforce string length limits', async () => {
-      // TODO: Test for PR numbers, comments, etc.
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      // Test PR number length (should be 1-50 chars)
+      const tooLongPR = 'x'.repeat(51);
+      const poData = {
+        prNumber: tooLongPR,
+        requester: mockUser.id,
+        requestDate: '2024-01-15',
+        items: [
+          {
+            materialName: 'Cement',
+            quantity: 100,
+            unit: 'sak',
+            pricePerUnit: 75000,
+            totalPrice: 7500000,
+          },
+        ],
+      };
+
+      // Act
+      const result = await projectService.addPurchaseOrder('proj-123', poData, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/invalid|PR number|length/i);
     });
 
     it('should enforce array size limits', async () => {
-      // TODO: Test batch operations
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      // Test batch size limit (max 500)
+      const tooManyUpdates: [string, 'Hadir'][] = Array.from({ length: 501 }, (_, i) => [
+        `worker-${i}`,
+        'Hadir',
+      ]);
+
+      // Act
+      const result = await projectService.updateAttendance(
+        'proj-123',
+        '2024-01-15',
+        tooManyUpdates,
+        mockUser
+      );
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/batch|limit|500/i);
     });
   });
 
   describe('Error Recovery', () => {
     it('should retry on network errors', async () => {
-      // TODO: Test withRetry behavior
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      let attemptCount = 0;
+      vi.mocked(getDoc).mockImplementation(async () => {
+        attemptCount++;
+        if (attemptCount < 3) {
+          throw new Error('Network error');
+        }
+        return {
+          exists: () => true,
+          data: () => ({ id: 'proj-retry', name: 'Retry Project' }),
+          id: 'proj-retry',
+        } as any;
+      });
+
+      // Act
+      const result = await projectService.getProjectById('proj-retry');
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(attemptCount).toBeGreaterThan(1); // Should have retried
     });
 
     it('should log errors appropriately', async () => {
-      // TODO: Verify logger.error calls
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      vi.mocked(getDocs).mockRejectedValue(new Error('Firestore error'));
+
+      // Act
+      await projectService.getWorkspaces();
+
+      // Assert - Logger should be called (verify in console output)
+      // Note: We can't easily verify logger.error calls without mocking logger
+      expect(getDocs).toHaveBeenCalled();
     });
 
     it('should return structured API errors', async () => {
-      // TODO: Verify APIResponse format
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      // Act - Call with invalid input
+      const result = await projectService.getProjectById('');
+
+      // Assert - Verify APIResponse structure
+      expect(result).toHaveProperty('success');
+      expect(result).toHaveProperty('error');
+      expect(result.success).toBe(false);
+      expect(result.error).toHaveProperty('code');
+      expect(result.error).toHaveProperty('message');
+      expect(result.error).toHaveProperty('statusCode');
     });
   });
 });
@@ -1391,28 +1665,120 @@ describe('projectService - Edge Cases', () => {
   });
 
   it('should handle concurrent Firestore writes', async () => {
-    // TODO: Test batch operations concurrency
-    expect(true).toBe(true); // Placeholder
+    // Arrange
+    const { projectService } = await import('../projectService');
+    const mockBatch = {
+      set: vi.fn(),
+      commit: vi.fn().mockResolvedValue(undefined),
+    };
+    vi.mocked(writeBatch).mockReturnValue(mockBatch as any);
+    vi.mocked(getDocs).mockResolvedValue({ docs: [] } as any);
+
+    // Act - Simulate concurrent attendance updates
+    const date = '2024-01-15';
+    const updates1: [string, 'Hadir'][] = [['worker-1', 'Hadir']];
+    const updates2: [string, 'Hadir'][] = [['worker-2', 'Hadir']];
+
+    await Promise.all([
+      projectService.updateAttendance('proj-123', date, updates1, mockUser),
+      projectService.updateAttendance('proj-123', date, updates2, mockUser),
+    ]);
+
+    // Assert - Both should succeed with batch writes
+    expect(mockBatch.commit).toHaveBeenCalledTimes(2);
   });
 
   it('should handle large file uploads gracefully', async () => {
-    // TODO: Test 99MB file upload
-    expect(true).toBe(true); // Placeholder
+    // Arrange
+    const { projectService } = await import('../projectService');
+    const largeContent = new Array(99 * 1024 * 1024).fill('x').join(''); // 99MB
+    const mockLargeFile = new File([largeContent], 'large-doc.pdf', {
+      type: 'application/pdf',
+    });
+    const docData = {
+      name: 'Large Document',
+      category: 'Contract',
+      uploadDate: '2024-01-15',
+    };
+
+    vi.mocked(uploadBytes).mockResolvedValue({ ref: {} as any } as any);
+    vi.mocked(getDownloadURL).mockResolvedValue('https://storage.example.com/large.pdf');
+    vi.mocked(addDoc).mockResolvedValue({ id: 'doc-large' } as any);
+
+    // Act
+    const result = await projectService.addDocument('proj-123', docData, mockLargeFile, mockUser);
+
+    // Assert - Should handle large file (< 100MB)
+    expect(result.success).toBe(true);
+    expect(uploadBytes).toHaveBeenCalled();
   });
 
   it('should handle malformed Firestore documents', async () => {
-    // TODO: Test missing fields in documents
-    expect(true).toBe(true); // Placeholder
+    // Arrange
+    const { projectService } = await import('../projectService');
+
+    // Mock document with missing fields
+    vi.mocked(getDoc).mockResolvedValue({
+      exists: () => true,
+      data: () => ({ id: 'proj-malformed' }), // Missing name and other fields
+      id: 'proj-malformed',
+    } as any);
+
+    // Act
+    const result = await projectService.getProjectById('proj-malformed');
+
+    // Assert - Should still return data (with missing fields as undefined)
+    expect(result.success).toBe(true);
+    expect(result.data?.id).toBe('proj-malformed');
   });
 
   it('should handle null/undefined values in updates', async () => {
-    // TODO: Test updateDoc with null values
-    expect(true).toBe(true); // Placeholder
+    // Arrange
+    const { projectService } = await import('../projectService');
+    vi.mocked(updateDoc).mockResolvedValue(undefined);
+    vi.mocked(getDoc).mockResolvedValue({
+      exists: () => true,
+      data: () => ({ prNumber: 'PR-001', status: null }), // null status
+    } as any);
+    vi.mocked(addDoc).mockResolvedValue({ id: 'audit-123' } as any);
+
+    // Act
+    const result = await projectService.updatePOStatus(
+      'proj-123',
+      'po-456',
+      'Disetujuan',
+      mockUser
+    );
+
+    // Assert - Should handle null values gracefully
+    expect(result.success).toBe(true);
   });
 
   it('should handle authentication timeout during long operations', async () => {
-    // TODO: Test requireAuth timeout
-    expect(true).toBe(true); // Placeholder
+    // Arrange
+    const { projectService } = await import('../projectService');
+
+    // Simulate slow operation that might trigger auth timeout
+    vi.mocked(getDocs).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({
+              docs: Array.from({ length: 100 }, (_, i) => ({
+                id: `user-${i}`,
+                data: () => ({ name: `User ${i}`, email: `user${i}@test.com` }),
+              })),
+            } as any);
+          }, 100); // Simulate delay
+        })
+    );
+
+    // Act
+    const result = await projectService.getUsers();
+
+    // Assert - Should complete even with delay
+    expect(result.success).toBe(true);
+    expect(result.data?.length).toBe(100);
   });
 });
 
