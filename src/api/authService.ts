@@ -24,6 +24,7 @@ import {
 import type { APIResponse } from '@/types/userProfile';
 import { Permission } from '@/types';
 import { ROLES_CONFIG } from '@/constants';
+import { logger } from '@/utils/logger.enhanced';
 
 // ========================================
 // TYPES

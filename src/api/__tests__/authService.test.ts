@@ -71,18 +71,8 @@ global.fetch = vi.fn(() =>
   })
 ) as any;
 
-// Mock sessionStorage
-global.sessionStorage = {
-  getItem: vi.fn((key: string) => {
-    if (key === 'sessionId') return 'session-123';
-    return null;
-  }),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
-} as any;
+// Mock sessionStorage - will be properly set in beforeEach
+const sessionStorageData: Record<string, string> = {};
 
 // Mock ROLES_CONFIG
 vi.mock('@/constants', () => ({
@@ -110,6 +100,30 @@ describe('authService', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    
+    // Mock sessionStorage
+    vi.stubGlobal('sessionStorage', {
+      getItem: vi.fn((key: string) => {
+        if (key === 'sessionId') return 'session-123';
+        return sessionStorageData[key] || null;
+      }),
+      setItem: vi.fn((key: string, value: string) => {
+        sessionStorageData[key] = value;
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete sessionStorageData[key];
+      }),
+      clear: vi.fn(() => {
+        Object.keys(sessionStorageData).forEach(key => delete sessionStorageData[key]);
+      }),
+      get length() {
+        return Object.keys(sessionStorageData).length;
+      },
+      key: vi.fn((index: number) => {
+        const keys = Object.keys(sessionStorageData);
+        return keys[index] || null;
+      }),
+    });
     
     // Mock global functions used by authService
     global.navigator = {
