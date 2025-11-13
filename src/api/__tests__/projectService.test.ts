@@ -38,6 +38,20 @@ vi.mock('firebase/storage', () => ({
   getDownloadURL: vi.fn(),
 }));
 
+// Import mocked functions for type safety
+import { 
+  collection, 
+  getDocs, 
+  getDoc, 
+  doc, 
+  addDoc, 
+  updateDoc,
+  query, 
+  where,
+  writeBatch,
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 vi.mock('@/utils/authGuard', () => ({
   waitForAuth: vi.fn(() => Promise.resolve({ uid: 'test-user-id' })),
   requireAuth: vi.fn(() => Promise.resolve({ uid: 'test-user-id' })),
@@ -993,68 +1007,246 @@ describe('projectService - Update Operations', () => {
 
   describe('updatePOStatus', () => {
     it('should update PO status with valid status value', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const validStatus: PurchaseOrder['status'] = 'Disetujuan';
+      vi.mocked(updateDoc).mockResolvedValue(undefined);
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({ prNumber: 'PR-2024-001', status: 'Menunggu Persetujuan' }),
+      } as any);
+      vi.mocked(addDoc).mockResolvedValue({ id: 'audit-log-123' } as any);
+
+      // Act
+      const result = await projectService.updatePOStatus('proj-123', 'po-456', validStatus, mockUser);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(updateDoc).toHaveBeenCalled();
+      expect(getDoc).toHaveBeenCalled();
     });
 
     it('should reject invalid status values', async () => {
-      // TODO: Implement test
-      // Test invalid statuses: 'Invalid', 'PENDING', etc.
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const invalidStatus = 'INVALID_STATUS' as PurchaseOrder['status'];
+
+      // Act
+      const result = await projectService.updatePOStatus('proj-123', 'po-456', invalidStatus, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/invalid|status/i);
+      expect(updateDoc).not.toHaveBeenCalled();
     });
 
     it('should add audit log after status update', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const validStatus: PurchaseOrder['status'] = 'Disetujuan';
+      let addDocCallCount = 0;
+      vi.mocked(updateDoc).mockResolvedValue(undefined);
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({ prNumber: 'PR-2024-001', status: 'Menunggu Persetujuan' }),
+      } as any);
+      vi.mocked(addDoc).mockImplementation(async () => {
+        addDocCallCount++;
+        return { id: `audit-${addDocCallCount}` } as any;
+      });
+
+      // Act
+      await projectService.updatePOStatus('proj-123', 'po-456', validStatus, mockUser);
+
+      // Assert - should call addDoc for audit log
+      expect(addDocCallCount).toBeGreaterThanOrEqual(1);
     });
 
     it('should update approver and approval date', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const validStatus: PurchaseOrder['status'] = 'Disetujuan';
+      let capturedUpdate: any;
+      vi.mocked(updateDoc).mockImplementation(async (_ref: any, data: any) => {
+        capturedUpdate = data;
+        return undefined;
+      });
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({ prNumber: 'PR-2024-001' }),
+      } as any);
+      vi.mocked(addDoc).mockResolvedValue({ id: 'audit-123' } as any);
+
+      // Act
+      await projectService.updatePOStatus('proj-123', 'po-456', validStatus, mockUser);
+
+      // Assert
+      expect(capturedUpdate.status).toBe(validStatus);
+      expect(capturedUpdate.approver).toBe(mockUser.name);
+      expect(capturedUpdate.approvalDate).toBeDefined();
     });
   });
 
   describe('updateAttendance', () => {
     it('should batch update attendance records', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const date = '2024-01-15';
+      const updates: [string, 'Hadir' | 'Izin' | 'Sakit' | 'Alpa'][] = [
+        ['worker-1', 'Hadir'],
+        ['worker-2', 'Hadir'],
+        ['worker-3', 'Izin'],
+      ];
+
+      const mockBatch = {
+        set: vi.fn(),
+        commit: vi.fn().mockResolvedValue(undefined),
+      };
+      vi.mocked(writeBatch).mockReturnValue(mockBatch as any);
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: [],
+      } as any);
+      vi.mocked(addDoc).mockResolvedValue({ id: 'audit-123' } as any);
+
+      // Act
+      const result = await projectService.updateAttendance('proj-123', date, updates, mockUser);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(mockBatch.set).toHaveBeenCalledTimes(3);
+      expect(mockBatch.commit).toHaveBeenCalled();
     });
 
     it('should validate attendance date format', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const invalidDate = 'invalid-date';
+      const updates: [string, 'Hadir'][] = [['worker-1', 'Hadir']];
+
+      // Act
+      const result = await projectService.updateAttendance('proj-123', invalidDate, updates, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/invalid|date/i);
     });
 
     it('should enforce batch size limit (500 writes)', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const date = '2024-01-15';
+      // Create 501 updates (exceeds Firestore batch limit of 500)
+      const updates: [string, 'Hadir'][] = Array.from({ length: 501 }, (_, i) => [
+        `worker-${i}`,
+        'Hadir',
+      ]);
+
+      // Act
+      const result = await projectService.updateAttendance('proj-123', date, updates, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/batch|limit|500/i);
     });
 
     it('should handle existing vs new attendance records', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const date = '2024-01-15';
+      const updates: [string, 'Hadir' | 'Alpa'][] = [
+        ['worker-1', 'Hadir'], // Existing
+        ['worker-2', 'Alpa'], // New
+      ];
+
+      const mockBatch = {
+        set: vi.fn(),
+        commit: vi.fn().mockResolvedValue(undefined),
+      };
+      vi.mocked(writeBatch).mockReturnValue(mockBatch as any);
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: [
+          {
+            id: 'attendance-1',
+            data: () => ({ workerId: 'worker-1', status: 'Hadir', date }),
+          },
+        ],
+      } as any);
+      vi.mocked(addDoc).mockResolvedValue({ id: 'audit-123' } as any);
+
+      // Act
+      const result = await projectService.updateAttendance('proj-123', date, updates, mockUser);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(mockBatch.set).toHaveBeenCalledTimes(2); // Both existing and new
+      expect(mockBatch.commit).toHaveBeenCalled();
     });
   });
 
   describe('markNotificationsAsRead', () => {
     it('should mark multiple notifications as read', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const notificationIds = ['notif-1', 'notif-2', 'notif-3'];
+      const mockBatch = {
+        update: vi.fn(),
+        commit: vi.fn().mockResolvedValue(undefined),
+      };
+      vi.mocked(writeBatch).mockReturnValue(mockBatch as any);
+
+      // Act
+      const result = await projectService.markNotificationsAsRead(notificationIds);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(mockBatch.update).toHaveBeenCalledTimes(3);
+      expect(mockBatch.commit).toHaveBeenCalled();
     });
 
-    it('should validate notification IDs', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+    it('should validate notification IDs array size', async () => {
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const tooManyIds = Array.from({ length: 501 }, (_, i) => `notif-${i}`);
+
+      // Act
+      const result = await projectService.markNotificationsAsRead(tooManyIds);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/limit|500|array/i);
     });
 
     it('should skip invalid notification IDs gracefully', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const mixedIds = ['notif-1', '', 'notif-2', 'invalid!@#', 'notif-3'];
+      const mockBatch = {
+        update: vi.fn(),
+        commit: vi.fn().mockResolvedValue(undefined),
+      };
+      vi.mocked(writeBatch).mockReturnValue(mockBatch as any);
+
+      // Act
+      const result = await projectService.markNotificationsAsRead(mixedIds);
+
+      // Assert
+      expect(result.success).toBe(true);
+      // Should only update valid IDs (notif-1, notif-2, notif-3)
+      expect(mockBatch.update).toHaveBeenCalled();
+      expect(mockBatch.commit).toHaveBeenCalled();
     });
 
-    it('should enforce array size limit (1-500)', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+    it('should reject empty notification array', async () => {
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const emptyIds: string[] = [];
+
+      // Act
+      const result = await projectService.markNotificationsAsRead(emptyIds);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error?.message).toMatch(/array|required|empty/i);
     });
   });
 });
