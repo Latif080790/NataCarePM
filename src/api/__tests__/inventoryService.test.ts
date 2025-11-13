@@ -458,6 +458,8 @@ describe('inventoryService', () => {
         items: [{
           materialId: 'mat-123',
           quantity: 100,
+          uom: 'pcs' as any,
+          unitCost: 1000,
           notes: 'Test transaction',
         }],
         referenceType: 'GR' as const,
@@ -474,6 +476,18 @@ describe('inventoryService', () => {
       vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
         data: () => ({ warehouseName: 'Main Warehouse' }),
+      } as any);
+
+      // Mock getMaterialById for items (called by createTransaction)
+      vi.mocked(getDoc).mockResolvedValueOnce({
+        id: 'mat-123',
+        exists: () => true,
+        data: () => ({
+          materialCode: 'MAT-001',
+          materialName: 'Cement',
+          baseUom: 'pcs',
+          currentStock: 50,
+        }),
       } as any);
 
       // Mock addDoc - createTransaction returns string ID
@@ -496,6 +510,8 @@ describe('inventoryService', () => {
         items: [{
           materialId: 'mat-123',
           quantity: 50,
+          uom: 'pcs' as any,
+          unitCost: 1000,
           notes: 'Material usage',
         }],
       };
@@ -510,6 +526,18 @@ describe('inventoryService', () => {
       vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
         data: () => ({ warehouseName: 'Main Warehouse' }),
+      } as any);
+
+      // Mock getMaterialById
+      vi.mocked(getDoc).mockResolvedValueOnce({
+        id: 'mat-123',
+        exists: () => true,
+        data: () => ({
+          materialCode: 'MAT-001',
+          materialName: 'Cement',
+          baseUom: 'pcs',
+          currentStock: 100,
+        }),
       } as any);
 
       vi.mocked(addDoc).mockResolvedValueOnce({ id: 'trx-out' } as any);
@@ -529,6 +557,8 @@ describe('inventoryService', () => {
         items: [{
           materialId: 'mat-123',
           quantity: 150, // More than available
+          uom: 'pcs' as any,
+          unitCost: 1000,
           notes: 'Test',
         }],
       };
@@ -542,6 +572,18 @@ describe('inventoryService', () => {
       vi.mocked(getDoc).mockResolvedValueOnce({
         exists: () => true,
         data: () => ({ warehouseName: 'Main Warehouse' }),
+      } as any);
+
+      // Mock getMaterialById
+      vi.mocked(getDoc).mockResolvedValueOnce({
+        id: 'mat-123',
+        exists: () => true,
+        data: () => ({
+          materialCode: 'MAT-001',
+          materialName: 'Cement',
+          baseUom: 'pcs',
+          currentStock: 100,
+        }),
       } as any);
 
       await expect(
@@ -1092,6 +1134,8 @@ describe('inventoryService', () => {
         items: [{
           materialId: 'mat-123',
           quantity: 50,
+          uom: 'pcs' as any,
+          unitCost: 1000,
           notes: 'Concurrent test',
         }],
       };
@@ -1104,7 +1148,13 @@ describe('inventoryService', () => {
       // Mock warehouse check
       vi.mocked(getDoc).mockResolvedValue({
         exists: () => true,
-        data: () => ({ warehouseName: 'Main Warehouse' }),
+        data: () => ({
+          warehouseName: 'Main Warehouse',
+          materialCode: 'MAT-001',
+          materialName: 'Cement',
+          baseUom: 'pcs',
+          currentStock: 200,
+        }),
       } as any);
 
       vi.mocked(addDoc).mockResolvedValue({ id: 'trx-concurrent' } as any);
