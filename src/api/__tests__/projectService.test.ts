@@ -106,105 +106,413 @@ describe('projectService - Retrieval Operations', () => {
 
   describe('getWorkspaces', () => {
     it('should fetch workspaces with projects successfully', async () => {
-      // TODO: Implement test
-      // Mock getDocs to return projects
-      // Verify workspace structure
-      // Check project count
-      expect(true).toBe(true); // Placeholder
+      // Arrange: Import needed functions
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+      
+      const mockProjects = [
+        { ...mockProject, id: 'proj-1', name: 'Project Alpha' },
+        { ...mockProject, id: 'proj-2', name: 'Project Beta' },
+        { ...mockProject, id: 'proj-3', name: 'Project Gamma' },
+      ];
+
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: mockProjects.map((proj) => ({
+          id: proj.id,
+          data: () => proj,
+          exists: () => true,
+        })),
+        empty: false,
+        size: 3,
+      } as any);
+
+      // Act
+      const result = await projectService.getWorkspaces();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data).toHaveLength(1); // Single workspace
+      expect(result.data![0].name).toBe("NATA'CARA Corp Workspace");
+      expect(result.data![0].projects).toHaveLength(3);
+      expect(result.data![0].projects[0].id).toBe('proj-1');
+      expect(result.data![0].projects[0].name).toBe('Project Alpha');
     });
 
     it('should handle empty projects collection', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: [],
+        empty: true,
+        size: 0,
+      } as any);
+
+      // Act
+      const result = await projectService.getWorkspaces();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data).toHaveLength(1);
+      expect(result.data![0].projects).toHaveLength(0);
     });
 
     it('should handle Firestore errors gracefully', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+
+      const firestoreError = new Error('Firestore connection timeout');
+      vi.mocked(getDocs).mockRejectedValue(firestoreError);
+
+      // Act
+      const result = await projectService.getWorkspaces();
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toContain('timeout');
     });
   });
 
   describe('getProjectById', () => {
     it('should retrieve project by valid ID', async () => {
-      // TODO: Implement test
-      // Mock getDoc to return project
-      // Verify project data structure
-      // Check all required fields
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      const testProject = { ...mockProject, id: 'proj-valid-123' };
+
+      vi.mocked(getDoc).mockResolvedValue({
+        id: testProject.id,
+        data: () => testProject,
+        exists: () => true,
+      } as any);
+
+      // Act
+      const result = await projectService.getProjectById('proj-valid-123');
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data!.id).toBe('proj-valid-123');
+      expect(result.data!.name).toBe('Test Construction Project');
+      expect(result.data!.location).toBe('Jakarta, Indonesia');
     });
 
     it('should reject invalid project ID format', async () => {
-      // TODO: Implement test
-      // Test with: '', null, undefined, special chars
-      // Expect APIError with INVALID_INPUT code
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      const invalidIds = ['', '  ', 'a', 'id with spaces', 'id@special!'];
+
+      // Act & Assert
+      for (const invalidId of invalidIds) {
+        const result = await projectService.getProjectById(invalidId);
+        
+        expect(result.success).toBe(false);
+        expect(result.error).toBeDefined();
+        expect(result.error?.code).toBe('INVALID_INPUT');
+        expect(result.error?.message).toContain('Invalid');
+      }
     });
 
     it('should handle non-existent project', async () => {
-      // TODO: Implement test
-      // Mock getDoc to return exists() = false
-      // Expect APIError with NOT_FOUND code
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      vi.mocked(getDoc).mockResolvedValue({
+        id: 'non-existent',
+        exists: () => false,
+        data: () => undefined,
+      } as any);
+
+      // Act
+      const result = await projectService.getProjectById('non-existent-project-id');
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('NOT_FOUND');
+      expect(result.error?.message).toContain('not found');
     });
 
     it('should retry on transient Firestore errors', async () => {
-      // TODO: Implement test
-      // Mock withAuthRetry behavior
-      // Verify retry attempts
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      let callCount = 0;
+      vi.mocked(getDoc).mockImplementation(() => {
+        callCount++;
+        if (callCount < 3) {
+          // Fail first 2 times
+          return Promise.reject(new Error('Temporary network error'));
+        }
+        // Succeed on 3rd try
+        return Promise.resolve({
+          id: 'proj-retry-123',
+          data: () => mockProject,
+          exists: () => true,
+        } as any);
+      });
+
+      // Act
+      const result = await projectService.getProjectById('proj-retry-123');
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(callCount).toBeGreaterThanOrEqual(3); // Verify retry happened
     });
   });
 
   describe('getUserById', () => {
     it('should retrieve user by valid ID', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      const testUser = { ...mockUser, id: 'user-valid-456' };
+
+      vi.mocked(getDoc).mockResolvedValue({
+        id: testUser.id,
+        data: () => testUser,
+        exists: () => true,
+      } as any);
+
+      // Act
+      const result = await projectService.getUserById('user-valid-456');
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data!.id).toBe('user-valid-456');
+      expect(result.data!.name).toBe('Test User');
+      expect(result.data!.email).toBe('test@example.com');
     });
 
     it('should reject invalid user ID format', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      // Act
+      const result = await projectService.getUserById('');
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('INVALID_INPUT');
     });
 
     it('should handle non-existent user', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      vi.mocked(getDoc).mockResolvedValue({
+        id: 'non-existent-user',
+        exists: () => false,
+        data: () => undefined,
+      } as any);
+
+      // Act
+      const result = await projectService.getUserById('non-existent-user-id');
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('NOT_FOUND');
+      expect(result.error?.message).toContain('User not found');
     });
   });
 
   describe('getAhspData', () => {
     it('should retrieve AHSP master data', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      const mockAhspData = {
+        labors: {
+          'pekerjaan-tanah': { 'mandor': 2, 'pekerja': 10 },
+        },
+        materials: {
+          'pekerjaan-beton': { 'semen': 50, 'pasir': 0.5 },
+        },
+        laborRates: {
+          'mandor': 150000,
+          'pekerja': 100000,
+        },
+        materialPrices: {
+          'semen': 75000,
+          'pasir': 50000,
+        },
+        materialUnits: {
+          'semen': 'sak',
+          'pasir': 'm³',
+        },
+      };
+
+      vi.mocked(getDoc).mockResolvedValue({
+        id: 'ahsp',
+        data: () => mockAhspData,
+        exists: () => true,
+      } as any);
+
+      // Act
+      const result = await projectService.getAhspData();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data!.labors).toBeDefined();
+      expect(result.data!.materials).toBeDefined();
+      expect(result.data!.laborRates).toBeDefined();
+      expect(result.data!.materialPrices).toBeDefined();
     });
 
     it('should handle missing AHSP document', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDoc } = await import('firebase/firestore');
+
+      vi.mocked(getDoc).mockResolvedValue({
+        id: 'ahsp',
+        exists: () => false,
+        data: () => undefined,
+      } as any);
+
+      // Act
+      const result = await projectService.getAhspData();
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('NOT_FOUND');
+      expect(result.error?.message).toContain('AHSP data not found');
     });
   });
 
   describe('getWorkers', () => {
     it('should fetch all workers', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+
+      const mockWorkers = [
+        { id: 'worker-1', name: 'Ahmad', type: 'Mandor' as const },
+        { id: 'worker-2', name: 'Budi', type: 'Tukang' as const },
+        { id: 'worker-3', name: 'Cahyo', type: 'Pekerja' as const },
+      ];
+
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: mockWorkers.map((worker) => ({
+          id: worker.id,
+          data: () => worker,
+          exists: () => true,
+        })),
+        empty: false,
+        size: 3,
+      } as any);
+
+      // Act
+      const result = await projectService.getWorkers();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data).toHaveLength(3);
+      expect(result.data![0].name).toBe('Ahmad');
+      expect(result.data![1].type).toBe('Tukang');
     });
 
     it('should return empty array when no workers exist', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: [],
+        empty: true,
+        size: 0,
+      } as any);
+
+      // Act
+      const result = await projectService.getWorkers();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data).toHaveLength(0);
     });
   });
 
   describe('getUsers', () => {
     it('should fetch all users', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+
+      const mockUsers = [
+        { ...mockUser, id: 'user-1', name: 'Alice Manager', roleId: 'project-manager' },
+        { ...mockUser, id: 'user-2', name: 'Bob Engineer', roleId: 'site-engineer' },
+        { ...mockUser, id: 'user-3', name: 'Charlie Supervisor', roleId: 'supervisor' },
+      ];
+
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: mockUsers.map((user) => ({
+          id: user.id,
+          data: () => user,
+          exists: () => true,
+        })),
+        empty: false,
+        size: 3,
+      } as any);
+
+      // Act
+      const result = await projectService.getUsers();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data).toHaveLength(3);
+      expect(result.data![0].name).toBe('Alice Manager');
+      expect(result.data![1].roleId).toBe('site-engineer');
     });
 
     it('should handle large user collections efficiently', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { getDocs } = await import('firebase/firestore');
+
+      // Create 100 mock users
+      const mockUsers = Array.from({ length: 100 }, (_, i) => ({
+        ...mockUser,
+        id: `user-${i}`,
+        name: `User ${i}`,
+      }));
+
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: mockUsers.map((user) => ({
+          id: user.id,
+          data: () => user,
+          exists: () => true,
+        })),
+        empty: false,
+        size: 100,
+      } as any);
+
+      // Act
+      const result = await projectService.getUsers();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data).toHaveLength(100);
     });
   });
 });
