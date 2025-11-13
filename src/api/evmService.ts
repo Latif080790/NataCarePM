@@ -105,8 +105,8 @@ export class EVMService {
     projectStartDate: Date
   ): TaskProgress[] {
     return tasks.map((task) => {
-      // Find associated RAB item
-      const rabItem = rabItems.find((rab) => rab.id.toString() === task.id);
+      // Find associated RAB item via rabItemId
+      const rabItem = rabItems.find((rab) => rab.id === task.rabItemId);
       const plannedCost = rabItem ? rabItem.volume * rabItem.hargaSatuan : 0;
 
       // Calculate planned progress based on schedule
