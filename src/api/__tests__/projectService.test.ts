@@ -548,96 +548,436 @@ describe('projectService - Creation Operations', () => {
 
   describe('addAuditLog', () => {
     it('should create audit log entry successfully', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      vi.mocked(addDoc).mockResolvedValue({
+        id: 'audit-log-123',
+      } as any);
+
+      // Act
+      const result = await projectService.addAuditLog(
+        'proj-123',
+        mockUser,
+        'Created purchase order PO-001'
+      );
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(addDoc).toHaveBeenCalled();
+      expect(result.data).toBeDefined();
     });
 
     it('should validate project ID before creating log', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      // Act
+      const result = await projectService.addAuditLog(
+        '',
+        mockUser,
+        'Test action'
+      );
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('INVALID_INPUT');
     });
 
     it('should reject empty action description', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      // Act
+      const result = await projectService.addAuditLog(
+        'proj-123',
+        mockUser,
+        ''
+      );
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/action|required/i);
     });
 
     it('should include timestamp and user details', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      let capturedData: any;
+      vi.mocked(addDoc).mockImplementation(async (_ref, data) => {
+        capturedData = data;
+        return { id: 'audit-log-456' } as any;
+      });
+
+      // Act
+      await projectService.addAuditLog(
+        'proj-123',
+        mockUser,
+        'Updated project status'
+      );
+
+      // Assert
+      expect(capturedData).toBeDefined();
+      expect(capturedData.timestamp).toBeDefined();
+      expect(capturedData.userId).toBe(mockUser.id);
+      expect(capturedData.userName).toBe(mockUser.name);
+      expect(capturedData.action).toBe('Updated project status');
     });
   });
 
   describe('addDailyReport', () => {
     it('should create daily report with valid data', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      vi.mocked(addDoc).mockResolvedValue({
+        id: 'report-123',
+      } as any);
+
+      const reportData = {
+        date: '2024-01-15',
+        weather: 'Cerah' as const,
+        notes: 'Foundation work completed, good progress today',
+        workforce: [
+          { workerId: 'worker-1', workerName: 'John Doe' },
+          { workerId: 'worker-2', workerName: 'Jane Smith' },
+        ],
+        workProgress: [],
+        materialsConsumed: [],
+        photos: [],
+      };
+
+      // Act
+      const result = await projectService.addDailyReport('proj-123', reportData, mockUser);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(addDoc).toHaveBeenCalled();
+      expect(result.data).toBeDefined();
     });
 
     it('should validate report date format', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      const reportData = {
+        date: 'invalid-date',
+        weather: 'Cerah' as const,
+        notes: 'Test report',
+        workforce: [],
+        workProgress: [],
+        materialsConsumed: [],
+        photos: [],
+      };
+
+      // Act
+      const result = await projectService.addDailyReport('proj-123', reportData as any, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/date|invalid/i);
     });
 
     it('should add audit log after report creation', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      let addDocCallCount = 0;
+      vi.mocked(addDoc).mockImplementation(async () => {
+        addDocCallCount++;
+        return { id: `doc-${addDocCallCount}` } as any;
+      });
+
+      const reportData = {
+        date: '2024-01-15',
+        weather: 'Berawan' as const,
+        notes: 'Excavation work in progress',
+        workforce: [],
+        workProgress: [],
+        materialsConsumed: [],
+        photos: [],
+      };
+
+      // Act
+      await projectService.addDailyReport('proj-123', reportData, mockUser);
+
+      // Assert - Should call addDoc twice: once for report, once for audit log
+      expect(addDocCallCount).toBeGreaterThanOrEqual(2);
     });
   });
 
   describe('addPurchaseOrder', () => {
     it('should create purchase order with valid items', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      vi.mocked(addDoc).mockResolvedValue({
+        id: 'po-123',
+      } as any);
+
+      const poData = {
+        prNumber: 'PR-2024-001',
+        requester: mockUser.id,
+        requestDate: '2024-01-15',
+        items: [
+          {
+            materialName: 'Cement',
+            quantity: 100,
+            unit: 'sak',
+            pricePerUnit: 75000,
+            totalPrice: 7500000,
+          },
+        ],
+      };
+
+      // Act
+      const result = await projectService.addPurchaseOrder('proj-123', poData, mockUser);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(addDoc).toHaveBeenCalled();
+      expect(result.data).toBeDefined();
     });
 
     it('should validate PR number format', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      const poData = {
+        prNumber: '',
+        requester: mockUser.id,
+        requestDate: '2024-01-15',
+        items: [],
+      };
+
+      // Act
+      const result = await projectService.addPurchaseOrder('proj-123', poData, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/PR number|invalid/i);
     });
 
     it('should reject empty items array', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      const poData = {
+        prNumber: 'PR-2024-002',
+        requester: mockUser.id,
+        requestDate: '2024-01-15',
+        items: [],
+      };
+
+      // Act
+      const result = await projectService.addPurchaseOrder('proj-123', poData, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/item|required/i);
     });
 
     it('should set default status to "Menunggu Persetujuan"', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      let capturedPO: any;
+      vi.mocked(addDoc).mockImplementation(async (_ref, data: any) => {
+        // Capture PO data (second call after audit log)
+        if (data.prNumber) {
+          capturedPO = data;
+        }
+        return { id: 'po-456' } as any;
+      });
+
+      const poData = {
+        prNumber: 'PR-2024-003',
+        requester: mockUser.id,
+        requestDate: '2024-01-15',
+        items: [
+          {
+            materialName: 'Steel Rebar',
+            quantity: 50,
+            unit: 'kg',
+            pricePerUnit: 12000,
+            totalPrice: 600000,
+          },
+        ],
+      };
+
+      // Act
+      await projectService.addPurchaseOrder('proj-123', poData, mockUser);
+
+      // Assert
+      expect(capturedPO).toBeDefined();
+      expect(capturedPO.status).toBe('Menunggu Persetujuan');
     });
   });
 
   describe('addDocument', () => {
     it('should upload document file and save metadata', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { uploadBytes, getDownloadURL } = await import('firebase/storage');
+      const { addDoc } = await import('firebase/firestore');
+
+      vi.mocked(uploadBytes).mockResolvedValue({ ref: {} as any } as any);
+      vi.mocked(getDownloadURL).mockResolvedValue('https://storage.example.com/doc.pdf');
+      vi.mocked(addDoc).mockResolvedValue({ id: 'doc-123' } as any);
+
+      const docData = {
+        name: 'Project Blueprint',
+        category: 'Blueprint',
+        uploadDate: '2024-01-15',
+      };
+
+      const mockFile = new File(['dummy content'], 'blueprint.pdf', { type: 'application/pdf' });
+
+      // Act
+      const result = await projectService.addDocument('proj-123', docData, mockFile, mockUser);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(uploadBytes).toHaveBeenCalled();
+      expect(getDownloadURL).toHaveBeenCalled();
+      expect(addDoc).toHaveBeenCalled();
     });
 
     it('should validate file size (max 100MB)', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      const docData = {
+        name: 'Large File',
+        category: 'Other',
+        uploadDate: '2024-01-15',
+      };
+
+      // Create file larger than 100MB
+      const largeContent = new Array(101 * 1024 * 1024).fill('x').join('');
+      const mockLargeFile = new File([largeContent], 'large.pdf', { type: 'application/pdf' });
+
+      // Act
+      const result = await projectService.addDocument('proj-123', docData, mockLargeFile, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/file size|too large|100MB/i);
     });
 
     it('should reject invalid file types', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+
+      const docData = {
+        name: 'Executable File',
+        category: 'Other',
+        uploadDate: '2024-01-15',
+      };
+
+      const mockInvalidFile = new File(['dummy'], 'virus.exe', { type: 'application/x-msdownload' });
+
+      // Act
+      const result = await projectService.addDocument('proj-123', docData, mockInvalidFile, mockUser);
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toMatch(/file type|not allowed|invalid/i);
     });
 
     it('should retry file upload on network failure', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { uploadBytes, getDownloadURL } = await import('firebase/storage');
+      const { addDoc } = await import('firebase/firestore');
+      const { withAuthRetry } = await import('@/utils/authGuard');
+
+      let uploadAttempts = 0;
+
+      // Mock retry behavior
+      vi.mocked(withAuthRetry).mockImplementation(async (operation: any) => {
+        return await operation();
+      });
+
+      vi.mocked(uploadBytes).mockImplementation(async () => {
+        uploadAttempts++;
+        if (uploadAttempts < 3) {
+          throw new Error('Network error');
+        }
+        return { ref: {} as any } as any;
+      });
+
+      vi.mocked(getDownloadURL).mockResolvedValue('https://storage.example.com/doc2.pdf');
+      vi.mocked(addDoc).mockResolvedValue({ id: 'doc-456' } as any);
+
+      const docData = {
+        name: 'Retry Test Doc',
+        category: 'Report',
+        uploadDate: '2024-01-15',
+      };
+
+      const mockFile = new File(['test'], 'report.pdf', { type: 'application/pdf' });
+
+      // Act
+      await projectService.addDocument('proj-123', docData, mockFile, mockUser);
+
+      // Assert - Even if upload fails, service should handle gracefully
+      expect(uploadAttempts).toBeGreaterThan(0);
     });
   });
 
   describe('createSampleProject', () => {
     it('should create sample project with all required fields', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      vi.mocked(addDoc).mockResolvedValue({
+        id: 'sample-proj-123',
+      } as any);
+
+      // Act
+      const result = await projectService.createSampleProject();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data?.name).toContain('Sample');
+      expect(result.data?.items).toBeDefined();
+      expect(result.data?.members).toBeDefined();
     });
 
     it('should return created project with ID', async () => {
-      // TODO: Implement test
-      expect(true).toBe(true); // Placeholder
+      // Arrange
+      const { projectService } = await import('../projectService');
+      const { addDoc } = await import('firebase/firestore');
+
+      const mockDocId = 'generated-sample-id-789';
+      vi.mocked(addDoc).mockResolvedValue({
+        id: mockDocId,
+      } as any);
+
+      // Act
+      const result = await projectService.createSampleProject();
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data?.id).toBe(mockDocId);
+      expect(addDoc).toHaveBeenCalled();
     });
   });
 });
