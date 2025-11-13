@@ -8,7 +8,10 @@
 import { initializeApp } from 'firebase/app';
 import { 
   type Firestore,
-  initializeFirestore
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  CACHE_SIZE_UNLIMITED
 } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
@@ -52,40 +55,20 @@ const app = initializeApp(firebaseConfig);
 
 // CRITICAL LOG - Check if this appears in console!
 console.log('%c[FIREBASE CONFIG] App initialized!', 'color: #00FF00; font-weight: bold; font-size: 16px');
-console.log('[FIREBASE] Using SDK v10.14.1');
+console.log('[FIREBASE] Using SDK v12.5.0 ✅');
 
-// Initialize Firestore with v10 stable settings + ignoreUndefinedProperties
+// Initialize Firestore with v12 Persistence API
+// Uses new persistentLocalCache with multiple tab support
 const db: Firestore = initializeFirestore(app, {
   ignoreUndefinedProperties: true, // FIX: Prevents undefined field errors
+  localCache: persistentLocalCache({
+    cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+    tabManager: persistentMultipleTabManager(),
+  }),
 });
 
-console.log('%c[FIREBASE CONFIG] Firestore initialized with ignoreUndefinedProperties=true!', 'color: #00FF00; font-weight: bold; font-size: 16px');
-
-// ⚠️ TEMPORARILY DISABLED: Offline persistence to fix 400 errors
-// Re-enable after clearing browser cache and verifying app works
-// 
-// Issue: IndexedDB persistence can cause 400 Bad Request errors if cache is corrupted
-// Solution: Disable persistence, clear cache, test, then re-enable
-//
-// try {
-//   enableIndexedDbPersistence(db, {
-//     cacheSizeBytes: CACHE_SIZE_UNLIMITED
-//   }).then(() => {
-//     console.log('%c[FIREBASE] ✅ Offline persistence ENABLED', 'color: #00FF00; font-weight: bold');
-//   }).catch((err) => {
-//     if (err.code === 'failed-precondition') {
-//       console.warn('[Firebase] ⚠️ Persistence failed: Multiple tabs open - using memory only');
-//     } else if (err.code === 'unimplemented') {
-//       console.warn('[Firebase] ⚠️ Persistence not available in this browser - using memory only');
-//     } else {
-//       console.warn('[Firebase] ⚠️ Persistence error (app will still work):', err.message);
-//     }
-//   });
-// } catch (err) {
-//   console.warn('[Firebase] ⚠️ Could not enable persistence, continuing without it:', err);
-// }
-
-console.log('%c[FIREBASE] ⚠️ Persistence DISABLED (debugging 400 errors)', 'color: #FFA500; font-weight: bold');
+console.log('%c[FIREBASE CONFIG] Firestore initialized with v12 persistence API!', 'color: #00FF00; font-weight: bold; font-size: 16px');
+console.log('[FIREBASE] ✅ Offline persistence ENABLED with multi-tab support');
 
 const auth: Auth = getAuth(app);
 const storage: FirebaseStorage = getStorage(app);

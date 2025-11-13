@@ -17,38 +17,88 @@ export async function exportToExcel(
   options: AuditExportOptions
 ): Promise<Blob> {
   try {
-    // Import xlsx dynamically
-    const XLSX = await import('xlsx');
+    // Import ExcelJS dynamically (replaces xlsx - fixes CVE vulnerabilities)
+    const { Workbook } = await import('exceljs');
     
     // Prepare data based on options
     const data = prepareExportData(logs, options);
     
-    // Create worksheet
-    const ws = XLSX.utils.json_to_sheet(data);
+    if (data.length === 0) {
+      throw new Error('No data to export');
+    }
     
-    // Auto-size columns
-    const colWidths = Object.keys(data[0] || {}).map(key => ({
-      wch: Math.max(
-        key.length,
-        ...data.map(row => String(row[key] || '').length)
+    // Create workbook and worksheet
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Audit Logs');
+    
+    // Get headers from first row
+    const headers = Object.keys(data[0]);
+    
+    // Define columns with auto-width
+    worksheet.columns = headers.map(header => ({
+      header,
+      key: header,
+      width: Math.max(
+        header.length + 2,
+        ...data.map(row => String(row[header] || '').length + 2)
       )
     }));
-    ws['!cols'] = colWidths;
     
-    // Create workbook
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Audit Logs');
+    // Add data rows
+    data.forEach(row => {
+      worksheet.addRow(row);
+    });
+    
+    // Style header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF2980B9' } // Blue background
+    };
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text
+    
+    // Add borders to all cells
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+      });
+    });
     
     // Add summary sheet if requested
     if (options.pdfOptions?.includeStatistics) {
       const summaryData = generateSummaryData(logs);
-      const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-      XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+      const summarySheet = workbook.addWorksheet('Summary');
+      
+      // Define summary columns
+      summarySheet.columns = [
+        { header: 'Metric', key: 'Metric', width: 30 },
+        { header: 'Value', key: 'Value', width: 20 }
+      ];
+      
+      // Add summary data
+      summaryData.forEach(row => {
+        summarySheet.addRow(row);
+      });
+      
+      // Style summary header
+      summarySheet.getRow(1).font = { bold: true };
+      summarySheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF27AE60' } // Green background
+      };
+      summarySheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
     }
     
-    // Generate Excel file
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { 
+    // Generate Excel file buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { 
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
     });
     
