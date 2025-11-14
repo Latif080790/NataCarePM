@@ -38,8 +38,8 @@ function securityHeadersPlugin() {
             ]
           : [
               "default-src 'self'",
-              "script-src 'self' 'sha256-PRODUCTION_HASH'", // Replace with actual hash in production
-              "style-src 'self' 'sha256-PRODUCTION_HASH' https://fonts.googleapis.com",
+              "script-src 'self' 'unsafe-inline'", // Allow inline scripts for React runtime
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: https://*.googleapis.com https://firebasestorage.googleapis.com blob:",
               "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://generativelanguage.googleapis.com wss://*.firebaseio.com",
@@ -99,19 +99,22 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client'], 
+      include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom/client'], 
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
     },
     resolve: {
-      dedupe: ['react', 'react-dom'], // Prevent duplicate React instances
+      dedupe: ['react', 'react-dom', 'react/jsx-runtime'], // Prevent duplicate React instances
       alias: {
         '@': path.resolve(__dirname, './src'),
         'react': path.resolve(__dirname, 'node_modules/react'),
         'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime'),
       },
     },
     plugins: [
-      react(),
+      react({
+        jsxRuntime: 'classic',
+      }),
       securityHeadersPlugin(),
       visualizer({
         open: false,
@@ -122,8 +125,9 @@ export default defineConfig(({ mode }) => {
       // VitePWA temporarily disabled to prevent reload loop
     ],
     esbuild: {
-      jsx: 'automatic',
-      jsxDev: mode !== 'production',
+      jsx: 'transform',
+      jsxFactory: 'React.createElement',
+      jsxFragment: 'React.Fragment',
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

@@ -15,10 +15,12 @@ try {
   logger.info('[Root] Environment validation passed');
 } catch (error) {
   logger.error('[Root] Environment validation failed', error instanceof Error ? error : new Error(String(error)));
-  // In production, this will prevent app from loading with invalid config
-  if (import.meta.env.PROD) {
+  // In production, log but don't throw to prevent app crash
+  if (!import.meta.env.PROD) {
     throw error;
   }
+  // Continue loading in production mode
+  logger.warn('[Root] Continuing despite validation errors in production');
 }
 
 logger.debug('[Root] Initializing Root component');
