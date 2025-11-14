@@ -234,7 +234,7 @@ export function EnhancedAuditLogView() {
       {/* Statistics Cards */}
       {statistics && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="p-4">
+          <CardPro className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Actions</p>
@@ -242,8 +242,8 @@ export function EnhancedAuditLogView() {
               </div>
               <Clock className="w-8 h-8 text-blue-500" />
             </div>
-          </Card>
-          <Card className="p-4">
+          </CardPro>
+          <CardPro className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Successful</p>
@@ -251,8 +251,8 @@ export function EnhancedAuditLogView() {
               </div>
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
-          </Card>
-          <Card className="p-4">
+          </CardPro>
+          <CardPro className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Failed</p>
@@ -260,8 +260,8 @@ export function EnhancedAuditLogView() {
               </div>
               <XCircle className="w-8 h-8 text-red-500" />
             </div>
-          </Card>
-          <Card className="p-4">
+          </CardPro>
+          <CardPro className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Compliance Rate</p>
@@ -269,13 +269,13 @@ export function EnhancedAuditLogView() {
               </div>
               <AlertCircle className="w-8 h-8 text-blue-500" />
             </div>
-          </Card>
+          </CardPro>
         </div>
       )}
 
       {/* Filters Panel */}
       {showFilters && (
-        <Card className="p-6">
+        <CardPro className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
@@ -397,11 +397,11 @@ export function EnhancedAuditLogView() {
               Clear Filters
             </button>
           </div>
-        </Card>
+        </CardPro>
       )}
 
       {/* Audit Logs Table */}
-      <Card className="overflow-hidden">
+      <CardPro className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -491,7 +491,7 @@ export function EnhancedAuditLogView() {
             </tbody>
           </table>
         </div>
-      </Card>
+      </CardPro>
 
       {/* Detail Modal */}
       {selectedLog && (
@@ -622,3 +622,4 @@ function getStatusIcon(status: EnhancedAuditLog['status']) {
 }
 
 export default EnhancedAuditLogView;
+

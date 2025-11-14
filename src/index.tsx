@@ -2,9 +2,6 @@
 // PRODUCTION-READY INDEX FILE
 // ===================================
 
-import React from 'react';
-// Explicitly import jsx-runtime to ensure it's loaded before any JSX
-import 'react/jsx-runtime';
 import { createRoot } from 'react-dom/client';
 import Root from './Root';
 import { initCSPMonitoring } from '@/utils/cspMonitoring';

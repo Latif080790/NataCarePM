@@ -42,7 +42,7 @@ import { APIResponse, safeAsync, APIError, ErrorCodes } from '@/utils/responseWr
 import { validators, firebaseValidators } from '@/utils/validators';
 import { withRetry } from '@/utils/retryWrapper';
 import { logger } from '@/utils/logger';
-import { waitForAuth, requireAuth, withAuthRetry } from '@/utils/authGuard';
+import { requireAuth, withAuthRetry } from '@/utils/authGuard';
 
 /**
  * Helper to convert Firestore doc to TypeScript types

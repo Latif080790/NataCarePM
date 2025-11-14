@@ -5,6 +5,7 @@ import {
   CardProContent,
   CardProHeader,
   CardProTitle,
+  ButtonPro,
 } from '@/components/DesignSystem';
 import { taskService } from '@/api/taskService';
 import { useProject } from '@/contexts/ProjectContext';
@@ -294,7 +295,7 @@ export default function ResourceAllocationView() {
       </div>
 
       {/* Resource Conflicts Alert */}
-      {resourceConflicts.length > 0 && (
+      {conflicts.length > 0 && (
         <CardPro className="mb-6 border-red-200 bg-red-50">
           <CardProHeader>
             <CardProTitle className="flex items-center gap-2 text-red-800">

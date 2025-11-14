@@ -18,7 +18,6 @@ import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentr
 import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
-import ForgotPasswordView from '@/views/ForgotPasswordView';
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
 
 // Context providers

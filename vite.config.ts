@@ -113,7 +113,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react({
-        jsxRuntime: 'classic',
+        jsxRuntime: 'automatic',
       }),
       securityHeadersPlugin(),
       visualizer({
@@ -124,11 +124,7 @@ export default defineConfig(({ mode }) => {
       }) as any,
       // VitePWA temporarily disabled to prevent reload loop
     ],
-    esbuild: {
-      jsx: 'transform',
-      jsxFactory: 'React.createElement',
-      jsxFragment: 'React.Fragment',
-    },
+    esbuild: {}, // Let Vite handle JSX automatically
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),

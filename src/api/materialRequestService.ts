@@ -250,6 +250,7 @@ export async function createMaterialRequest(
 /**
  * Check inventory stock for a material
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function checkInventoryStock(
   materialCode: string,
   _projectId: string  // Reserved for future multi-project inventory support

@@ -21,7 +21,6 @@
 
 import React from 'react';
 import { LucideProps } from 'lucide-react';
-import { designTokens } from '@/styles/design-tokens';
 
 interface StatCardProProps {
   /** Main label for the metric */

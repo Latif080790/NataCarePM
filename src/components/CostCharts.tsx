@@ -51,6 +51,7 @@ const formatCurrency = (value: number): string => {
 };
 
 // Custom tooltip formatter for percentages
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formatPercent = (value: number): string => {
   return `${value.toFixed(2)}%`;
 };

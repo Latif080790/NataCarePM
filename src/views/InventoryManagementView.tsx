@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, CSSProperties } from 'react';
-import { FixedSizeList as List } from 'react-window';
+import { FixedSizeList } from 'react-window';
 import { logger } from '@/utils/logger.enhanced';
 import {
   Package,
@@ -489,7 +489,7 @@ const InventoryManagementView: React.FC = () => {
               ) : (
                 <tr>
                   <td colSpan={9} className="p-0">
-                    <List
+                    <FixedSizeList
                       height={isMobile ? 500 : 600}
                       itemCount={materials.length}
                       itemSize={isMobile ? 120 : 72}
@@ -606,7 +606,7 @@ const InventoryManagementView: React.FC = () => {
                           </div>
                         );
                       }}
-                    </List>
+                    </FixedSizeList>
                   </td>
                 </tr>
               )}
@@ -675,3 +675,4 @@ const InventoryManagementView: React.FC = () => {
 };
 
 export default InventoryManagementView;
+
