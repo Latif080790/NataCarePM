@@ -1,4 +1,5 @@
-import React, { useState, useCallback, createContext, useContext } from 'react';
+import * as React from 'react';
+import { useState, useCallback, createContext, useContext } from 'react';
 
 // Mock implementation for realtime collaboration
 interface OnlineUser {

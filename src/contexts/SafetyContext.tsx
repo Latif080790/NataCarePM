@@ -6,7 +6,8 @@
  * PPE, audits, and safety metrics
  */
 
-import React, {
+import * as React from 'react';
+import {
   createContext,
   useContext,
   useState,

@@ -58,6 +58,11 @@ const AccountsReceivableView = lazy(() => import('@/views/AccountsReceivableView
 const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
 const PredictiveAnalyticsView = lazy(() => import('@/views/PredictiveAnalyticsView'));
 const AIResourceOptimizationView = lazy(() => import('@/views/AIResourceOptimizationView'));
+const IntegratedAnalyticsView = lazy(() => 
+  import('@/views/IntegratedAnalyticsView').then(module => ({
+    default: module.IntegratedAnalyticsView
+  }))
+);
 
 // Monitoring & Reports Views
 const MonitoringView = lazy(() => import('@/views/MonitoringViewPro'));
@@ -90,11 +95,20 @@ const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView
 // Settings & User Management Views
 const UserManagementView = lazy(() => import('@/views/UserManagementView'));
 const ProfileView = lazy(() => import('@/views/ProfileView'));
+const AdminSettingsView = lazy(() => 
+  import('@/views/AdminSettingsView').then(module => ({
+    default: module.AdminSettingsView
+  }))
+);
+const AuditTrailView = lazy(() => import('@/views/AuditTrailView'));
+const Setup2FAView = lazy(() => import('@/views/Setup2FAView'));
 
 import { monitoringService } from '@/api/monitoringService';
 import { Spinner } from '@/components/Spinner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
+import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
+import { AIResourceProvider } from '@/contexts/AIResourceContext';
 // import { useProjectCalculations } from '@/hooks/useProjectCalculations'; // Currently unused
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { failoverManager } from '@/utils/failoverManager';
@@ -157,8 +171,23 @@ function DependencyWrapper() {
 }
 
 function AnalyticsWrapper() {
-  const { IntegratedAnalyticsView } = require('@/views/IntegratedAnalyticsView');
   return <IntegratedAnalyticsView />;
+}
+
+function PredictiveAnalyticsWrapper() {
+  return (
+    <PredictiveAnalyticsProvider>
+      <PredictiveAnalyticsView />
+    </PredictiveAnalyticsProvider>
+  );
+}
+
+function AIResourceWrapper() {
+  return (
+    <AIResourceProvider>
+      <AIResourceOptimizationView />
+    </AIResourceProvider>
+  );
 }
 
 function TimelineWrapper() {
@@ -637,12 +666,12 @@ function App() {
           } />
           <Route path="ai/predictive-analytics" element={
             <ViewErrorBoundary viewName="Predictive Analytics">
-              <PredictiveAnalyticsView />
+              <PredictiveAnalyticsWrapper />
             </ViewErrorBoundary>
           } />
           <Route path="ai/resource-optimization" element={
             <ViewErrorBoundary viewName="AI Resource Optimization">
-              <AIResourceOptimizationView />
+              <AIResourceWrapper />
             </ViewErrorBoundary>
           } />
 
@@ -730,6 +759,11 @@ function App() {
           } />
 
           {/* Settings & User Management Routes */}
+          <Route path="settings" element={
+            <ViewErrorBoundary viewName="Settings">
+              <AdminSettingsView />
+            </ViewErrorBoundary>
+          } />
           <Route path="settings/users" element={
             <ViewErrorBoundary viewName="User Management">
               <UserManagementView />
@@ -738,6 +772,16 @@ function App() {
           <Route path="settings/master-data" element={
             <ViewErrorBoundary viewName="Master Data">
               <MasterDataWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="settings/audit-trail" element={
+            <ViewErrorBoundary viewName="Audit Trail">
+              <AuditTrailView auditLog={[]} />
+            </ViewErrorBoundary>
+          } />
+          <Route path="settings/2fa" element={
+            <ViewErrorBoundary viewName="Two-Factor Authentication">
+              <Setup2FAView />
             </ViewErrorBoundary>
           } />
           <Route path="attendance" element={

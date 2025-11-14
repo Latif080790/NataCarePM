@@ -4,7 +4,8 @@
  * Provides integration state and functions to components throughout the application
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import * as React from 'react';
+import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { integrationGateway, IntegrationConfig } from '@/api/integrationGateway';
 import { erpIntegrationService } from '@/services/erpIntegrationService';
 import { crmIntegrationService } from '@/services/crmIntegrationService';

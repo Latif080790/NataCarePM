@@ -5,7 +5,8 @@
  * Provides global state management for messaging and chat functionality
  */
 
-import React, {
+import * as React from 'react';
+import {
   createContext,
   useContext,
   useState,

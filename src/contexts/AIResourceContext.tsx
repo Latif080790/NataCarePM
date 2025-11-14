@@ -6,7 +6,16 @@
  * ML model interactions, and optimization results
  */
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+/**
+ * AI Resource Context
+ * NataCarePM - Phase 4.1: AI & Analytics
+ *
+ * React Context for managing AI-powered resource optimization,
+ * ML-based scheduling, and intelligent recommendations
+ */
+
+import * as React from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import {
   AIResourceOptimizationState,
   MLModelMetadata,

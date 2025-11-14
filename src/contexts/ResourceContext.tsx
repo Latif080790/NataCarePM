@@ -6,7 +6,8 @@
  * and utilization metrics across the application.
  */
 
-import React, {
+import * as React from 'react';
+import {
   createContext,
   useContext,
   useState,

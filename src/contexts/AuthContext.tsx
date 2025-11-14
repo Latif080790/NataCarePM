@@ -17,7 +17,8 @@ import {
   MultiFactorResolver,
 } from 'firebase/auth';
 import type { User } from '@/types';
-import React, {
+import * as React from 'react';
+import {
     createContext,
     ReactNode,
     useCallback,

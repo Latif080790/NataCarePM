@@ -6,7 +6,8 @@
  * mitigation plans, and risk analytics.
  */
 
-import React, {
+import * as React from 'react';
+import {
   createContext,
   useContext,
   useState,

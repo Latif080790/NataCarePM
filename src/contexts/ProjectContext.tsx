@@ -1,4 +1,5 @@
-import React, {
+import * as React from 'react';
+import {
   createContext,
   useState,
   useContext,
@@ -192,7 +193,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
         unsubscribeNotifications();
         logger.info('ProjectContext: Firestore listeners cleaned up', { projectId: currentProjectId });
       } catch (err) {
-        logger.error('ProjectContext: Error during listener cleanup', { error: err });
+        logger.error('ProjectContext: Error during listener cleanup', err instanceof Error ? err : new Error(String(err)));
       }
     };
   }, [currentProjectId]);

@@ -6,7 +6,8 @@
  * approval workflows, and impact analysis.
  */
 
-import React, {
+import * as React from 'react';
+import {
   createContext,
   useContext,
   useState,

@@ -5,7 +5,8 @@
  * Manages executive dashboard state and real-time KPI updates
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import * as React from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type {
   ExecutiveDashboardData,
   TimeFrame,

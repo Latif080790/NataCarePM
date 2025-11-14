@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { CardPro, ButtonPro } from '@/components/DesignSystem';
 import { FinancialForecastingComponent } from '@/components/FinancialForecastingComponent';
@@ -48,13 +48,7 @@ export const IntegratedAnalyticsView: React.FC = () => {
   const [evmMetrics, setEvmMetrics] = useState<EVMMetrics | null>(null);
   const [kpiMetrics, setKpiMetrics] = useState<KPIMetrics | null>(null);
 
-  useEffect(() => {
-    if (currentProject) {
-      loadProjectData();
-    }
-  }, [currentProject, refreshKey]);
-
-  const loadProjectData = async () => {
+  const loadProjectData = useCallback(async () => {
     if (!currentProject) return;
 
     setIsLoading(true);
@@ -128,7 +122,13 @@ export const IntegratedAnalyticsView: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentProject]);
+
+  useEffect(() => {
+    if (currentProject) {
+      loadProjectData();
+    }
+  }, [currentProject, refreshKey, loadProjectData]);
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);

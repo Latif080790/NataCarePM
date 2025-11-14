@@ -6,7 +6,8 @@
  * forecasting operations, and real-time predictions
  */
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import * as React from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import type {
   PredictiveAnalyticsState,
   CostForecast,

@@ -5,7 +5,8 @@
  * Manages offline state, sync status, and network connectivity
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import * as React from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type {
   OfflineInspection,
   SyncConflict,
@@ -108,8 +109,10 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
 
   // Service Worker state
-//   const [offlineReady, setOfflineReady] = useState(false); // Unused variable
-//   const [needRefresh, setNeedRefresh] = useState(false); // Unused variable
+//   const [offlineReady, setOfflineReady] = useState(false);
+ // Unused variable
+//   const [needRefresh, setNeedRefresh] = useState(false);
+ // Unused variable
 
   const [serviceWorkerStatus, setServiceWorkerStatus] = useState<ServiceWorkerStatus | null>(null);
 
