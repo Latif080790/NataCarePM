@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { useToast } from '@/contexts/ToastContext';
 import {
   Bell,
@@ -349,7 +349,7 @@ export default function NotificationCenterView() {
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-palladium w-4 h-4" />
-                <Input
+                <InputPro 
                   placeholder="Cari notifikasi..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -413,7 +413,7 @@ export default function NotificationCenterView() {
         <div className="flex flex-row items-center justify-between p-6 pb-4">
           <h3 className="text-lg font-semibold">Notifikasi ({filteredNotifications.length})</h3>
           <div className="flex items-center gap-2">
-            <input
+            <InputPro 
               type="checkbox"
               checked={
                 selectedNotifications.length === filteredNotifications.length &&
@@ -451,7 +451,7 @@ export default function NotificationCenterView() {
                                         `}
                   >
                     <div className="flex items-start gap-3">
-                      <input
+                      <InputPro 
                         type="checkbox"
                         checked={selectedNotifications.includes(notification.id)}
                         onChange={() => handleSelectNotification(notification.id)}
@@ -532,3 +532,4 @@ export default function NotificationCenterView() {
     </div>
   );
 }
+

@@ -111,7 +111,7 @@ interface EVMChartProps {
   height?: number;
 }
 
-export const EVMChart: React.FC<EVMChartProps> = ({ data, height = 400 }) => {
+const EVMChartComponent: React.FC<EVMChartProps> = ({ data, height = 400 }) => {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -165,12 +165,16 @@ export const EVMChart: React.FC<EVMChartProps> = ({ data, height = 400 }) => {
   );
 };
 
+export const EVMChart = React.memo(EVMChartComponent, (prevProps, nextProps) => {
+  return prevProps.data === nextProps.data && prevProps.height === nextProps.height;
+});
+
 interface PerformanceIndexChartProps {
   data: TrendData[];
   height?: number;
 }
 
-export const PerformanceIndexChart: React.FC<PerformanceIndexChartProps> = ({
+const PerformanceIndexChartComponent: React.FC<PerformanceIndexChartProps> = ({
   data,
   height = 300,
 }) => {
@@ -212,6 +216,10 @@ export const PerformanceIndexChart: React.FC<PerformanceIndexChartProps> = ({
     </ResponsiveContainer>
   );
 };
+
+export const PerformanceIndexChart = React.memo(PerformanceIndexChartComponent, (prevProps, nextProps) => {
+  return prevProps.data === nextProps.data && prevProps.height === nextProps.height;
+});
 
 interface BudgetVsActualChartProps {
   data: BudgetVsActual[];

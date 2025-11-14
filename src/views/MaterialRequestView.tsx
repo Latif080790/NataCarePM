@@ -31,9 +31,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
+import { ResponsiveTable, Column } from '@/components/ResponsiveTable';
+import { useIsMobile } from '@/utils/mobileOptimization';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { MaterialRequest, MRStatus, MRPriority } from '@/types/logistics';
 import {
   getMaterialRequests,
@@ -82,6 +84,7 @@ const MaterialRequestView: React.FC = () => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
+  const isMobile = useIsMobile();
 
   // State management
   const [mrs, setMRs] = useState<MaterialRequest[]>([]);
@@ -277,6 +280,119 @@ const MaterialRequestView: React.FC = () => {
     return <span className={`status-badge status-${config.color}`}>{config.label}</span>;
   };
 
+  // Column configuration for ResponsiveTable
+  const getMRColumns = (): Column<MaterialRequest>[] => [
+    {
+      key: 'mrNumber',
+      label: 'MR Number',
+      mobileLabel: 'MR#',
+      sortable: true,
+      render: (mr) => <strong>{mr.mrNumber}</strong>,
+    },
+    {
+      key: 'purpose',
+      label: 'Purpose',
+      sortable: true,
+      hiddenOnMobile: isMobile,
+    },
+    {
+      key: 'priority',
+      label: 'Priority',
+      sortable: true,
+      render: (mr) => renderPriorityBadge(mr.priority),
+    },
+    {
+      key: 'totalItems',
+      label: 'Items',
+      sortable: true,
+      hiddenOnMobile: isMobile,
+    },
+    {
+      key: 'totalEstimatedValue',
+      label: 'Estimated Value',
+      mobileLabel: 'Value',
+      sortable: true,
+      render: (mr) => formatCurrency(mr.totalEstimatedValue),
+    },
+    {
+      key: 'requiredDate',
+      label: 'Required Date',
+      mobileLabel: 'Due Date',
+      sortable: true,
+      render: (mr) => formatDate(mr.requiredDate),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (mr) => renderStatusBadge(mr.status),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      sortable: false,
+      render: (mr) => (
+        <div className="flex items-center space-x-2">
+          <ButtonPro
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetails(mr);
+            }}
+            title="View Details"
+          >
+            <ClipboardList size={16} />
+          </ButtonPro>
+
+          {mr.status === 'draft' && hasPermission(currentUser, 'create_po') && (
+            <ButtonPro
+              variant="primary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSubmitMR(mr.id);
+              }}
+              title="Submit"
+            >
+              <CheckCircle size={16} />
+            </ButtonPro>
+          )}
+
+          {['site_manager_review', 'pm_review', 'budget_check'].includes(mr.status) && (
+            <ButtonPro
+              variant="primary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleApprove(mr);
+              }}
+              title="Review & Approve"
+            >
+              <CheckCircle size={16} />
+            </ButtonPro>
+          )}
+
+          {mr.status === 'approved' &&
+            !mr.convertedToPO &&
+            hasPermission(currentUser, 'create_po') && (
+              <ButtonPro
+                variant="primary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleConvertToPO(mr);
+                }}
+                title="Convert to PO"
+              >
+                <ShoppingCart size={16} />
+              </ButtonPro>
+            )}
+        </div>
+      ),
+    },
+  ];
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -426,7 +542,7 @@ const MaterialRequestView: React.FC = () => {
         <div className="filter-row">
           <div className="search-box">
             <Search size={20} />
-            <Input
+            <InputPro 
               type="text"
               placeholder="Search by MR number, purpose, or material..."
               value={searchTerm}
@@ -437,7 +553,7 @@ const MaterialRequestView: React.FC = () => {
 
           <div className="filter-group">
             <Filter size={20} />
-            <select
+            <select 
               value=""
               onChange={(e) => {
                 const status = e.target.value as MRStatus;
@@ -455,7 +571,7 @@ const MaterialRequestView: React.FC = () => {
               ))}
             </select>
 
-            <select
+            <select 
               value=""
               onChange={(e) => {
                 const priority = e.target.value as MRPriority;
@@ -532,82 +648,14 @@ const MaterialRequestView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="mr-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>MR Number</th>
-                  <th>Purpose</th>
-                  <th>Priority</th>
-                  <th>Items</th>
-                  <th>Estimated Value</th>
-                  <th>Required Date</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredMRs.map((mr) => (
-                  <tr key={mr.id}>
-                    <td>
-                      <strong>{mr.mrNumber}</strong>
-                    </td>
-                    <td>{mr.purpose}</td>
-                    <td>{renderPriorityBadge(mr.priority)}</td>
-                    <td className="text-center">{mr.totalItems}</td>
-                    <td className="text-right">{formatCurrency(mr.totalEstimatedValue)}</td>
-                    <td>{formatDate(mr.requiredDate)}</td>
-                    <td>{renderStatusBadge(mr.status)}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          onClick={() => handleViewDetails(mr)}
-                          className="btn-icon transition-colors"
-                          title="View Details"
-                        >
-                          <ClipboardList size={16} />
-                        </button>
-
-                        {mr.status === 'draft' && hasPermission(currentUser, 'create_po') && (
-                          <button
-                            onClick={() => handleSubmitMR(mr.id)}
-                            className="btn-icon btn-success transition-colors"
-                            title="Submit"
-                          >
-                            <CheckCircle size={16} />
-                          </button>
-                        )}
-
-                        {['site_manager_review', 'pm_review', 'budget_check'].includes(
-                          mr.status
-                        ) && (
-                          <button
-                            onClick={() => handleApprove(mr)}
-                            className="btn-icon btn-primary transition-colors"
-                            title="Review & Approve"
-                          >
-                            <CheckCircle size={16} />
-                          </button>
-                        )}
-
-                        {mr.status === 'approved' &&
-                          !mr.convertedToPO &&
-                          hasPermission(currentUser, 'create_po') && (
-                            <button
-                              onClick={() => handleConvertToPO(mr)}
-                              className="btn-icon btn-success transition-colors"
-                              title="Convert to PO"
-                            >
-                              <ShoppingCart size={16} />
-                            </button>
-                          )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ResponsiveTable
+            data={filteredMRs}
+            columns={getMRColumns()}
+            keyExtractor={(mr) => mr.id}
+            onRowClick={(mr) => handleViewDetails(mr)}
+            pageSize={isMobile ? 10 : 20}
+            searchable={false}
+          />
         )}
       </CardPro>
 
@@ -671,3 +719,5 @@ const MaterialRequestView: React.FC = () => {
 };
 
 export default MaterialRequestView;
+
+

@@ -2,7 +2,7 @@ import { taskService } from '@/api/taskService';
 import { ButtonPro } from '@/components/ButtonPro';
 import { CardPro, CardProContent, CardProDescription, CardProHeader, CardProTitle } from '@/components/CardPro';
 import CreateTaskModal from '@/components/CreateTaskModal';
-import { Input, Select } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import TaskDetailModal from '@/components/TaskDetailModal';
 import { formatDate } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
@@ -199,7 +199,7 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
+                <InputPro 
                   type="text"
                   placeholder="Cari task..."
                   value={searchTerm}
@@ -208,14 +208,14 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
                 />
               </div>
             </div>
-            <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)}>
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)}>
               <option value="all">Semua Status</option>
               <option value="todo">To Do</option>
               <option value="in-progress">In Progress</option>
               <option value="done">Done</option>
               <option value="blocked">Blocked</option>
-            </Select>
-            <Select
+            </select>
+            <select 
               value={filterPriority}
               onChange={(e) => setFilterPriority(e.target.value as any)}
             >
@@ -224,9 +224,9 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
               <option value="medium">Medium</option>
               <option value="high">High</option>
               <option value="critical">Critical</option>
-            </Select>
+            </select>
             {currentProject && (
-              <Select value={filterAssignee} onChange={(e) => setFilterAssignee(e.target.value)}>
+              <select value={filterAssignee} onChange={(e) => setFilterAssignee(e.target.value)}>
                 <option value="all">Semua Assignee</option>
                 <option value={currentUser?.id || ''}>Saya</option>
                 {currentProject.members.map((member) => (
@@ -234,7 +234,7 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
                     {member.name}
                   </option>
                 ))}
-              </Select>
+              </select>
             )}
           </div>
 
@@ -348,3 +348,5 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
     </div>
   );
 }
+
+

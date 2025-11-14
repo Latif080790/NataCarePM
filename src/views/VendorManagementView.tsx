@@ -34,8 +34,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
 import { CardPro } from '@/components/CardPro';
-import { Button } from '@/components/Button';
-import { Input } from '@/components/FormControls';
+import { ButtonPro } from '@/components/ButtonPro';
+import { InputPro } from '@/components/DesignSystem';
+import { ResponsiveTable, Column } from '@/components/ResponsiveTable';
+import { useIsMobile } from '@/utils/mobileOptimization';
 import {
   Vendor,
   VendorStatus,
@@ -103,6 +105,7 @@ const RATING_CONFIG: Record<PerformanceRating, { label: string; color: string; s
 const VendorManagementView: React.FC = () => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
+  const isMobile = useIsMobile();
 
   // State management
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -265,6 +268,136 @@ const VendorManagementView: React.FC = () => {
   }, [debouncedSearchAPI]);
 
   // ============================================================================
+  // TABLE COLUMNS CONFIGURATION
+  // ============================================================================
+
+  const getVendorColumns = (): Column<Vendor>[] => [
+    {
+      key: 'vendorCode',
+      label: 'Vendor Code',
+      mobileLabel: 'Code',
+      sortable: true,
+      render: (value) => <strong>{value}</strong>,
+      width: '120px',
+    },
+    {
+      key: 'vendorName',
+      label: 'Vendor Name',
+      mobileLabel: 'Vendor',
+      sortable: true,
+      render: (_, vendor) => (
+        <div>
+          <div className="font-semibold">{vendor.vendorName}</div>
+          <small className="text-slate-500">{vendor.legalName}</small>
+        </div>
+      ),
+      width: '200px',
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      hiddenOnMobile: true,
+      sortable: true,
+      render: (value) => CATEGORY_CONFIG[value as VendorCategory].label,
+      width: '120px',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (value) => renderStatusBadge(value),
+      width: '130px',
+    },
+    {
+      key: 'overallRating',
+      label: 'Rating',
+      mobileLabel: 'Rating',
+      sortable: true,
+      render: (value) => renderRatingBadge(value),
+      width: '120px',
+    },
+    {
+      key: 'performance',
+      label: 'Performance',
+      hiddenOnMobile: isMobile,
+      render: (_, vendor) => renderPerformanceIndicator(vendor.performance.performanceScore),
+      width: '120px',
+    },
+    {
+      key: 'totalPOValue',
+      label: 'Total PO Value',
+      mobileLabel: 'Total Value',
+      sortable: true,
+      render: (_, vendor) => formatCurrency(vendor.performance.totalPOValue),
+      width: '150px',
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_, vendor) => (
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <ButtonPro
+            variant="secondary"
+            size="sm"
+            onClick={() => handleViewDetails(vendor)}
+            title="View Details"
+          >
+            <Eye size={16} />
+          </ButtonPro>
+
+          {vendor.status === 'pending_approval' &&
+            hasPermission(currentUser, 'manage_master_data') && (
+              <ButtonPro
+                variant="primary"
+                size="sm"
+                onClick={() => handleApproveVendor(vendor.id)}
+                title="Approve"
+              >
+                <CheckCircle size={16} />
+              </ButtonPro>
+            )}
+
+          {hasPermission(currentUser, 'manage_master_data') && (
+            <ButtonPro
+              variant="primary"
+              size="sm"
+              onClick={() => handleEditVendor(vendor)}
+              title="Edit"
+            >
+              <Edit size={16} />
+            </ButtonPro>
+          )}
+
+          {vendor.status === 'active' && vendor.performance.totalPOs > 0 && (
+            <ButtonPro
+              variant="secondary"
+              size="sm"
+              onClick={() => handleEvaluateVendor(vendor)}
+              title="Evaluate"
+            >
+              <Award size={16} />
+              </ButtonPro>
+          )}
+
+          {vendor.status === 'active' &&
+            !vendor.isBlacklisted &&
+            hasPermission(currentUser, 'manage_master_data') && (
+              <ButtonPro
+                variant="danger"
+                size="sm"
+                onClick={() => handleBlacklistVendor(vendor)}
+                title="Blacklist"
+              >
+                <Ban size={16} />
+              </ButtonPro>
+            )}
+        </div>
+      ),
+      width: '250px',
+    },
+  ];
+
+  // ============================================================================
   // RENDER HELPERS
   // ============================================================================
 
@@ -371,10 +504,10 @@ const VendorManagementView: React.FC = () => {
         </div>
 
         {hasPermission(currentUser, 'manage_master_data') && (
-          <Button onClick={handleCreateVendor} className="btn-primary">
+          <ButtonPro onClick={handleCreateVendor} variant="primary">
             <Plus size={20} />
             Add Vendor
-          </Button>
+          </ButtonPro>
         )}
       </div>
 
@@ -388,9 +521,9 @@ const VendorManagementView: React.FC = () => {
               <h3>Pending Vendor Approvals</h3>
               <p>{summary.pendingApprovals} vendor(s) awaiting approval.</p>
             </div>
-            <Button onClick={() => setStatusFilter(['pending_approval'])} className="btn-warning">
+            <ButtonPro onClick={() => setStatusFilter(['pending_approval'])} variant="secondary">
               View Pending
-            </Button>
+            </ButtonPro>
           </CardPro>
         )}
 
@@ -464,7 +597,7 @@ const VendorManagementView: React.FC = () => {
         <div className="filter-row">
           <div className="search-box">
             <Search size={20} />
-            <Input
+            <InputPro
               type="text"
               placeholder="Search by vendor name, code, or tax ID..."
               value={searchTerm}
@@ -539,16 +672,16 @@ const VendorManagementView: React.FC = () => {
           </div>
 
           {(statusFilter.length > 0 || categoryFilter.length > 0 || ratingFilter.length > 0) && (
-            <Button
+            <ButtonPro
               onClick={() => {
                 setStatusFilter([]);
                 setCategoryFilter([]);
                 setRatingFilter([]);
               }}
-              className="btn-secondary"
+              variant="secondary"
             >
               Clear Filters
-            </Button>
+            </ButtonPro>
           )}
         </div>
 
@@ -612,102 +745,16 @@ const VendorManagementView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="vendor-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Vendor Code</th>
-                  <th>Vendor Name</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                  <th>Rating</th>
-                  <th>Performance</th>
-                  <th>Total PO Value</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {safeMap(
-                  filteredVendors,
-                  (vendor) => (
-                    <tr key={vendor.id} className={vendor.isBlacklisted ? 'row-blacklisted' : ''}>
-                      <td>
-                        <strong>{vendor.vendorCode}</strong>
-                      </td>
-                      <td>
-                        <div>
-                          <div className="vendor-name">{vendor.vendorName}</div>
-                          <small className="text-muted">{vendor.legalName}</small>
-                        </div>
-                      </td>
-                      <td>{CATEGORY_CONFIG[vendor.category].label}</td>
-                    <td>{renderStatusBadge(vendor.status)}</td>
-                    <td>{renderRatingBadge(vendor.overallRating)}</td>
-                    <td>{renderPerformanceIndicator(vendor.performance.performanceScore)}</td>
-                    <td className="text-right">
-                      {formatCurrency(vendor.performance.totalPOValue)}
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <Button
-                          onClick={() => handleViewDetails(vendor)}
-                          className="btn-icon"
-                          title="View Details"
-                        >
-                          <Eye size={16} />
-                        </Button>
-
-                        {vendor.status === 'pending_approval' &&
-                          hasPermission(currentUser, 'manage_master_data') && (
-                            <Button
-                              onClick={() => handleApproveVendor(vendor.id)}
-                              className="btn-icon btn-success"
-                              title="Approve Vendor"
-                            >
-                              <CheckCircle size={16} />
-                            </Button>
-                          )}
-
-                        {hasPermission(currentUser, 'manage_master_data') && (
-                          <Button
-                            onClick={() => handleEditVendor(vendor)}
-                            className="btn-icon btn-primary"
-                            title="Edit Vendor"
-                          >
-                            <Edit size={16} />
-                          </Button>
-                        )}
-
-                        {vendor.status === 'active' && vendor.performance.totalPOs > 0 && (
-                          <Button
-                            onClick={() => handleEvaluateVendor(vendor)}
-                            className="btn-icon btn-warning"
-                            title="Evaluate Vendor"
-                          >
-                            <Award size={16} />
-                          </Button>
-                        )}
-
-                        {vendor.status === 'active' &&
-                          !vendor.isBlacklisted &&
-                          hasPermission(currentUser, 'manage_master_data') && (
-                            <Button
-                              onClick={() => handleBlacklistVendor(vendor)}
-                              className="btn-icon btn-danger"
-                              title="Blacklist Vendor"
-                            >
-                              <Ban size={16} />
-                            </Button>
-                          )}
-                      </div>
-                    </td>
-                  </tr>
-                ),
-                []
-              )}
-              </tbody>
-            </table>
-          </div>
+          <ResponsiveTable
+            data={filteredVendors}
+            columns={getVendorColumns()}
+            keyExtractor={(vendor) => vendor.id}
+            onRowClick={(vendor) => handleViewDetails(vendor)}
+            loading={loading}
+            searchable={false}
+            pageSize={isMobile ? 10 : 20}
+            className="vendor-responsive-table"
+          />
         )}
       </CardPro>
 

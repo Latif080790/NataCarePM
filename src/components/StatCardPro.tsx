@@ -19,6 +19,7 @@
  * />
  */
 
+import React from 'react';
 import { LucideProps } from 'lucide-react';
 import { designTokens } from '@/styles/design-tokens';
 
@@ -55,7 +56,7 @@ interface StatCardProProps {
   className?: string;
 }
 
-export function StatCardPro({
+export const StatCardPro = React.memo(function StatCardPro({
   title,
   value,
   icon: Icon,
@@ -188,7 +189,16 @@ export function StatCardPro({
       )}
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison for performance optimization
+  return (
+    prevProps.value === nextProps.value &&
+    prevProps.title === nextProps.title &&
+    prevProps.trend?.value === nextProps.trend?.value &&
+    prevProps.isLoading === nextProps.isLoading &&
+    prevProps.variant === nextProps.variant
+  );
+});
 
 /**
  * Loading Skeleton for StatCard

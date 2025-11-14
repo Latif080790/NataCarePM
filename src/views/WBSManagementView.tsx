@@ -16,7 +16,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { Modal } from '@/components/Modal';
 import {
   ChevronRight,
@@ -460,14 +460,14 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
       <CardPro>
         <div className="p-4">
           <div className="flex items-center gap-4 flex-wrap">
-            <Input
+            <InputPro 
               placeholder="Cari WBS code atau nama..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-xs"
             />
 
-            <select
+            <select 
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-3 py-2 border rounded-lg"
@@ -609,7 +609,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
           <label className="block text-sm font-medium mb-1">
             WBS Code <span className="text-red-500">*</span>
           </label>
-          <Input
+          <InputPro 
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value })}
             placeholder="e.g., 1.2.3"
@@ -623,7 +623,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
           <label className="block text-sm font-medium mb-1">
             Name <span className="text-red-500">*</span>
           </label>
-          <Input
+          <InputPro 
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="e.g., Foundation Work"
@@ -634,7 +634,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
         {/* Description */}
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea
+          <textarea 
             value={formData.description || ''}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Detailed description of work scope..."
@@ -646,7 +646,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
         {/* Parent WBS */}
         <div>
           <label className="block text-sm font-medium mb-1">Parent WBS</label>
-          <select
+          <select 
             value={formData.parentId || ''}
             onChange={(e) => {
               const parentId = e.target.value || null;
@@ -671,7 +671,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
         {/* Budget */}
         <div>
           <label className="block text-sm font-medium mb-1">Budget Amount</label>
-          <Input
+          <InputPro 
             type="number"
             value={formData.budgetAmount}
             onChange={(e) => setFormData({ ...formData, budgetAmount: Number(e.target.value) })}
@@ -684,7 +684,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
         {/* Status */}
         <div>
           <label className="block text-sm font-medium mb-1">Status</label>
-          <select
+          <select 
             value={formData.status}
             onChange={(e) =>
               setFormData({ ...formData, status: e.target.value as WBSElement['status'] })
@@ -702,7 +702,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
         {/* Progress */}
         <div>
           <label className="block text-sm font-medium mb-1">Progress: {formData.progress}%</label>
-          <input
+          <InputPro 
             type="range"
             value={formData.progress}
             onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })}
@@ -716,7 +716,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
         {/* Flags */}
         <div className="flex gap-4">
           <label className="flex items-center gap-2">
-            <input
+            <InputPro 
               type="checkbox"
               checked={formData.isDeliverable}
               onChange={(e) => setFormData({ ...formData, isDeliverable: e.target.checked })}
@@ -726,7 +726,7 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
           </label>
 
           <label className="flex items-center gap-2">
-            <input
+            <InputPro 
               type="checkbox"
               checked={formData.isBillable}
               onChange={(e) => setFormData({ ...formData, isBillable: e.target.checked })}
@@ -753,3 +753,4 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
 };
 
 export default WBSManagementView;
+

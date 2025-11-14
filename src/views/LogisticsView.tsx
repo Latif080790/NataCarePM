@@ -5,7 +5,7 @@ import { PurchaseOrder, InventoryItem, AhspData, POItem } from '@/types';
 import { hasPermission } from '@/constants';
 import { CreatePOModal } from '@/components/CreatePOModal';
 import { PODetailsModal } from '@/components/PODetailsModal';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { PlusCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { debounce } from '@/utils/performanceOptimization';
@@ -160,7 +160,7 @@ export default function LogisticsView({
           <CardProHeader>
             <CardProTitle>Inventaris Material</CardProTitle>
             <div className="mt-2">
-              <Input
+              <InputPro 
                 placeholder="Cari material..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
@@ -218,3 +218,4 @@ export default function LogisticsView({
     </>
   );
 }
+

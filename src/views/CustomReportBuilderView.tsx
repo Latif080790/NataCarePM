@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { enhancedReportingService } from '@/api/enhancedReportingService';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input, Select, Textarea } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { 
   Plus, 
   Trash2, 
@@ -357,7 +357,7 @@ const CustomReportBuilderView: React.FC = () => {
             <div className="p-6 pt-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Report Name</label>
-                <Input
+                <InputPro 
                   value={reportName}
                   onChange={(e) => setReportName(e.target.value)}
                   placeholder="Enter report name"
@@ -365,7 +365,7 @@ const CustomReportBuilderView: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <Textarea
+                <textarea 
                   value={reportDescription}
                   onChange={(e) => setReportDescription(e.target.value)}
                   placeholder="Enter report description"
@@ -387,7 +387,7 @@ const CustomReportBuilderView: React.FC = () => {
               <div className="space-y-2">
                 {dataSources.map((source) => (
                   <label key={source.id} className="flex items-center">
-                    <input
+                    <InputPro 
                       type="checkbox"
                       checked={selectedDataSources.includes(source.id)}
                       onChange={(e) => {
@@ -438,7 +438,7 @@ const CustomReportBuilderView: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Field Label</label>
-                        <Input
+                        <InputPro 
                           value={field.label}
                           onChange={(e) => updateField(index, 'label', e.target.value)}
                           placeholder="Enter label"
@@ -446,7 +446,7 @@ const CustomReportBuilderView: React.FC = () => {
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Data Source</label>
-                        <Select
+                        <select 
                           value={field.source}
                           onChange={(e) => updateField(index, 'source', e.target.value)}
                         >
@@ -460,13 +460,13 @@ const CustomReportBuilderView: React.FC = () => {
                                 </option>
                               ))
                             )}
-                        </Select>
+                        </select>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Aggregation</label>
-                        <Select
+                        <select 
                           value={field.aggregation || ''}
                           onChange={(e) => updateField(index, 'aggregation', e.target.value || undefined)}
                         >
@@ -476,11 +476,11 @@ const CustomReportBuilderView: React.FC = () => {
                           <option value="count">Count</option>
                           <option value="min">Minimum</option>
                           <option value="max">Maximum</option>
-                        </Select>
+                        </select>
                       </div>
                       <div className="flex items-end">
                         <label className="flex items-center">
-                          <input
+                          <InputPro 
                             type="checkbox"
                             checked={groupings.includes(field.id)}
                             onChange={() => toggleGrouping(field.id)}
@@ -528,7 +528,7 @@ const CustomReportBuilderView: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Field</label>
-                        <Select
+                        <select 
                           value={filter.field}
                           onChange={(e) => updateFilter(index, 'field', e.target.value)}
                         >
@@ -538,11 +538,11 @@ const CustomReportBuilderView: React.FC = () => {
                               {field.label}
                             </option>
                           ))}
-                        </Select>
+                        </select>
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Operator</label>
-                        <Select
+                        <select 
                           value={filter.operator}
                           onChange={(e) => updateFilter(index, 'operator', e.target.value as any)}
                         >
@@ -552,12 +552,12 @@ const CustomReportBuilderView: React.FC = () => {
                           <option value="less_than">Less Than</option>
                           <option value="between">Between</option>
                           <option value="in">In</option>
-                        </Select>
+                        </select>
                       </div>
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Value</label>
-                      <Input
+                      <InputPro 
                         value={filter.value}
                         onChange={(e) => updateFilter(index, 'value', e.target.value)}
                         placeholder="Enter value"
@@ -604,7 +604,7 @@ const CustomReportBuilderView: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
-                        <Input
+                        <InputPro 
                           value={viz.title}
                           onChange={(e) => updateVisualization(index, 'title', e.target.value)}
                           placeholder="Enter title"
@@ -612,7 +612,7 @@ const CustomReportBuilderView: React.FC = () => {
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Type</label>
-                        <Select
+                        <select 
                           value={viz.type}
                           onChange={(e) => updateVisualization(index, 'type', e.target.value as any)}
                         >
@@ -623,13 +623,13 @@ const CustomReportBuilderView: React.FC = () => {
                           <option value="heatmap">Heatmap</option>
                           <option value="gauge">Gauge</option>
                           <option value="scatter">Scatter Plot</option>
-                        </Select>
+                        </select>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">X-Axis</label>
-                        <Select
+                        <select 
                           value={viz.xAxis || ''}
                           onChange={(e) => updateVisualization(index, 'xAxis', e.target.value || undefined)}
                         >
@@ -639,11 +639,11 @@ const CustomReportBuilderView: React.FC = () => {
                               {field.label}
                             </option>
                           ))}
-                        </Select>
+                        </select>
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-500 mb-1">Y-Axis</label>
-                        <Select
+                        <select 
                           value={viz.yAxis || ''}
                           onChange={(e) => updateVisualization(index, 'yAxis', e.target.value || undefined)}
                         >
@@ -653,7 +653,7 @@ const CustomReportBuilderView: React.FC = () => {
                               {field.label}
                             </option>
                           ))}
-                        </Select>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -728,3 +728,4 @@ const CustomReportBuilderView: React.FC = () => {
 };
 
 export default CustomReportBuilderView;
+

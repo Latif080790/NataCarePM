@@ -1,4 +1,5 @@
 import { Card } from './Card';
+import React from 'react';
 
 interface DataPoint {
   label: string;
@@ -14,12 +15,12 @@ interface SimpleBarChartProps {
   className?: string;
 }
 
-export default function SimpleBarChart({
+const SimpleBarChartComponent: React.FC<SimpleBarChartProps> = ({
   data,
   title,
   showValues = true,
   className = '',
-}: SimpleBarChartProps) {
+}) => {
   const maxValue = Math.max(...data.map((d) => d.value));
   const colors = [
     '#F87941', // precious-persimmon
@@ -89,4 +90,15 @@ export default function SimpleBarChart({
       </div>
     </Card>
   );
-}
+};
+
+const SimpleBarChart = React.memo(SimpleBarChartComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.data === nextProps.data &&
+    prevProps.title === nextProps.title &&
+    prevProps.height === nextProps.height &&
+    prevProps.showValues === nextProps.showValues
+  );
+});
+
+export default SimpleBarChart;

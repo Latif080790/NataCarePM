@@ -1,7 +1,6 @@
 // React default import removed (using automatic JSX runtime)
 import { useState, useEffect, useRef } from 'react';
-import { CardPro } from '@/components/CardPro';
-import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro, ButtonPro } from '@/components/DesignSystem';
 import { Task } from '@/types';
 import { taskService } from '@/api/taskService';
 import { useToast } from '@/contexts/ToastContext';

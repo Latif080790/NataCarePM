@@ -4,7 +4,7 @@ import { Document as DocumentType } from '@/types';
 import { DocumentWithVersions } from '@/types/components';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { Modal } from '@/components/Modal';
 import { safeMap, safeFilter, safeReduce, hasItems } from '@/utils/safeOperations';
 import {
@@ -316,7 +316,7 @@ export default function DokumenView({ documents }: DokumenViewProps) {
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-palladium w-4 h-4" />
-                <Input
+                <InputPro
                   placeholder="Cari dokumen, kategori, atau tag..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}

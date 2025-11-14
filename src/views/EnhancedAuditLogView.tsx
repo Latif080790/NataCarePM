@@ -6,7 +6,14 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Search, Filter, Download, RefreshCw, Eye, AlertCircle, CheckCircle, XCircle, Clock, FileSpreadsheet, FileText } from 'lucide-react';
-import { Card } from '@/components/Card';
+import {
+  CardPro,
+  CardProHeader,
+  CardProContent,
+  CardProTitle,
+  ButtonPro,
+  BadgePro,
+} from '@/components/DesignSystem';
 import { getEnhancedAuditLogs, getEnhancedAuditStatistics } from '@/api/auditService.enhanced';
 import { exportAuditLogs, getDefaultExportOptions } from '@/api/auditExport.service';
 import {

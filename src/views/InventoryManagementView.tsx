@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, CSSProperties } from 'react';
+import { FixedSizeList as List } from 'react-window';
 import { logger } from '@/utils/logger.enhanced';
 import {
   Package,
@@ -20,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
+import { useIsMobile } from '@/utils/mobileOptimization';
 import {
   getMaterials,
   getInventorySummary,
@@ -44,6 +46,7 @@ const InventoryManagementView: React.FC = () => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
+  const isMobile = useIsMobile();
 
   // State
   const [materials, setMaterials] = useState<InventoryMaterial[]>([]);
@@ -484,105 +487,128 @@ const InventoryManagementView: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                materials.map((material) => (
-                  <tr key={material.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {
-                          setSelectedMaterial(material);
-                          setShowDetailsModal(true);
-                        }}
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800"
-                      >
-                        {material.materialCode}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {material.materialName}
-                      </div>
-                      {material.description && (
-                        <div className="text-xs text-gray-500 truncate max-w-xs">
-                          {material.description}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                        {getCategoryLabel(material.category)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <span className={`${getStockStatusColor(material)}`}>
-                          {getStockStatusIcon(material)}
-                        </span>
-                        <span className="text-sm font-medium text-gray-900">
-                          {material.currentStock} {material.baseUom}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {material.availableStock} {material.baseUom}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {material.minimumStock} / {material.maximumStock}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                        {formatCurrency(material.totalValue)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded ${getStatusBadgeClass(material.status)}`}
-                      >
-                        {material.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            setSelectedMaterial(material);
-                            setShowDetailsModal(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="View Details"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
+                <tr>
+                  <td colSpan={9} className="p-0">
+                    <List
+                      height={isMobile ? 500 : 600}
+                      itemCount={materials.length}
+                      itemSize={isMobile ? 120 : 72}
+                      width="100%"
+                      overscanCount={5}
+                    >
+                      {({ index, style }: { index: number; style: CSSProperties }) => {
+                        const material = materials[index];
+                        return (
+                          <div
+                            style={{
+                              ...style,
+                              display: 'flex',
+                              alignItems: 'center',
+                              borderBottom: '1px solid #e5e7eb',
+                            }}
+                            className="hover:bg-gray-50"
+                          >
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '12%' }}>
+                              <button
+                                onClick={() => {
+                                  setSelectedMaterial(material);
+                                  setShowDetailsModal(true);
+                                }}
+                                className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                              >
+                                {material.materialCode}
+                              </button>
+                            </div>
+                            <div className="px-6 py-4" style={{ width: '20%' }}>
+                              <div className="text-sm font-medium text-gray-900">
+                                {material.materialName}
+                              </div>
+                              {material.description && (
+                                <div className="text-xs text-gray-500 truncate max-w-xs">
+                                  {material.description}
+                                </div>
+                              )}
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '10%' }}>
+                              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                                {getCategoryLabel(material.category)}
+                              </span>
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '12%' }}>
+                              <div className="flex items-center space-x-2">
+                                <span className={`${getStockStatusColor(material)}`}>
+                                  {getStockStatusIcon(material)}
+                                </span>
+                                <span className="text-sm font-medium text-gray-900">
+                                  {material.currentStock} {material.baseUom}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '10%' }}>
+                              <span className="text-sm text-gray-900">
+                                {material.availableStock} {material.baseUom}
+                              </span>
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '12%' }}>
+                              <div className="text-sm text-gray-900">
+                                {material.minimumStock} / {material.maximumStock}
+                              </div>
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '10%' }}>
+                              <span className="text-sm font-medium text-gray-900">
+                                {formatCurrency(material.totalValue)}
+                              </span>
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap" style={{ width: '8%' }}>
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded ${getStatusBadgeClass(material.status)}`}
+                              >
+                                {material.status.replace('_', ' ')}
+                              </span>
+                            </div>
+                            <div className="px-6 py-4 whitespace-nowrap text-sm" style={{ width: '6%' }}>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => {
+                                    setSelectedMaterial(material);
+                                    setShowDetailsModal(true);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800"
+                                  title="View Details"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
 
-                        {currentUser && hasPermission(currentUser, 'manage_logistics') && (
-                          <>
-                            <button
-                              onClick={() => {
-                                setSelectedMaterial(material);
-                                setShowEditModal(true);
-                              }}
-                              className="text-indigo-600 hover:text-indigo-800"
-                              title="Edit"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
+                                {currentUser && hasPermission(currentUser, 'manage_logistics') && (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedMaterial(material);
+                                        setShowEditModal(true);
+                                      }}
+                                      className="text-indigo-600 hover:text-indigo-800"
+                                      title="Edit"
+                                    >
+                                      <Edit2 className="h-4 w-4" />
+                                    </button>
 
-                            <button
-                              onClick={() => handleDeleteMaterial(material.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Discontinue"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                                    <button
+                                      onClick={() => handleDeleteMaterial(material.id)}
+                                      className="text-red-600 hover:text-red-800"
+                                      title="Discontinue"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }}
+                    </List>
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

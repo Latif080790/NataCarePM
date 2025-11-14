@@ -1,5 +1,5 @@
 import { Expense, ProjectMetrics } from '@/types';
-import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/DesignSystem';
 import { formatCurrency, formatDate } from '@/constants';
 import { Progress } from '@/components/Progress';
 import { LineChart } from '@/components/LineChart';

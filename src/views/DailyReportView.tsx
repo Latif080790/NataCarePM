@@ -6,7 +6,7 @@ import { ButtonPro } from '@/components/ButtonPro';
 import { Modal } from '@/components/Modal';
 import { formatDate, getTodayDateString, hasPermission } from '@/constants';
 import { PlusCircle, Sun, Cloud, CloudRain } from 'lucide-react';
-import { Input, Select } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { CommentThread } from '@/components/CommentThread';
@@ -144,24 +144,24 @@ export default function DailyReportView({
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
           <label className="block text-sm font-medium text-night-black">Tanggal</label>
-          <Input
+          <InputPro 
             type="date"
             value={newReport.date}
             onChange={(e) => setNewReport({ ...newReport, date: e.target.value })}
           />
 
           <label className="block text-sm font-medium text-night-black">Cuaca</label>
-          <Select
+          <select 
             value={newReport.weather}
             onChange={(e) => setNewReport({ ...newReport, weather: e.target.value as any })}
           >
             <option>Cerah</option>
             <option>Berawan</option>
             <option>Hujan</option>
-          </Select>
+          </select>
 
           <label className="block text-sm font-medium text-night-black">Catatan Umum</label>
-          <Input
+          <InputPro 
             placeholder="Contoh: Pengecoran kolom lantai 1 selesai"
             value={newReport.notes}
             onChange={(e) => setNewReport({ ...newReport, notes: e.target.value })}
@@ -170,7 +170,7 @@ export default function DailyReportView({
           <h4 className="font-semibold pt-2 border-t">Progres Pekerjaan</h4>
           {newReport.workProgress.map((wp, index) => (
             <div key={index} className="flex gap-2 items-center">
-              <Select
+              <select 
                 className="flex-grow"
                 value={wp.rabItemId}
                 onChange={(e) => handleWorkProgressChange(index, 'rabItemId', e.target.value)}
@@ -183,8 +183,8 @@ export default function DailyReportView({
                     {item.uraian}
                   </option>
                 ))}
-              </Select>
-              <Input
+              </select>
+              <InputPro 
                 type="number"
                 placeholder="Volume"
                 className="w-24"
@@ -239,3 +239,5 @@ export default function DailyReportView({
     </>
   );
 }
+
+

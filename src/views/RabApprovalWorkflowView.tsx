@@ -12,7 +12,14 @@ import { rabAhspService } from '@/api/rabAhspService';
 import { rabApprovalService } from '@/api/rabApprovalService';
 import { EnhancedRabService } from '@/api/enhancedRabService';
 import { Spinner } from '@/components/Spinner';
-import { Button } from '@/components/Button';
+import {
+  CardPro,
+  CardProHeader,
+  CardProContent,
+  CardProTitle,
+  ButtonPro,
+  BadgePro,
+} from '@/components/DesignSystem';
 import { formatCurrency } from '@/constants';
 import {
   CheckCircle,

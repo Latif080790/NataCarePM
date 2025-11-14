@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { generateSampleAuditData, testAuditLogging } from '@/utils/generateSampleAuditData';
-import { Card } from '@/components/Card';
+import { CardPro } from '@/components/DesignSystem';
 
 export default function AuditTestingView() {
   const [loading, setLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function AuditTestingView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Generate Sample Data Card */}
-        <Card className="p-6">
+        <CardPro className="p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Generate Sample Audit Data
           </h2>
@@ -97,10 +97,10 @@ export default function AuditTestingView() {
           >
             {loading ? 'Generating...' : '🔄 Generate Sample Data'}
           </button>
-        </Card>
+        </CardPro>
 
         {/* Test Audit Logging Card */}
-        <Card className="p-6">
+        <CardPro className="p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-3">
             Test Audit Logging
           </h2>
@@ -130,13 +130,13 @@ export default function AuditTestingView() {
           >
             {loading ? 'Testing...' : '🧪 Test Audit Logging'}
           </button>
-        </Card>
+        </CardPro>
       </div>
 
       {/* Status Message */}
       {message && (
         <div className="mt-6">
-          <Card className={`p-4 ${
+          <CardPro className={`p-4 ${
             status === 'success' ? 'bg-green-50 border-green-200' :
             status === 'error' ? 'bg-red-50 border-red-200' :
             'bg-gray-50 border-gray-200'
@@ -159,12 +159,12 @@ export default function AuditTestingView() {
                 </a>
               </div>
             )}
-          </Card>
+          </CardPro>
         </div>
       )}
 
       {/* Info Card */}
-      <Card className="mt-6 p-6 bg-blue-50 border-blue-200">
+      <CardPro className="mt-6 p-6 bg-blue-50 border-blue-200">
         <h3 className="text-md font-semibold text-blue-900 mb-2">
           📘 How to Use
         </h3>
@@ -184,7 +184,7 @@ export default function AuditTestingView() {
             multi-stage approvals, and timestamps.
           </p>
         </div>
-      </Card>
+      </CardPro>
     </div>
   );
 }

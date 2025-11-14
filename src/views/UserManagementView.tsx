@@ -1,6 +1,5 @@
 import { User } from '@/types';
-import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
-import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription, ButtonPro } from '@/components/DesignSystem';
 import { UserPlus, Trash2 } from 'lucide-react';
 import { ROLES_CONFIG, hasPermission } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';

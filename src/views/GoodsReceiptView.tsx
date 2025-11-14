@@ -33,8 +33,10 @@ import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { GoodsReceipt, GRStatus, QualityStatus, GRFilterOptions } from '@/types/logistics';
+import { ResponsiveTable, Column } from '@/components/ResponsiveTable';
+import { useIsMobile } from '@/utils/mobileOptimization';
 // import { PurchaseOrder } from '@/types';
 import {
   getGoodsReceipts,
@@ -79,6 +81,9 @@ const GoodsReceiptView: React.FC = () => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
+  
+  // Mobile optimization hooks
+  const isMobile = useIsMobile();
 
   // State management
   const [grs, setGRs] = useState<GoodsReceipt[]>([]);
@@ -215,6 +220,124 @@ const GoodsReceiptView: React.FC = () => {
       addToast(error.message || 'Failed to delete goods receipt', 'error');
     }
   };
+
+  // ============================================================================
+  // TABLE COLUMNS CONFIGURATION
+  // ============================================================================
+
+  const getGRColumns = (): Column<GoodsReceipt>[] => [
+    {
+      key: 'grNumber',
+      label: 'GR Number',
+      mobileLabel: 'GR#',
+      sortable: true,
+      render: (value) => <strong>{value}</strong>,
+      width: '120px',
+    },
+    {
+      key: 'poNumber',
+      label: 'PO Number',
+      mobileLabel: 'PO#',
+      sortable: true,
+      width: '120px',
+    },
+    {
+      key: 'vendorName',
+      label: 'Vendor',
+      sortable: true,
+      width: '180px',
+    },
+    {
+      key: 'receiptDate',
+      label: 'Receipt Date',
+      mobileLabel: 'Date',
+      sortable: true,
+      render: (value) => formatDate(value),
+      width: '120px',
+    },
+    {
+      key: 'totalItems',
+      label: 'Items',
+      hiddenOnMobile: true,
+      render: (value) => <span className="text-center">{value}</span>,
+      width: '80px',
+    },
+    {
+      key: 'totalValue',
+      label: 'Total Value',
+      mobileLabel: 'Value',
+      sortable: true,
+      render: (value) => formatCurrency(value),
+      width: '140px',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (value) => renderStatusBadge(value),
+      width: '120px',
+    },
+    {
+      key: 'overallQualityStatus',
+      label: 'Quality',
+      hiddenOnMobile: isMobile,
+      render: (value) => renderQualityBadge(value),
+      width: '120px',
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_, gr) => (
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <ButtonPro
+            variant="secondary"
+            size="sm"
+            onClick={() => handleViewDetails(gr)}
+            title="View Details"
+          >
+            <Eye size={16} />
+          </ButtonPro>
+
+          {(gr.status === 'submitted' || gr.status === 'inspecting') &&
+            hasPermission(currentUser, 'manage_logistics') && (
+              <ButtonPro
+                variant="primary"
+                size="sm"
+                onClick={() => handleInspect(gr)}
+                title="Inspect"
+              >
+                <CheckCircle size={16} />
+              </ButtonPro>
+            )}
+
+          {gr.status === 'draft' &&
+            hasPermission(currentUser, 'manage_logistics') && (
+              <ButtonPro
+                variant="primary"
+                size="sm"
+                onClick={() => handleSubmitGR(gr.id)}
+                title="Submit"
+              >
+                <Upload size={16} />
+              </ButtonPro>
+            )}
+
+          {gr.status === 'approved' &&
+            hasPermission(currentUser, 'manage_logistics') && (
+              <ButtonPro
+                variant="primary"
+                size="sm"
+                onClick={() => handleCompleteGR(gr.id)}
+                title="Complete"
+              >
+                <CheckCircle size={16} />
+              </ButtonPro>
+            )}
+        </div>
+      ),
+      width: '200px',
+    },
+  ];
 
   // ============================================================================
   // RENDER HELPERS
@@ -372,7 +495,7 @@ const GoodsReceiptView: React.FC = () => {
         <div className="filter-row">
           <div className="search-box">
             <Search size={20} />
-            <Input
+            <InputPro 
               type="text"
               placeholder="Search by GR number, PO number, or vendor..."
               value={searchTerm}
@@ -383,7 +506,7 @@ const GoodsReceiptView: React.FC = () => {
 
           <div className="filter-group">
             <Filter size={20} />
-            <select
+            <select 
               value=""
               onChange={(e) => {
                 const status = e.target.value as GRStatus;
@@ -401,7 +524,7 @@ const GoodsReceiptView: React.FC = () => {
               ))}
             </select>
 
-            <select
+            <select 
               value=""
               onChange={(e) => {
                 const quality = e.target.value as QualityStatus;
@@ -478,83 +601,16 @@ const GoodsReceiptView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="gr-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>GR Number</th>
-                  <th>PO Number</th>
-                  <th>Vendor</th>
-                  <th>Receipt Date</th>
-                  <th>Items</th>
-                  <th>Total Value</th>
-                  <th>Status</th>
-                  <th>Quality</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredGRs.map((gr) => (
-                  <tr key={gr.id}>
-                    <td>
-                      <strong>{gr.grNumber}</strong>
-                    </td>
-                    <td>{gr.poNumber}</td>
-                    <td>{gr.vendorName}</td>
-                    <td>{formatDate(gr.receiptDate)}</td>
-                    <td className="text-center">{gr.totalItems}</td>
-                    <td className="text-right">{formatCurrency(gr.totalValue)}</td>
-                    <td>{renderStatusBadge(gr.status)}</td>
-                    <td>{renderQualityBadge(gr.overallQualityStatus)}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          onClick={() => handleViewDetails(gr)}
-                          className="btn-icon transition-colors"
-                          title="View Details"
-                        >
-                          <Eye size={16} />
-                        </button>
-
-                        {(gr.status === 'submitted' || gr.status === 'inspecting') &&
-                          hasPermission(currentUser, 'manage_logistics') && (
-                            <button
-                              onClick={() => handleInspect(gr)}
-                              className="btn-icon btn-primary transition-colors"
-                              title="Inspect"
-                            >
-                              <CheckCircle size={16} />
-                            </button>
-                          )}
-
-                        {gr.status === 'draft' &&
-                          hasPermission(currentUser, 'manage_logistics') && (
-                            <button
-                              onClick={() => handleSubmitGR(gr.id)}
-                              className="btn-icon btn-success transition-colors"
-                              title="Submit"
-                            >
-                              <Upload size={16} />
-                            </button>
-                          )}
-
-                        {gr.status === 'approved' &&
-                          hasPermission(currentUser, 'manage_logistics') && (
-                            <button
-                              onClick={() => handleCompleteGR(gr.id)}
-                              className="btn-icon btn-success transition-colors"
-                              title="Complete"
-                            >
-                              <CheckCircle size={16} />
-                            </button>
-                          )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ResponsiveTable
+            data={filteredGRs}
+            columns={getGRColumns()}
+            keyExtractor={(gr) => gr.id}
+            onRowClick={(gr) => handleViewDetails(gr)}
+            loading={loading}
+            searchable={false}
+            pageSize={isMobile ? 10 : 20}
+            className="gr-responsive-table"
+          />
         )}
       </CardPro>
 
@@ -606,3 +662,5 @@ const GoodsReceiptView: React.FC = () => {
 };
 
 export default GoodsReceiptView;
+
+

@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 
 import { Task } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
-import { Button } from '@/components/Button';
-import { Input } from '@/components/FormControls';
+import {
+  CardPro,
+  CardProHeader,
+  CardProContent,
+  CardProTitle,
+  ButtonPro,
+  InputPro,
+} from '@/components/DesignSystem';
 import { taskService } from '@/api/taskService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
@@ -562,39 +567,39 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <ButtonPro
             variant="ghost"
             size="sm"
             onClick={() => setZoom((prev) => Math.min(prev * 1.2, 3))}
           >
             <ZoomIn className="w-4 h-4" />
-          </Button>
-          <Button
+          </ButtonPro>
+          <ButtonPro
             variant="ghost"
             size="sm"
             onClick={() => setZoom((prev) => Math.max(prev / 1.2, 0.5))}
           >
             <ZoomOut className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={exportGantt}>
+          </ButtonPro>
+          <ButtonPro variant="ghost" size="sm" onClick={exportGantt}>
             <Download className="w-4 h-4 mr-2" />
             Export
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)}>
+          </ButtonPro>
+          <ButtonPro variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)}>
             <Settings className="w-4 h-4 mr-2" />
             Settings
-          </Button>
-          <Button onClick={() => setShowCreateModal(true)}>
+          </ButtonPro>
+          <ButtonPro onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Buat Task
-          </Button>
+          </ButtonPro>
         </div>
       </div>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Total Tasks</p>
@@ -602,11 +607,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
               </div>
               <Target className="w-8 h-8 text-violet-essence" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Critical Path</p>
@@ -614,11 +619,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Project Duration</p>
@@ -632,11 +637,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
               </div>
               <Clock className="w-8 h-8 text-blue-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-palladium">Avg Progress</p>
@@ -650,16 +655,17 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
               </div>
               <BarChart3 className="w-8 h-8 text-green-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       </div>
 
       {/* Search and Settings */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-palladium w-4 h-4" />
-            <Input
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-palladium w-4 h-4 pointer-events-none" />
+            <InputPro
+              type="text"
               placeholder="Cari task..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -683,11 +689,11 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
 
       {/* Settings Panel */}
       {showSettings && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Gantt Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <CardPro className="mb-6">
+          <CardProHeader>
+            <CardProTitle>Gantt Settings</CardProTitle>
+          </CardProHeader>
+          <CardProContent>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <label className="flex items-center gap-2">
                 <input
@@ -749,13 +755,13 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
                 <span className="text-sm">Auto Schedule</span>
               </label>
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       )}
 
       {/* Gantt Chart */}
-      <Card className="flex-1">
-        <CardContent className="p-0 h-full">
+      <CardPro className="flex-1">
+        <CardProContent className="p-0 h-full">
           <div
             ref={ganttRef}
             className="h-full overflow-auto"
@@ -962,8 +968,8 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       {/* Create Task Modal */}
       {showCreateModal && (

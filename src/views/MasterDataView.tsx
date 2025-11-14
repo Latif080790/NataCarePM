@@ -1,6 +1,5 @@
 import { Worker } from '@/types';
-import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
-import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription, ButtonPro } from '@/components/DesignSystem';
 import { PlusCircle } from 'lucide-react';
 
 interface MasterDataViewProps {

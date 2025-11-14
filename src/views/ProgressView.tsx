@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { Progress } from '@/components/Progress';
 import { WorkProgress } from '@/types';
 
@@ -94,7 +94,7 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
                   </p>
                 </div>
                 <div className="md:col-span-3 flex items-center gap-4">
-                  <Input
+                  <InputPro
                     type="number"
                     value={String(currentVolume.toFixed(2))}
                     onChange={(e) => handleVolumeChange(item.id, e.target.value)}

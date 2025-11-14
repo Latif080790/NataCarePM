@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { CardPro } from '@/components/CardPro';
-import { ButtonPro } from '@/components/ButtonPro';
+import { CardPro, ButtonPro } from '@/components/DesignSystem';
 import { FinancialForecastingComponent } from '@/components/FinancialForecastingComponent';
 import { EVMDashboard } from '@/components/EVMDashboard';
 import { EnhancedProgressTracking } from '@/components/EnhancedProgressTracking';

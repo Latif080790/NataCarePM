@@ -514,6 +514,10 @@ export const projectService = {
 
         const poRef = doc(db, `projects/${projectId}/purchaseOrders`, poId);
 
+        // ✅ OPTIMIZATION: Get PO data first to avoid extra read after update
+        const poSnapshot = await getDoc(poRef);
+        const po = poSnapshot.data();
+
         // Update with retry
         await withRetry(
           () =>
@@ -525,10 +529,7 @@ export const projectService = {
           { maxAttempts: 3 }
         );
 
-        // Get PO data for audit log
-        const po = (await getDoc(poRef)).data();
-
-        // Add audit log
+        // Add audit log (using pre-fetched PO data)
         await projectService.addAuditLog(
           projectId,
           user,

@@ -5,7 +5,7 @@ import { ButtonPro } from '@/components/ButtonPro';
 import { Download } from 'lucide-react';
 import { Project, ProjectMetrics } from '@/types';
 import { formatCurrency, getTodayDateString } from '@/constants';
-import { Input } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 
 interface ReportViewProps {
   projectMetrics: ProjectMetrics;
@@ -93,11 +93,11 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
         <div className="flex items-center gap-4 mb-6 p-4 bg-violet-essence/30 rounded-lg">
           <div className="flex-1">
             <label className="text-sm font-medium">Tanggal Mulai</label>
-            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            <InputPro type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div className="flex-1">
             <label className="text-sm font-medium">Tanggal Selesai</label>
-            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            <InputPro type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
 
@@ -145,3 +145,4 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
     </CardPro>
   );
 }
+

@@ -1,4 +1,4 @@
-import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
+import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/DesignSystem';
 import { ProjectMetrics } from '@/types';
 import { formatCurrency } from '@/constants';
 

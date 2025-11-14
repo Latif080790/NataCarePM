@@ -1,5 +1,6 @@
 import { Card } from './Card';
 import { TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
+import React from 'react';
 
 interface MetricCardProps {
   title: string;
@@ -12,7 +13,7 @@ interface MetricCardProps {
   className?: string;
 }
 
-export default function MetricCard({
+export default React.memo(function MetricCard({
   title,
   value,
   subValue,
@@ -71,4 +72,12 @@ export default function MetricCard({
       <div className="absolute inset-0 bg-gradient-to-r from-precious-persimmon/5 to-no-way-rose/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
     </Card>
   );
-}
+}, (prevProps, nextProps) => {
+  // Only re-render if critical props change
+  return (
+    prevProps.value === nextProps.value &&
+    prevProps.trendValue === nextProps.trendValue &&
+    prevProps.trend === nextProps.trend &&
+    prevProps.title === nextProps.title
+  );
+});

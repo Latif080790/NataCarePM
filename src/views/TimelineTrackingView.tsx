@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Task } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
-import { Button } from '@/components/Button';
+import {
+  CardPro,
+  CardProContent,
+  CardProHeader,
+  CardProTitle,
+  ButtonPro,
+} from '@/components/DesignSystem';
 import { taskService } from '@/api/taskService';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -259,14 +264,14 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
 
       {/* Progress Forecast */}
       {progressForecast && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <CardPro>
+          <CardProHeader>
+            <CardProTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-persimmon" />
               Progress Forecast
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </CardProTitle>
+          </CardProHeader>
+          <CardProContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Current Progress */}
               <div className="space-y-2">
@@ -326,20 +331,20 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                 )}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       )}
 
       {/* Delay Alerts */}
       {delayAlerts.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <CardPro>
+          <CardProHeader>
+            <CardProTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-red-500" />
               Delay Alerts ({delayAlerts.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </CardProTitle>
+          </CardProHeader>
+          <CardProContent>
             <div className="space-y-3">
               {delayAlerts.slice(0, 10).map((alert) => (
                 <div
@@ -389,7 +394,7 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                         )}
                       </div>
                     </div>
-                    <Button
+                    <ButtonPro
                       variant="outline"
                       size="sm"
                       onClick={() => {
@@ -398,7 +403,7 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                       }}
                     >
                       View Task
-                    </Button>
+                    </ButtonPro>
                   </div>
                 </div>
               ))}
@@ -408,19 +413,19 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                 </p>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       )}
 
       {/* Milestones */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <CardPro>
+        <CardProHeader>
+          <CardProTitle className="flex items-center gap-2">
             <Flag className="w-5 h-5 text-persimmon" />
             Milestones ({filteredMilestones.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </CardProTitle>
+        </CardProHeader>
+        <CardProContent>
           <div className="space-y-4">
             {filteredMilestones.map((milestone, index) => (
               <div key={milestone.id} className="relative">
@@ -520,13 +525,13 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
@@ -536,11 +541,11 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                 <p className="text-sm text-palladium">Total Tasks</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-5 h-5 text-green-600" />
@@ -552,11 +557,11 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                 <p className="text-sm text-palladium">Completed</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
                 <Clock className="w-5 h-5 text-orange-600" />
@@ -568,11 +573,11 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                 <p className="text-sm text-palladium">In Progress</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -582,8 +587,8 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
                 <p className="text-sm text-palladium">Delayed</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       </div>
     </div>
   );

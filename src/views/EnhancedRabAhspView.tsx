@@ -2,10 +2,10 @@
 import { useState, useEffect, useMemo, Component, ErrorInfo, ReactNode, Suspense, lazy } from 'react';
 import { logger } from '@/utils/logger.enhanced';
 import { RabItem, AhspData, EnhancedRabItem } from '@/types';
-import { CardPro } from '@/components/CardPro';
+import { CardPro } from '@/components/DesignSystem';
 import { formatCurrency } from '@/constants';
 import { Modal } from '@/components/Modal';
-import { ButtonPro } from '@/components/ButtonPro';
+import { ButtonPro } from '@/components/DesignSystem';
 import {
   Download,
   Calculator,

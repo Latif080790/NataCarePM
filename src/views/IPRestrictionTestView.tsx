@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { ipRestriction } from '@/middleware/ipRestriction';
 import { SECURITY_CONFIG, addToWhitelist, addToBlacklist, removeFromWhitelist, removeFromBlacklist } from '@/config/security';
-import { Card } from '@/components/Card';
+import { CardPro, CardProHeader, CardProTitle, CardProContent } from '@/components/DesignSystem';
 
 export function IPRestrictionTestView() {
   const [currentIP, setCurrentIP] = useState<string>('Loading...');
@@ -118,7 +118,7 @@ export function IPRestrictionTestView() {
       </div>
 
       {/* Current IP Info */}
-      <Card title="Your Current IP">
+      <CardPro><CardProHeader><CardProTitle>Your Current IP</CardProTitle></CardProHeader><CardProContent>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div>
@@ -196,10 +196,10 @@ export function IPRestrictionTestView() {
             </button>
           </div>
         </div>
-      </Card>
+      </CardProContent></CardPro>
 
       {/* Test Custom IP */}
-      <Card title="Test Custom IP">
+      <CardPro><CardProHeader><CardProTitle>Test Custom IP</CardProTitle></CardProHeader><CardProContent>
         <div className="space-y-4">
           <div className="flex gap-2">
             <input
@@ -221,11 +221,11 @@ export function IPRestrictionTestView() {
             Test examples: 8.8.8.8 (Google DNS), 1.1.1.1 (Cloudflare)
           </p>
         </div>
-      </Card>
+      </CardProContent></CardPro>
 
       {/* Validation Result */}
       {validationResult && (
-        <Card title="Validation Result">
+        <CardPro><CardProHeader><CardProTitle>Validation Result</CardProTitle></CardProHeader><CardProContent>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className={`text-2xl ${validationResult.allowed ? 'text-green-500' : 'text-red-500'}`}>
@@ -249,11 +249,11 @@ export function IPRestrictionTestView() {
               </div>
             )}
           </div>
-        </Card>
+        </CardProContent></CardPro>
       )}
 
       {/* Security Configuration */}
-      <Card title="Current Security Configuration">
+      <CardPro><CardProHeader><CardProTitle>Current Security Configuration</CardProTitle></CardProHeader><CardProContent>
         <div className="space-y-4">
           <div>
             <div className="font-semibold mb-2">IP Restrictions:</div>
@@ -308,10 +308,10 @@ export function IPRestrictionTestView() {
             </div>
           </div>
         </div>
-      </Card>
+      </CardProContent></CardPro>
 
       {/* Blocked IP Logs */}
-      <Card title="Recent Blocked IPs">
+      <CardPro><CardProHeader><CardProTitle>Recent Blocked IPs</CardProTitle></CardProHeader><CardProContent>
         <div className="space-y-4">
           <button
             onClick={loadBlockedLogs}
@@ -346,7 +346,7 @@ export function IPRestrictionTestView() {
             </div>
           )}
         </div>
-      </Card>
+      </CardProContent></CardPro>
     </div>
   );
 }

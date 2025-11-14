@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Input, Select } from '@/components/FormControls';
+import { InputPro } from '@/components/DesignSystem';
 import { Attendance, Worker } from '@/types';
 import { getTodayDateString, formatDate } from '@/constants';
 import { UserCheck, UserX, User, Lock, MapPin } from 'lucide-react';
@@ -94,7 +94,7 @@ export default function AttendanceView({
         <CardProContent>
           <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
             <div className="flex gap-2">
-              <Input
+              <InputPro 
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
@@ -146,7 +146,7 @@ export default function AttendanceView({
                       <td className="p-3 font-medium">{worker.name}</td>
                       <td className="p-3">{worker.type}</td>
                       <td className="p-3 text-center">
-                        <Select
+                        <select 
                           value={localAttendance.get(worker.id) || 'Alpa'}
                           onChange={(e) =>
                             handleStatusChange(worker.id, e.target.value as Attendance['status'])
@@ -158,7 +158,7 @@ export default function AttendanceView({
                           <option>Sakit</option>
                           <option>Izin</option>
                           <option>Alpa</option>
-                        </Select>
+                        </select>
                       </td>
                     </tr>
                   ))
@@ -188,3 +188,5 @@ export default function AttendanceView({
     </div>
   );
 }
+
+

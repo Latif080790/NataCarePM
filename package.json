@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "vite build && open dist/stats.html",
     "preview": "vite preview",
     "test": "vitest",
     "test:watch": "vitest --watch",
@@ -51,7 +52,6 @@
     "@sentry/tracing": "^7.91.0",
     "@tensorflow/tfjs": "^4.11.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/react-window": "^1.8.8",
     "bcryptjs": "^3.0.2",
     "browser-image-compression": "^2.0.2",
     "core-js": "^3.46.0",
@@ -100,6 +100,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/react-window": "^1.8.8",
     "@types/recharts": "^1.8.29",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",

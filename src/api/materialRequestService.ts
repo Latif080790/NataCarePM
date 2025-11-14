@@ -88,12 +88,62 @@ export async function createMaterialRequest(
     // Generate MR number
     const mrNumber = await generateMRNumber(input.projectId);
 
-    // Check inventory stock levels for each item
-    const itemsWithStockCheck: MRItem[] = await Promise.all(
-      input.items.map(async (item) => {
-        const stockInfo = await checkInventoryStock(item.materialCode || '', input.projectId);
+    // ✅ OPTIMIZATION: Batch fetch all inventory stock data at once (N+1 fix)
+    const materialCodes = input.items
+      .map(item => item.materialCode)
+      .filter((code): code is string => Boolean(code));
+    
+    // Fetch all inventory data in a single query (if materialCodes exist)
+    const inventoryMap = new Map<string, {
+      currentStock: number;
+      reorderPoint: number;
+      stockStatus: 'sufficient' | 'low' | 'out_of_stock';
+    }>();
 
-        return {
+    if (materialCodes.length > 0) {
+      // Firestore 'in' query supports up to 30 items, batch if needed
+      const batchSize = 30;
+      for (let i = 0; i < materialCodes.length; i += batchSize) {
+        const batch = materialCodes.slice(i, i + batchSize);
+        const inventoryQuery = query(
+          collection(db, 'inventory_materials'),
+          where('materialCode', 'in', batch),
+          where('projectId', '==', input.projectId)
+        );
+        
+        const querySnapshot = await getDocs(inventoryQuery);
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          const currentStock = data.availableStock || data.currentStock || 0;
+          const reorderPoint = data.minimumStock || data.reorderPoint || 10;
+          
+          let stockStatus: 'sufficient' | 'low' | 'out_of_stock';
+          if (currentStock === 0) {
+            stockStatus = 'out_of_stock';
+          } else if (currentStock <= reorderPoint) {
+            stockStatus = 'low';
+          } else {
+            stockStatus = 'sufficient';
+          }
+
+          inventoryMap.set(data.materialCode, {
+            currentStock,
+            reorderPoint,
+            stockStatus
+          });
+        });
+      }
+    }
+
+    // ✅ OPTIMIZED: Use pre-fetched data instead of individual queries
+    const itemsWithStockCheck: MRItem[] = input.items.map((item) => {
+      const stockInfo = inventoryMap.get(item.materialCode || '') || {
+        currentStock: 0,
+        reorderPoint: 0,
+        stockStatus: 'out_of_stock' as const
+      };
+
+      return {
           id: `mri_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           mrId: '', // Will be set after doc creation
           materialCode: item.materialCode,
@@ -116,8 +166,7 @@ export async function createMaterialRequest(
           notes: item.urgencyReason, // Use urgencyReason as notes
           convertedToPO: false,
         };
-      })
-    );
+      });
 
     // Calculate totals
     const totalItems = itemsWithStockCheck.length;

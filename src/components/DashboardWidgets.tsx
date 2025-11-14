@@ -107,7 +107,7 @@ export interface WidgetContainerProps extends WidgetConfig {
   headerActions?: ReactNode;
 }
 
-export const WidgetContainer: React.FC<WidgetContainerProps> = ({
+export const WidgetContainer: React.FC<WidgetContainerProps> = React.memo(({
   id,
   title,
   size = 'md',
@@ -251,7 +251,16 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       )}
     </Card>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if these props change
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.title === nextProps.title &&
+    prevProps.loading === nextProps.loading &&
+    prevProps.error === nextProps.error &&
+    prevProps.children === nextProps.children
+  );
+});
 
 // ============================================================================
 // Stat Widget
@@ -262,7 +271,7 @@ export interface StatWidgetProps extends Omit<WidgetContainerProps, 'children'> 
   compact?: boolean;
 }
 
-export const StatWidget: React.FC<StatWidgetProps> = ({
+export const StatWidget: React.FC<StatWidgetProps> = React.memo(({
   data,
   compact = false,
   ...containerProps
@@ -329,7 +338,15 @@ export const StatWidget: React.FC<StatWidgetProps> = ({
       </div>
     </WidgetContainer>
   );
-};
+}, (prevProps, nextProps) => {
+  // Only re-render if data changes
+  return (
+    prevProps.data.value === nextProps.data.value &&
+    prevProps.data.label === nextProps.data.label &&
+    prevProps.data.trend?.value === nextProps.data.trend?.value &&
+    prevProps.compact === nextProps.compact
+  );
+});
 
 // ============================================================================
 // Chart Widget

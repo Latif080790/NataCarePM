@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Task } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
+import {
+  CardPro,
+  CardProContent,
+  CardProHeader,
+  CardProTitle,
+} from '@/components/DesignSystem';
 import { taskService } from '@/api/taskService';
 import { useProject } from '@/contexts/ProjectContext';
 import {
@@ -183,23 +188,23 @@ export default function ResourceAllocationView() {
       {/* Time Range Selector */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex bg-white rounded-lg shadow-sm border">
-          <button
+          <ButtonPro
             onClick={() => setTimeRange('week')}
             className={`px-4 py-2 rounded-l-lg transition-colors ${
               timeRange === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
             This Week
-          </button>
-          <button
+          </ButtonPro>
+          <ButtonPro
             onClick={() => setTimeRange('month')}
             className={`px-4 py-2 transition-colors ${
               timeRange === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
             This Month
-          </button>
-          <button
+          </ButtonPro>
+          <ButtonPro
             onClick={() => setTimeRange('quarter')}
             className={`px-4 py-2 rounded-r-lg transition-colors ${
               timeRange === 'quarter'
@@ -208,11 +213,11 @@ export default function ResourceAllocationView() {
             }`}
           >
             This Quarter
-          </button>
+          </ButtonPro>
         </div>
 
         <div className="flex bg-white rounded-lg shadow-sm border ml-auto">
-          <button
+          <ButtonPro
             onClick={() => setViewMode('overview')}
             className={`px-4 py-2 rounded-l-lg transition-colors ${
               viewMode === 'overview'
@@ -221,22 +226,22 @@ export default function ResourceAllocationView() {
             }`}
           >
             Overview
-          </button>
-          <button
+          </ButtonPro>
+          <ButtonPro
             onClick={() => setViewMode('detail')}
             className={`px-4 py-2 rounded-r-lg transition-colors ${
               viewMode === 'detail' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
             Detail
-          </button>
+          </ButtonPro>
         </div>
       </div>
 
       {/* Team Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Team Members</p>
@@ -244,11 +249,11 @@ export default function ResourceAllocationView() {
               </div>
               <Users className="w-8 h-8 text-blue-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Avg Utilization</p>
@@ -258,11 +263,11 @@ export default function ResourceAllocationView() {
               </div>
               <BarChart3 className="w-8 h-8 text-green-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Overloaded</p>
@@ -270,11 +275,11 @@ export default function ResourceAllocationView() {
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
 
-        <Card>
-          <CardContent className="p-4">
+        <CardPro>
+          <CardProContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Available Capacity</p>
@@ -284,20 +289,20 @@ export default function ResourceAllocationView() {
               </div>
               <Clock className="w-8 h-8 text-blue-500" />
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       </div>
 
       {/* Resource Conflicts Alert */}
-      {conflicts.length > 0 && (
-        <Card className="mb-6 border-red-200 bg-red-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-800">
+      {resourceConflicts.length > 0 && (
+        <CardPro className="mb-6 border-red-200 bg-red-50">
+          <CardProHeader>
+            <CardProTitle className="flex items-center gap-2 text-red-800">
               <AlertTriangle className="w-5 h-5" />
               Resource Conflicts Detected ({conflicts.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </CardProTitle>
+          </CardProHeader>
+          <CardProContent>
             <div className="space-y-4">
               {conflicts.map((conflict) => (
                 <div key={conflict.userId} className="bg-white p-4 rounded-lg border border-red-200">
@@ -327,16 +332,16 @@ export default function ResourceAllocationView() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </CardProContent>
+        </CardPro>
       )}
 
       {/* Resource Allocation List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Workload Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <CardPro>
+        <CardProHeader>
+          <CardProTitle>Team Workload Distribution</CardProTitle>
+        </CardProHeader>
+        <CardProContent>
           <div className="space-y-4">
             {resourceAllocations.map((allocation) => (
               <div
@@ -456,8 +461,8 @@ export default function ResourceAllocationView() {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </CardProContent>
+      </CardPro>
     </div>
   );
 }
