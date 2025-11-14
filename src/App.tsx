@@ -31,6 +31,66 @@ const EnhancedAuditLogView = lazy(() => import('@/views/EnhancedAuditLogView'));
 const AuditTestingView = lazy(() => import('@/views/AuditTestingView'));
 const IPRestrictionTestView = lazy(() => import('@/views/IPRestrictionTestView'));
 
+// Logistics & Supply Chain Views
+const VendorManagementView = lazy(() => import('@/views/VendorManagementView'));
+const MaterialRequestView = lazy(() => import('@/views/MaterialRequestView'));
+const GoodsReceiptView = lazy(() => import('@/views/GoodsReceiptView'));
+const InventoryManagementView = lazy(() => import('@/views/InventoryManagementView'));
+
+// Planning & Scheduling Views
+const WBSManagementView = lazy(() => import('@/views/WBSManagementView'));
+const GanttChartView = lazy(() => import('@/views/GanttChartView'));
+const TasksView = lazy(() => import('@/views/TasksViewPro'));
+const KanbanView = lazy(() => import('@/views/KanbanView'));
+const DependencyGraphView = lazy(() => import('@/views/DependencyGraphView'));
+const ResourceAllocationView = lazy(() => import('@/views/ResourceAllocationView'));
+
+// Cost & Finance Views
+const EnhancedRabAhspView = lazy(() => import('@/views/EnhancedRabAhspView'));
+const RabApprovalWorkflowView = lazy(() => import('@/views/RabApprovalWorkflowView'));
+const CostControlDashboardView = lazy(() => import('@/views/CostControlDashboardView'));
+const ChartOfAccountsView = lazy(() => import('@/views/ChartOfAccountsView'));
+const JournalEntriesView = lazy(() => import('@/views/JournalEntriesView'));
+const AccountsPayableView = lazy(() => import('@/views/AccountsPayableView'));
+const AccountsReceivableView = lazy(() => import('@/views/AccountsReceivableView'));
+
+// Analytics & AI Views
+const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
+const PredictiveAnalyticsView = lazy(() => import('@/views/PredictiveAnalyticsView'));
+const AIResourceOptimizationView = lazy(() => import('@/views/AIResourceOptimizationView'));
+
+// Monitoring & Reports Views
+const MonitoringView = lazy(() => import('@/views/MonitoringViewPro'));
+const ReportsViewPro = lazy(() => import('@/views/ReportsViewPro'));
+const DailyReportView = lazy(() => import('@/views/DailyReportView'));
+const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderView'));
+const ProgressView = lazy(() => import('@/views/ProgressView'));
+
+// Timeline & Resource Views
+const TimelineTrackingView = lazy(() => import('@/views/TimelineTrackingView'));
+
+// Finance Views
+const FinanceViewPro = lazy(() => import('@/views/FinanceViewPro'));
+const CashflowView = lazy(() => import('@/views/CashflowView'));
+const StrategicCostView = lazy(() => import('@/views/StrategicCostView'));
+
+// Logistics Views
+const LogisticsViewPro = lazy(() => import('@/views/LogisticsViewPro'));
+const IntegrationDashboardView = lazy(() => import('@/views/IntegrationDashboardView'));
+
+// Settings Views
+const MasterDataView = lazy(() => import('@/views/MasterDataView'));
+const AttendanceViewPro = lazy(() => import('@/views/AttendanceViewPro'));
+
+// Documents & Communication Views
+const IntelligentDocumentSystem = lazy(() => import('@/views/IntelligentDocumentSystem'));
+const ChatView = lazy(() => import('@/views/ChatView'));
+const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView'));
+
+// Settings & User Management Views
+const UserManagementView = lazy(() => import('@/views/UserManagementView'));
+const ProfileView = lazy(() => import('@/views/ProfileView'));
+
 import { monitoringService } from '@/api/monitoringService';
 import { Spinner } from '@/components/Spinner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,6 +111,93 @@ const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
 const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
 const SentryTestPanel = lazy(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
+
+// Wrapper components that inject context data into views requiring props
+function WBSWrapper() {
+  const { currentProject } = useProject();
+  return <WBSManagementView projectId={currentProject?.id || ''} projectName={currentProject?.name || ''} />;
+}
+
+function GanttWrapper() {
+  const { currentProject } = useProject();
+  return <GanttChartView projectId={currentProject?.id || ''} />;
+}
+
+function TasksWrapper() {
+  const { currentProject } = useProject();
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  
+  useEffect(() => {
+    // Tasks will be fetched by the component itself
+    setTasks([]);
+    setUsers([]);
+  }, [currentProject?.id]);
+  
+  return <TasksView tasks={tasks} users={users} />;
+}
+
+function KanbanWrapper() {
+  const { currentProject } = useProject();
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  
+  useEffect(() => {
+    // Tasks will be fetched by the component itself
+    setTasks([]);
+    setUsers([]);
+  }, [currentProject?.id]);
+  
+  return <KanbanView tasks={tasks} users={users} />;
+}
+
+function DependencyWrapper() {
+  const { currentProject } = useProject();
+  return <DependencyGraphView projectId={currentProject?.id || ''} />;
+}
+
+function AnalyticsWrapper() {
+  const { IntegratedAnalyticsView } = require('@/views/IntegratedAnalyticsView');
+  return <IntegratedAnalyticsView />;
+}
+
+function TimelineWrapper() {
+  const { currentProject } = useProject();
+  return <TimelineTrackingView projectId={currentProject?.id || ''} />;
+}
+
+function DailyReportWrapper() {
+  return <DailyReportView dailyReports={[]} rabItems={[]} workers={[]} onAddReport={() => {}} />;
+}
+
+function ProgressWrapper() {
+  const itemsWithProgress: any[] = [];
+  return <ProgressView itemsWithProgress={itemsWithProgress} onUpdateProgress={() => {}} />;
+}
+
+function FinanceWrapper() {
+  return <FinanceViewPro expenses={[]} projectMetrics={undefined as any} />;
+}
+
+function CashflowWrapper() {
+  return <CashflowView termins={[]} expenses={[]} />;
+}
+
+function StrategicCostWrapper() {
+  return <StrategicCostView projectMetrics={undefined as any} />;
+}
+
+function LogisticsWrapper() {
+  return <LogisticsViewPro />;
+}
+
+function ReportsWrapper() {
+  return <ReportsViewPro reports={[]} />;
+}
+
+function MasterDataWrapper() {
+  return <MasterDataView workers={[]} />;
+}
 
 /**
  * Komponen ini menangani rute yang dilindungi (setelah login)
@@ -392,6 +539,218 @@ function App() {
               <AuditTestingView />
             </ViewErrorBoundary>
           } />
+          
+          {/* Planning & Scheduling Routes */}
+          <Route path="wbs" element={
+            <ViewErrorBoundary viewName="WBS Management">
+              <WBSWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="schedule" element={
+            <ViewErrorBoundary viewName="Schedule">
+              <GanttWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="tasks" element={
+            <ViewErrorBoundary viewName="Tasks">
+              <TasksWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="tasks/kanban" element={
+            <ViewErrorBoundary viewName="Kanban Board">
+              <KanbanWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="tasks/dependencies" element={
+            <ViewErrorBoundary viewName="Dependency Graph">
+              <DependencyWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="resources" element={
+            <ViewErrorBoundary viewName="Resource Allocation">
+              <ResourceAllocationView />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Cost & Finance Routes */}
+          <Route path="rab" element={
+            <ViewErrorBoundary viewName="RAB & AHSP">
+              <EnhancedRabAhspView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="rab/approval" element={
+            <ViewErrorBoundary viewName="RAB Approval">
+              <RabApprovalWorkflowView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance" element={
+            <ViewErrorBoundary viewName="Finance">
+              <FinanceWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/cashflow" element={
+            <ViewErrorBoundary viewName="Cashflow">
+              <CashflowWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/strategic" element={
+            <ViewErrorBoundary viewName="Strategic Cost">
+              <StrategicCostWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/cost-control" element={
+            <ViewErrorBoundary viewName="Cost Control">
+              <CostControlDashboardView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/chart-of-accounts" element={
+            <ViewErrorBoundary viewName="Chart of Accounts">
+              <ChartOfAccountsView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/journal-entries" element={
+            <ViewErrorBoundary viewName="Journal Entries">
+              <JournalEntriesView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/accounts-payable" element={
+            <ViewErrorBoundary viewName="Accounts Payable">
+              <AccountsPayableView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="finance/accounts-receivable" element={
+            <ViewErrorBoundary viewName="Accounts Receivable">
+              <AccountsReceivableView />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Analytics & AI Routes */}
+          <Route path="analytics" element={
+            <ViewErrorBoundary viewName="Analytics">
+              <AnalyticsWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="analytics/advanced" element={
+            <ViewErrorBoundary viewName="Advanced Analytics">
+              <AdvancedAnalyticsView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="ai/predictive-analytics" element={
+            <ViewErrorBoundary viewName="Predictive Analytics">
+              <PredictiveAnalyticsView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="ai/resource-optimization" element={
+            <ViewErrorBoundary viewName="AI Resource Optimization">
+              <AIResourceOptimizationView />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Monitoring & Reports Routes */}
+          <Route path="monitoring" element={
+            <ViewErrorBoundary viewName="Monitoring">
+              <MonitoringView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="reports" element={
+            <ViewErrorBoundary viewName="Reports">
+              <ReportsWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="reports/daily" element={
+            <ViewErrorBoundary viewName="Daily Report">
+              <DailyReportWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="reports/progress" element={
+            <ViewErrorBoundary viewName="Progress Report">
+              <ProgressWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="reports/custom-builder" element={
+            <ViewErrorBoundary viewName="Custom Report Builder">
+              <CustomReportBuilderView />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Timeline & Resource Routes */}
+          <Route path="timeline" element={
+            <ViewErrorBoundary viewName="Timeline Tracking">
+              <TimelineWrapper />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Documents & Communication Routes */}
+          <Route path="documents" element={
+            <ViewErrorBoundary viewName="Documents">
+              <IntelligentDocumentSystem />
+            </ViewErrorBoundary>
+          } />
+          <Route path="chat" element={
+            <ViewErrorBoundary viewName="Chat">
+              <ChatView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="notifications" element={
+            <ViewErrorBoundary viewName="Notifications">
+              <NotificationCenterView />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Logistics & Supply Chain Routes */}
+          <Route path="logistics" element={
+            <ViewErrorBoundary viewName="Logistics">
+              <LogisticsWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="logistics/vendor-management" element={
+            <ViewErrorBoundary viewName="Vendor Management">
+              <VendorManagementView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="logistics/material-request" element={
+            <ViewErrorBoundary viewName="Material Request">
+              <MaterialRequestView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="logistics/goods-receipt" element={
+            <ViewErrorBoundary viewName="Goods Receipt">
+              <GoodsReceiptView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="logistics/inventory" element={
+            <ViewErrorBoundary viewName="Inventory Management">
+              <InventoryManagementView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="logistics/integration" element={
+            <ViewErrorBoundary viewName="Integration Dashboard">
+              <IntegrationDashboardView />
+            </ViewErrorBoundary>
+          } />
+
+          {/* Settings & User Management Routes */}
+          <Route path="settings/users" element={
+            <ViewErrorBoundary viewName="User Management">
+              <UserManagementView />
+            </ViewErrorBoundary>
+          } />
+          <Route path="settings/master-data" element={
+            <ViewErrorBoundary viewName="Master Data">
+              <MasterDataWrapper />
+            </ViewErrorBoundary>
+          } />
+          <Route path="attendance" element={
+            <ViewErrorBoundary viewName="Attendance">
+              <AttendanceViewPro />
+            </ViewErrorBoundary>
+          } />
+          <Route path="profile" element={
+            <ViewErrorBoundary viewName="Profile">
+              <ProfileView />
+            </ViewErrorBoundary>
+          } />
+          
           {/* <Route path="settings/audit-dashboard" element={
             <ViewErrorBoundary viewName="Audit Dashboard">
               <AuditDashboardView />

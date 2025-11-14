@@ -99,8 +99,15 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom/client'], 
+      include: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'react-dom/client',
+      ],
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
+      force: true, // Force re-optimize on next run
     },
     resolve: {
       dedupe: ['react', 'react-dom', 'react/jsx-runtime'], // Prevent duplicate React instances
@@ -112,9 +119,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      react({
-        jsxRuntime: 'automatic',
-      }),
+      react(),
       securityHeadersPlugin(),
       visualizer({
         open: false,
@@ -150,6 +155,8 @@ export default defineConfig(({ mode }) => {
               if (id.includes('firebase')) return 'firebase';
               if (id.includes('@google-cloud')) return 'google-cloud';
               if (id.includes('tensorflow')) return 'tensorflow';
+              // CRITICAL: Bundle React core + jsx-runtime together
+              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) return 'react-vendor';
               if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
               if (id.includes('framer-motion')) return 'framer-motion';
               if (id.includes('recharts') || id.includes('chart')) return 'charts';
