@@ -124,10 +124,14 @@ export default defineConfig(({ mode }) => {
       }) as any,
       // VitePWA temporarily disabled to prevent reload loop
     ],
-    esbuild: {}, // Let Vite handle JSX automatically
+    esbuild: {
+      jsx: 'automatic',
+      jsxImportSource: 'react',
+    },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      global: 'globalThis',
     },
     build: {
       target: ['es2015', 'chrome79', 'safari13', 'firefox72', 'edge79'],

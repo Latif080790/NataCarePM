@@ -2,10 +2,17 @@
 // PRODUCTION-READY INDEX FILE
 // ===================================
 
+// Critical: Import React first to ensure it's available globally
+import * as React from 'react';
+// Preload jsx-runtime to prevent undefined errors
+import 'react/jsx-runtime';
 import { createRoot } from 'react-dom/client';
 import Root from './Root';
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
 import { initGA4 } from '@/utils/analytics';
+
+// Make React available globally for debugging
+(window as any).React = React;
 
 // Initialize Security Features
 initCSPMonitoring();
