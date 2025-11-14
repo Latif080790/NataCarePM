@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, CSSProperties } from 'react';
-import { FixedSizeList } from 'react-window';
+import { List } from 'react-window';
+import FixedSizeList from 'react-window'; // Correctly import FixedSizeList
 import { logger } from '@/utils/logger.enhanced';
 import {
   Package,
