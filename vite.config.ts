@@ -98,7 +98,8 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       strictPort: true,
     },
-    optimizeDeps: {      include: [
+    optimizeDeps: {
+      include: [
         'react',
         'react-dom',
         'react/jsx-runtime',
@@ -106,7 +107,6 @@ export default defineConfig(({ mode }) => {
         'react-dom/client',
       ],
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
-      force: true, // Force re-optimize on next run
     },
     resolve: {
       dedupe: ['react', 'react-dom', 'react/jsx-runtime'], // Prevent duplicate React instances
@@ -129,8 +129,9 @@ export default defineConfig(({ mode }) => {
       // VitePWA temporarily disabled to prevent reload loop
     ],
     esbuild: {
-      jsx: 'automatic',
-      jsxImportSource: 'react',
+      jsx: 'transform', // Use classic transform with React.createElement
+      jsxFactory: 'React.createElement',
+      jsxFragment: 'React.Fragment',
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -154,9 +155,16 @@ export default defineConfig(({ mode }) => {
               if (id.includes('firebase')) return 'firebase';
               if (id.includes('@google-cloud')) return 'google-cloud';
               if (id.includes('tensorflow')) return 'tensorflow';
-              // CRITICAL: Bundle React core + jsx-runtime together
-              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) return 'react-vendor';
-              if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+              // CRITICAL: Bundle React core + jsx-runtime together (must be BEFORE general react check)
+              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
+                return 'react-vendor';
+              }
+              if (id.includes('react-dom')) {
+                return 'react-vendor';
+              }
+              if (id.includes('react') && !id.includes('react-')) {
+                return 'react-vendor';
+              }
               if (id.includes('framer-motion')) return 'framer-motion';
               if (id.includes('recharts') || id.includes('chart')) return 'charts';
               if (id.includes('@sentry')) return 'sentry';
