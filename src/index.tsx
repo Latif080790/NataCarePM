@@ -6,6 +6,10 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import Root from './Root';
+
+// CRITICAL: Force jsx-runtime to be bundled by importing it explicitly
+import './_jsx-runtime-preload';
+
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
 import { initGA4 } from '@/utils/analytics';
 import { onCLS, onFID, onLCP, onTTFB, onINP } from 'web-vitals';

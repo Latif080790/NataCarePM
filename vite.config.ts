@@ -109,7 +109,7 @@ export default defineConfig(({ mode }) => {
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
     },
     resolve: {
-      dedupe: ['react', 'react-dom', 'react/jsx-runtime'], // Prevent duplicate React instances
+      dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
       alias: {
         '@': path.resolve(__dirname, './src'),
         'react': path.resolve(__dirname, 'node_modules/react'),
@@ -129,9 +129,8 @@ export default defineConfig(({ mode }) => {
       // VitePWA temporarily disabled to prevent reload loop
     ],
     esbuild: {
-      jsx: 'transform', // Use classic transform with React.createElement
-      jsxFactory: 'React.createElement',
-      jsxFragment: 'React.Fragment',
+      jsx: 'automatic',
+      jsxImportSource: 'react',
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -151,14 +150,16 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
+              // CRITICAL: jsx-runtime MUST be bundled in react-vendor (FIRST PRIORITY)
+              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
+                console.log('✓ Bundling jsx-runtime:', id);
+                return 'react-vendor';
+              }
               // Split vendor libraries into separate chunks for better caching
               if (id.includes('firebase')) return 'firebase';
               if (id.includes('@google-cloud')) return 'google-cloud';
               if (id.includes('tensorflow')) return 'tensorflow';
-              // CRITICAL: Bundle React core + jsx-runtime together (must be BEFORE general react check)
-              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
-                return 'react-vendor';
-              }
+              // React core - using classic transform (no jsx-runtime needed)
               if (id.includes('react-dom')) {
                 return 'react-vendor';
               }
