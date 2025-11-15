@@ -656,3 +656,4 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 };
 
 export default DashboardView;
+

@@ -267,3 +267,4 @@ export const PasswordRequirements = ({ password }: { password: string }) => {
 };
 
 export default PasswordStrengthMeter;
+

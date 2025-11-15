@@ -687,3 +687,4 @@ export const BlacklistVendorModal: React.FC<BlacklistVendorModalProps> = ({
     </Modal>
   );
 };
+

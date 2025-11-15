@@ -681,3 +681,4 @@ export const IncidentForm: React.FC<IncidentFormProps> = ({
     </div>
   );
 };
+

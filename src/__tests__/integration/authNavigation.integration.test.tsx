@@ -180,3 +180,4 @@ describe('Auth Navigation Integration', () => {
     expect(loginEmailInput.value).toBe('test@example.com');
   });
 });
+

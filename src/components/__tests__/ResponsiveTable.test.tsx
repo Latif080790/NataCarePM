@@ -705,3 +705,4 @@ describe('ResponsiveTable Component', () => {
     });
   });
 });
+

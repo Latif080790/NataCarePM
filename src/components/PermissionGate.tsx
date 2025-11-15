@@ -430,3 +430,4 @@ export function SuperAdminOnly({ children, fallback }: SuperAdminOnlyProps) {
 
   return <>{isSuperAdmin ? children : fallback}</>;
 }
+

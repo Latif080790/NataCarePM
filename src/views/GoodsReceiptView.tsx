@@ -666,3 +666,4 @@ GoodsReceiptView.displayName = 'GoodsReceiptView';
 export default GoodsReceiptView;
 
 
+

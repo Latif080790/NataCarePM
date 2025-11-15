@@ -489,3 +489,4 @@ const RiskMatrixView: React.FC<RiskMatrixViewProps> = ({ projectId }) => {
 };
 
 export default RiskMatrixView;
+

@@ -626,3 +626,4 @@ const SafetyDashboardView: React.FC<SafetyDashboardViewProps> = ({ projectId }) 
 };
 
 export default SafetyDashboardView;
+

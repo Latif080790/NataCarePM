@@ -724,3 +724,4 @@ describe('Safety Management System - Integration Tests', () => {
     });
   });
 });
+

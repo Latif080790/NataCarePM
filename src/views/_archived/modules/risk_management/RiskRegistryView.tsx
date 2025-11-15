@@ -616,3 +616,4 @@ const RiskRegistryView: React.FC<RiskRegistryViewProps> = ({ projectId }) => {
 };
 
 export default RiskRegistryView;
+

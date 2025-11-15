@@ -102,19 +102,15 @@ export default defineConfig(({ mode }) => {
       include: [
         'react',
         'react-dom',
-        'react/jsx-runtime',
-        'react/jsx-dev-runtime',
-        'react-dom/client',
       ],
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
     },
     resolve: {
-      dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+      dedupe: ['react', 'react-dom'],
       alias: {
         '@': path.resolve(__dirname, './src'),
         'react': path.resolve(__dirname, 'node_modules/react'),
         'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime'),
       },
     },
     plugins: [
@@ -129,8 +125,9 @@ export default defineConfig(({ mode }) => {
       // VitePWA temporarily disabled to prevent reload loop
     ],
     esbuild: {
-      jsx: 'automatic',
-      jsxImportSource: 'react',
+      jsx: 'transform', // React 17 classic transform
+      jsxFactory: 'React.createElement',
+      jsxFragment: 'React.Fragment',
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -150,16 +147,11 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              // CRITICAL: jsx-runtime MUST be bundled in react-vendor (FIRST PRIORITY)
-              if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
-                console.log('✓ Bundling jsx-runtime:', id);
-                return 'react-vendor';
-              }
               // Split vendor libraries into separate chunks for better caching
               if (id.includes('firebase')) return 'firebase';
               if (id.includes('@google-cloud')) return 'google-cloud';
               if (id.includes('tensorflow')) return 'tensorflow';
-              // React core - using classic transform (no jsx-runtime needed)
+              // React 17 - classic transform, no jsx-runtime needed
               if (id.includes('react-dom')) {
                 return 'react-vendor';
               }

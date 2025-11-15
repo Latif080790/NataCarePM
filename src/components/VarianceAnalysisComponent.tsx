@@ -425,3 +425,4 @@ export const VarianceAnalysisComponent: React.FC<VarianceAnalysisComponentProps>
 );
 
 export default VarianceAnalysisComponent;
+

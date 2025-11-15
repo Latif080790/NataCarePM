@@ -204,3 +204,4 @@ export const MobileDashboardView: React.FC<MobileDashboardProps> = ({
 };
 
 export default MobileDashboardView;
+

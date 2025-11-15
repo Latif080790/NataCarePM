@@ -77,3 +77,4 @@ const InfoItem = ({
     <p className={`text-xl font-bold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>{value}</p>
   </div>
 );
+

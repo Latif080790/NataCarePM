@@ -694,3 +694,4 @@ const CAPAView: React.FC<CAPAViewProps> = ({ projectId }) => {
 };
 
 export default CAPAView;
+

@@ -573,3 +573,4 @@ const DefectTrackerView: React.FC<DefectTrackerViewProps> = ({ projectId }) => {
 };
 
 export default DefectTrackerView;
+

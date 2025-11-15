@@ -494,3 +494,4 @@ const OfflineInspectionFormView: React.FC = () => {
 };
 
 export default OfflineInspectionFormView;
+

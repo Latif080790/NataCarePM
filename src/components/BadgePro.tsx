@@ -182,3 +182,4 @@ export function BadgeStatus({
  * <BadgeStatus variant="success" pulse>Active</BadgeStatus>
  * <BadgeStatus variant="warning">Pending</BadgeStatus>
  */
+

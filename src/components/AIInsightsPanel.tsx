@@ -200,3 +200,4 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ projectData, o
     </Card>
   );
 };
+

@@ -368,3 +368,4 @@ const ActivityLogSettings: React.FC = () => {
     </div>
   );
 };
+

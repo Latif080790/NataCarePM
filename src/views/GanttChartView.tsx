@@ -998,3 +998,4 @@ const GanttChartView = React.memo(function GanttChartView({ projectId }: GanttCh
 });
 
 export default GanttChartView;
+

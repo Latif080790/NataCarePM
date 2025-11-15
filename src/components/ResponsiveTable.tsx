@@ -365,3 +365,4 @@ function ResponsiveTableComponent<T = any>(props: ResponsiveTableProps<T>) {
 }
 
 export const ResponsiveTable = memo(ResponsiveTableComponent) as typeof ResponsiveTableComponent;
+

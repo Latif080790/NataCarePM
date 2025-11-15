@@ -102,3 +102,4 @@ const SimpleBarChart = React.memo(SimpleBarChartComponent, (prevProps, nextProps
 });
 
 export default SimpleBarChart;
+

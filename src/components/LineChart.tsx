@@ -350,3 +350,4 @@ export const LineChart = React.memo(LineChartComponent, (prevProps, nextProps) =
     prevProps.height === nextProps.height
   );
 });
+

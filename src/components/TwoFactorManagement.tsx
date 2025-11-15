@@ -101,3 +101,4 @@ export const TwoFactorManagement: React.FC<TwoFactorManagementProps> = ({ user }
     </div>
   );
 };
+

@@ -567,3 +567,4 @@ export const TrainingForm: React.FC<TrainingFormProps> = ({
     </div>
   );
 };
+

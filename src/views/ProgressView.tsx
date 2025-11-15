@@ -123,3 +123,4 @@ export default function ProgressView({ itemsWithProgress, onUpdateProgress }: Pr
     </CardPro>
   );
 }
+

@@ -623,3 +623,4 @@ function getStatusIcon(status: EnhancedAuditLog['status']) {
 
 export default EnhancedAuditLogView;
 
+

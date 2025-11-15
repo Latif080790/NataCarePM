@@ -304,3 +304,4 @@ export const useActivityTracker = () => {
 
   return { trackActivity };
 };
+

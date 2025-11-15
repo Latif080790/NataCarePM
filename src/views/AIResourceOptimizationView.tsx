@@ -681,3 +681,4 @@ const AIResourceOptimizationView: React.FC = React.memo(() => {
 AIResourceOptimizationView.displayName = 'AIResourceOptimizationView';
 
 export default AIResourceOptimizationView;
+

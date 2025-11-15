@@ -572,3 +572,4 @@ export default function TaskDetailModal({
     </Modal>
   );
 }
+

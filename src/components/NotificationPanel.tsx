@@ -37,3 +37,4 @@ export default function NotificationPanel({ notifications }: NotificationPanelPr
     </div>
   );
 }
+

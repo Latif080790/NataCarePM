@@ -488,3 +488,4 @@ const ResourceUtilizationView: React.FC = () => {
 };
 
 export default ResourceUtilizationView;
+

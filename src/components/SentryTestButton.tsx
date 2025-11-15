@@ -124,3 +124,4 @@ export const SentryTestPanel: React.FC = () => {
 
 // Default export for easy import
 export default SentryTestButton;
+

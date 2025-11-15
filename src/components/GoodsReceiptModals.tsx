@@ -770,3 +770,4 @@ export default {
   GRDetailsModal,
   GRInspectionModal,
 };
+

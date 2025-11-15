@@ -332,3 +332,4 @@ describe('Progress Component', () => {
     });
   });
 });
+

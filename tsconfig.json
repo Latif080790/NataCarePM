@@ -12,7 +12,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "allowJs": true,
-    "jsx": "react-jsx",
+    "jsx": "react", // React 17 uses classic transform
     "paths": {
       "@/*": ["./src/*"]
     },

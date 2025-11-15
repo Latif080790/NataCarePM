@@ -90,3 +90,4 @@ describe('ForgotPasswordView flow', () => {
     });
   });
 });
+

@@ -578,3 +578,4 @@ const QualityInspectionView: React.FC<QualityInspectionViewProps> = ({ projectId
 };
 
 export default QualityInspectionView;
+

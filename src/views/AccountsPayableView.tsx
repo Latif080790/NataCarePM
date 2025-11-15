@@ -381,3 +381,4 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = React.memo(({ on
 AccountsPayableView.displayName = 'AccountsPayableView';
 
 export default AccountsPayableView;
+

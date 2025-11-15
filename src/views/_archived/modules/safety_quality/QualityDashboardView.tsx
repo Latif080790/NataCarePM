@@ -525,3 +525,4 @@ const QualityDashboardView: React.FC<QualityDashboardViewProps> = ({ projectId }
 };
 
 export default QualityDashboardView;
+

@@ -450,3 +450,4 @@ export const TrainingManagementView: React.FC<TrainingManagementViewProps> = ({ 
     </div>
   );
 };
+

@@ -375,3 +375,4 @@ export const UserFeedbackWidget: React.FC<UserFeedbackWidgetProps> = ({
 };
 
 export default UserFeedbackWidget;
+

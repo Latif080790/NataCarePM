@@ -141,3 +141,4 @@ export function useGPSCapture() {
   
   return { location, setLocation };
 }
+

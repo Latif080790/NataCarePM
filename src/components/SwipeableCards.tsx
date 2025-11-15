@@ -108,3 +108,4 @@ export const SwipeableCards: React.FC<SwipeableCardsProps> = ({
 };
 
 export default SwipeableCards;
+

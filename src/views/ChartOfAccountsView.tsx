@@ -332,3 +332,4 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = React.memo(({ on
 ChartOfAccountsView.displayName = 'ChartOfAccountsView';
 
 export default ChartOfAccountsView;
+

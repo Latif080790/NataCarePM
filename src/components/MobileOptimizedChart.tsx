@@ -109,3 +109,4 @@ export const MobileOptimizedChart: React.FC<MobileOptimizedChartProps> = ({
 };
 
 export default MobileOptimizedChart;
+

@@ -254,3 +254,4 @@ export const LogisticsViewPro: React.FC = () => {
 };
 
 export default LogisticsViewPro;
+

@@ -256,3 +256,4 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
 };
 
 export default MonitoringView;
+

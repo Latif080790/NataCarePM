@@ -672,3 +672,4 @@ export const TwoFactorVerify: React.FC<TwoFactorVerifyProps> = ({
 };
 
 export default TwoFactorVerify;
+

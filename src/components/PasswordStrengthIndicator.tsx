@@ -170,3 +170,4 @@ const RequirementItem: React.FC<RequirementItemProps> = ({ met, label }) => (
 );
 
 export default PasswordStrengthIndicator;
+

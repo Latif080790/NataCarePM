@@ -246,3 +246,4 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ context, class
     </div>
   );
 };
+

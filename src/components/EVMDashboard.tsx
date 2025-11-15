@@ -596,3 +596,4 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
     </div>
   );
 };
+

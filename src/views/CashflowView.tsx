@@ -95,3 +95,4 @@ const StatBox = ({ label, value, color }: { label: string; value: string; color:
     <p className={`text-2xl font-bold ${color}`}>{value}</p>
   </div>
 );
+

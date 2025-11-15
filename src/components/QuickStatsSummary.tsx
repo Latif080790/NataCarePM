@@ -146,3 +146,4 @@ export const QuickStatsSummary: React.FC<QuickStatsSummaryProps> = ({
     </Card>
   );
 };
+

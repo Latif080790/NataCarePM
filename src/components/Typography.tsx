@@ -310,3 +310,4 @@ export const MetricLabel: React.FC<TypographyProps> = ({ children, className = '
     {children}
   </div>
 );
+

@@ -618,3 +618,4 @@ const DependencyGraphView = React.memo(function DependencyGraphView({ projectId 
 
 DependencyGraphView.displayName = 'DependencyGraphView';
 export default DependencyGraphView;
+

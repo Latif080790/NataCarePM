@@ -788,3 +788,4 @@ export default function InteractiveGanttView({ projectId }: InteractiveGanttView
     </div>
   );
 }
+

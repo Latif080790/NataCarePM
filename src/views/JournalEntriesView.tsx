@@ -426,3 +426,4 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = React.memo(({ onNa
 JournalEntriesView.displayName = 'JournalEntriesView';
 
 export default JournalEntriesView;
+

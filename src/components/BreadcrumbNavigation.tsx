@@ -51,3 +51,4 @@ export default function BreadcrumbNavigation({ items, className = '' }: Breadcru
     </nav>
   );
 }
+

@@ -104,3 +104,4 @@ export function UploadDocumentModal({ isOpen, onClose, onAddDocument }: UploadDo
     </Modal>
   );
 }
+

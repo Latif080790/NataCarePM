@@ -43,3 +43,4 @@ export function Toast({ message, type, onClose }: ToastProps) {
     </div>
   );
 }
+

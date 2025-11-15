@@ -509,3 +509,4 @@ export const KanbanView: React.FC<KanbanViewProps> = ({ tasks = [], users = [], 
 };
 
 export default KanbanView;
+

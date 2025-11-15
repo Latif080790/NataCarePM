@@ -23,3 +23,4 @@ export function Progress(props: ProgressProps) {
     </div>
   );
 }
+

@@ -303,3 +303,4 @@ toast.info = (message: string, options?: Partial<Omit<Toast, 'id' | 'message' | 
 };
 
 export default ToastProvider;
+

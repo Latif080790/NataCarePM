@@ -122,3 +122,4 @@ const GaugeChartComponent = ({ value, max }: GaugeChartProps) => {
 };
 
 export const GaugeChart = React.memo(GaugeChartComponent);
+

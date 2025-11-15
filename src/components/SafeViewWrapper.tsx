@@ -85,3 +85,4 @@ export class SafeViewWrapper extends React.Component<SafeViewWrapperProps, Error
 }
 
 export default SafeViewWrapper;
+

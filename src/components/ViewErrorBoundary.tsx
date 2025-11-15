@@ -318,3 +318,4 @@ export const SimpleErrorFallback = ({ error, viewName }: { error?: Error; viewNa
     </div>
   </div>
 );
+

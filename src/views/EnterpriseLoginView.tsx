@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Enterprise Login View - Clean Design
  * Clean, professional login interface consistent with application design system
  */
@@ -315,3 +315,4 @@ export default function EnterpriseLoginView() {
     </div>
   );
 }
+

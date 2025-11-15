@@ -363,3 +363,4 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     </ProjectContext.Provider>
   );
 };
+

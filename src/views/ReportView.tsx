@@ -146,3 +146,4 @@ export default function ReportView({ projectMetrics, project }: ReportViewProps)
   );
 }
 
+

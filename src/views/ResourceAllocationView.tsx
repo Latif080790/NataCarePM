@@ -469,3 +469,4 @@ const ResourceAllocationView = React.memo(function ResourceAllocationView() {
 });
 
 export default ResourceAllocationView;
+

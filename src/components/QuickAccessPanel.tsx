@@ -189,3 +189,4 @@ export default function QuickAccessPanel({ onNavigate, className = '' }: QuickAc
     </Card>
   );
 }
+

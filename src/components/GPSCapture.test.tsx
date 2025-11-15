@@ -675,3 +675,4 @@ describe('useGPSCapture', () => {
 
 // Helper for hook testing
 import { renderHook, act } from '@testing-library/react';
+

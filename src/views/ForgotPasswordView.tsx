@@ -131,3 +131,4 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
     </div>
   );
 }
+

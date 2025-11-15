@@ -122,3 +122,4 @@ export default function FinanceView({ expenses, projectMetrics }: FinanceViewPro
     </div>
   );
 }
+

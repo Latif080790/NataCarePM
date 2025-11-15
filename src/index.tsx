@@ -4,17 +4,14 @@
 
 // Critical: Import React first to ensure it's available globally
 import * as React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom'; // React 17 uses ReactDOM.render
 import Root from './Root';
-
-// CRITICAL: Force jsx-runtime to be bundled by importing it explicitly
-import './_jsx-runtime-preload';
 
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
 import { initGA4 } from '@/utils/analytics';
 import { onCLS, onFID, onLCP, onTTFB, onINP } from 'web-vitals';
 
-// Make React available globally for classic JSX
+// Make React available globally for React 17 classic JSX transform
 (window as any).React = React;
 
 // Initialize Security Features
@@ -117,10 +114,9 @@ console.log('[App] Environment:', import.meta.env.MODE);
 const container = document.getElementById('root');
 if (container) {
   try {
-    console.log('[App] Creating React root...');
-    const root = createRoot(container);
-    console.log('[App] Rendering Root component...');
-    root.render(<Root />);
+    console.log('[App] Rendering with React 17...');
+    // React 17 uses ReactDOM.render instead of createRoot
+    ReactDOM.render(<Root />, container);
     console.log('[App] ✅ Successfully mounted');
   } catch (error) {
     console.error('[App] ❌ Fatal Error:', error);
@@ -154,3 +150,4 @@ if ('serviceWorker' in navigator) {
     names.forEach((name) => caches.delete(name));
   });
 }
+

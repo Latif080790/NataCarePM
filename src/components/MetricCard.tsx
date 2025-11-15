@@ -81,3 +81,4 @@ export default React.memo(function MetricCard({
     prevProps.title === nextProps.title
   );
 });
+

@@ -836,3 +836,4 @@ const VendorManagementView: React.FC = React.memo(() => {
 VendorManagementView.displayName = 'VendorManagementView';
 
 export default VendorManagementView;
+

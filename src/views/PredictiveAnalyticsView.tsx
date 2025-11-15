@@ -499,3 +499,4 @@ const PredictiveAnalyticsView: React.FC = React.memo(() => {
 PredictiveAnalyticsView.displayName = 'PredictiveAnalyticsView';
 
 export default PredictiveAnalyticsView;
+

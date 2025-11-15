@@ -413,3 +413,4 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   return <OfflineContext.Provider value={value}>{children}</OfflineContext.Provider>;
 };
+

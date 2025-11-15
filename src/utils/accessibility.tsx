@@ -571,3 +571,4 @@ export default {
   announceToScreenReader,
   generateA11yId,
 };
+

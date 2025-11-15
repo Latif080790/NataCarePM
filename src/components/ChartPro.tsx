@@ -677,3 +677,4 @@ export const PieChartPro: React.FC<Omit<ChartProProps, 'type'>> = (props) => (
 );
 
 export default ChartPro;
+

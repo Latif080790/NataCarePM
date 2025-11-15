@@ -366,3 +366,4 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
 };
 
 export default PWAInstallPrompt;
+

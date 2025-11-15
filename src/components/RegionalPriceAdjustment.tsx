@@ -541,3 +541,4 @@ export const RegionalPriceAdjustment: React.FC<RegionalPriceAdjustmentProps> = (
 };
 
 export default RegionalPriceAdjustment;
+

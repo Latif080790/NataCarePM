@@ -57,3 +57,4 @@ export default function MasterDataView({ workers }: MasterDataViewProps) {
     </div>
   );
 }
+

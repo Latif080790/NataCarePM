@@ -371,3 +371,4 @@ export const TasksViewPro: React.FC<TasksViewProProps> = ({
 };
 
 export default TasksViewPro;
+

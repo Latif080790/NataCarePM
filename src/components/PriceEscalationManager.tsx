@@ -399,3 +399,4 @@ export const PriceEscalationManager: React.FC<PriceEscalationManagerProps> = ({
 };
 
 export default PriceEscalationManager;
+

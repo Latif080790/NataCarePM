@@ -630,3 +630,4 @@ export const EnhancedProgressTracking: React.FC<EnhancedProgressTrackingProps> =
     </div>
   );
 };
+

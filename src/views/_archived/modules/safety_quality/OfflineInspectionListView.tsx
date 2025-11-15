@@ -342,3 +342,4 @@ const OfflineInspectionListView: React.FC = () => {
 };
 
 export default OfflineInspectionListView;
+

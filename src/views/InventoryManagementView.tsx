@@ -658,3 +658,4 @@ InventoryManagementView.displayName = 'InventoryManagementView';
 
 export default InventoryManagementView;
 
+

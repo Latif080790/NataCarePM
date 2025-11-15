@@ -305,3 +305,4 @@ export const SCurveChart = React.memo(SCurveChartComponent, (prevProps, nextProp
     point.actual === nextProps.data[index]?.actual
   );
 });
+

@@ -378,3 +378,4 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = React.memo
 AccountsReceivableView.displayName = 'AccountsReceivableView';
 
 export default AccountsReceivableView;
+

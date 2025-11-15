@@ -69,3 +69,4 @@ export function CommentThread({ comments, onAddComment }: CommentThreadProps) {
     </div>
   );
 }
+
