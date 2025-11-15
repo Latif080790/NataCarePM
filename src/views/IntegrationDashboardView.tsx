@@ -21,7 +21,7 @@ interface IntegrationForm {
   syncFrequency: 'realtime' | 'hourly' | 'daily' | 'weekly';
 }
 
-const IntegrationDashboardView: React.FC = () => {
+const IntegrationDashboardView: React.FC = React.memo(() => {
   const {
     integrations,
     loading,
@@ -559,6 +559,8 @@ const IntegrationDashboardView: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+IntegrationDashboardView.displayName = 'IntegrationDashboardView';
 
 export default IntegrationDashboardView;

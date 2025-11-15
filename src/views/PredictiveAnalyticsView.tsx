@@ -29,7 +29,7 @@ import type { GenerateForecastRequest, ForecastType } from '@/types/predictive-a
 // Main Component
 // ============================================================================
 
-const PredictiveAnalyticsView: React.FC = () => {
+const PredictiveAnalyticsView: React.FC = React.memo(() => {
   const {
     costForecasts,
     scheduleForecasts,
@@ -494,6 +494,8 @@ const PredictiveAnalyticsView: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+PredictiveAnalyticsView.displayName = 'PredictiveAnalyticsView';
 
 export default PredictiveAnalyticsView;

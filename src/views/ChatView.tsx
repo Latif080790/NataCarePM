@@ -9,7 +9,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMessage } from '@/contexts/MessageContext';
 import { useAuth } from '@/contexts/AuthContext';
 
-const ChatView: React.FC = () => {
+const ChatView: React.FC = React.memo(() => {
   const {
     chats,
     currentChat,
@@ -322,6 +322,8 @@ const ChatView: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+ChatView.displayName = 'ChatView';
 
 export default ChatView;

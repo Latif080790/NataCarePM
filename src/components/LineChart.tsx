@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 
 import { formatCurrency } from '@/constants';
 
+/**
+ * NOTE: This component uses custom SVG-based charts, not Recharts.
+ * No lazy loading needed as it has no external chart library dependencies.
+ */
+
 interface Point {
   day: number;
   cost: number;

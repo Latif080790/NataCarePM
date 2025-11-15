@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { ButtonPro, ButtonProGroup } from '@/components/ButtonPro';
 import { InputPro, FormGroupPro } from '@/components/FormComponents';
@@ -13,7 +13,7 @@ import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 
-export default function ProfileView() {
+const ProfileView = React.memo(function ProfileView() {
   const { currentUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -363,4 +363,6 @@ export default function ProfileView() {
       )}
     </div>
   );
-}
+});
+
+export default ProfileView;

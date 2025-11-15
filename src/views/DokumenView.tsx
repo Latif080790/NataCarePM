@@ -87,7 +87,7 @@ const getFileSize = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-export default function DokumenView({ documents }: DokumenViewProps) {
+const DokumenView = React.memo(function DokumenView({ documents }: DokumenViewProps) {
   const { currentUser } = useAuth();
   const { handleAddDocument, currentProject } = useProject();
   const { addToast } = useToast();
@@ -739,4 +739,6 @@ export default function DokumenView({ documents }: DokumenViewProps) {
       )}
     </>
   );
-}
+});
+
+export default DokumenView;

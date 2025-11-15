@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 import { Card } from './Card';
 import { Button } from './Button';
@@ -469,14 +469,36 @@ export const EVMDashboard: React.FC<EVMDashboardProps> = ({
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">EVM Trend Analysis</h3>
             <div className="h-80">
-              <LineChart data={prepareTrendChartData()} width={800} height={320} />
+              <Suspense fallback={
+                <div className="h-80 bg-gray-50 animate-pulse rounded-xl flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-purple-100 flex items-center justify-center">
+                      📈
+                    </div>
+                    <p className="text-sm text-gray-500">Loading trend chart...</p>
+                  </div>
+                </div>
+              }>
+                <LineChart data={prepareTrendChartData()} width={800} height={320} />
+              </Suspense>
             </div>
           </Card>
 
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Performance Index Trends</h3>
             <div className="h-80">
-              <LineChart data={preparePerformanceChartData()} width={800} height={320} />
+              <Suspense fallback={
+                <div className="h-80 bg-gray-50 animate-pulse rounded-xl flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-orange-100 flex items-center justify-center">
+                      📊
+                    </div>
+                    <p className="text-sm text-gray-500">Loading performance chart...</p>
+                  </div>
+                </div>
+              }>
+                <LineChart data={preparePerformanceChartData()} width={800} height={320} />
+              </Suspense>
             </div>
           </Card>
         </div>

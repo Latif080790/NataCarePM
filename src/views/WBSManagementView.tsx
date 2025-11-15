@@ -45,7 +45,7 @@ interface WBSManagementViewProps {
   projectName: string;
 }
 
-const WBSManagementView: React.FC<WBSManagementViewProps> = ({
+const WBSManagementView: React.FC<WBSManagementViewProps> = React.memo(({
   projectId,
   projectName,
 }) => {
@@ -550,7 +550,7 @@ const WBSManagementView: React.FC<WBSManagementViewProps> = ({
       />
     </div>
   );
-};
+});
 
 // WBS Form Modal Component
 interface WBSFormModalProps {
@@ -751,6 +751,8 @@ const WBSFormModal: React.FC<WBSFormModalProps> = ({
     </Modal>
   );
 };
+
+WBSFormModal.displayName = 'WBSFormModal';
 
 export default WBSManagementView;
 

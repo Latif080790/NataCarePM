@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Task } from '@/types';
 import {
   CardPro,
@@ -59,7 +59,7 @@ interface DelayAlert {
   blockedTasks: number;
 }
 
-export default function TimelineTrackingView({ projectId }: TimelineTrackingViewProps) {
+const TimelineTrackingView = React.memo(function TimelineTrackingView({ projectId }: TimelineTrackingViewProps) {
   const { currentProject } = useProject();
   const { addToast } = useToast();
 
@@ -592,4 +592,7 @@ export default function TimelineTrackingView({ projectId }: TimelineTrackingView
       </div>
     </div>
   );
-}
+});
+
+TimelineTrackingView.displayName = 'TimelineTrackingView';
+export default TimelineTrackingView;

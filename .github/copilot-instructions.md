@@ -852,10 +852,55 @@ console.log('Debug info:', data);
 logger.debug('Debug info', { data });
 ```
 
-#### 9. **Bundle Size Optimization**
-- Replace full lodash imports with specific functions
-- Use dynamic imports for heavy libraries (xlsx, jspdf)
-- Lazy load Tesseract.js OCR worker only when needed
+#### 9. **Bundle Size Optimization** ✅ IMPLEMENTED
+Current bundle: **902KB gzipped** (down from 1,056KB original - **-15% reduction**)
+
+**Lazy Loading Pattern (DO THIS):**
+```typescript
+// ❌ Avoid: Synchronous imports for non-critical libraries
+import * as Sentry from '@sentry/react';
+
+// ✅ Best: Lazy load after delay
+setTimeout(async () => {
+  const { initializeSentry } = await import('@/config/sentry.config');
+  initializeSentry();
+}, 1000);
+```
+
+**Dynamic Imports for User Actions (ALREADY DONE):**
+```typescript
+// ✅ Excel.js - auditExport.service.ts
+export async function exportToExcel(logs, options) {
+  const { Workbook } = await import('exceljs');
+  // ... export logic
+}
+
+// ✅ jsPDF - auditExport.service.ts
+export async function exportToPDF(logs, options) {
+  const { jsPDF } = await import('jspdf');
+  // ... PDF generation
+}
+
+// ✅ SendGrid - emailChannel.ts
+async send(options: EmailOptions) {
+  const sgMail = await import('@sendgrid/mail');
+  // ... email sending
+}
+```
+
+**Verified NOT in bundle (tree-shaken):**
+- TensorFlow.js (only in test files)
+- Recharts (LineChart uses custom SVG)
+- Excel.js, jsPDF, SendGrid (dynamic imports)
+
+**Bundle Composition:**
+- vendor.js: 612KB (68%) - Core React ecosystem
+- firebase.js: 147KB (16%) - Firestore, Auth, Storage
+- react-vendor: 88KB (10%) - React, ReactDOM, Router
+- contexts.js: 28KB (3%) - Global state
+- Deferred: 185KB (Sentry, exports, OCR, views)
+
+**Reference:** See `BUNDLE_OPTIMIZATION_COMPLETE.md` for full analysis
 
 #### 10. **Mobile Performance**
 - Add `React.lazy()` + Suspense for mobile-specific views
@@ -874,6 +919,53 @@ logger.debug('Debug info', { data });
 
 ---
 
-**Last Updated:** November 12, 2025  
+## Bundle Optimization Guidelines ✅
+
+### When to Use Lazy Loading
+
+**✅ ALWAYS lazy load:**
+- Error monitoring (Sentry) - defer by 1s
+- Export libraries (Excel.js, jsPDF) - load on button click
+- Email services (SendGrid) - load when sending
+- OCR workers (Tesseract.js) - load on OCR request
+- Analytics (GA4) - defer by 500ms
+- Heavy chart libraries - dynamic import on render
+
+**❌ NEVER lazy load:**
+- React, ReactDOM, React Router (core framework)
+- React Hook Form, Zod (used in 40+ forms)
+- Firebase SDK (auth required immediately)
+- date-fns, lodash (used globally)
+- UI component libraries (Radix, Headless UI)
+
+### Verification Commands
+
+```powershell
+# Build and check bundle sizes
+npm run build | Select-String "vendor|firebase|gzip"
+
+# Verify library NOT in bundle (grep search)
+grep -r "libraryName" dist/assets/vendor-*.js
+# Should return "No matches found" if optimized
+
+# Generate visual bundle analysis
+npm run build  # Opens dist/stats.html automatically
+```
+
+### Adding New Heavy Dependencies
+
+**Before installing:**
+1. Check if lighter alternative exists (e.g., custom SVG vs Recharts)
+2. Verify library supports tree-shaking (check package.json "sideEffects")
+3. Plan lazy loading strategy if > 20KB gzipped
+
+**After installing:**
+1. Use dynamic imports if library used for specific features
+2. Run `npm run build` and check vendor.js size
+3. Verify with grep that library tree-shaken if unused
+
+---
+
+**Last Updated:** November 16, 2025  
 **Maintained by:** Development Team  
 Update this file as architecture evolves. See referenced docs for detailed patterns.

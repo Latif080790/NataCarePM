@@ -21,7 +21,7 @@ interface AccountsPayableViewProps {
   onNavigate?: (view: string) => void;
 }
 
-const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate }) => {
+const AccountsPayableView: React.FC<AccountsPayableViewProps> = React.memo(({ onNavigate }) => {
   const [payables, setPayables] = useState<AccountsPayable[]>([]);
   const [filteredPayables, setFilteredPayables] = useState<AccountsPayable[]>([]);
   const [agingReport, setAgingReport] = useState<AgingReport | null>(null);
@@ -376,6 +376,8 @@ const AccountsPayableView: React.FC<AccountsPayableViewProps> = ({ onNavigate })
       )}
     </div>
   );
-};
+});
+
+AccountsPayableView.displayName = 'AccountsPayableView';
 
 export default AccountsPayableView;

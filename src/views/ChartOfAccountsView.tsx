@@ -20,7 +20,7 @@ interface ChartOfAccountsViewProps {
   onNavigate?: (view: string) => void;
 }
 
-const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate }) => {
+const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = React.memo(({ onNavigate }) => {
   const [accounts, setAccounts] = useState<ChartOfAccount[]>([]);
   const [filteredAccounts, setFilteredAccounts] = useState<ChartOfAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -327,6 +327,8 @@ const ChartOfAccountsView: React.FC<ChartOfAccountsViewProps> = ({ onNavigate })
       </div>
     </div>
   );
-};
+});
+
+ChartOfAccountsView.displayName = 'ChartOfAccountsView';
 
 export default ChartOfAccountsView;

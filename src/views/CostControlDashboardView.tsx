@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
-const CostControlDashboardView: React.FC = () => {
+const CostControlDashboardView: React.FC = React.memo(() => {
   const { currentProject } = useProject();
   const { addToast } = useToast();
 
@@ -750,6 +750,8 @@ const CostControlDashboardView: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+CostControlDashboardView.displayName = 'CostControlDashboardView';
 
 export default CostControlDashboardView;

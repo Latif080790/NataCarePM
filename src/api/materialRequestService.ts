@@ -38,6 +38,10 @@ import { PurchaseOrder, POItem } from '@/types';
 import { auditHelper } from '@/utils/auditHelper';
 import { logger } from '@/utils/logger.enhanced';
 import { getVendorById } from './vendorService';
+import { 
+  createMRInputSchema, 
+  formatValidationErrors 
+} from '@/schemas/logisticsSchemas';
 
 // ============================================================================
 // CONSTANTS
@@ -85,6 +89,23 @@ export async function createMaterialRequest(
   userName: string
 ): Promise<MaterialRequest> {
   try {
+    // ✅ VALIDATION: Validate input with Zod schema
+    const validationResult = createMRInputSchema.safeParse(input);
+    if (!validationResult.success) {
+      const errors = formatValidationErrors(validationResult.error);
+      logger.error('MR input validation failed', validationResult.error, {
+        operation: 'createMaterialRequest',
+        errors,
+      });
+      throw new Error(`Validation failed: ${errors.join(', ')}`);
+    }
+
+    logger.debug('MR input validation passed', {
+      operation: 'createMaterialRequest',
+      projectId: input.projectId,
+      itemCount: input.items.length,
+    });
+
     // Generate MR number
     const mrNumber = await generateMRNumber(input.projectId);
 

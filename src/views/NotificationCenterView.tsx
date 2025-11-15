@@ -153,7 +153,7 @@ const mockNotifications: Notification[] = [
   },
 ];
 
-export default function NotificationCenterView() {
+const NotificationCenterView = React.memo(function NotificationCenterView() {
   const { addToast } = useToast();
 
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
@@ -531,5 +531,8 @@ export default function NotificationCenterView() {
       </CardPro>
     </div>
   );
-}
+});
+
+NotificationCenterView.displayName = 'NotificationCenterView';
+export default NotificationCenterView;
 

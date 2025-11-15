@@ -21,7 +21,7 @@ interface AccountsReceivableViewProps {
   onNavigate?: (view: string) => void;
 }
 
-const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavigate }) => {
+const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = React.memo(({ onNavigate }) => {
   const [receivables, setReceivables] = useState<AccountsReceivable[]>([]);
   const [filteredReceivables, setFilteredReceivables] = useState<AccountsReceivable[]>([]);
   const [agingReport, setAgingReport] = useState<AgingReport | null>(null);
@@ -373,6 +373,8 @@ const AccountsReceivableView: React.FC<AccountsReceivableViewProps> = ({ onNavig
       </div>
     </div>
   );
-};
+});
+
+AccountsReceivableView.displayName = 'AccountsReceivableView';
 
 export default AccountsReceivableView;

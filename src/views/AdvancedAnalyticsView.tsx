@@ -97,7 +97,7 @@ const SimplePieChart: React.FC<{ data: { label: string; value: number; color: st
   );
 };
 
-const AdvancedAnalyticsView: React.FC = () => {
+const AdvancedAnalyticsView: React.FC = React.memo(() => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
   const [isLoading, setIsLoading] = useState(true);
@@ -436,6 +436,8 @@ const AdvancedAnalyticsView: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+AdvancedAnalyticsView.displayName = 'AdvancedAnalyticsView';
 
 export default AdvancedAnalyticsView;

@@ -20,7 +20,7 @@ interface JournalEntriesViewProps {
   onNavigate?: (view: string) => void;
 }
 
-const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) => {
+const JournalEntriesView: React.FC<JournalEntriesViewProps> = React.memo(({ onNavigate }) => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -362,50 +362,52 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
 
               <div className="border-t pt-4">
                 <h3 className="font-semibold mb-4">Journal Lines</h3>
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="py-2 px-3 text-left text-sm font-medium text-gray-700">
-                        Account
-                      </th>
-                      <th className="py-2 px-3 text-right text-sm font-medium text-gray-700">
-                        Debit
-                      </th>
-                      <th className="py-2 px-3 text-right text-sm font-medium text-gray-700">
-                        Credit
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedEntry.lines.map((line) => (
-                      <tr key={line.id} className="border-b">
-                        <td className="py-2 px-3">
-                          <div className="font-medium">
-                            {line.accountNumber} - {line.accountName}
-                          </div>
-                          {line.description && (
-                            <div className="text-sm text-gray-500">{line.description}</div>
-                          )}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="py-2 px-3 text-left text-sm font-medium text-gray-700">
+                          Account
+                        </th>
+                        <th className="py-2 px-3 text-right text-sm font-medium text-gray-700">
+                          Debit
+                        </th>
+                        <th className="py-2 px-3 text-right text-sm font-medium text-gray-700">
+                          Credit
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedEntry.lines.map((line) => (
+                        <tr key={line.id} className="border-b">
+                          <td className="py-2 px-3">
+                            <div className="font-medium">
+                              {line.accountNumber} - {line.accountName}
+                            </div>
+                            {line.description && (
+                              <div className="text-sm text-gray-500">{line.description}</div>
+                            )}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {line.debit > 0 ? formatCurrency(line.debit) : '-'}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {line.credit > 0 ? formatCurrency(line.credit) : '-'}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="font-bold bg-gray-50">
+                        <td className="py-2 px-3">Total</td>
+                        <td className="py-2 px-3 text-right">
+                          {formatCurrency(selectedEntry.totalDebit)}
                         </td>
                         <td className="py-2 px-3 text-right">
-                          {line.debit > 0 ? formatCurrency(line.debit) : '-'}
-                        </td>
-                        <td className="py-2 px-3 text-right">
-                          {line.credit > 0 ? formatCurrency(line.credit) : '-'}
+                          {formatCurrency(selectedEntry.totalCredit)}
                         </td>
                       </tr>
-                    ))}
-                    <tr className="font-bold bg-gray-50">
-                      <td className="py-2 px-3">Total</td>
-                      <td className="py-2 px-3 text-right">
-                        {formatCurrency(selectedEntry.totalDebit)}
-                      </td>
-                      <td className="py-2 px-3 text-right">
-                        {formatCurrency(selectedEntry.totalCredit)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <div className="mt-6 flex justify-end gap-2">
@@ -419,6 +421,8 @@ const JournalEntriesView: React.FC<JournalEntriesViewProps> = ({ onNavigate }) =
       )}
     </div>
   );
-};
+});
+
+JournalEntriesView.displayName = 'JournalEntriesView';
 
 export default JournalEntriesView;

@@ -77,7 +77,7 @@ const QUALITY_CONFIG: Record<
 // MAIN COMPONENT
 // ============================================================================
 
-const GoodsReceiptView: React.FC = () => {
+const GoodsReceiptView: React.FC = React.memo(() => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
@@ -659,7 +659,9 @@ const GoodsReceiptView: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+GoodsReceiptView.displayName = 'GoodsReceiptView';
 
 export default GoodsReceiptView;
 

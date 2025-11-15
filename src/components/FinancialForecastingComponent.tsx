@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 import { Card } from './Card';
 import { Button } from './Button';
@@ -271,7 +271,18 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Cost Projection Scenarios</h3>
               <div className="h-80">
-                <LineChart data={prepareForecastChartData()} width={800} height={320} />
+                <Suspense fallback={
+                  <div className="h-80 bg-gray-50 animate-pulse rounded-xl flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-blue-100 flex items-center justify-center">
+                        📊
+                      </div>
+                      <p className="text-sm text-gray-500">Loading chart...</p>
+                    </div>
+                  </div>
+                }>
+                  <LineChart data={prepareForecastChartData()} width={800} height={320} />
+                </Suspense>
               </div>
             </Card>
           </div>
@@ -349,7 +360,18 @@ export const FinancialForecastingComponent: React.FC<FinancialForecastingCompone
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Cash Flow Projections</h3>
             <div className="h-80 mb-6">
-              <LineChart data={prepareCashFlowChartData()} width={800} height={320} />
+              <Suspense fallback={
+                <div className="h-80 bg-gray-50 animate-pulse rounded-xl flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-green-100 flex items-center justify-center">
+                      💰
+                    </div>
+                    <p className="text-sm text-gray-500">Loading cash flow chart...</p>
+                  </div>
+                </div>
+              }>
+                <LineChart data={prepareCashFlowChartData()} width={800} height={320} />
+              </Suspense>
             </div>
           </Card>
 

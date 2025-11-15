@@ -74,7 +74,7 @@ interface RabApprovalWorkflow {
   isCompleted: boolean;
 }
 
-const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabItemId }) => {
+const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = React.memo(({ rabItemId }) => {
   const { currentProject } = useProject();
   const [rabItems, setRabItems] = useState<EnhancedRabItem[]>([]);
   const [selectedRabItem, setSelectedRabItem] = useState<EnhancedRabItem | null>(null);
@@ -771,6 +771,8 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = ({ rabIt
       )}
     </div>
   );
-};
+});
+
+RabApprovalWorkflowView.displayName = 'RabApprovalWorkflowView';
 
 export default RabApprovalWorkflowView;

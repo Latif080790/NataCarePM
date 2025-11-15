@@ -102,7 +102,7 @@ const RATING_CONFIG: Record<PerformanceRating, { label: string; color: string; s
 // MAIN COMPONENT
 // ============================================================================
 
-const VendorManagementView: React.FC = () => {
+const VendorManagementView: React.FC = React.memo(() => {
   const { currentUser } = useAuth();
   const { addToast } = useToast();
   const isMobile = useIsMobile();
@@ -831,6 +831,8 @@ const VendorManagementView: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+VendorManagementView.displayName = 'VendorManagementView';
 
 export default VendorManagementView;

@@ -34,7 +34,7 @@ import type {
 // Main Component
 // ============================================================================
 
-const AIResourceOptimizationView: React.FC = () => {
+const AIResourceOptimizationView: React.FC = React.memo(() => {
   const {
     models,
     optimizationResults,
@@ -676,6 +676,8 @@ const AIResourceOptimizationView: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+AIResourceOptimizationView.displayName = 'AIResourceOptimizationView';
 
 export default AIResourceOptimizationView;

@@ -10,11 +10,12 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
-
+import { SuspenseWithErrorBoundary } from '@/components/SuspenseWithErrorBoundary';
 
 // Priority 2C: Monitoring & Analytics initialization
 import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
-import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
+// Sentry loaded dynamically to reduce initial bundle size
+// import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
 import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
@@ -276,53 +277,69 @@ function ProtectedApp() {
 
   // 🔒 Priority 2C: Initialize Sentry & GA4 on app start
   useEffect(() => {
-    try {
-      // Initialize Sentry (Error Tracking)
-      initializeSentry();
-      logger.info('Sentry error tracking initialized');
+    const initializeMonitoring = async () => {
+      try {
+        // Initialize Sentry (Error Tracking) - Dynamic import to reduce initial bundle
+        const { initializeSentry } = await import('@/config/sentry.config');
+        initializeSentry();
+        logger.info('Sentry error tracking initialized (lazy loaded)');
 
-      // Initialize Google Analytics 4
-      initializeGA4();
-      logger.info('Google Analytics 4 initialized');
+        // Initialize Google Analytics 4
+        initializeGA4();
+        logger.info('Google Analytics 4 initialized');
 
-      // Initialize Performance Monitoring (Web Vitals)
-      logger.info('[Performance] Monitoring initialized - tracking Core Web Vitals');
-      
-      // Optional: Configure performance reporting endpoint
-      // performanceMonitor.configureReporting('/api/performance', 60000);
-    } catch (err) {
-      logger.error('Failed to initialize monitoring services', err instanceof Error ? err : new Error(String(err)));
-    }
+        // Initialize Performance Monitoring (Web Vitals)
+        logger.info('[Performance] Monitoring initialized - tracking Core Web Vitals');
+        
+        // Optional: Configure performance reporting endpoint
+        // performanceMonitor.configureReporting('/api/performance', 60000);
+      } catch (err) {
+        logger.error('Failed to initialize monitoring services', err instanceof Error ? err : new Error(String(err)));
+      }
+    };
+
+    // Load monitoring services after a short delay to prioritize app rendering
+    const timer = setTimeout(() => {
+      initializeMonitoring();
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timer);
   }, []);
 
   // 👤 Priority 2C: Set user context for Sentry & GA4
   useEffect(() => {
-    if (currentUser) {
-      try {
-        // Set Sentry user context
-        setSentryUser({
-          id: currentUser.id,
-          email: currentUser.email,
-          username: currentUser.name,
-          role: currentUser.roleId,
-        });
+    const setUserContext = async () => {
+      if (currentUser) {
+        try {
+          // Set Sentry user context (dynamic import)
+          const { setSentryUser } = await import('@/config/sentry.config');
+          setSentryUser({
+            id: currentUser.id,
+            email: currentUser.email,
+            username: currentUser.name,
+            role: currentUser.roleId,
+          });
 
-        // Set GA4 user ID
-        setGA4UserId(currentUser.id);
+          // Set GA4 user ID
+          setGA4UserId(currentUser.id);
 
-        logger.info('User context set for monitoring', { userId: currentUser.id });
-      } catch (err) {
-        logger.error('Failed to set user context', err instanceof Error ? err : new Error(String(err)));
+          logger.info('User context set for monitoring', { userId: currentUser.id });
+        } catch (err) {
+          logger.error('Failed to set user context', err instanceof Error ? err : new Error(String(err)));
+        }
+      } else {
+        // Clear user context on logout
+        try {
+          const { clearSentryUser } = await import('@/config/sentry.config');
+          clearSentryUser();
+          logger.debug('User context cleared');
+        } catch (err) {
+          logger.error('Failed to clear user context', err instanceof Error ? err : new Error(String(err)));
+        }
       }
-    } else {
-      // Clear user context on logout
-      try {
-        clearSentryUser();
-        logger.debug('User context cleared');
-      } catch (err) {
-        logger.error('Failed to clear user context', err instanceof Error ? err : new Error(String(err)));
-      }
-    }
+    };
+
+    setUserContext();
   }, [currentUser]);
 
   // 📊 Priority 2C: Track page views in GA4
@@ -424,7 +441,7 @@ function ProtectedApp() {
   return (
     <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>
       <EnhancedErrorBoundary>
-        <Suspense
+        <SuspenseWithErrorBoundary
           fallback={
             <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center space-y-3">
@@ -435,24 +452,24 @@ function ProtectedApp() {
           }
         >
           <Outlet />
-        </Suspense>
+        </SuspenseWithErrorBoundary>
       </EnhancedErrorBoundary>
       
-      <Suspense fallback={null}>
+      <SuspenseWithErrorBoundary fallback={null}>
         <CommandPalette />
-      </Suspense>
-      <Suspense fallback={null}>
+      </SuspenseWithErrorBoundary>
+      <SuspenseWithErrorBoundary fallback={null}>
         <AiAssistantChat />
-      </Suspense>
-      <Suspense fallback={null}>
+      </SuspenseWithErrorBoundary>
+      <SuspenseWithErrorBoundary fallback={null}>
         <PWAInstallPrompt />
-      </Suspense>
-      <Suspense fallback={null}>
+      </SuspenseWithErrorBoundary>
+      <SuspenseWithErrorBoundary fallback={null}>
         <UserFeedbackWidget position="bottom-right" />
-      </Suspense>
-      <Suspense fallback={null}>
+      </SuspenseWithErrorBoundary>
+      <SuspenseWithErrorBoundary fallback={null}>
         <SentryTestPanel />
-      </Suspense>
+      </SuspenseWithErrorBoundary>
       <OfflineIndicator />
       <LiveCursors containerId="app-container" showLabels />
       <FailoverStatusIndicator />

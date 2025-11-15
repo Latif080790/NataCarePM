@@ -62,7 +62,7 @@ interface ReportVisualization {
   options: any;
 }
 
-const CustomReportBuilderView: React.FC = () => {
+const CustomReportBuilderView: React.FC = React.memo(() => {
   const [reportName, setReportName] = useState('');
   const [reportDescription, setReportDescription] = useState('');
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([]);
@@ -725,7 +725,9 @@ const CustomReportBuilderView: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+CustomReportBuilderView.displayName = 'CustomReportBuilderView';
 
 export default CustomReportBuilderView;
 

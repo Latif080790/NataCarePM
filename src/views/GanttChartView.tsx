@@ -78,7 +78,7 @@ const statusColors = {
   review: '#f59e0b',
 };
 
-export default function GanttChartView({ projectId }: GanttChartViewProps) {
+const GanttChartView = React.memo(function GanttChartView({ projectId }: GanttChartViewProps) {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
@@ -995,4 +995,6 @@ export default function GanttChartView({ projectId }: GanttChartViewProps) {
       )}
     </div>
   );
-}
+});
+
+export default GanttChartView;

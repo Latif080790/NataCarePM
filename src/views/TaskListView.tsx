@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useMemo } from 'react';
 import { taskService } from '@/api/taskService';
 import { ButtonPro } from '@/components/ButtonPro';
 import { CardPro, CardProContent, CardProDescription, CardProHeader, CardProTitle } from '@/components/CardPro';
@@ -10,13 +11,12 @@ import { useProject } from '@/contexts/ProjectContext';
 import { Task } from '@/types';
 import { sanitizeBasic } from '@/utils/sanitizer';
 import { Calendar, CheckCircle, PlusCircle, Search, Tag, User as UserIcon } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
 
 interface TaskListViewProps {
   projectId: string;
 }
 
-export default function TaskListView({ projectId }: TaskListViewProps) {
+const TaskListView = React.memo(function TaskListView({ projectId }: TaskListViewProps) {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -347,6 +347,8 @@ export default function TaskListView({ projectId }: TaskListViewProps) {
       )}
     </div>
   );
-}
+});
+
+export default TaskListView;
 
 

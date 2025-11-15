@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Task } from '@/types';
 import {
   CardPro,
@@ -38,7 +38,7 @@ interface ResourceConflict {
   suggestions: string[];
 }
 
-export default function ResourceAllocationView() {
+const ResourceAllocationView = React.memo(function ResourceAllocationView() {
   const { currentProject } = useProject();
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -466,4 +466,6 @@ export default function ResourceAllocationView() {
       </CardPro>
     </div>
   );
-}
+});
+
+export default ResourceAllocationView;

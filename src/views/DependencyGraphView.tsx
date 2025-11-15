@@ -1,5 +1,4 @@
-// React default import removed (using automatic JSX runtime)
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CardPro, ButtonPro } from '@/components/DesignSystem';
 import { Task } from '@/types';
 import { taskService } from '@/api/taskService';
@@ -55,7 +54,7 @@ const priorityColors = {
   critical: '#dc2626',
 };
 
-export default function DependencyGraphView({ projectId }: DependencyGraphViewProps) {
+const DependencyGraphView = React.memo(function DependencyGraphView({ projectId }: DependencyGraphViewProps) {
   const { addToast } = useToast();
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -615,4 +614,7 @@ export default function DependencyGraphView({ projectId }: DependencyGraphViewPr
       )}
     </div>
   );
-}
+});
+
+DependencyGraphView.displayName = 'DependencyGraphView';
+export default DependencyGraphView;

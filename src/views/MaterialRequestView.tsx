@@ -80,7 +80,7 @@ const PRIORITY_CONFIG: Record<MRPriority, { label: string; color: string }> = {
 // MAIN COMPONENT
 // ============================================================================
 
-const MaterialRequestView: React.FC = () => {
+const MaterialRequestView: React.FC = React.memo(() => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
@@ -716,7 +716,9 @@ const MaterialRequestView: React.FC = () => {
       )}
     </div>
   );
-};
+});
+
+MaterialRequestView.displayName = 'MaterialRequestView';
 
 export default MaterialRequestView;
 

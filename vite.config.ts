@@ -98,8 +98,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       strictPort: true,
     },
-    optimizeDeps: {
-      include: [
+    optimizeDeps: {      include: [
         'react',
         'react-dom',
         'react/jsx-runtime',
