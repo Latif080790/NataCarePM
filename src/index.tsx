@@ -4,7 +4,7 @@
 
 // Critical: Import React first to ensure it's available globally
 import * as React from 'react';
-import ReactDOM from 'react-dom'; // React 17 uses ReactDOM.render
+import { createRoot } from 'react-dom/client';
 import Root from './Root';
 
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
@@ -114,9 +114,9 @@ console.log('[App] Environment:', import.meta.env.MODE);
 const container = document.getElementById('root');
 if (container) {
   try {
-    console.log('[App] Rendering with React 17...');
-    // React 17 uses ReactDOM.render instead of createRoot
-    ReactDOM.render(<Root />, container);
+    console.log('[App] Rendering with React 18...');
+    const root = createRoot(container);
+    root.render(<Root />);
     console.log('[App] ✅ Successfully mounted');
   } catch (error) {
     console.error('[App] ❌ Fatal Error:', error);

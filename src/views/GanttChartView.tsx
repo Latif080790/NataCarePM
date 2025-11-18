@@ -534,7 +534,9 @@ const GanttChartView = React.memo(function GanttChartView({ projectId }: GanttCh
     link.download = `gantt-chart-${currentProject?.name}-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    if (link.parentNode) {
+      document.body.removeChild(link);
+    }
     URL.revokeObjectURL(url);
 
     addToast('Gantt chart exported successfully', 'success');

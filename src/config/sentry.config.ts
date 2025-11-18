@@ -37,9 +37,9 @@ const defaultConfig: SentryConfig = {
   // Performance Monitoring
   tracesSampleRate: import.meta.env.MODE === 'production' ? 0.2 : 1.0, // 20% in production, 100% in dev
 
-  // Session Replay
-  replaysSessionSampleRate: 0.1, // 10% of sessions
-  replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
+  // Session Replay - DISABLED due to DOM manipulation conflicts
+  replaysSessionSampleRate: 0, // Disabled to prevent removeChild errors
+  replaysOnErrorSampleRate: 0, // Disabled to prevent removeChild errors
 
   // Enable only in production or when explicitly set
   enabled: import.meta.env.MODE === 'production' || import.meta.env.VITE_SENTRY_ENABLED === 'true',
@@ -74,11 +74,11 @@ export function initializeSentry(config: Partial<SentryConfig> = {}): void {
           /^https:\/\/natacare-pm\.firebaseapp\.com/,
         ],
       }),
-      new Sentry.Replay({
-        // Privacy settings
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
+      // Session Replay DISABLED - causes DOM manipulation conflicts
+      // new Sentry.Replay({
+      //   maskAllText: true,
+      //   blockAllMedia: true,
+      // }),
     ],
 
     // Performance Monitoring

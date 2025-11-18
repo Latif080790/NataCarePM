@@ -61,35 +61,43 @@ export class ViewErrorBoundary extends Component<Props, State> {
       errorCount: prevState.errorCount + 1,
     }));
 
-    // Log error with context
-    logger.error(`View error in ${viewName || 'Unknown View'}`, error, {
-      errorInfo,
-      componentStack: errorInfo.componentStack,
-      errorCount: this.state.errorCount + 1,
-    });
-
-    // Call custom error handler if provided
-    if (onError) {
-      onError(error, errorInfo);
-    }
-
-    // Report to monitoring service if available
-    if (typeof window !== 'undefined' && (window as any).monitoringService) {
+    // Defer all side effects to avoid React reconciliation conflicts
+    setTimeout(() => {
       try {
-        (window as any).monitoringService.captureException(error, {
-          tags: {
-            boundary: 'view',
-            viewName: viewName || 'unknown',
-          },
-          extra: {
-            errorInfo,
-            componentStack: errorInfo.componentStack,
-          },
+        // Log error with context
+        logger.error(`View error in ${viewName || 'Unknown View'}`, error, {
+          errorInfo,
+          componentStack: errorInfo.componentStack,
+          errorCount: this.state.errorCount + 1,
         });
-      } catch (reportError) {
-        console.error('Failed to report error to monitoring service:', reportError);
+
+        // Call custom error handler if provided
+        if (onError) {
+          onError(error, errorInfo);
+        }
+
+        // Report to monitoring service if available
+        if (typeof window !== 'undefined' && (window as any).monitoringService) {
+          try {
+            (window as any).monitoringService.captureException(error, {
+              tags: {
+                boundary: 'view',
+                viewName: viewName || 'unknown',
+              },
+              extra: {
+                errorInfo,
+                componentStack: errorInfo.componentStack,
+              },
+            });
+          } catch (reportError) {
+            console.error('Failed to report error to monitoring service:', reportError);
+          }
+        }
+      } catch (e) {
+        // Failsafe: don't let error reporting crash the app
+        console.error('Error in componentDidCatch handler:', e);
       }
-    }
+    }, 0);
   }
 
   handleReset = (): void => {
@@ -101,11 +109,17 @@ export class ViewErrorBoundary extends Component<Props, State> {
   };
 
   handleReload = (): void => {
-    window.location.reload();
+    // Add timestamp to prevent cached errors
+    const url = new URL(window.location.href);
+    url.searchParams.set('_t', Date.now().toString());
+    window.location.href = url.toString();
   };
 
   handleGoHome = (): void => {
-    window.location.href = '/dashboard';
+    // Clear error state before navigation
+    this.setState({ hasError: false, error: null, errorInfo: null }, () => {
+      window.location.href = '/dashboard';
+    });
   };
 
   handleReportIssue = (): void => {

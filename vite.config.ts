@@ -102,8 +102,14 @@ export default defineConfig(({ mode }) => {
       include: [
         'react',
         'react-dom',
+        'lucide-react', // Force recompile with our JSX settings
       ],
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
+      esbuildOptions: {
+        jsx: 'transform', // Force classic transform for all dependencies
+        jsxFactory: 'React.createElement',
+        jsxFragment: 'React.Fragment',
+      },
     },
     resolve: {
       dedupe: ['react', 'react-dom'],
@@ -145,54 +151,12 @@ export default defineConfig(({ mode }) => {
           'jsonwebtoken',
         ],
         output: {
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              // Split vendor libraries into separate chunks for better caching
-              if (id.includes('firebase')) return 'firebase';
-              if (id.includes('@google-cloud')) return 'google-cloud';
-              if (id.includes('tensorflow')) return 'tensorflow';
-              // React 17 - classic transform, no jsx-runtime needed
-              if (id.includes('react-dom')) {
-                return 'react-vendor';
-              }
-              if (id.includes('react') && !id.includes('react-')) {
-                return 'react-vendor';
-              }
-              if (id.includes('framer-motion')) return 'framer-motion';
-              if (id.includes('recharts') || id.includes('chart')) return 'charts';
-              if (id.includes('@sentry')) return 'sentry';
-              if (id.includes('tesseract')) return 'tesseract';
-              return 'vendor';
-            }
-            // Lazy-loaded views are automatically split by dynamic imports
-            if (id.includes('/src/views/')) {
-              const viewName = id.split('/').pop()?.split('.')[0];
-              return viewName ? `views/${viewName}` : undefined;
-            }
-            // Split contexts into separate chunk
-            if (id.includes('/src/contexts/')) return 'contexts';
-            // Split utils into separate chunk
-            if (id.includes('/src/utils/')) return 'utils';
-            // Default: no manual chunking
-            return undefined;
-          },
+          // DISABLED manual chunking - bundle everything together to fix JSX runtime issues
+          // manualChunks: undefined,
         },
       },
-      chunkSizeWarningLimit: 1000, // Warn for chunks > 1MB
-      minify: 'terser', // Re-enable minification for production
-      terserOptions: {
-        compress: {
-          drop_console: mode === 'production', // Remove console logs in production
-          drop_debugger: true,
-          pure_funcs: mode === 'production' ? ['console.log', 'console.debug', 'console.info'] : [],
-        },
-        mangle: {
-          safari10: true, // Fix Safari 10 bugs
-        },
-        format: {
-          comments: false, // Remove comments
-        },
-      },
+      chunkSizeWarningLimit: 1000,
+      minify: 'esbuild', // Use esbuild minifier - better React 18 compatibility
       reportCompressedSize: true,
       cssCodeSplit: true, // Split CSS into separate files per chunk
       assetsInlineLimit: 4096, // Inline assets < 4KB as base64

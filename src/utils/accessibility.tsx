@@ -430,7 +430,9 @@ export function announceToScreenReader(
   document.body.appendChild(announcement);
 
   setTimeout(() => {
-    document.body.removeChild(announcement);
+    if (announcement.parentNode) {
+      document.body.removeChild(announcement);
+    }
   }, 1000);
 }
 

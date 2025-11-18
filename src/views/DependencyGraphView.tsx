@@ -249,7 +249,9 @@ const DependencyGraphView = React.memo(function DependencyGraphView({ projectId 
     link.download = `dependency-graph-${new Date().toISOString().split('T')[0]}.svg`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    if (link.parentNode) {
+      document.body.removeChild(link);
+    }
 
     URL.revokeObjectURL(url);
     addToast('Dependency graph exported successfully', 'success');

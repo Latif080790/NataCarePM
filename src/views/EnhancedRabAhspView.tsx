@@ -309,7 +309,9 @@ function EnhancedRabAhspView({
     link.setAttribute('download', 'enhanced_rab_analysis.csv');
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    if (link.parentNode) {
+      document.body.removeChild(link);
+    }
   };
 
   const toggleItemExpansion = (itemId: number) => {

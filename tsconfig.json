@@ -12,7 +12,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "allowJs": true,
-    "jsx": "react", // React 17 uses classic transform
+    "jsx": "preserve", // Let Vite/esbuild handle JSX transform
     "paths": {
       "@/*": ["./src/*"]
     },

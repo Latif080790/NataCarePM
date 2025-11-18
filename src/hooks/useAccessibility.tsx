@@ -238,6 +238,15 @@ export const useAccessibility = () => {
     };
   }, [handleKeyDown]);
 
+  // Cleanup announcement element on unmount
+  useEffect(() => {
+    return () => {
+      if (announcementRef.current && announcementRef.current.parentNode) {
+        announcementRef.current.parentNode.removeChild(announcementRef.current);
+      }
+    };
+  }, []);
+
   return {
     // State
     isHighContrast,

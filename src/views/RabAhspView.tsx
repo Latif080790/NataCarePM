@@ -65,7 +65,9 @@ export default function RabAhspView({ items, ahspData }: RabAhspViewProps) {
     link.setAttribute('download', 'rab_proyek.csv');
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    if (link.parentNode) {
+      document.body.removeChild(link);
+    }
   };
 
   return (

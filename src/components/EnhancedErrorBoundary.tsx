@@ -54,24 +54,32 @@ class EnhancedErrorBoundary extends Component<Props, State> {
       language: i18n.getCurrentLanguage(),
     };
 
-    // Log to console for development
-    logger.error('🚨 ENTERPRISE ERROR BOUNDARY TRIGGERED', error, { errorReport });
-
-    // 📊 Log error to monitoring service
-    this.logToMonitoringService(error, errorInfo);
-
-    // In production, send to error tracking service
-    if (process.env.NODE_ENV === 'production') {
-      this.sendErrorReport(errorReport);
-    }
-
-    // Announce error to screen readers
-    this.announceErrorToScreenReader(error.message);
-
+    // Update state first
     this.setState({
       error,
       errorInfo,
     });
+
+    // Defer all side effects to avoid React reconciliation conflicts
+    setTimeout(() => {
+      try {
+        // Log to console for development
+        logger.error('🚨 ENTERPRISE ERROR BOUNDARY TRIGGERED', error, { errorReport });
+
+        // 📊 Log error to monitoring service
+        this.logToMonitoringService(error, errorInfo);
+
+        // In production, send to error tracking service
+        if (process.env.NODE_ENV === 'production') {
+          this.sendErrorReport(errorReport);
+        }
+
+        // Announce error to screen readers
+        this.announceErrorToScreenReader(error.message);
+      } catch (e) {
+        console.error('Error in EnhancedErrorBoundary handler:', e);
+      }
+    }, 0);
   }
 
   private logToMonitoringService = async (error: Error, _errorInfo: ErrorInfo) => {

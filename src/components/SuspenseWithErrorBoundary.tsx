@@ -28,23 +28,30 @@ class SuspenseErrorBoundary extends Component<SuspenseErrorBoundaryProps, ErrorB
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('[SuspenseErrorBoundary] Caught error:', error, errorInfo);
-    
-    // Log to Sentry if available
-    if (typeof window !== 'undefined' && window.Sentry) {
-      window.Sentry.captureMessage(error.message, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack,
-          },
-        },
-      });
-    }
+    // Defer all side effects to avoid React reconciliation conflicts
+    setTimeout(() => {
+      try {
+        console.error('[SuspenseErrorBoundary] Caught error:', error, errorInfo);
+        
+        // Log to Sentry if available
+        if (typeof window !== 'undefined' && window.Sentry) {
+          window.Sentry.captureMessage(error.message, {
+            contexts: {
+              react: {
+                componentStack: errorInfo.componentStack,
+              },
+            },
+          });
+        }
+
+        // Call custom error handler if provided
+        this.props.onError?.(error, errorInfo);
+      } catch (e) {
+        console.error('Error in SuspenseErrorBoundary handler:', e);
+      }
+    }, 0);
 
     this.setState({ errorInfo });
-
-    // Call custom error handler if provided
-    this.props.onError?.(error, errorInfo);
   }
 
   handleRetry = () => {

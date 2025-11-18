@@ -272,9 +272,13 @@ class WBSService {
       flatList.forEach((element) => {
         if (element.parentId) {
           const parent = elementMap.get(element.parentId);
-          if (parent) {
+          if (parent && parent.children) {
             parent.children.push(element);
             parent.children.sort((a, b) => a.order - b.order);
+          } else {
+            // Parent not found, treat as root element
+            logger.warn(`WBS element ${element.id} has invalid parent ${element.parentId}`);
+            rootElements.push(element);
           }
         } else {
           rootElements.push(element);
