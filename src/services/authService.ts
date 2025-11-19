@@ -273,7 +273,7 @@ export const authService = {
         name,
         email,
         roleId: 'user', // Default role
-        avatarUrl: `https://i.pravatar.cc/150?u=${userCredential.user.uid}`,
+        avatarUrl: getAvatarUrlSync(userCredential.user.uid, name),
         createdAt: new Date().toISOString(),
         lastSeen: new Date().toISOString(),
         permissions: [],
