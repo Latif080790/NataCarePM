@@ -136,8 +136,7 @@ export default defineConfig(({ mode }) => {
       jsxFragment: 'React.Fragment',
     },
     define: {
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      // Gemini API key removed from client bundle - use Cloud Functions instead
       global: 'globalThis',
     },
     build: {

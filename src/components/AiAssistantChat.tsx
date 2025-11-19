@@ -1,24 +1,23 @@
 import { useProject } from '@/contexts/ProjectContext';
 import {
     Bot,
+    History,
     PlusCircle,
     Send,
     Sparkles,
     Trash2,
+    User,
     X,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Input } from './FormControls';
-// FIX: Import `Chat` type from `@google/genai` to correctly type the chat session object.
 import { taskService } from '@/api/taskService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ChatMessage } from '@/types';
-import { Chat, GoogleGenAI } from '@google/genai';
-
-const getEnvApiKey = () => (import.meta as any)?.env?.VITE_GEMINI_API_KEY;
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export default function AiAssistantChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,9 +27,6 @@ export default function AiAssistantChat() {
   const { getProjectContextForAI, currentProject } = useProject();
   const { currentUser } = useAuth();
   const { addToast } = useToast();
-  // FIX: Use a ref to persist the chat session across re-renders, preventing history loss on each message.
-  const chatRef = useRef<Chat | null>(null);
-
   const chatContentRef = useRef<HTMLDivElement>(null);
 
   const storageKey = useMemo(
@@ -72,41 +68,8 @@ export default function AiAssistantChat() {
     } catch (_) {}
   }, [history, storageKey]);
 
-  // Initialize a new chat session when the chat window is opened.
-  useEffect(() => {
-    if (isOpen) {
-      const apiKey = getEnvApiKey();
-      if (!apiKey) {
-        setHistory((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: 'model',
-            parts: [
-              {
-                text: 'Konfigurasi API key tidak ditemukan. Set variabel lingkungan VITE_GEMINI_API_KEY di .env.local untuk mengaktifkan AI.',
-              },
-            ],
-            createdAt: new Date().toISOString(),
-          },
-        ]);
-        addToast('VITE_GEMINI_API_KEY belum diset. AI dinonaktifkan.', 'error');
-        return;
-      }
-      const ai = new GoogleGenAI({ apiKey: apiKey as string });
-      const context = getProjectContextForAI();
-      chatRef.current = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: {
-          systemInstruction: `You are NATA'CARA AI, an expert construction project management assistant. Use the provided project data to answer questions accurately and concisely. Today's date is ${new Date().toLocaleDateString()}. Project Data: ${context}`,
-        },
-      });
-      // Keep visual history; do not clear here to preserve previous conversation.
-    }
-  }, [isOpen, getProjectContextForAI]);
-
   const handleSend = async () => {
-    if (!input.trim() || isLoading || !chatRef.current) return;
+    if (!input.trim() || isLoading) return;
 
     const now = new Date().toISOString();
     const userMessage: ChatMessage = {
@@ -121,41 +84,33 @@ export default function AiAssistantChat() {
     setIsLoading(true);
 
     try {
-      // FIX: Removed the `history` parameter from `sendMessageStream` as it is not a valid property.
-      // The chat instance automatically manages conversation history.
-      const stream = await (chatRef.current as any).sendMessageStream({ message: currentInput });
+      // Call Cloud Function for AI insight
+      const functions = getFunctions();
+      const generateAiInsight = httpsCallable(functions, 'generateAiInsight');
+      
+      const projectContext = getProjectContextForAI();
+      const result = await generateAiInsight({
+        projectContext,
+        userMessage: currentInput,
+        conversationHistory: history.slice(-10) // Send last 10 messages for context
+      });
 
-      let modelResponse = '';
+      const aiResponse = (result.data as any).summary || 'Sorry, I could not generate a response.';
       const modelMsgId = crypto.randomUUID();
+      
       setHistory((prev) => [
         ...prev,
         {
           id: modelMsgId,
           role: 'model',
-          parts: [{ text: '' }],
+          parts: [{ text: aiResponse }],
           createdAt: new Date().toISOString(),
         },
       ]);
-
-      for await (const chunk of stream) {
-        const textChunk =
-          chunk.text ||
-          chunk.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join('') ||
-          '';
-        modelResponse += textChunk;
-        setHistory((prev) => {
-          const newHistory = [...prev];
-          newHistory[newHistory.length - 1] = {
-            id: modelMsgId,
-            role: 'model',
-            parts: [{ text: modelResponse }],
-            createdAt: new Date().toISOString(),
-          };
-          return newHistory;
-        });
-      }
+      
+      addToast('AI response generated successfully', 'success');
     } catch (error) {
-      console.error('Gemini API error:', error);
+      console.error('Cloud Function error:', error);
       setHistory((prev) => [
         ...prev,
         {
@@ -279,7 +234,7 @@ export default function AiAssistantChat() {
                   title="Export transkrip"
                   onClick={exportTranscript}
                 >
-                  <HistoryIcon className="w-5 h-5" />
+                  <History className="w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -324,7 +279,7 @@ export default function AiAssistantChat() {
                     {msg.parts[0].text || <span className="animate-pulse">...</span>}
                   </div>
                   {msg.role === 'user' && (
-                    <UserIcon className="w-6 h-6 text-palladium flex-shrink-0" />
+                    <User className="w-6 h-6 text-palladium flex-shrink-0" />
                   )}
                 </div>
               ))}

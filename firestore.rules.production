@@ -1,14 +1,11 @@
-rules_version = '2';rules_version = '2';
+rules_version = '2';
 
 service cloud.firestore {
-
-/**  match /databases/{database}/documents {
-
- * PRODUCTION FIRESTORE SECURITY RULES    // ============================================
-
- *     // HELPER FUNCTIONS
-
- * CRITICAL: These are production-grade security rules with granular permissions    // ============================================
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
 
  * Deploy these rules before going live in production    
 

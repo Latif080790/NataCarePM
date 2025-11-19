@@ -109,7 +109,8 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
     }
 
     // Update password in Firebase Authentication
-//     const user = await admin.auth().getUser(userId); // Unused variable
+//     const user = await admin.auth().getUser(userId);
+ // Unused variable
     
     // Reauthenticate by verifying current password
     // Note: In a real implementation, you would verify the current password
@@ -241,85 +242,50 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
     );
   }
 
-  const { projectId, geminiApiKey } = data;
+  const { projectContext, userMessage, conversationHistory } = data;
   const userId = context.auth.uid;
 
-  // Check if user has access to the project
+  // Get Gemini API key from environment variables
+  const geminiApiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.key;
+  
+  if (!geminiApiKey) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Gemini API key not configured. Please set GEMINI_API_KEY environment variable.'
+    );
+  }
+
   try {
-    const projectDoc = await db.collection('projects').doc(projectId).get();
+    // Parse project context if it's a string
+    const context = typeof projectContext === 'string' ? JSON.parse(projectContext) : projectContext;
     
-    if (!projectDoc.exists) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'Project not found'
-      );
-    }
+    // Build conversation history for context
+    const historyText = conversationHistory && conversationHistory.length > 0
+      ? conversationHistory.map((msg: any) => 
+          `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.parts[0]?.text || ''}`
+        ).join('\n')
+      : '';
 
-    // Check if user is project member
-    const memberDoc = await db.collection('projects').doc(projectId)
-      .collection('members').doc(userId).get();
-      
-    if (!memberDoc.exists) {
-      throw new functions.https.HttpsError(
-        'permission-denied',
-        'User is not a member of this project'
-      );
-    }
-
-    // Get project data
-    const projectData = projectDoc.data();
-    
-    if (!projectData) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'Project data not found'
-      );
-    }
-
-    // Prepare project context for AI
-    const { name, location, startDate, items = [], expenses = [], dailyReports = [], inventory = [] } = projectData;
-    
-    const summary = {
-      projectName: name,
-      location,
-      startDate,
-      totalBudget: items.reduce((sum: number, i: any) => sum + (i.volume * i.hargaSatuan), 0),
-      totalActualCost: expenses.reduce((sum: number, e: any) => sum + e.amount, 0),
-      workItems: items.map((i: any) => ({ 
-        uraian: i.uraian, 
-        volume: i.volume, 
-        satuan: i.satuan 
-      })),
-      recentReports: dailyReports.slice(0, 3).map((r: any) => ({ 
-        date: r.date, 
-        notes: r.notes 
-      })),
-      inventoryStatus: inventory.slice(0, 5),
+    // Prepare enhanced project context
+    const enhancedContext = {
+      ...context,
+      conversationHistory: historyText,
+      currentQuestion: userMessage
     };
 
-    // Generate AI insight using the helper function
-    const aiResponse = await generateAIInsight(summary, geminiApiKey);
-
-    // Update project with AI insight
-    await db.collection('projects').doc(projectId).update({
-      aiInsight: aiResponse
-    });
-
+    // Generate AI response
+    const aiResponse = await generateAIInsight(enhancedContext, geminiApiKey);
+    
     return {
       success: true,
-      data: aiResponse,
-      message: 'AI insight generated successfully'
+      summary: aiResponse,
+      generatedAt: new Date().toISOString()
     };
-  } catch (error: any) {
-    console.error('Error generating AI insight:', error);
-    
-    if (error.code === 'failed-precondition') {
-      throw error;
-    }
-    
+  } catch (error) {
+    console.error('AI Insight Generation Error:', error);
     throw new functions.https.HttpsError(
       'internal',
-      'Failed to generate AI insight'
+      `Failed to generate AI insight: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 });
@@ -383,7 +349,8 @@ export const createDigitalSignature = functions.https.onCall(async (data: any, c
   }
 
   const { documentId, documentVersionId, signerInfo, signatureType } = data;
-//   const userId = context.auth.uid; // Unused variable
+//   const userId = context.auth.uid;
+ // Unused variable
 
   try {
     // Create digital signature using the service
@@ -420,7 +387,8 @@ export const verifyDigitalSignature = functions.https.onCall(async (data: any, c
   }
 
   const { signatureData, certificate } = data;
-//   const userId = context.auth.uid; // Unused variable
+//   const userId = context.auth.uid;
+ // Unused variable
 
   try {
     // Verify digital signature using the service

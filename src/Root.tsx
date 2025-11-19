@@ -29,21 +29,19 @@ function Root() {
   logger.debug('[Root] Rendering Root component with all providers');
   
   return (
-    <React.StrictMode>
-      <EnhancedErrorBoundary>
-        <BrowserRouter>
-          <ToastProvider>
-            <AuthProvider>
-              <RealtimeCollaborationProvider>
-                <MessageProvider>
-                  <App />
-                </MessageProvider>
-              </RealtimeCollaborationProvider>
-            </AuthProvider>
-          </ToastProvider>
-        </BrowserRouter>
-      </EnhancedErrorBoundary>
-    </React.StrictMode>
+    <EnhancedErrorBoundary>
+      <BrowserRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <RealtimeCollaborationProvider>
+              <MessageProvider>
+                <App />
+              </MessageProvider>
+            </RealtimeCollaborationProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </BrowserRouter>
+    </EnhancedErrorBoundary>
   );
 }
 

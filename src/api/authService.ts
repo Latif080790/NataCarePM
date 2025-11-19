@@ -322,6 +322,32 @@ export const authService = {
       const idToken = await user.getIdToken();
       const refreshToken = user.refreshToken;
 
+      // Ensure user document exists in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        // Create user document if it doesn't exist
+        await setDoc(userDocRef, {
+          email: user.email,
+          name: user.displayName || user.email?.split('@')[0] || 'User',
+          roleId: 'member', // Default role
+          photoURL: user.photoURL || null,
+          phone: user.phoneNumber || null,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+          isActive: true,
+          lastLoginAt: Timestamp.now(),
+        });
+        logger.info('Created user document for', { userId: user.uid });
+      } else {
+        // Update last login timestamp
+        await updateDoc(userDocRef, {
+          lastLoginAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+        });
+      }
+
       const sessionId = generateSessionId();
       await createUserSession({
         userId: user.uid,

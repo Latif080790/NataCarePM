@@ -71,8 +71,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   // Initialize JWT utilities on mount
-  // TEMPORARILY DISABLED FOR DEBUGGING
-  /*
   useEffect(() => {
     try {
       jwtUtils.initializeJWT();
@@ -89,7 +87,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
   }, []);
-  */
 
   // Listen to auth state changes
   useEffect(() => {
@@ -104,8 +101,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (user) {
         try {
-          // TEMPORARILY DISABLED JWT FOR DEBUGGING
-          /*
           // Get and store ID token
           const idToken = await user.getIdToken();
           
@@ -124,7 +119,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           } catch (refreshError) {
             console.error('[AuthContext] Failed to start auto-refresh:', refreshError);
           }
-          */
           
           const appUser = await authService.getCurrentUser();
           if (appUser) {
@@ -158,15 +152,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       } else {
         // User logged out, cleanup JWT
-        // TEMPORARILY DISABLED FOR DEBUGGING
-        /*
         try {
           jwtUtils.cleanupJWT();
           console.log('[AuthContext] JWT cleaned up');
         } catch (cleanupError) {
           console.error('[AuthContext] Failed to cleanup JWT:', cleanupError);
         }
-        */
         setCurrentUser(null);
       }
       setLoading(false);
