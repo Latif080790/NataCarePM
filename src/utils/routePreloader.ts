@@ -5,7 +5,7 @@
 
 // Map of route paths to their dynamic imports
 const ROUTE_IMPORTS = {
-  '/dashboard': () => import('@/views/DashboardView'),
+  '/dashboard': () => import('@/views/DashboardWrapper'),
   '/analytics': () => import('@/views/IntegratedAnalyticsView'),
   '/rab': () => import('@/views/EnhancedRabAhspView'),
   '/schedule': () => import('@/views/GanttChartView'),

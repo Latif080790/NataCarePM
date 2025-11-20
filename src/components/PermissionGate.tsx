@@ -193,8 +193,8 @@ export function ResourceActionGate({
 }: ResourceActionGateProps) {
   const { canPerform } = usePermissions();
 
-  const result = canPerform(resource, action);
-  if (!result.allowed) {
+  const allowed = canPerform(resource, action);
+  if (!allowed) {
     return fallback ? <>{fallback}</> : null;
   }
 

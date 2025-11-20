@@ -26,6 +26,7 @@ import { rateLimiter } from '@/utils/rateLimiter';
 import { logger } from '@/utils/logger';
 import { APIResponse, APIError, ErrorCodes, wrapResponse, wrapError } from '@/utils/responseWrapper';
 import { ipRestriction } from '@/middleware/ipRestriction';
+import { getAvatarUrlSync } from '@/utils/avatarUtils';
 
 // Session timeout constants
 const SESSION_TIMEOUT = import.meta.env.VITE_SESSION_TIMEOUT
@@ -188,10 +189,29 @@ export const authService = {
         password
       );
 
-      // Update last login timestamp
-      await updateDoc(doc(db, 'users', userCredential.user.uid), {
-        lastSeen: new Date().toISOString(),
-      });
+      // Ensure user document exists
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // Create user document if it doesn't exist
+        await setDoc(userDocRef, {
+          email: userCredential.user.email,
+          name: userCredential.user.displayName || userCredential.user.email?.split('@')[0] || 'User',
+          roleId: 'member',
+          avatarUrl: getAvatarUrlSync(userCredential.user.uid, userCredential.user.displayName || ''),
+          createdAt: new Date().toISOString(),
+          lastSeen: new Date().toISOString(),
+          permissions: [],
+          isActive: true
+        });
+        logger.info('authService:login', 'Created missing user document', { userId: userCredential.user.uid });
+      } else {
+        // Update last login timestamp
+        await updateDoc(userDocRef, {
+          lastSeen: new Date().toISOString(),
+        });
+      }
 
       // Check if 2FA is enabled for this user
       // TODO: Fix twoFactorService.isEnabled method

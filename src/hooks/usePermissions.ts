@@ -67,13 +67,20 @@ export const usePermissions = () => {
     [hasPermission]
   );
 
+  const isAdmin = currentUser?.roleId === 'admin';
+  const isSuperAdmin = currentUser?.roleId === 'super_admin';
+
   return {
+    currentUser,
     hasPermission,
     hasAllPermissions,
     hasAnyPermission,
     canPerformAction,
+    canPerform: canPerformAction,
     userPermissions,
     isLoading,
+    isAdmin,
+    isSuperAdmin,
   };
 };
 
@@ -116,12 +123,22 @@ export const useRoleCheck = () => {
     }
   };
 
+  const isMinRole = useCallback((minRole: string) => {
+    const roles = ['user', 'pm', 'manager', 'admin', 'super_admin'];
+    const userRoleIndex = roles.indexOf(role || '');
+    const minRoleIndex = roles.indexOf(minRole);
+    
+    if (userRoleIndex === -1 || minRoleIndex === -1) return false;
+    return userRoleIndex >= minRoleIndex;
+  }, [role]);
+
   return {
     isAdmin: role === 'admin',
-    isManager: role === 'pm',
+    isManager: role === 'pm' || role === 'manager',
     isUser: role === 'user',
     role: role as 'admin' | 'pm' | 'user' | null,
     isLoading,
+    isMinRole,
   };
 };
 

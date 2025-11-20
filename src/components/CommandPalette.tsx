@@ -22,6 +22,7 @@ export function CommandPalette({}: CommandPaletteProps) {
         name: link.name,
         group: group.name,
         icon: link.icon,
+        path: link.path,
       }))
     );
   }, []);
@@ -46,56 +47,8 @@ export function CommandPalette({}: CommandPaletteProps) {
     }
   }, [isOpen]);
 
-  // Map view IDs to routes
-  const routeMap: Record<string, string> = {
-    dashboard: '/',
-    analytics: '/analytics',
-    rab_ahsp: '/rab',
-    rab_basic: '/rab/basic',
-    rab_approval: '/rab/approval',
-    jadwal: '/schedule',
-    tasks: '/tasks',
-    task_list: '/tasks/list',
-    kanban: '/tasks/kanban',
-    kanban_board: '/tasks/kanban/board',
-    dependencies: '/tasks/dependencies',
-    notifications: '/notifications',
-    monitoring: '/monitoring',
-    laporan_harian: '/reports/daily',
-    progres: '/reports/progress',
-    absensi: '/attendance',
-    biaya_proyek: '/finance',
-    arus_kas: '/finance/cashflow',
-    strategic_cost: '/finance/strategic',
-    chart_of_accounts: '/finance/chart-of-accounts',
-    journal_entries: '/finance/journal-entries',
-    accounts_payable: '/finance/accounts-payable',
-    accounts_receivable: '/finance/accounts-receivable',
-    wbs_management: '/wbs',
-    goods_receipt: '/logistics/goods-receipt',
-    material_request: '/logistics/material-request',
-    vendor_management: '/logistics/vendor-management',
-    inventory_management: '/logistics/inventory',
-    integration_dashboard: '/logistics/integration',
-    cost_control: '/finance/cost-control',
-    logistik: '/logistics',
-    dokumen: '/documents',
-    documents: '/documents/intelligent',
-    laporan: '/reports',
-    user_management: '/settings/users',
-    master_data: '/settings/master-data',
-    audit_trail: '/settings/audit-trail',
-    profile: '/profile',
-    ai_resource_optimization: '/ai/resource-optimization',
-    predictive_analytics: '/ai/predictive-analytics',
-    advanced_analytics: '/analytics/advanced',
-    chat: '/chat',
-    custom_report_builder: '/reports/custom-builder',
-  };
-
-  const handleSelect = (viewId: string) => {
-    const route = routeMap[viewId] || '/';
-    navigate(route);
+  const handleSelect = (path: string) => {
+    navigate(path || '/');
     setIsOpen(false);
   };
 
@@ -118,7 +71,7 @@ export function CommandPalette({}: CommandPaletteProps) {
             filteredCommands.map((command) => (
               <button
                 key={command.id}
-                onClick={() => handleSelect(command.id)}
+                onClick={() => handleSelect(command.path || '/')}
                 className="w-full text-left p-2 flex items-center rounded-md hover:bg-violet-essence/50"
               >
                 <command.icon className="h-5 w-5 mr-3 text-palladium" />

@@ -9,7 +9,7 @@ import { RoutePreloadConfig } from '@/utils/componentPreloader';
 // Import lazy components (will be defined in App.tsx)
 export const lazyViews = {
   // Core Views
-  dashboard: () => import('@/views/DashboardView'),
+  dashboard: () => import('@/views/DashboardWrapper'),
   analytics: () => import('@/views/IntegratedAnalyticsView').then((m) => ({ default: m.IntegratedAnalyticsView })),
   rabAhsp: () => import('@/views/EnhancedRabAhspView'),
   rabApproval: () => import('@/views/RabApprovalWorkflowView'), // Adding RAB approval workflow view

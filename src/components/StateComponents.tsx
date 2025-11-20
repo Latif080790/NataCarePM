@@ -9,7 +9,7 @@
 import React from 'react';
 import { CardPro } from './CardPro';
 import { ButtonPro } from './ButtonPro';
-import { AlertCircle, Inbox, RefreshCw, Search, FolderOpen } from 'lucide-react';
+import { AlertCircle, Inbox, RefreshCw, Search, FolderOpen, type LucideIcon } from 'lucide-react';
 
 // ============================================================================
 // Loading State Component
@@ -84,13 +84,13 @@ export function SkeletonLoader({
 // ============================================================================
 
 export interface EmptyStateProps {
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: LucideIcon | React.ComponentType<{ size?: number; className?: string }>;
   title: string;
   description?: string;
   action?: {
     label: string;
     onClick: () => void;
-    icon?: React.ComponentType<{ size?: number }>;
+    icon?: LucideIcon;
   };
   variant?: 'default' | 'search' | 'folder';
 }

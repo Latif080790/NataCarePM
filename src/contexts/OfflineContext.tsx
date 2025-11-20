@@ -109,10 +109,8 @@ export const OfflineProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
 
   // Service Worker state
-//   const [offlineReady, setOfflineReady] = useState(false);
- // Unused variable
-//   const [needRefresh, setNeedRefresh] = useState(false);
- // Unused variable
+  const [offlineReady, setOfflineReady] = useState(false);
+  const [needRefresh, setNeedRefresh] = useState(false);
 
   const [serviceWorkerStatus, setServiceWorkerStatus] = useState<ServiceWorkerStatus | null>(null);
 

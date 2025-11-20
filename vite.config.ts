@@ -102,14 +102,9 @@ export default defineConfig(({ mode }) => {
       include: [
         'react',
         'react-dom',
-        'lucide-react', // Force recompile with our JSX settings
+        'lucide-react',
       ],
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
-      esbuildOptions: {
-        jsx: 'transform', // Force classic transform for all dependencies
-        jsxFactory: 'React.createElement',
-        jsxFragment: 'React.Fragment',
-      },
     },
     resolve: {
       dedupe: ['react', 'react-dom'],
@@ -130,11 +125,6 @@ export default defineConfig(({ mode }) => {
       }) as any,
       // VitePWA temporarily disabled to prevent reload loop
     ],
-    esbuild: {
-      jsx: 'transform', // React 17 classic transform
-      jsxFactory: 'React.createElement',
-      jsxFragment: 'React.Fragment',
-    },
     define: {
       // Gemini API key removed from client bundle - use Cloud Functions instead
       global: 'globalThis',

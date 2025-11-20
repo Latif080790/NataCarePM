@@ -32,7 +32,7 @@ import { intelligentDocumentService } from '@/api/intelligentDocumentService';
 
 interface SignatureWorkflowManagerProps {
   documentId?: string;
-  onWorkflowComplete?: (workflow: SignatureWorkflow) => void;
+  onWorkflowComplete?: (workflow: SignatureWorkflow | null) => void;
 }
 
 interface SignerData {
@@ -50,7 +50,6 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
   const [workflows, setWorkflows] = useState<SignatureWorkflow[]>([]);
   const [documents, setDocuments] = useState<IntelligentDocument[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<SignatureWorkflow | null>(null);
-  const [selectedDocument, setSelectedDocument] = useState<IntelligentDocument | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -94,8 +93,8 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
       setDocuments(allDocs);
 
       if (documentId) {
-        const doc = allDocs.find((d) => d.id === documentId);
-        setSelectedDocument(doc || null);
+        // const doc = allDocs.find((d) => d.id === documentId);
+        // setSelectedDocument(doc || null);
       }
     } catch (error) {
       console.error('Failed to load documents:', error);
@@ -158,7 +157,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
   const handleSendReminder = async (workflowId: string, signerEmail?: string) => {
     setIsLoading(true);
     try {
-      await digitalSignaturesService.sendReminder(workflowId, signerEmail);
+      await digitalSignaturesService.sendReminder(workflowId, signerEmail || '');
       alert('Reminder sent successfully');
     } catch (error) {
       console.error('Failed to send reminder:', error);
@@ -235,7 +234,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
         color: 'text-green-600',
         icon: <CheckCircle className="w-4 h-4" />,
       };
-    if (new Date() > workflow.deadline)
+    if (workflow.deadline && new Date() > workflow.deadline)
       return {
         status: 'overdue',
         color: 'text-red-600',
@@ -254,19 +253,23 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
 
   // Render workflow card
   const renderWorkflowCard = (workflow: SignatureWorkflow) => {
+    const workflowId = workflow.id || workflow.workflowId;
     const workflowStatus = getWorkflowStatus(workflow);
-    const isExpanded = expandedWorkflows.has(workflow.id);
+    const isExpanded = expandedWorkflows.has(workflowId);
     const document = documents.find((d) => d.id === workflow.documentId);
-    const completedSignatures = workflow.requiredSigners.filter((email) =>
-      workflow.signatures.some((sig) => sig.signerEmail === email && sig.isValid)
+    const requiredSigners = workflow.requiredSigners || [];
+    const signatures = workflow.signatures || [];
+    
+    const completedSignatures = requiredSigners.filter((email) =>
+      signatures.some((sig) => sig.signerEmail === email && sig.isValid)
     ).length;
 
     return (
-      <CardPro key={workflow.id} className="mb-4">
+      <CardPro key={workflowId} className="mb-4">
         <div className="p-4">
           <div
             className="flex items-center justify-between cursor-pointer"
-            onClick={() => toggleWorkflowExpansion(workflow.id)}
+            onClick={() => toggleWorkflowExpansion(workflowId)}
           >
             <div className="flex items-center space-x-3">
               <div className={`p-2 rounded-lg ${workflowStatus.color} bg-opacity-10`}>
@@ -278,12 +281,12 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                 </h4>
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
                   <span>
-                    {completedSignatures}/{workflow.requiredSigners.length} signed
+                    {completedSignatures}/{requiredSigners.length} signed
                   </span>
                   <span>•</span>
                   <span className="capitalize">{workflowStatus.status}</span>
                   <span>•</span>
-                  <span>Due {new Date(workflow.deadline).toLocaleDateString()}</span>
+                  <span>Due {workflow.deadline ? new Date(workflow.deadline).toLocaleDateString() : 'No deadline'}</span>
                 </div>
               </div>
             </div>
@@ -295,7 +298,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                   variant="outline"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleSendReminder(workflow.id);
+                    handleSendReminder(workflowId);
                   }}
                 >
                   <Mail className="w-4 h-4 mr-1" />
@@ -331,8 +334,8 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
               {/* Signers List */}
               <div className="space-y-2">
                 <h5 className="font-medium text-gray-900">Signers</h5>
-                {workflow.requiredSigners.map((email, index) => {
-                  const signature = workflow.signatures.find((sig) => sig.signerEmail === email);
+                {requiredSigners.map((email, index) => {
+                  const signature = signatures.find((sig) => sig.signerEmail === email);
                   const signerStatus = getSignerStatus(signature);
 
                   return (
@@ -349,7 +352,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                         <span className={`text-xs font-medium capitalize ${signerStatus.color}`}>
                           {signerStatus.status}
                         </span>
-                        {signature && (
+                        {signature && signature.signedAt && (
                           <span className="text-xs text-gray-500">
                             {new Date(signature.signedAt).toLocaleDateString()}
                           </span>
@@ -358,7 +361,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
                           <ButtonPro
                             size="sm"
                             variant="outline"
-                            onClick={() => handleSendReminder(workflow.id, email)}
+                            onClick={() => handleSendReminder(workflowId, email)}
                           >
                             <Send className="w-3 h-3" />
                           </ButtonPro>
@@ -372,15 +375,15 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
               {/* Actions */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
                 <div className="text-xs text-gray-500">
-                  Created by {workflow.createdBy} on{' '}
-                  {new Date(workflow.createdAt).toLocaleDateString()}
+                  Created by {workflow.createdBy || 'Unknown'} on{' '}
+                  {workflow.createdAt ? new Date(workflow.createdAt).toLocaleDateString() : 'Unknown date'}
                 </div>
                 <div className="flex items-center space-x-2">
                   {!workflow.isCompleted && !workflow.isCancelled && (
                     <ButtonPro
                       size="sm"
                       variant="outline"
-                      onClick={() => handleCancelWorkflow(workflow.id)}
+                      onClick={() => handleCancelWorkflow(workflowId)}
                     >
                       <X className="w-4 h-4 mr-1" />
                       Cancel
@@ -436,7 +439,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
           <CardPro>
             <div className="p-4 text-center">
               <div className="text-2xl font-bold text-red-600">
-                {workflows.filter((w) => new Date() > w.deadline && !w.isCompleted).length}
+                {workflows.filter((w) => w.deadline && new Date() > w.deadline && !w.isCompleted).length}
               </div>
               <div className="text-sm text-gray-500">Overdue</div>
             </div>
@@ -444,7 +447,7 @@ export const SignatureWorkflowManager: React.FC<SignatureWorkflowManagerProps> =
           <CardPro>
             <div className="p-4 text-center">
               <div className="text-2xl font-bold text-gray-600">
-                {workflows.reduce((sum, w) => sum + w.signatures.length, 0)}
+                {workflows.reduce((sum, w) => sum + (w.signatures || []).length, 0)}
               </div>
               <div className="text-sm text-gray-500">Total Signatures</div>
             </div>

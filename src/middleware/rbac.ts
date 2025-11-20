@@ -5,7 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import type { APIResponse } from '@/types/userProfile';
 
@@ -20,6 +20,28 @@ export interface UserPermissions {
 }
 
 export type UserRole = 'admin' | 'manager' | 'user' | 'viewer';
+
+export type ResourceType = 
+  | 'project' 
+  | 'task' 
+  | 'finance' 
+  | 'logistics' 
+  | 'document' 
+  | 'user' 
+  | 'system';
+
+export type Action = 
+  | 'create' 
+  | 'read' 
+  | 'update' 
+  | 'delete' 
+  | 'approve' 
+  | 'assign' 
+  | 'manage_members' 
+  | 'manage_roles' 
+  | 'configure' 
+  | 'backup' 
+  | 'audit';
 
 export type Permission =
   // Project permissions
@@ -77,7 +99,7 @@ export type Restriction =
   | 'ip_restriction';
 
 export interface ResourceAccess {
-  resourceType: string;
+  resourceType: ResourceType;
   resourceId: string;
   requiredPermission: Permission;
   ownerId?: string;
@@ -145,26 +167,28 @@ export const requirePermission = (requiredPermission: Permission) => {
       const userId = await getCurrentUserId(req);
 
       if (!userId) {
-        return res.status(401).json({
+        res.status(401).json({
           success: false,
           error: {
             code: 'UNAUTHENTICATED',
             message: 'Authentication required',
           },
         });
+        return;
       }
 
       const userPermissions = await getUserPermissions(userId);
 
       if (!hasPermission(userPermissions.permissions, requiredPermission)) {
         logAccessDenied(req, userId, requiredPermission);
-        return res.status(403).json({
+        res.status(403).json({
           success: false,
           error: {
             code: 'INSUFFICIENT_PERMISSIONS',
             message: 'Insufficient permissions',
           },
         });
+        return;
       }
 
       // Attach user permissions to request for later use
@@ -172,7 +196,7 @@ export const requirePermission = (requiredPermission: Permission) => {
       next();
     } catch (error: any) {
       console.error('RBAC middleware error:', error);
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         error: {
           code: 'RBAC_ERROR',
@@ -180,6 +204,7 @@ export const requirePermission = (requiredPermission: Permission) => {
           details: error,
         },
       });
+      return;
     }
   };
 };
@@ -193,13 +218,14 @@ export const requireResourceAccess = (access: ResourceAccess) => {
       const userId = await getCurrentUserId(req);
 
       if (!userId) {
-        return res.status(401).json({
+        res.status(401).json({
           success: false,
           error: {
             code: 'UNAUTHENTICATED',
             message: 'Authentication required',
           },
         });
+        return;
       }
 
       const userPermissions = await getUserPermissions(userId);
@@ -207,13 +233,14 @@ export const requireResourceAccess = (access: ResourceAccess) => {
       // Check basic permission
       if (!hasPermission(userPermissions.permissions, access.requiredPermission)) {
         logAccessDenied(req, userId, access.requiredPermission);
-        return res.status(403).json({
+        res.status(403).json({
           success: false,
           error: {
             code: 'INSUFFICIENT_PERMISSIONS',
             message: 'Insufficient permissions',
           },
         });
+        return;
       }
 
       // Check resource ownership (if applicable)
@@ -223,13 +250,14 @@ export const requireResourceAccess = (access: ResourceAccess) => {
 
         if (!hasResourceAccess) {
           logAccessDenied(req, userId, access.requiredPermission, `Resource: ${access.resourceId}`);
-          return res.status(403).json({
+          res.status(403).json({
             success: false,
             error: {
               code: 'RESOURCE_ACCESS_DENIED',
               message: 'Access denied to this resource',
             },
           });
+          return;
         }
       }
 
@@ -237,20 +265,21 @@ export const requireResourceAccess = (access: ResourceAccess) => {
       const restrictionCheck = await checkRestrictions(userId, userPermissions.restrictions, access);
       if (!restrictionCheck.allowed) {
         logAccessDenied(req, userId, access.requiredPermission, restrictionCheck.reason);
-        return res.status(403).json({
+        res.status(403).json({
           success: false,
           error: {
             code: 'ACCESS_RESTRICTED',
             message: restrictionCheck.reason || 'Access restricted',
           },
         });
+        return;
       }
 
       (req as any).userPermissions = userPermissions;
       next();
     } catch (error: any) {
       console.error('Resource access middleware error:', error);
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         error: {
           code: 'RESOURCE_ACCESS_ERROR',
@@ -258,6 +287,7 @@ export const requireResourceAccess = (access: ResourceAccess) => {
           details: error,
         },
       });
+      return;
     }
   };
 };
@@ -425,7 +455,7 @@ const checkResourceAccess = async (userId: string, access: ResourceAccess): Prom
  * Check user restrictions
  */
 const checkRestrictions = async (
-  userId: string,
+  _userId: string,
   restrictions: Restriction[],
   access: ResourceAccess
 ): Promise<{ allowed: boolean; reason?: string }> => {

@@ -1,8 +1,7 @@
 import React from 'react';
 import {
   validatePassword,
-  getPasswordStrengthColor,
-  estimateCrackTime
+  getStrengthColor,
 } from '@/utils/passwordValidator';
 
 interface PasswordStrengthIndicatorProps {
@@ -30,8 +29,8 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
   }
 
   const strength = validatePassword(password);
-  const color = getPasswordStrengthColor(strength.level);
-  const crackTime = estimateCrackTime(password);
+  const color = getStrengthColor(strength.strength);
+  const crackTime = strength.estimatedCrackTime;
 
   return (
     <div style={{ marginTop: '12px', marginBottom: '8px' }}>
@@ -73,7 +72,7 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
             textAlign: 'right',
           }}
         >
-          {strength.level.toUpperCase()}
+          {strength.strength.toUpperCase().replace('-', ' ')}
         </span>
       </div>
 
@@ -92,11 +91,11 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
       </div>
 
       {/* Feedback Messages */}
-      {strength.feedback.length > 0 && (
+      {(strength.errors.length > 0 || strength.warnings.length > 0) && (
         <div
           style={{
-            backgroundColor: strength.isValid ? '#f0fdf4' : '#fef2f2',
-            border: `1px solid ${strength.isValid ? '#86efac' : '#fecaca'}`,
+            backgroundColor: strength.valid ? '#f0fdf4' : '#fef2f2',
+            border: `1px solid ${strength.valid ? '#86efac' : '#fecaca'}`,
             borderRadius: '6px',
             padding: '8px 12px',
             marginTop: '8px',
@@ -110,12 +109,23 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
               lineHeight: '1.6',
             }}
           >
-            {strength.feedback.map((message, idx) => (
+            {strength.errors.map((message, idx) => (
               <li
-                key={idx}
+                key={`err-${idx}`}
                 style={{
-                  color: message.startsWith('✓') ? '#16a34a' : '#dc2626',
-                  marginBottom: idx < strength.feedback.length - 1 ? '4px' : '0',
+                  color: '#dc2626',
+                  marginBottom: '4px',
+                }}
+              >
+                {message}
+              </li>
+            ))}
+            {strength.warnings.map((message, idx) => (
+              <li
+                key={`warn-${idx}`}
+                style={{
+                  color: '#d97706',
+                  marginBottom: '4px',
                 }}
               >
                 {message}

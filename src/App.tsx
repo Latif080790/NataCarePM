@@ -9,6 +9,26 @@ import '@/styles/mobile-responsive.css';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 
+// Lazy loading retry utility
+const lazyWithRetry = (componentImport: () => Promise<any>) => 
+  lazy(async () => {
+    const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenForceRefreshed) {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        return window.location.reload();
+      }
+      throw error;
+    }
+  });
+
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 import { SuspenseWithErrorBoundary } from '@/components/SuspenseWithErrorBoundary';
 
@@ -27,82 +47,82 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 
 
 // Lazy-loaded Views (loaded on demand) - Only views actually used in Routes
-const DashboardView = lazy(() => import('@/views/DashboardWrapper'));
-const EnhancedAuditLogView = lazy(() => import('@/views/EnhancedAuditLogView'));
-const AuditTestingView = lazy(() => import('@/views/AuditTestingView'));
-const IPRestrictionTestView = lazy(() => import('@/views/IPRestrictionTestView'));
+const DashboardView = lazyWithRetry(() => import('@/views/DashboardWrapper'));
+const EnhancedAuditLogView = lazyWithRetry(() => import('@/views/EnhancedAuditLogView'));
+const AuditTestingView = lazyWithRetry(() => import('@/views/AuditTestingView'));
+const IPRestrictionTestView = lazyWithRetry(() => import('@/views/IPRestrictionTestView'));
 
 // Logistics & Supply Chain Views
-const VendorManagementView = lazy(() => import('@/views/VendorManagementView'));
-const MaterialRequestView = lazy(() => import('@/views/MaterialRequestView'));
-const GoodsReceiptView = lazy(() => import('@/views/GoodsReceiptView'));
-const InventoryManagementView = lazy(() => import('@/views/InventoryManagementView'));
+const VendorManagementView = lazyWithRetry(() => import('@/views/VendorManagementView'));
+const MaterialRequestView = lazyWithRetry(() => import('@/views/MaterialRequestView'));
+const GoodsReceiptView = lazyWithRetry(() => import('@/views/GoodsReceiptView'));
+const InventoryManagementView = lazyWithRetry(() => import('@/views/InventoryManagementView'));
 
 // Planning & Scheduling Views
-const WBSManagementView = lazy(() => import('@/views/WBSManagementView'));
-const GanttChartView = lazy(() => import('@/views/GanttChartView'));
-const TasksView = lazy(() => import('@/views/TasksViewPro'));
-const KanbanView = lazy(() => import('@/views/KanbanView'));
-const DependencyGraphView = lazy(() => import('@/views/DependencyGraphView'));
-const ResourceAllocationView = lazy(() => import('@/views/ResourceAllocationView'));
+const WBSManagementView = lazyWithRetry(() => import('@/views/WBSManagementView'));
+const GanttChartView = lazyWithRetry(() => import('@/views/GanttChartView'));
+const TasksView = lazyWithRetry(() => import('@/views/TasksViewPro'));
+const KanbanView = lazyWithRetry(() => import('@/views/KanbanView'));
+const DependencyGraphView = lazyWithRetry(() => import('@/views/DependencyGraphView'));
+const ResourceAllocationView = lazyWithRetry(() => import('@/views/ResourceAllocationView'));
 
 // Cost & Finance Views
-const EnhancedRabAhspView = lazy(() => import('@/views/EnhancedRabAhspView'));
-const RabApprovalWorkflowView = lazy(() => import('@/views/RabApprovalWorkflowView'));
-const CostControlDashboardView = lazy(() => import('@/views/CostControlDashboardView'));
-const ChartOfAccountsView = lazy(() => import('@/views/ChartOfAccountsView'));
-const JournalEntriesView = lazy(() => import('@/views/JournalEntriesView'));
-const AccountsPayableView = lazy(() => import('@/views/AccountsPayableView'));
-const AccountsReceivableView = lazy(() => import('@/views/AccountsReceivableView'));
+const EnhancedRabAhspView = lazyWithRetry(() => import('@/views/EnhancedRabAhspView'));
+const RabApprovalWorkflowView = lazyWithRetry(() => import('@/views/RabApprovalWorkflowView'));
+const CostControlDashboardView = lazyWithRetry(() => import('@/views/CostControlDashboardView'));
+const ChartOfAccountsView = lazyWithRetry(() => import('@/views/ChartOfAccountsView'));
+const JournalEntriesView = lazyWithRetry(() => import('@/views/JournalEntriesView'));
+const AccountsPayableView = lazyWithRetry(() => import('@/views/AccountsPayableView'));
+const AccountsReceivableView = lazyWithRetry(() => import('@/views/AccountsReceivableView'));
 
 // Analytics & AI Views
-const AdvancedAnalyticsView = lazy(() => import('@/views/AdvancedAnalyticsView'));
-const PredictiveAnalyticsView = lazy(() => import('@/views/PredictiveAnalyticsView'));
-const AIResourceOptimizationView = lazy(() => import('@/views/AIResourceOptimizationView'));
-const IntegratedAnalyticsView = lazy(() => 
+const AdvancedAnalyticsView = lazyWithRetry(() => import('@/views/AdvancedAnalyticsView'));
+const PredictiveAnalyticsView = lazyWithRetry(() => import('@/views/PredictiveAnalyticsView'));
+const AIResourceOptimizationView = lazyWithRetry(() => import('@/views/AIResourceOptimizationView'));
+const IntegratedAnalyticsView = lazyWithRetry(() => 
   import('@/views/IntegratedAnalyticsView').then(module => ({
     default: module.IntegratedAnalyticsView
   }))
 );
 
 // Monitoring & Reports Views
-const MonitoringView = lazy(() => import('@/views/MonitoringViewPro'));
-const ReportsViewPro = lazy(() => import('@/views/ReportsViewPro'));
-const DailyReportView = lazy(() => import('@/views/DailyReportView'));
-const CustomReportBuilderView = lazy(() => import('@/views/CustomReportBuilderView'));
-const ProgressView = lazy(() => import('@/views/ProgressView'));
+const MonitoringView = lazyWithRetry(() => import('@/views/MonitoringViewPro'));
+const ReportsViewPro = lazyWithRetry(() => import('@/views/ReportsViewPro'));
+const DailyReportView = lazyWithRetry(() => import('@/views/DailyReportView'));
+const CustomReportBuilderView = lazyWithRetry(() => import('@/views/CustomReportBuilderView'));
+const ProgressView = lazyWithRetry(() => import('@/views/ProgressView'));
 
 // Timeline & Resource Views
-const TimelineTrackingView = lazy(() => import('@/views/TimelineTrackingView'));
+const TimelineTrackingView = lazyWithRetry(() => import('@/views/TimelineTrackingView'));
 
 // Finance Views
-const FinanceViewPro = lazy(() => import('@/views/FinanceViewPro'));
-const CashflowView = lazy(() => import('@/views/CashflowView'));
-const StrategicCostView = lazy(() => import('@/views/StrategicCostView'));
+const FinanceViewPro = lazyWithRetry(() => import('@/views/FinanceViewPro'));
+const CashflowView = lazyWithRetry(() => import('@/views/CashflowView'));
+const StrategicCostView = lazyWithRetry(() => import('@/views/StrategicCostView'));
 
 // Logistics Views
-const LogisticsViewPro = lazy(() => import('@/views/LogisticsViewPro'));
-const IntegrationDashboardView = lazy(() => import('@/views/IntegrationDashboardView'));
+const LogisticsViewPro = lazyWithRetry(() => import('@/views/LogisticsViewPro'));
+const IntegrationDashboardView = lazyWithRetry(() => import('@/views/IntegrationDashboardView'));
 
 // Settings Views
-const MasterDataView = lazy(() => import('@/views/MasterDataView'));
-const AttendanceViewPro = lazy(() => import('@/views/AttendanceViewPro'));
+const MasterDataView = lazyWithRetry(() => import('@/views/MasterDataView'));
+const AttendanceViewPro = lazyWithRetry(() => import('@/views/AttendanceViewPro'));
 
 // Documents & Communication Views
-const IntelligentDocumentSystem = lazy(() => import('@/views/IntelligentDocumentSystem'));
-const ChatView = lazy(() => import('@/views/ChatView'));
-const NotificationCenterView = lazy(() => import('@/views/NotificationCenterView'));
+const IntelligentDocumentSystem = lazyWithRetry(() => import('@/views/IntelligentDocumentSystem'));
+const ChatView = lazyWithRetry(() => import('@/views/ChatView'));
+const NotificationCenterView = lazyWithRetry(() => import('@/views/NotificationCenterView'));
 
 // Settings & User Management Views
-const UserManagementView = lazy(() => import('@/views/UserManagementView'));
-const ProfileView = lazy(() => import('@/views/ProfileView'));
-const AdminSettingsView = lazy(() => 
+const UserManagementView = lazyWithRetry(() => import('@/views/UserManagementView'));
+const ProfileView = lazyWithRetry(() => import('@/views/ProfileView'));
+const AdminSettingsView = lazyWithRetry(() => 
   import('@/views/AdminSettingsView').then(module => ({
     default: module.AdminSettingsView
   }))
 );
-const AuditTrailView = lazy(() => import('@/views/AuditTrailView'));
-const Setup2FAView = lazy(() => import('@/views/Setup2FAView'));
+const AuditTrailView = lazyWithRetry(() => import('@/views/AuditTrailView'));
+const Setup2FAView = lazyWithRetry(() => import('@/views/Setup2FAView'));
 
 import { monitoringService } from '@/api/monitoringService';
 import { Spinner } from '@/components/Spinner';
@@ -119,13 +139,13 @@ import { logger } from '@/utils/logger.enhanced';
 logger.debug('monitoringService imported in App.tsx', { monitoringService });
 
 // Lazy-loaded heavy components
-const CommandPalette = lazy(() =>
+const CommandPalette = lazyWithRetry(() =>
   import('@/components/CommandPalette').then((module) => ({ default: module.CommandPalette }))
 );
-const AiAssistantChat = lazy(() => import('@/components/AiAssistantChat'));
-const PWAInstallPrompt = lazy(() => import('@/components/PWAInstallPrompt'));
-const UserFeedbackWidget = lazy(() => import('@/components/UserFeedbackWidget'));
-const SentryTestPanel = lazy(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
+const AiAssistantChat = lazyWithRetry(() => import('@/components/AiAssistantChat'));
+const PWAInstallPrompt = lazyWithRetry(() => import('@/components/PWAInstallPrompt'));
+const UserFeedbackWidget = lazyWithRetry(() => import('@/components/UserFeedbackWidget'));
+const SentryTestPanel = lazyWithRetry(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
 
 // Wrapper components that inject context data into views requiring props
 function WBSWrapper() {

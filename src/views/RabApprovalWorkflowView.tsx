@@ -12,14 +12,7 @@ import { rabAhspService } from '@/api/rabAhspService';
 import { rabApprovalService } from '@/api/rabApprovalService';
 import { EnhancedRabService } from '@/api/enhancedRabService';
 import { Spinner } from '@/components/Spinner';
-import {
-  CardPro,
-  CardProHeader,
-  CardProContent,
-  CardProTitle,
-  ButtonPro,
-  BadgePro,
-} from '@/components/DesignSystem';
+import { ButtonPro } from '@/components/DesignSystem';
 import { formatCurrency } from '@/constants';
 import {
   CheckCircle,
@@ -381,9 +374,9 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = React.me
                   <span className="text-persimmon font-medium">
                     {formatCurrency(item.volume * item.hargaSatuan)}
                   </span>
-                  <Button variant="outline" size="sm">
+                  <ButtonPro variant="outline" size="sm">
                     View Approval
-                  </Button>
+                  </ButtonPro>
                 </div>
               </div>
             ))}
@@ -581,7 +574,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = React.me
                           {step.status === 'pending' &&
                             approvalWorkflow?.currentApproverLevel === step.stepNumber && (
                               <div className="mt-2">
-                                <Button
+                                <ButtonPro
                                   onClick={() => {
                                     setSelectedStep(step);
                                     setShowApprovalModal(true);
@@ -589,7 +582,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = React.me
                                   className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                                 >
                                   Take Action
-                                </Button>
+                                </ButtonPro>
                               </div>
                             )}
                         </div>
@@ -747,14 +740,14 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = React.me
               </div>
 
               <div className="flex space-x-3">
-                <Button
+                <ButtonPro
                   onClick={handleApprovalSubmit}
                   disabled={processing || !comments.trim()}
                   className="flex-1 justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {processing ? 'Processing...' : 'Submit'}
-                </Button>
-                <Button
+                </ButtonPro>
+                <ButtonPro
                   onClick={() => {
                     setShowApprovalModal(false);
                     setComments('');
@@ -763,7 +756,7 @@ const RabApprovalWorkflowView: React.FC<RabApprovalWorkflowViewProps> = React.me
                   className="flex-1 justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                   Cancel
-                </Button>
+                </ButtonPro>
               </div>
             </div>
           </div>

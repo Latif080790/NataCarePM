@@ -243,7 +243,7 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
   }
 
   const { projectContext, userMessage, conversationHistory } = data;
-  const userId = context.auth.uid;
+  // const userId = context.auth.uid;
 
   // Get Gemini API key from environment variables
   const geminiApiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.key;

@@ -4,7 +4,7 @@
  */
 
 import rateLimit from 'express-rate-limit';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 // ========================================
 // TYPES
@@ -139,7 +139,7 @@ export const createRateLimiter = (options: RateLimitOptions) => {
  * Middleware to check if request is within rate limits
  * Can be used for custom rate limiting logic
  */
-export const checkRateLimit = (req: Request, res: Response, next: Function) => {
+export const checkRateLimit = (_req: Request, _res: Response, next: NextFunction) => {
   // This is a placeholder for custom rate limiting logic
   // In a real implementation, you might check Redis or a database
   // for more sophisticated rate limiting (e.g., per-user limits)

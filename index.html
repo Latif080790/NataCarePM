@@ -101,41 +101,6 @@
   <body class="bg-alabaster font-sans">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     
-    <!-- JSX Runtime Polyfill - CRITICAL FIX for production -->
-    <script>
-      // Create global jsx-runtime polyfill BEFORE any React code loads
-      // This prevents "Cannot read properties of undefined (reading 'jsx')" error
-      window.__jsx_runtime_loaded = false;
-      
-      // Polyfill for automatic JSX transform
-      if (!window.ReactJSXRuntime) {
-        window.ReactJSXRuntime = {
-          jsx: function(type, props, key) {
-            // Fallback to React.createElement if available
-            if (window.React && window.React.createElement) {
-              return window.React.createElement(type, props, props?.children);
-            }
-            console.error('[JSX Polyfill] React not loaded yet');
-            return null;
-          },
-          jsxs: function(type, props, key) {
-            if (window.React && window.React.createElement) {
-              return window.React.createElement(type, props, props?.children);
-            }
-            console.error('[JSX Polyfill] React not loaded yet');
-            return null;
-          },
-          Fragment: function(props) {
-            if (window.React && window.React.Fragment) {
-              return window.React.createElement(window.React.Fragment, null, props?.children);
-            }
-            return null;
-          }
-        };
-        console.log('[JSX Polyfill] Loaded successfully');
-      }
-    </script>
-    
     <div id="root">
       <!-- Loading Fallback for Mobile -->
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f8fafc; font-family: system-ui, -apple-system, sans-serif;">

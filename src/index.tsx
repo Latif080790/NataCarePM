@@ -11,9 +11,6 @@ import { initCSPMonitoring } from '@/utils/cspMonitoring';
 import { initGA4 } from '@/utils/analytics';
 import { onCLS, onFID, onLCP, onTTFB, onINP } from 'web-vitals';
 
-// Make React available globally for React 17 classic JSX transform
-(window as any).React = React;
-
 // Initialize Security Features
 initCSPMonitoring();
 
@@ -75,6 +72,8 @@ window.addEventListener('error', (event) => {
   }
   
   // If too many errors, show recovery UI
+  /* DISABLED: This causes "Failed to execute 'removeChild' on 'Node'" errors because it wipes the DOM while React is running.
+     React's ErrorBoundary should handle the UI.
   if (errorCount > MAX_ERRORS) {
     const container = document.getElementById('root');
     if (container) {
@@ -97,6 +96,7 @@ window.addEventListener('error', (event) => {
       `;
     }
   }
+  */
 });
 
 // Promise rejection handler

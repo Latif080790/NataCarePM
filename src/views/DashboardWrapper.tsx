@@ -1,6 +1,5 @@
 import React from 'react';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
 import DashboardPro from './DashboardPro';
 import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { ProjectMetrics } from '@/types';
@@ -11,7 +10,6 @@ import { ProjectMetrics } from '@/types';
  */
 const DashboardWrapper: React.FC = () => {
   const { currentProject, loading, error, notifications } = useProject();
-  const { currentUser } = useAuth();
 
   // Show loading skeleton while data is being fetched
   if (loading || !currentProject) {

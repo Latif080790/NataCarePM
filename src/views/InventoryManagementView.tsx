@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, CSSProperties } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 // TODO: Fix react-window CommonJS/ESM compatibility in Task #8 - Temporarily disabled
 // import { List, FixedSizeList } from 'react-window';
 import { logger } from '@/utils/logger.enhanced';
@@ -22,7 +22,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
-import { useIsMobile } from '@/utils/mobileOptimization';
 import {
   getMaterials,
   getInventorySummary,
@@ -48,7 +47,6 @@ const InventoryManagementView: React.FC = () => {
   const { currentUser } = useAuth();
   const { currentProject } = useProject();
   const { addToast } = useToast();
-  const isMobile = useIsMobile();
 
   // State
   const [materials, setMaterials] = useState<InventoryMaterial[]>([]);

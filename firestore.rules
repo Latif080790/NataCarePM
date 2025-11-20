@@ -69,10 +69,11 @@ service cloud.firestore {
     }
     
     // ============================================
-    // DEFAULT DENY
+    // CATCH-ALL FOR DEVELOPMENT
+    // Allow authenticated users to access any collection not explicitly denied
     // ============================================
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if request.auth != null;
     }
   }
 }

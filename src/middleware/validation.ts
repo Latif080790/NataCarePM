@@ -272,7 +272,8 @@ export const validateRequest = (schema: yup.ObjectSchema<any>) => {
           },
         };
 
-        return res.status(400).json(response);
+        res.status(400).json(response);
+        return;
       }
 
       next(error);
@@ -325,7 +326,8 @@ export const validateFileUpload = (req: Request, res: Response, next: NextFuncti
         message: 'No file uploaded',
       },
     };
-    return res.status(400).json(response);
+    res.status(400).json(response);
+    return;
   }
 
   // Validate file type
@@ -345,7 +347,8 @@ export const validateFileUpload = (req: Request, res: Response, next: NextFuncti
         message: 'File type not allowed',
       },
     };
-    return res.status(400).json(response);
+    res.status(400).json(response);
+    return;
   }
 
   // Validate file size (10MB limit)
@@ -358,7 +361,8 @@ export const validateFileUpload = (req: Request, res: Response, next: NextFuncti
         message: 'File size exceeds 10MB limit',
       },
     };
-    return res.status(400).json(response);
+    res.status(400).json(response);
+    return;
   }
 
   // Sanitize filename
