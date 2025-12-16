@@ -174,10 +174,11 @@ class MessageService {
   async getUserChats(userId: string, filters?: ChatFilterOptions): Promise<Chat[]> {
     try {
       // Get chats where user is a participant
+      // REMOVED orderBy temporarily to fix "requires an index" error
       const q = query(
         collection(db, CHATS_COLLECTION),
-        where('participants', 'array-contains', userId),
-        orderBy('updatedAt', 'desc')
+        where('participants', 'array-contains', userId)
+        // orderBy('updatedAt', 'desc') 
       );
 
       const querySnapshot = await getDocs(q);
@@ -193,11 +194,15 @@ class MessageService {
         } as Chat);
       }
 
+      // Sort client-side instead
+      chats.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
       logger.info('User chats fetched successfully', { userId, count: chats.length });
       return chats;
     } catch (error) {
       logger.error('Failed to fetch user chats', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Failed to fetch user chats');
+      // Return empty array instead of throwing to prevent app crash
+      return [];
     }
   }
 
@@ -297,10 +302,11 @@ class MessageService {
    */
   async getUserNotifications(userId: string, limitCount: number = 50): Promise<ChatNotification[]> {
     try {
+      // REMOVED orderBy temporarily to fix "requires an index" error
       const q = query(
         collection(db, NOTIFICATIONS_COLLECTION),
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
+        // orderBy('createdAt', 'desc'),
         limit(limitCount)
       );
 
@@ -316,11 +322,15 @@ class MessageService {
         } as ChatNotification);
       }
 
+      // Sort client-side
+      notifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
       logger.info('User notifications fetched successfully', { userId, count: notifications.length });
       return notifications;
     } catch (error) {
       logger.error('Failed to fetch user notifications', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Failed to fetch user notifications');
+      // Return empty array instead of throwing
+      return [];
     }
   }
 

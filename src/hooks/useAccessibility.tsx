@@ -241,8 +241,13 @@ export const useAccessibility = () => {
   // Cleanup announcement element on unmount
   useEffect(() => {
     return () => {
-      if (announcementRef.current && announcementRef.current.parentNode) {
-        announcementRef.current.parentNode.removeChild(announcementRef.current);
+      try {
+        if (announcementRef.current) {
+          announcementRef.current.remove();
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+        console.debug('Failed to cleanup accessibility announcer', e);
       }
     };
   }, []);

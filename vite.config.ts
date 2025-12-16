@@ -1,8 +1,12 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 // import { VitePWA } from 'vite-plugin-pwa'; // Temporarily disabled
 import { visualizer } from 'rollup-plugin-visualizer';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Security Headers Plugin
@@ -107,11 +111,14 @@ export default defineConfig(({ mode }) => {
       exclude: ['xlsx', 'jspdf', 'jspdf-autotable'],
     },
     resolve: {
-      dedupe: ['react', 'react-dom'],
+      dedupe: ['react', 'react-dom', 'react-router-dom'],
       alias: {
         '@': path.resolve(__dirname, './src'),
         'react': path.resolve(__dirname, 'node_modules/react'),
         'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        'react-router-dom': path.resolve(__dirname, 'node_modules/react-router-dom'),
+        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
+        'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
       },
     },
     plugins: [
@@ -140,8 +147,66 @@ export default defineConfig(({ mode }) => {
           'jsonwebtoken',
         ],
         output: {
-          // DISABLED manual chunking - bundle everything together to fix JSX runtime issues
-          // manualChunks: undefined,
+          // P2.1: Optimized manual chunking for better code splitting
+          manualChunks: (id) => {
+            // Core React ecosystem - always needed
+            if (id.includes('node_modules/react') || 
+                id.includes('node_modules/react-dom') ||
+                id.includes('node_modules/react-router-dom') ||
+                id.includes('node_modules/scheduler')) {
+              return 'react-vendor';
+            }
+            
+            // Firebase SDK - large but essential
+            if (id.includes('node_modules/firebase') || 
+                id.includes('node_modules/@firebase')) {
+              return 'firebase';
+            }
+            
+            // Heavy export libraries (dynamically imported)
+            if (id.includes('node_modules/exceljs')) {
+              return 'exceljs';
+            }
+            if (id.includes('node_modules/jspdf')) {
+              return 'jspdf';
+            }
+            
+            // Form libraries
+            if (id.includes('node_modules/react-hook-form') || 
+                id.includes('node_modules/zod') ||
+                id.includes('node_modules/@hookform')) {
+              return 'forms';
+            }
+            
+            // UI libraries
+            if (id.includes('node_modules/lucide-react') ||
+                id.includes('node_modules/framer-motion') ||
+                id.includes('node_modules/@headlessui')) {
+              return 'ui-libs';
+            }
+            
+            // Date utilities
+            if (id.includes('node_modules/date-fns')) {
+              return 'date-utils';
+            }
+            
+            // Monitoring & Analytics
+            if (id.includes('node_modules/@sentry') ||
+                id.includes('node_modules/react-ga4') ||
+                id.includes('node_modules/web-vitals')) {
+              return 'monitoring';
+            }
+            
+            // Global contexts (shared state)
+            if (id.includes('src/contexts')) {
+              return 'contexts';
+            }
+            
+            // Other node_modules
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+          },
         },
       },
       chunkSizeWarningLimit: 1000,

@@ -1,4 +1,4 @@
-import { db } from '@/firebaseConfig';
+import { db, auth } from '@/firebaseConfig';
 import {
   collection,
   doc,
@@ -23,6 +23,8 @@ import { withRetry } from '@/utils/retryWrapper';
 import { validators } from '@/utils/validators';
 import { logger } from '@/utils/logger.enhanced';
 import { EnhancedRabService } from './enhancedRabService';
+import { generateFieldChanges } from './auditService.enhanced';
+import { createAuditLog } from './auditService';
 
 /**
  * Validate RAB Item ID
@@ -125,6 +127,31 @@ export class RabAhspService {
         { maxAttempts: 3 }
       );
 
+      // ✅ AUDIT TRAIL: Log RAB creation
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          await createAuditLog(
+            {
+              action: 'create',
+              actionType: 'create',
+              module: 'rab',
+              entityType: 'rabItem',
+              entityId: newRabItemId.toString(),
+              entityName: rabItemData.uraian,
+              changes: generateFieldChanges({}, newRabItem),
+              projectId,
+              status: 'success',
+            },
+            currentUser.uid,
+            currentUser.displayName || 'Unknown',
+            'user' // TODO: Get actual role
+          );
+        }
+      } catch (auditError) {
+        logger.error('Failed to create audit log for RAB creation', auditError);
+      }
+
       logger.info('RAB item created successfully', {
         rabItemId: newRabItemId,
         projectId,
@@ -213,10 +240,49 @@ export class RabAhspService {
 
       const docRef = doc(db, `projects/${projectId}/${this.RAB_COLLECTION}`, rabItemId.toString());
       
+      // ✅ AUDIT TRAIL: Get old data before update
+      const oldDoc = await withRetry(() => getDoc(docRef), { maxAttempts: 3 });
+      if (!oldDoc.exists()) {
+        throw new APIError(ErrorCodes.NOT_FOUND, 'RAB item not found', 404, { rabItemId });
+      }
+      const oldData = oldDoc.data() as RabItem;
+
       await withRetry(() => updateDoc(docRef, updates), { maxAttempts: 3 });
 
       // Fetch updated RAB item
       const updatedRabItem = await this.getRabItemById(projectId, rabItemId);
+
+      // ✅ AUDIT TRAIL: Log RAB update with changes
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const changes = generateFieldChanges(oldData, updatedRabItem.data!);
+          
+          await createAuditLog(
+            {
+              action: 'update',
+              actionType: 'update',
+              module: 'rab',
+              entityType: 'rabItem',
+              entityId: rabItemId.toString(),
+              entityName: oldData.uraian,
+              changes,
+              projectId,
+              status: 'success',
+              metadata: {
+                significantChanges: changes.filter(c => 
+                  ['hargaSatuan', 'volume', 'kategori'].includes(c.field)
+                ),
+              },
+            },
+            currentUser.uid,
+            currentUser.displayName || 'Unknown',
+            'user' // TODO: Get actual role
+          );
+        }
+      } catch (auditError) {
+        logger.error('Failed to create audit log for RAB update', auditError);
+      }
 
       logger.info('RAB item updated successfully', { projectId, rabItemId });
       return updatedRabItem.data!;
@@ -242,7 +308,38 @@ export class RabAhspService {
         throw new APIError(ErrorCodes.NOT_FOUND, 'RAB item not found', 404, { rabItemId });
       }
 
+      const deletedData = docSnap.data() as RabItem;
+
       await withRetry(() => deleteDoc(docRef), { maxAttempts: 3 });
+
+      // ✅ AUDIT TRAIL: Log RAB deletion
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          await createAuditLog(
+            {
+              action: 'delete',
+              actionType: 'delete',
+              module: 'rab',
+              entityType: 'rabItem',
+              entityId: rabItemId.toString(),
+              entityName: deletedData.uraian,
+              changes: generateFieldChanges(deletedData, {}),
+              projectId,
+              status: 'success',
+              metadata: {
+                deletedValue: deletedData.hargaSatuan * deletedData.volume,
+                warning: 'CRITICAL: RAB item permanently deleted',
+              },
+            },
+            currentUser.uid,
+            currentUser.displayName || 'Unknown',
+            'user' // TODO: Get actual role
+          );
+        }
+      } catch (auditError) {
+        logger.error('Failed to create audit log for RAB deletion', auditError);
+      }
 
       logger.info('RAB item deleted successfully', { projectId, rabItemId });
     }, 'rabAhspService.deleteRabItem');

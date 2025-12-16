@@ -61,8 +61,9 @@ export default function LiveCursors({
       updatePresence(window.location.pathname, false, undefined);
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', handleMouseLeave);
+    // Add passive listeners to improve performance and prevent errors
+    container.addEventListener('mousemove', handleMouseMove, { passive: true });
+    container.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);

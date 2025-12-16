@@ -1,9 +1,10 @@
 /**
  * Service Worker for NataCarePM
- * Implements offline-first PWA capabilities with intelligent caching strategies
-  */
+ * P2.3: Enhanced offline-first PWA capabilities with intelligent caching
+ * Performance optimized for construction field operations
+ */
 
-const CACHE_VERSION = 'v1.1.1'; // Bumped for mobile fixes
+const CACHE_VERSION = 'v1.2.0'; // P2.3: Bumped for enhanced caching
 const CACHE_NAME = `natacare-${CACHE_VERSION}`;
 
 // Cache strategies
@@ -13,18 +14,21 @@ const STALE_WHILE_REVALIDATE = 'stale-while-revalidate'; // For semi-static cont
 
 // Cache duration (in seconds)
 const CACHE_DURATION = {
-  static: 7 * 24 * 60 * 60, // 7 days
-  dynamic: 1 * 24 * 60 * 60, // 1 day
-  api: 5 * 60, // 5 minutes
+  static: 30 * 24 * 60 * 60, // 30 days for static assets (P2.3: Extended from 7 days)
+  dynamic: 1 * 24 * 60 * 60, // 1 day for dynamic content
+  api: 5 * 60, // 5 minutes for API responses
 };
 
-// Assets to precache on install
+// P2.3: Extended precache assets for better offline experience
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/offline.html',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
 ];
 
 // Routes for different caching strategies

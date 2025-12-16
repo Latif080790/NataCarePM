@@ -390,6 +390,8 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
    * Initial load - ONLY after auth is ready
    */
   useEffect(() => {
+    let isMounted = true;
+
     // Wait for auth to be ready before fetching data
     if (!currentUser?.id) {
       return;
@@ -397,18 +399,29 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
 
     // Add small delay to ensure Firebase Auth is fully initialized
     const timer = setTimeout(() => {
-      fetchUserChats().catch(err => {
-        console.warn('[MessageContext] Failed to fetch chats on init:', err);
-      });
-      fetchNotifications().catch(err => {
-        console.warn('[MessageContext] Failed to fetch notifications on init:', err);
-      });
-      fetchSettings().catch(err => {
-        console.warn('[MessageContext] Failed to fetch settings on init:', err);
-      });
-    }, 500);
+      // Wrap in try-catch to prevent unhandled promise rejections crashing the app
+      const safeFetch = async () => {
+        if (!isMounted) return;
+        
+        try {
+          await Promise.allSettled([
+            fetchUserChats(),
+            fetchNotifications(),
+            fetchSettings()
+          ]);
+        } catch (err) {
+          console.warn('[MessageContext] Error during initial data fetch:', err);
+          // Do not set global error state here to prevent UI crash
+        }
+      };
+      
+      safeFetch();
+    }, 1000); // Increased delay to 1s to ensure other contexts are ready
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [currentUser?.id]); // Remove function dependencies to prevent infinite loop
 
   /**

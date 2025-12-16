@@ -420,20 +420,31 @@ export function announceToScreenReader(
   message: string,
   politeness: 'polite' | 'assertive' = 'polite'
 ) {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('role', 'status');
-  announcement.setAttribute('aria-live', politeness);
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
+  try {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', politeness);
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
 
-  document.body.appendChild(announcement);
+    if (document.body) {
+      document.body.appendChild(announcement);
 
-  setTimeout(() => {
-    if (announcement.parentNode) {
-      document.body.removeChild(announcement);
+      setTimeout(() => {
+        try {
+          if (announcement) {
+            announcement.remove();
+          }
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }, 1000);
     }
-  }, 1000);
+  } catch (e) {
+    // Ignore announcement errors
+    console.debug('Failed to announce to screen reader', e);
+  }
 }
 
 /**

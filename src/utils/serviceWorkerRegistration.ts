@@ -167,7 +167,11 @@ const notifyUserOfUpdate = (registration: ServiceWorkerRegistration): void => {
       if (registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       }
-      document.body.removeChild(updateMessage);
+      try {
+        updateMessage.remove();
+      } catch (e) {
+        // Ignore removal errors
+      }
     });
   }
 
@@ -175,14 +179,22 @@ const notifyUserOfUpdate = (registration: ServiceWorkerRegistration): void => {
   const dismissBtn = document.getElementById('sw-dismiss-btn');
   if (dismissBtn) {
     dismissBtn.addEventListener('click', () => {
-      document.body.removeChild(updateMessage);
+      try {
+        updateMessage.remove();
+      } catch (e) {
+        // Ignore removal errors
+      }
     });
   }
 
   // Auto-dismiss after 30 seconds
   setTimeout(() => {
-    if (document.body.contains(updateMessage)) {
-      document.body.removeChild(updateMessage);
+    try {
+      if (document.body.contains(updateMessage)) {
+        updateMessage.remove();
+      }
+    } catch (e) {
+      // Ignore removal errors
     }
   }, 30000);
 };

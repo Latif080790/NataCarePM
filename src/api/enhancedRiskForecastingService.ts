@@ -10,7 +10,19 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { logger } from '@/utils/logger.enhanced';
-import * as tf from '@tensorflow/tfjs';
+// P2.1: Dynamic import for TensorFlow (large library ~2MB, only load when AI features used)
+import type * as TensorFlowType from '@tensorflow/tfjs';
+type TF = typeof TensorFlowType;
+
+// Lazy load TensorFlow.js
+let tfInstance: TF | null = null;
+async function getTensorFlow(): Promise<TF> {
+  if (!tfInstance) {
+    tfInstance = await import('@tensorflow/tfjs');
+  }
+  return tfInstance;
+}
+
 import type {
   RiskForecast,
   PredictedRisk,
@@ -286,12 +298,13 @@ class RiskFeatureEngineer {
 // ============================================================================
 
 class RiskTransformerModel {
-  private model: tf.LayersModel | null = null;
+  private model: TensorFlowType.LayersModel | null = null;
 
   /**
    * Build Transformer Model for Risk Prediction
    */
-  async buildTransformer(config: any): Promise<tf.LayersModel> {
+  async buildTransformer(config: any): Promise<TensorFlowType.LayersModel> {
+    const tf = await getTensorFlow();
     // Input layer
     const input = tf.input({ shape: [config.sequenceLength, config.inputDim] });
 
@@ -303,38 +316,38 @@ class RiskTransformerModel {
         units: config.hiddenDim,
         returnSequences: true,
         dropout: config.dropout,
-      }).apply(attentionOut) as tf.SymbolicTensor;
+      }).apply(attentionOut) as TensorFlowType.SymbolicTensor;
 
       // Add & Norm
-      const addNorm1 = tf.layers.add().apply([attentionOut, lstmOut]) as tf.SymbolicTensor;
-      const norm1 = tf.layers.layerNormalization().apply(addNorm1) as tf.SymbolicTensor;
+      const addNorm1 = tf.layers.add().apply([attentionOut, lstmOut]) as TensorFlowType.SymbolicTensor;
+      const norm1 = tf.layers.layerNormalization().apply(addNorm1) as TensorFlowType.SymbolicTensor;
 
       // Feed forward
       const ffInput = tf.layers.dense({
         units: config.hiddenDim * 4,
         activation: 'relu',
-      }).apply(norm1) as tf.SymbolicTensor;
+      }).apply(norm1) as TensorFlowType.SymbolicTensor;
 
       const ffOutput = tf.layers.dense({
         units: config.hiddenDim,
-      }).apply(ffInput) as tf.SymbolicTensor;
+      }).apply(ffInput) as TensorFlowType.SymbolicTensor;
 
       // Add & Norm
-      const addNorm2 = tf.layers.add().apply([norm1, ffOutput]) as tf.SymbolicTensor;
-      attentionOut = tf.layers.layerNormalization().apply(addNorm2) as tf.SymbolicTensor;
+      const addNorm2 = tf.layers.add().apply([norm1, ffOutput]) as TensorFlowType.SymbolicTensor;
+      attentionOut = tf.layers.layerNormalization().apply(addNorm2) as TensorFlowType.SymbolicTensor;
     }
 
     // Global average pooling
-    const pooled = tf.layers.globalAveragePooling1d().apply(attentionOut) as tf.SymbolicTensor;
+    const pooled = tf.layers.globalAveragePooling1d().apply(attentionOut) as TensorFlowType.SymbolicTensor;
 
     // Dropout
-    const dropout = tf.layers.dropout({ rate: config.dropout }).apply(pooled) as tf.SymbolicTensor;
+    const dropout = tf.layers.dropout({ rate: config.dropout }).apply(pooled) as TensorFlowType.SymbolicTensor;
 
     // Output layer
     const output = tf.layers.dense({
       units: config.outputDim,
       activation: 'softmax',
-    }).apply(dropout) as tf.SymbolicTensor;
+    }).apply(dropout) as TensorFlowType.SymbolicTensor;
 
     const model = tf.model({ inputs: input, outputs: output });
 
@@ -354,7 +367,8 @@ class RiskTransformerModel {
     features: number[][],
     _labels: number[], // Reserved for future use
     config: any
-  ): Promise<tf.LayersModel> {
+  ): Promise<TensorFlowType.LayersModel> {
+    const tf = await getTensorFlow();
     const model = await this.buildTransformer(config);
 
     // Prepare sequences
@@ -417,8 +431,9 @@ class RiskTransformerModel {
       throw new Error('Model not trained');
     }
 
+    const tf = await getTensorFlow();
     const xs = tf.tensor3d([input]);
-    const prediction = this.model.predict(xs) as tf.Tensor;
+    const prediction = this.model.predict(xs) as TensorFlowType.Tensor;
     const result = await prediction.array() as number[][];
 
     xs.dispose();
@@ -433,7 +448,7 @@ class RiskTransformerModel {
 // ============================================================================
 
 class EnsembleRiskForecaster {
-  private models: Map<string, tf.LayersModel> = new Map();
+  private models: Map<string, TensorFlowType.LayersModel> = new Map();
   private modelWeights: Map<string, number> = new Map();
   private transformerModel: RiskTransformerModel;
 
@@ -444,7 +459,8 @@ class EnsembleRiskForecaster {
   /**
    * Build LSTM Model with Attention for Risk Forecasting
    */
-  async buildLSTMWithAttention(config: any): Promise<tf.LayersModel> {
+  async buildLSTMWithAttention(config: any): Promise<TensorFlowType.LayersModel> {
+    const tf = await getTensorFlow();
     // Input layer
     const input = tf.input({ shape: [config.sequenceLength, config.inputDim] });
 
@@ -453,7 +469,7 @@ class EnsembleRiskForecaster {
       units: config.lstmUnits[0],
       returnSequences: true,
       dropout: config.dropout,
-    }).apply(input) as tf.SymbolicTensor;
+    }).apply(input) as TensorFlowType.SymbolicTensor;
 
     for (let i = 1; i < config.lstmUnits.length; i++) {
       const returnSeq = i < config.lstmUnits.length - 1;
@@ -461,23 +477,23 @@ class EnsembleRiskForecaster {
         units: config.lstmUnits[i],
         returnSequences: returnSeq,
         dropout: config.dropout,
-      }).apply(lstmOut) as tf.SymbolicTensor;
+      }).apply(lstmOut) as TensorFlowType.SymbolicTensor;
     }
 
     // Attention mechanism
     const attention = tf.layers.dense({
       units: config.lstmUnits[config.lstmUnits.length - 1],
       activation: 'tanh',
-    }).apply(lstmOut) as tf.SymbolicTensor;
+    }).apply(lstmOut) as TensorFlowType.SymbolicTensor;
 
     const attentionWeights = tf.layers.dense({
       units: 1,
       activation: 'softmax',
-    }).apply(attention) as tf.SymbolicTensor;
+    }).apply(attention) as TensorFlowType.SymbolicTensor;
 
     const context = tf.layers.dot({
       axes: 1,
-    }).apply([attentionWeights, lstmOut]) as tf.SymbolicTensor;
+    }).apply([attentionWeights, lstmOut]) as TensorFlowType.SymbolicTensor;
 
     // Dense layers
     let denseOut = context;
@@ -485,18 +501,18 @@ class EnsembleRiskForecaster {
       denseOut = tf.layers.dense({
         units,
         activation: 'relu',
-      }).apply(denseOut) as tf.SymbolicTensor;
+      }).apply(denseOut) as TensorFlowType.SymbolicTensor;
       
       denseOut = tf.layers.dropout({
         rate: config.dropout,
-      }).apply(denseOut) as tf.SymbolicTensor;
+      }).apply(denseOut) as TensorFlowType.SymbolicTensor;
     }
 
     // Output layer for risk categories
     const output = tf.layers.dense({
       units: config.outputDim,
       activation: 'softmax',
-    }).apply(denseOut) as tf.SymbolicTensor;
+    }).apply(denseOut) as TensorFlowType.SymbolicTensor;
 
     const model = tf.model({ inputs: input, outputs: output });
 
@@ -517,9 +533,10 @@ class EnsembleRiskForecaster {
     modelTypes: string[],
     config: any
   ): Promise<void> {
+    const tf = await getTensorFlow();
     // Train individual models
     for (const modelType of modelTypes) {
-      let model: tf.LayersModel;
+      let model: TensorFlowType.LayersModel;
       
       switch (modelType) {
         case 'lstm_attention':
@@ -562,13 +579,14 @@ class EnsembleRiskForecaster {
       throw new Error('No trained models in ensemble');
     }
 
+    const tf = await getTensorFlow();
     const predictions: number[][] = [];
     const weights: number[] = [];
 
     // Get predictions from all models
     for (const [modelType, model] of this.models.entries()) {
       const xs = tf.tensor2d(input.length > 0 ? input[input.length - 1] : []);
-      const prediction = model.predict(xs) as tf.Tensor;
+      const prediction = model.predict(xs) as TensorFlowType.Tensor;
       const predValue = await prediction.array() as number[];
       
       predictions.push(predValue);

@@ -3,7 +3,7 @@
  * Tracks Core Web Vitals and custom performance metrics
  */
 
-import { onCLS, onFCP, onFID, onINP, onLCP, onTTFB, Metric } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from 'web-vitals';
 
 // Performance metrics storage
 interface PerformanceMetrics {

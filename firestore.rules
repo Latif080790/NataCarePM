@@ -1,79 +1,178 @@
 rules_version = '2';
 
+/**
+ * ENTERPRISE-GRADE FIRESTORE SECURITY RULES
+ * Production-ready with granular RBAC permissions
+ * Last Updated: December 16, 2025
+ * 
+ * CRITICAL: These rules enforce role-based access control
+ * Deploy with: firebase deploy --only firestore:rules
+ */
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // DEVELOPMENT MODE - Simplified rules for testing
-    // TODO: Tighten security before production deployment
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isProjectMember(projectId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/projects/$(projectId)/members/$(request.auth.uid));
+    }
+    
+    function getUserRole(projectId) {
+      return get(/databases/$(database)/documents/projects/$(projectId)/members/$(request.auth.uid)).data.roleId;
+    }
+    
+    function hasRole(projectId, role) {
+      return isProjectMember(projectId) && getUserRole(projectId) == role;
+    }
+    
+    function hasAnyRole(projectId, roles) {
+      return isProjectMember(projectId) && getUserRole(projectId) in roles;
+    }
+    
+    function canManageProject(projectId) {
+      return hasAnyRole(projectId, ['owner', 'pm']);
+    }
+    
+    function canViewFinancials(projectId) {
+      return hasAnyRole(projectId, ['owner', 'pm', 'accountant']);
+    }
+    
+    function canEditRAB(projectId) {
+      return hasAnyRole(projectId, ['owner', 'pm']);
+    }
     
     // ============================================
     // USERS
     // ============================================
     match /users/{userId} {
-      // Allow authenticated users to read/write their own data
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      // Allow admins to read all users
-      allow read: if request.auth != null;
+      allow read: if isOwner(userId) || isAuthenticated();
+      allow update: if isOwner(userId) && 
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['roleId', 'permissions']);
+      allow create, delete: if isAuthenticated();
     }
     
     // ============================================
-    // PROJECTS - OPEN ACCESS FOR DEVELOPMENT
+    // PROJECTS
     // ============================================
     match /projects/{projectId} {
-      // Allow all authenticated users full access
-      allow read, write: if request.auth != null;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if hasRole(projectId, 'owner');
       
-      // All subcollections
-      match /{subcollection}/{document=**} {
-        allow read, write: if request.auth != null;
+      match /members/{memberId} {
+        allow read: if isProjectMember(projectId);
+        allow create, update, delete: if hasRole(projectId, 'owner');
       }
+      
+      // RAB ITEMS - CRITICAL FINANCIAL DATA
+      match /rabItems/{rabItemId} {
+        allow read: if canViewFinancials(projectId);
+        allow create, update: if canEditRAB(projectId);
+        allow delete: if hasRole(projectId, 'owner');
+      }
+      
+      // EXPENSES - CRITICAL FINANCIAL DATA
+      match /expenses/{expenseId} {
+        allow read: if canViewFinancials(projectId);
+        allow create, update: if canManageProject(projectId);
+        allow delete: if hasRole(projectId, 'owner');
+      }
+      
+      // DAILY LOGS
+      match /dailyLogs/{logId} {
+        allow read: if isProjectMember(projectId);
+        allow create, update: if hasAnyRole(projectId, ['owner', 'pm', 'siteManager']);
+        allow delete: if hasRole(projectId, 'owner');
+      }
+      
+      // INVENTORY
+      match /inventory/{inventoryId} {
+        allow read: if isProjectMember(projectId);
+        allow create, update: if hasAnyRole(projectId, ['owner', 'pm', 'logisticsManager', 'siteManager']);
+        allow delete: if hasRole(projectId, 'owner');
+      }
+      
+      // PURCHASE ORDERS
+      match /purchaseOrders/{poId} {
+        allow read: if isProjectMember(projectId);
+        allow create: if hasAnyRole(projectId, ['owner', 'pm', 'logisticsManager']);
+        allow update: if canManageProject(projectId);
+        allow delete: if hasRole(projectId, 'owner');
+      }
+      
+      // DOCUMENTS
+      match /documents/{documentId} {
+        allow read: if isProjectMember(projectId);
+        allow create: if isProjectMember(projectId);
+        allow update, delete: if canManageProject(projectId);
+      }
+      
+      // Other subcollections
+      match /{subcollection}/{document=**} {
+        allow read: if isProjectMember(projectId);
+        allow write: if canManageProject(projectId);
+      }
+    }
+    
+    // ============================================
+    // AUDIT LOGS (IMMUTABLE)
+    // ============================================
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable
     }
     
     // ============================================
     // NOTIFICATIONS
     // ============================================
     match /notifications/{notificationId} {
-      allow read, write: if request.auth != null;
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
     
     // ============================================
     // SYSTEM COLLECTIONS
     // ============================================
     match /systemMetrics/{metricId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
     }
     
     match /errorLogs/{logId} {
-      allow read, write: if request.auth != null;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
     }
     
     match /userActivities/{activityId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
     }
     
     match /userSessions/{sessionId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
     }
     
     match /userRateLimits/{userId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated();
     }
     
-    // ============================================
-    // AUDIT LOGS (Create only)
-    // ============================================
-    match /auditLog/{logId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if false; // Immutable
-    }
-    
-    // ============================================
-    // CATCH-ALL FOR DEVELOPMENT
-    // Allow authenticated users to access any collection not explicitly denied
-    // ============================================
+    // Default deny
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }
+

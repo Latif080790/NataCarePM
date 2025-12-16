@@ -12,12 +12,20 @@ src/
 ├── views/          # Page-level components (43+ views) - lazy-loaded via React.lazy()
 ├── components/     # Reusable UI components (~150+ components)
 │   ├── *Pro.tsx    # Enterprise design system components (ButtonPro, CardPro, etc.)
+│   ├── OfflineIndicator.tsx  # Offline mode indicator
 │   └── safety/     # Safety-related components
 ├── contexts/       # Global state management (15+ contexts)
 ├── api/            # Service layer (~80+ services) - handles all Firestore/Firebase operations
+├── services/       # Business logic services
+│   └── offlineSyncService.ts  # Offline sync manager
 ├── hooks/          # Custom React hooks
+│   ├── usePermissions.ts      # RBAC permission checks
+│   └── useOfflineSync.ts      # Offline sync hook
+├── db/             # Database layer
+│   └── offlineDatabase.ts     # IndexedDB setup (Dexie.js)
 ├── utils/          # Utility functions (logger, rateLimiter, failoverManager, etc.)
 ├── types/          # TypeScript type definitions (types.ts - 2000+ lines)
+│   └── permissions.enhanced.ts # RBAC permission matrix
 ├── schemas/        # Zod validation schemas
 └── config/         # Configuration files (GA4, Sentry, etc.)
 
@@ -915,7 +923,105 @@ async send(options: EmailOptions) {
 **Deployment issues** → Use PowerShell scripts (`deploy-*.ps1`) instead of manual commands  
 **Sentry not capturing errors** → Check `VITE_SENTRY_DSN` in `.env.local`  
 **GA4 not tracking** → Check `VITE_GA4_MEASUREMENT_ID` in `.env.local`  
-**Cloud Functions errors** → Check logs with `firebase functions:log`
+**Cloud Functions errors** → Check logs with `firebase functions:log`  
+**Offline sync not working** → Check IndexedDB in DevTools → Application → IndexedDB → NataCarePMOffline  
+**Permission denied** → Deploy Firestore rules with `.\deploy-firestore-rules.ps1`
+
+---
+
+## Enterprise Features (NEW) 🆕
+
+### 1. **RBAC Permission System** 🔒
+**File:** `src/types/permissions.enhanced.ts`
+
+**6 Roles with Granular Control:**
+- **Owner** - Full access including profit margins & financials
+- **PM** - Manage operations, approve budgets
+- **Site Manager** - ❌ **NO FINANCIAL ACCESS** (field operations only)
+- **Logistics Manager** - Inventory & procurement
+- **Accountant** - Financial reports (read-only)
+- **Viewer** - Read-only access
+
+**Usage in Components:**
+```tsx
+import { usePermissions } from '@/hooks/usePermissions';
+import { PermissionGate } from '@/components/PermissionGate';
+
+const { canViewFinancials, isOwner } = usePermissions();
+
+// Hide financial data from Site Manager
+<PermissionGate permission="view_finances">
+  <ProfitMarginCard />
+</PermissionGate>
+
+// Disable action for non-owners
+<ButtonPro disabled={!isOwner}>Delete Project</ButtonPro>
+```
+
+**Firestore Rules:** Production-ready rules with RBAC enforcement in `firestore.rules`
+
+### 2. **Audit Trail System** 📝
+**File:** `src/api/auditService.enhanced.ts`
+
+**Features:**
+- Before/After comparison untuk setiap perubahan
+- IP address & session tracking
+- Immutable logs (cannot be modified/deleted)
+- Export to CSV untuk compliance reporting
+- ISO 9001 ready
+
+**Auto-integrated in RAB Service:**
+```typescript
+// Setiap create/update/delete RAB otomatis tercatat
+await rabAhspService.updateRabItem(projectId, itemId, updates);
+// → Audit log created automatically with changes
+```
+
+### 3. **Offline-First Mode** 📱
+**File:** `src/hooks/useOfflineSync.ts`
+
+**Critical untuk field operations (no signal areas):**
+```tsx
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+
+const { isOnline, saveDailyLogOffline, syncNow } = useOfflineSync();
+
+// Save offline
+if (!isOnline) {
+  await saveDailyLogOffline(dailyLogData, projectId);
+  // Data saved to IndexedDB
+  // Will sync automatically when connection restored
+}
+```
+
+**Features:**
+- IndexedDB storage dengan Dexie.js
+- Auto-sync saat koneksi kembali
+- Retry mechanism (5x dengan 2s delay)
+- Visual indicator untuk sync status
+- Pending count & sync history
+
+**Components:**
+```tsx
+import OfflineIndicator from '@/components/OfflineIndicator';
+
+<OfflineIndicator position="bottom" showSyncButton={true} />
+```
+
+**Storage:**
+- Daily logs, photos, progress updates
+- Queue untuk operasi CRUD
+- Persistent across browser restarts
+- Storage quota monitoring
+
+**Testing Offline:**
+```
+1. Chrome DevTools → Network tab → Check "Offline"
+2. Create daily log
+3. Check Application tab → IndexedDB → NataCarePMOffline
+4. Uncheck "Offline"
+5. Wait 2-3s for auto-sync
+```
 
 ---
 

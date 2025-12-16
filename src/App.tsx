@@ -2,12 +2,15 @@ import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
 import LiveCursors from '@/components/LiveCursors';
 import MainLayout from '@/components/MainLayout';
+import { MobileLayout } from '@/components/MobileLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
+import PerformanceDashboard from '@/components/PerformanceDashboard'; // P2.2: Performance monitoring UI
 import { ViewErrorBoundary } from '@/components/ViewErrorBoundary';
 import '@/styles/enterprise-design-system.css';
 import '@/styles/mobile-responsive.css';
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
+import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import { useDeviceType } from '@/hooks/useDeviceType';
 
 // Lazy loading retry utility
 const lazyWithRetry = (componentImport: () => Promise<any>) => 
@@ -144,7 +147,7 @@ const CommandPalette = lazyWithRetry(() =>
 );
 const AiAssistantChat = lazyWithRetry(() => import('@/components/AiAssistantChat'));
 const PWAInstallPrompt = lazyWithRetry(() => import('@/components/PWAInstallPrompt'));
-const UserFeedbackWidget = lazyWithRetry(() => import('@/components/UserFeedbackWidget'));
+// const UserFeedbackWidget = lazyWithRetry(() => import('@/components/UserFeedbackWidget'));
 const SentryTestPanel = lazyWithRetry(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
 
 // Wrapper components that inject context data into views requiring props
@@ -266,37 +269,37 @@ function ProtectedApp() {
   // const { projectMetrics } = useProjectCalculations(currentProject);
 
   // 📊 Initialize monitoring service
-  // TEMPORARILY DISABLED - Monitoring causes re-render issues
   useEffect(() => {
     if (currentUser) {
-      logger.debug('Monitoring DISABLED for debugging', { userId: currentUser.id });
-      /* DISABLED
-      try {
-        logger.info('System monitoring started', {
-          userId: currentUser.id,
-          interval: 60000,
-        });
-        monitoringService.startMonitoring(60000); // 1 minute interval
+      // Delay monitoring start to prioritize initial render
+      const timer = setTimeout(() => {
+        try {
+          logger.info('System monitoring started', {
+            userId: currentUser.id,
+            interval: 60000,
+          });
+          monitoringService.startMonitoring(60000); // 1 minute interval
+        } catch (err) {
+          logger.error('Failed to start monitoring service', err instanceof Error ? err : new Error(String(err)));
+        }
+      }, 5000);
 
-        return () => {
-          try {
-            monitoringService.stopMonitoring();
-            logger.info('System monitoring stopped');
-          } catch (err) {
-            logger.error('Failed to stop monitoring service', err instanceof Error ? err : new Error(String(err)));
-          }
-        };
-      } catch (err) {
-        logger.error('Failed to start monitoring service', err instanceof Error ? err : new Error(String(err)));
-      }
-      */
+      return () => {
+        clearTimeout(timer);
+        try {
+          monitoringService.stopMonitoring();
+          logger.info('System monitoring stopped');
+        } catch (err) {
+          logger.error('Failed to stop monitoring service', err instanceof Error ? err : new Error(String(err)));
+        }
+      };
     }
-
     return undefined;
   }, [currentUser]);
 
   // 🔒 Priority 2C: Initialize Sentry & GA4 on app start
   useEffect(() => {
+    // PERFORMANCE OPTIMIZATION: Load monitoring services only after app is fully interactive
     const initializeMonitoring = async () => {
       try {
         // Initialize Sentry (Error Tracking) - Dynamic import to reduce initial bundle
@@ -308,20 +311,20 @@ function ProtectedApp() {
         initializeGA4();
         logger.info('Google Analytics 4 initialized');
 
-        // Initialize Performance Monitoring (Web Vitals)
-        logger.info('[Performance] Monitoring initialized - tracking Core Web Vitals');
-        
-        // Optional: Configure performance reporting endpoint
-        // performanceMonitor.configureReporting('/api/performance', 60000);
+        // P2.2: Initialize Web Vitals Performance Monitoring
+        const { initializeWebVitals, monitorLongTasks } = await import('@/utils/webVitalsMonitoring');
+        initializeWebVitals();
+        monitorLongTasks();
+        logger.info('[Performance] Web Vitals monitoring initialized - tracking LCP, FID, CLS, FCP, TTFB');
       } catch (err) {
         logger.error('Failed to initialize monitoring services', err instanceof Error ? err : new Error(String(err)));
       }
     };
 
-    // Load monitoring services after a short delay to prioritize app rendering
+    // Load monitoring services after a longer delay to prioritize app interactivity
     const timer = setTimeout(() => {
       initializeMonitoring();
-    }, 1000); // 1 second delay
+    }, 5000); // 5 seconds delay - app fully loaded first
 
     return () => clearTimeout(timer);
   }, []);
@@ -366,15 +369,23 @@ function ProtectedApp() {
   useEffect(() => {
     if (currentUser) {
       try {
-        trackPageView(window.location.pathname, `NataCarePM - ${window.location.pathname}`);
-        logger.debug('Page view tracked', { path: window.location.pathname });
+        // Use requestIdleCallback to not block main thread
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            trackPageView(window.location.pathname, `NataCarePM - ${window.location.pathname}`);
+          });
+        } else {
+          setTimeout(() => {
+            trackPageView(window.location.pathname, `NataCarePM - ${window.location.pathname}`);
+          }, 1000);
+        }
       } catch (err) {
         logger.error('Failed to track page view', err instanceof Error ? err : new Error(String(err)), { path: window.location.pathname });
       }
     }
   }, [currentUser]);
 
-  // 📱 Priority 2C Mobile: Listen for push notification click events from Service Worker
+  // 📱 Priority 2C Mobile: Push Notifications
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       const messageHandler = (event: MessageEvent) => {
@@ -394,29 +405,33 @@ function ProtectedApp() {
     return undefined;
   }, []);
 
-  // 🐛 Debug panel keyboard shortcut (Ctrl+Shift+D)
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-        setShowDebug((prev) => !prev);
-        logger.debug('Debug panel toggled', { enabled: !showDebug });
-      }
-    };
+  // 🐛 Debug panel keyboard shortcut - DISABLED for performance
+  // useEffect(() => {
+  //   const handleKeyPress = (e: KeyboardEvent) => {
+  //     if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+  //       setShowDebug((prev) => !prev);
+  //       logger.debug('Debug panel toggled', { enabled: !showDebug });
+  //     }
+  //   };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [showDebug]);
+  //   window.addEventListener('keydown', handleKeyPress);
+  //   return () => window.removeEventListener('keydown', handleKeyPress);
+  // }, [showDebug]);
 
   // Initialize Failover Manager
   useEffect(() => {
-    failoverManager.initialize().catch((error) => {
-      logger.error('Failover manager initialization failed', error);
-    });
+    // Delay initialization to prioritize UI rendering
+    const timer = setTimeout(() => {
+      failoverManager.initialize().catch((error) => {
+        logger.error('Failover manager initialization failed', error);
+      });
 
-    // Start health monitoring (every 60 seconds)
-    healthMonitor.start(60000);
+      // Start health monitoring (every 60 seconds)
+      healthMonitor.start(60000);
+    }, 3000);
 
     return () => {
+      clearTimeout(timer);
       failoverManager.stopHealthMonitoring();
       healthMonitor.stop();
     };
@@ -458,8 +473,28 @@ function ProtectedApp() {
   //   user: currentUser,
   // });
 
+  // 📱 P1.2: Device-based layout switching
+  const { isMobile, isTablet } = useDeviceType();
+  const location = useLocation();
+  
+  // Get page title from current route
+  const getPageTitle = () => {
+    const path = location.pathname;
+    if (path === '/dashboard') return 'Dashboard';
+    if (path.includes('/rab')) return 'RAB';
+    if (path.includes('/daily-logs')) return 'Laporan Harian';
+    if (path.includes('/inventory')) return 'Inventori';
+    return currentProject?.name || 'NataCarePM';
+  };
+
+  // Use mobile layout for mobile and tablet devices
+  const LayoutComponent = (isMobile || isTablet) ? MobileLayout : MainLayout;
+  const layoutProps = (isMobile || isTablet)
+    ? { title: getPageTitle(), showBottomNav: true, showHeader: true }
+    : { isSidebarCollapsed, setIsSidebarCollapsed };
+
   return (
-    <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>
+    <LayoutComponent {...layoutProps}>
       <EnhancedErrorBoundary>
         <SuspenseWithErrorBoundary
           fallback={
@@ -475,27 +510,44 @@ function ProtectedApp() {
         </SuspenseWithErrorBoundary>
       </EnhancedErrorBoundary>
       
-      <SuspenseWithErrorBoundary fallback={null}>
-        <CommandPalette />
-      </SuspenseWithErrorBoundary>
-      <SuspenseWithErrorBoundary fallback={null}>
-        <AiAssistantChat />
-      </SuspenseWithErrorBoundary>
-      <SuspenseWithErrorBoundary fallback={null}>
+      {/* Heavy components - Only load on desktop for performance */}
+      {!isMobile && !isTablet && (
+        <>
+          {/* PERFORMANCE OPTIMIZATION: Heavy components lazy loaded - TEMPORARILY DISABLED TO FIX CRASH */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <CommandPalette />
+          </SuspenseWithErrorBoundary> */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <AiAssistantChat />
+          </SuspenseWithErrorBoundary> */}
+        </>
+      )}
+      
+      {/* Mobile-friendly components always shown */}
+      {/* <SuspenseWithErrorBoundary fallback={null}>
         <PWAInstallPrompt />
-      </SuspenseWithErrorBoundary>
-      <SuspenseWithErrorBoundary fallback={null}>
+      </SuspenseWithErrorBoundary> */}
+      {/* <SuspenseWithErrorBoundary fallback={null}>
         <UserFeedbackWidget position="bottom-right" />
-      </SuspenseWithErrorBoundary>
-      <SuspenseWithErrorBoundary fallback={null}>
+      </SuspenseWithErrorBoundary> */}
+      {/* <SuspenseWithErrorBoundary fallback={null}>
         <SentryTestPanel />
-      </SuspenseWithErrorBoundary>
-      <OfflineIndicator />
-      <LiveCursors containerId="app-container" showLabels />
-      <FailoverStatusIndicator />
+      </SuspenseWithErrorBoundary> */}
+      
+      {/* Offline indicator - Different position for mobile */}
+      {!(isMobile || isTablet) && <OfflineIndicator />}
+      
+      {/* Desktop-only components */}
+      {!isMobile && !isTablet && (
+        <>
+          {/* LiveCursors temporarily disabled - causes DOM manipulation errors */}
+          {/* <LiveCursors containerId="app-container" showLabels /> */}
+          <FailoverStatusIndicator />
+        </>
+      )}
       {/* <PerformanceMonitor /> */}
       {/* <PerformanceDashboard /> */}
-    </MainLayout>
+    </LayoutComponent>
   );
 }
 
@@ -560,19 +612,20 @@ function App() {
   }
 
   return (
-    <Routes>
-      {!currentUser ? (
-        // --- Rute Publik (Belum Login) ---
-        <>
-          <Route path="/login" element={
-            <ViewErrorBoundary viewName="Login" key="enterprise-login-v1">
-              <EnterpriseLoginView key={Date.now()} />
-            </ViewErrorBoundary>
-          } />
-          {/* Paksa semua rute lain ke halaman login */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </>
-      ) : (
+    <>
+      <Routes>
+        {!currentUser ? (
+          // --- Rute Publik (Belum Login) ---
+          <>
+            <Route path="/login" element={
+              <ViewErrorBoundary viewName="Login" key="enterprise-login-v1">
+                <EnterpriseLoginView key={Date.now()} />
+              </ViewErrorBoundary>
+            } />
+            {/* Paksa semua rute lain ke halaman login */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </>
+        ) : (
         // --- Rute Privat (Sudah Login) ---
         // Kita bungkus dengan ProjectProvider di sini agar hanya aktif setelah login
         <Route
@@ -850,9 +903,13 @@ function App() {
               </div>
             </div>
           } />
-        </Route>
-      )}
-    </Routes>
+          </Route>
+        )}
+      </Routes>
+
+      {/* P2.2: Performance monitoring dashboard - Toggle with Ctrl+Shift+P */}
+      {currentUser && !import.meta.env.PROD && <PerformanceDashboard />}
+    </>
   );
 }
 

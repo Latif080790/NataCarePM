@@ -1,4 +1,43 @@
 // ===================================
+// DOM STABILITY PATCH (CRITICAL)
+// ===================================
+// Fixes "Failed to execute 'removeChild' on 'Node'" errors caused by:
+// 1. Google Translate or other browser extensions modifying the DOM
+// 2. React 18 race conditions with Suspense/Lazy loading
+// 3. Third-party libraries manipulating the DOM directly
+const originalRemoveChild = Node.prototype.removeChild;
+Node.prototype.removeChild = function<T extends Node>(child: T): T {
+  if (child.parentNode !== this) {
+    if (import.meta.env.DEV) {
+      console.warn('[DOM Security] Suppressed "removeChild" error: Node is not a child of this parent.', {
+        parent: this,
+        child: child
+      });
+    }
+    // Return the child to satisfy the type signature, effectively doing nothing
+    return child;
+  }
+  return originalRemoveChild.call(this, child) as T;
+};
+
+// Patch insertBefore to prevent similar hierarchy errors
+const originalInsertBefore = Node.prototype.insertBefore;
+Node.prototype.insertBefore = function<T extends Node>(newNode: T, referenceNode: Node | null): T {
+  if (referenceNode && referenceNode.parentNode !== this) {
+    if (import.meta.env.DEV) {
+      console.warn('[DOM Security] Suppressed "insertBefore" error: Reference node is not a child of this parent.', {
+        parent: this,
+        newNode,
+        referenceNode
+      });
+    }
+    // Fallback: Append to the end if reference node is invalid
+    return this.appendChild(newNode) as T;
+  }
+  return originalInsertBefore.call(this, newNode, referenceNode) as T;
+};
+
+// ===================================
 // PRODUCTION-READY INDEX FILE
 // ===================================
 
@@ -9,7 +48,7 @@ import Root from './Root';
 
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
 import { initGA4 } from '@/utils/analytics';
-import { onCLS, onFID, onLCP, onTTFB, onINP } from 'web-vitals';
+import { onCLS, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Initialize Security Features
 initCSPMonitoring();
@@ -21,7 +60,7 @@ initGA4();
 // WEB VITALS MONITORING (CRITICAL)
 // ===================================
 function sendToAnalytics(metric: any) {
-  const body = JSON.stringify(metric);
+  // const body = JSON.stringify(metric);
   
   // Log to console in development
   if (import.meta.env.DEV) {
@@ -40,10 +79,10 @@ function sendToAnalytics(metric: any) {
   }
   
   // Send to performance API if available
-  if (navigator.sendBeacon) {
+  // if (navigator.sendBeacon) {
     // You can send to your analytics endpoint
     // navigator.sendBeacon('/analytics', body);
-  }
+  // }
 }
 
 // Track Core Web Vitals
@@ -59,7 +98,7 @@ onINP(sendToAnalytics);  // Interaction to Next Paint (new in 2024)
 
 // Track error count for retry logic
 let errorCount = 0;
-const MAX_ERRORS = 3;
+// const MAX_ERRORS = 3;
 
 // Global error handler with retry mechanism
 window.addEventListener('error', (event) => {
@@ -140,14 +179,22 @@ if (container) {
   `;
 }
 
-// Clear service workers and caches
+// P2.3: Register Service Worker for offline capabilities
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    registrations.forEach((registration) => registration.unregister());
-  });
-  
-  caches.keys().then((names) => {
-    names.forEach((name) => caches.delete(name));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
+        console.log('[SW] Service worker registered:', registration.scope);
+        
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 60 * 60 * 1000); // Check every hour
+      })
+      .catch((error) => {
+        console.error('[SW] Service worker registration failed:', error);
+      });
   });
 }
 

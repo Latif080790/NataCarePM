@@ -1,16 +1,19 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
- * See https://playwright.dev/docs/test-configuration.
+ * Playwright Configuration for NataCarePM
+ * Enterprise-grade E2E testing setup
+ * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './e2e',
+  
+  // Test timeout
+  timeout: 30000,
+  expect: {
+    timeout: 5000,
+  },
+
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -19,19 +22,40 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
+  
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+    ['junit', { outputFile: 'playwright-report/junit.xml' }],
+    ['list'],
+  ],
+  
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    
+    // Screenshot on failure
+    screenshot: 'only-on-failure',
+    
+    // Video on failure
+    video: 'retain-on-failure',
+    
+    // Emulate locale and timezone
+    locale: 'id-ID',
+    timezoneId: 'Asia/Jakarta',
+    
+    // Viewport
+    viewport: { width: 1280, height: 720 },
   },
 
   /* Configure projects for major browsers */
   projects: [
+    // Desktop browsers
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
@@ -47,31 +71,48 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
 
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
+    // Mobile browsers
+    {
+      name: 'mobile-chrome',
+      use: { 
+        ...devices['Pixel 5'],
+        // Test with realistic mobile conditions
+        contextOptions: {
+          offline: false,
+        },
+      },
+    },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 12'] },
+    },
 
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    // Tablet
+    {
+      name: 'tablet',
+      use: { 
+        ...devices['iPad Pro'],
+        viewport: { width: 1024, height: 1366 },
+      },
+    },
+
+    // Offline testing - Critical for construction sites
+    {
+      name: 'offline-mode',
+      use: {
+        ...devices['Desktop Chrome'],
+        contextOptions: {
+          offline: true,
+        },
+      },
+    },
   ],
 
-  /* Run your local dev server before starting the tests */
+  // Run local dev server before starting tests
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 });

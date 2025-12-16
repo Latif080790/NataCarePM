@@ -16,6 +16,11 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
+    "test:rbac": "playwright test e2e/rbac.spec.ts",
+    "test:offline": "playwright test e2e/offline.spec.ts",
+    "test:accessibility": "playwright test e2e/accessibility.spec.ts",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
     "test:security": "node scripts/security-test-runner.cjs",
     "lighthouse": "npm run build && lhci autorun",
     "lighthouse:desktop": "npm run build && lhci autorun --preset=desktop",
@@ -56,6 +61,7 @@
     "browser-image-compression": "^2.0.2",
     "core-js": "^3.46.0",
     "date-fns": "^4.1.0",
+    "dexie": "^4.2.1",
     "dompurify": "^3.3.0",
     "exceljs": "^4.4.0",
     "firebase": "^12.5.0",
@@ -79,14 +85,14 @@
     "regenerator-runtime": "^0.14.1",
     "tesseract.js": "^6.0.1",
     "twilio": "^5.10.3",
-    "web-vitals": "^3.5.2",
     "workbox-window": "^7.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@eslint/js": "^9.37.0",
     "@lhci/cli": "^0.15.1",
-    "@playwright/test": "^1.40.0",
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4.1.16",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -130,6 +136,7 @@
     "vite": "^6.2.0",
     "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-pwa": "^1.1.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "web-vitals": "^5.1.0"
   }
 }

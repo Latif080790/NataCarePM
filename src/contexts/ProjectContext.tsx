@@ -84,6 +84,8 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Effect for fetching static master data and workspaces list
   useEffect(() => {
+    let isMounted = true;
+
     if (!currentUser) {
       setLoading(false);
       return;
@@ -91,15 +93,17 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     const fetchInitialData = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        if (isMounted) {
+          setLoading(true);
+          setError(null);
+        }
         
         // ✅ FIX: Wait for auth state to be ready before Firestore queries
         await waitForAuth();
         
         if (!currentUser) {
           logger.warn('ProjectContext:fetchInitialData - User logged out during fetch', {});
-          setLoading(false);
+          if (isMounted) setLoading(false);
           return;
         }
         
@@ -108,6 +112,8 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
           projectService.getAhspData(),
           projectService.getWorkers(),
         ]);
+
+        if (!isMounted) return;
 
         // Extract data from APIResponse wrapper
         const workspacesData: Workspace[] = wsRes.success ? wsRes.data || [] : [];
@@ -135,13 +141,19 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
           setError(new Error('No projects found for this workspace.'));
         }
       } catch (err) {
-        setError(err as Error);
-        addToast('Gagal memuat data awal.', 'error');
+        if (isMounted) {
+          setError(err as Error);
+          addToast('Gagal memuat data awal.', 'error');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchInitialData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [currentUser]);
 
   // Effect for REAL-TIME streaming of the selected project and notifications

@@ -4,6 +4,7 @@ import { Select } from './FormControls';
 import { LogOut } from 'lucide-react';
 import LiveActivityFeed from './LiveActivityFeed';
 import ChatIcon from './ChatIcon';
+import LanguageSwitcher from './LanguageSwitcher'; // P2.5: i18n support
 
 interface HeaderProps {
   isSidebarCollapsed: boolean;
@@ -60,6 +61,9 @@ export default function Header({ children }: HeaderProps) {
 
       <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
         {children}
+        
+        {/* P2.5: Language Switcher */}
+        <LanguageSwitcher variant="minimal" showLabel={false} />
         
         {/* Chat Icon */}
         <ChatIcon onClick={() => {

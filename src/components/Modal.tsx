@@ -53,47 +53,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         </Card>
       </div>
 
-      {/* Custom Styles */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideUp {
-          from { 
-            opacity: 0; 
-            transform: translateY(20px) scale(0.95); 
-          }
-          to { 
-            opacity: 1; 
-            transform: translateY(0) scale(1); 
-          }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-        
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(230, 228, 230, 0.1);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #F87941, #F9B095);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, #F9B095, #F87941);
-        }
-      `}</style>
+      {/* Custom Styles removed - moved to enterprise-design-system.css */}
     </div>
   );
 }

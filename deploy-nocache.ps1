@@ -45,7 +45,7 @@ Write-Host "`n[4/4] Deployment complete!" -ForegroundColor Green
 Write-Host "`n=== NEXT STEPS ===" -ForegroundColor Yellow
 Write-Host "1. Open INCOGNITO window (Ctrl+Shift+N)"
 Write-Host "2. Go to: https://natacara-hns.web.app?v=$timestamp"
-Write-Host "3. Check Console for: '[Firebase] Initialized with v10 stable API'"
+Write-Host "3. Check Console for: '[FIREBASE] Using SDK v12.5.0'"
 Write-Host "`nIf still not working, clear browser cache completely." -ForegroundColor Yellow
 Write-Host "`n=== Deployment URL ===" -ForegroundColor Cyan
 Write-Host "https://natacara-hns.web.app" -ForegroundColor Green

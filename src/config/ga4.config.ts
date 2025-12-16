@@ -12,7 +12,7 @@
  */
 
 import ReactGA from 'react-ga4';
-import { onCLS, onFID, onFCP, onLCP, onTTFB, Metric } from 'web-vitals';
+import { onCLS, onINP, onFCP, onLCP, onTTFB, Metric } from 'web-vitals';
 import { logger } from '@/utils/logger';
 
 /**

@@ -60,27 +60,39 @@ class EnhancedErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Defer all side effects to avoid React reconciliation conflicts
-    setTimeout(() => {
-      try {
-        // Log to console for development
-        logger.error('🚨 ENTERPRISE ERROR BOUNDARY TRIGGERED', error, { errorReport });
-
-        // 📊 Log error to monitoring service
-        this.logToMonitoringService(error, errorInfo);
-
-        // In production, send to error tracking service
-        if (process.env.NODE_ENV === 'production') {
-          this.sendErrorReport(errorReport);
-        }
-
-        // Announce error to screen readers
-        this.announceErrorToScreenReader(error.message);
-      } catch (e) {
-        console.error('Error in EnhancedErrorBoundary handler:', e);
-      }
-    }, 0);
+    // Defer all side effects to next tick to avoid React reconciliation conflicts
+    // Use requestIdleCallback for better performance
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        this.handleErrorLogging(error, errorInfo, errorReport);
+      });
+    } else {
+      setTimeout(() => {
+        this.handleErrorLogging(error, errorInfo, errorReport);
+      }, 0);
+    }
   }
+
+  private handleErrorLogging = (error: Error, errorInfo: ErrorInfo, errorReport: any) => {
+    try {
+      // Log to console for development
+      logger.error('🚨 ENTERPRISE ERROR BOUNDARY TRIGGERED', error, { errorReport });
+
+      // 📊 Log error to monitoring service
+      this.logToMonitoringService(error, errorInfo);
+
+      // In production, send to error tracking service
+      if (process.env.NODE_ENV === 'production') {
+        this.sendErrorReport(errorReport);
+      }
+
+      // Announce error to screen readers
+      this.announceErrorToScreenReader(error.message);
+    } catch (e) {
+      console.error('Error in EnhancedErrorBoundary handler:', e);
+    }
+  };
+
 
   private logToMonitoringService = async (error: Error, _errorInfo: ErrorInfo) => {
     try {
@@ -110,20 +122,33 @@ class EnhancedErrorBoundary extends Component<Props, State> {
   };
 
   private announceErrorToScreenReader = (message: string) => {
-    // Create an aria-live region to announce errors to screen readers
-    const liveRegion = document.createElement('div');
-    liveRegion.setAttribute('aria-live', 'assertive');
-    liveRegion.setAttribute('aria-atomic', 'true');
-    liveRegion.className = 'sr-only';
-    liveRegion.textContent = `Error: ${message}`;
-    document.body.appendChild(liveRegion);
-    
-    // Remove after announcement
-    setTimeout(() => {
-      if (liveRegion.parentNode) {
-        liveRegion.parentNode.removeChild(liveRegion);
+    // PERFORMANCE FIX: Safely create aria-live region without causing removeChild errors
+    try {
+      const liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live', 'assertive');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.className = 'sr-only';
+      liveRegion.textContent = `Error: ${message}`;
+      
+      if (document.body) {
+        document.body.appendChild(liveRegion);
+        
+        // Remove after announcement - use remove() instead of removeChild()
+        setTimeout(() => {
+          try {
+            if (liveRegion && liveRegion.parentNode) {
+              liveRegion.remove(); // Safer than removeChild
+            }
+          } catch (err) {
+            // Silently fail if element already removed
+            console.debug('Live region already removed');
+          }
+        }, 1000);
       }
-    }, 1000);
+    } catch (err) {
+      // Silently fail - screen reader announcement is not critical
+      console.debug('Failed to announce error to screen reader', err);
+    }
   };
 
   private handleRetry = () => {

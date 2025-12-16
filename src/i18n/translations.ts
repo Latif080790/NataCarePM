@@ -139,6 +139,48 @@ export const translations = {
       email: 'Please enter a valid email address',
       passwordLength: 'Password must be at least 6 characters',
       passwordsMatch: 'Passwords must match'
+    },
+
+    // RAB/AHSP (Budget Cost Planning)
+    rab: {
+      title: 'RAB/AHSP',
+      create: 'Create RAB Item',
+      edit: 'Edit RAB Item',
+      itemNumber: 'Item Number',
+      description: 'Work Description',
+      volume: 'Volume',
+      unit: 'Unit',
+      unitPrice: 'Unit Price',
+      totalPrice: 'Total Price',
+      category: 'Category',
+      costBreakdown: 'Cost Breakdown',
+      labor: 'Labor',
+      material: 'Material',
+      equipment: 'Equipment',
+      overhead: 'Overhead',
+      profit: 'Profit'
+    },
+
+    // Offline Mode
+    offline: {
+      title: 'Offline Mode',
+      message: 'You are currently offline',
+      syncPending: '{{count}} items pending sync',
+      syncNow: 'Sync Now',
+      lastSync: 'Last synced: {{time}}',
+      workingOffline: 'Working offline',
+      dataWillSync: 'Your data will sync when connection is restored'
+    },
+
+    // PWA
+    pwa: {
+      installTitle: 'Install NataCarePM',
+      installMessage: 'Install as app for better experience',
+      installButton: 'Install',
+      later: 'Later',
+      updateAvailable: 'Update Available',
+      updateNow: 'Update Now',
+      installed: 'App installed successfully'
     }
   },
   
@@ -282,6 +324,48 @@ export const translations = {
       email: 'Silakan masukkan alamat email yang valid',
       passwordLength: 'Kata sandi harus minimal 6 karakter',
       passwordsMatch: 'Kata sandi harus cocok'
+    },
+
+    // P2.5: RAB/AHSP (Rencana Anggaran Biaya)
+    rab: {
+      title: 'RAB/AHSP',
+      create: 'Buat Item RAB',
+      edit: 'Edit Item RAB',
+      itemNumber: 'Nomor Item',
+      description: 'Uraian Pekerjaan',
+      volume: 'Volume',
+      unit: 'Satuan',
+      unitPrice: 'Harga Satuan',
+      totalPrice: 'Harga Total',
+      category: 'Kategori',
+      costBreakdown: 'Rincian Biaya',
+      labor: 'Tenaga Kerja',
+      material: 'Material',
+      equipment: 'Peralatan',
+      overhead: 'Overhead',
+      profit: 'Keuntungan'
+    },
+
+    // P2.5: Offline Mode
+    offline: {
+      title: 'Mode Offline',
+      message: 'Anda sedang offline',
+      syncPending: '{{count}} item menunggu sinkronisasi',
+      syncNow: 'Sinkronkan Sekarang',
+      lastSync: 'Sinkronisasi terakhir: {{time}}',
+      workingOffline: 'Bekerja offline',
+      dataWillSync: 'Data Anda akan disinkronkan saat koneksi pulih'
+    },
+
+    // P2.5: PWA
+    pwa: {
+      installTitle: 'Install NataCarePM',
+      installMessage: 'Install sebagai aplikasi untuk pengalaman lebih baik',
+      installButton: 'Install',
+      later: 'Nanti',
+      updateAvailable: 'Update Tersedia',
+      updateNow: 'Update Sekarang',
+      installed: 'Aplikasi berhasil diinstall'
     }
   }
 };
