@@ -5,7 +5,7 @@ import {
   ErrorLog,
   ProjectMetrics,
 } from '@/api/monitoringService';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 
 // ... (hook-hook lain tetap sama) ...
 

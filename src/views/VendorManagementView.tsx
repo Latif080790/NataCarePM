@@ -30,7 +30,7 @@ import {
   Edit,
   BarChart3,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';
 import { CardPro } from '@/components/CardPro';

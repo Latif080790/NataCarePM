@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/Card';
 import { Button } from '@/components/Button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { Spinner } from '@/components/Spinner';
 import { LogIn, UserPlus } from 'lucide-react';
 import ForgotPasswordView from './ForgotPasswordView';

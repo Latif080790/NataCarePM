@@ -7,7 +7,7 @@ import { CreatePOModal } from '@/components/CreatePOModal';
 import { PODetailsModal } from '@/components/PODetailsModal';
 import { InputPro } from '@/components/DesignSystem';
 import { PlusCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { debounce } from '@/utils/performanceOptimization';
 
 interface LogisticsViewProps {

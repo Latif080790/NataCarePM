@@ -72,13 +72,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Initialize JWT utilities on mount
   useEffect(() => {
-    try {
-      jwtUtils.initializeJWT();
-    } catch (error) {
-      console.error('[AuthContext] Failed to initialize JWT:', error);
-    }
+    let isMounted = true;
+    
+    const initJWT = async () => {
+      try {
+        if (isMounted) {
+          jwtUtils.initializeJWT();
+        }
+      } catch (error) {
+        console.error('[AuthContext] Failed to initialize JWT:', error);
+        // Don't throw - just log the error
+      }
+    };
+    
+    // Delay initialization to prevent render blocking
+    const timer = setTimeout(initJWT, 100);
     
     return () => {
+      isMounted = false;
+      clearTimeout(timer);
       // Cleanup on unmount
       try {
         jwtUtils.stopAutoRefresh();
@@ -90,13 +102,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Listen to auth state changes
   useEffect(() => {
-    // Timeout fallback: set loading false after 3 seconds max
+    let isMounted = true;
+    
+    // Timeout fallback: set loading false after 5 seconds max
     const timeoutId = setTimeout(() => {
-      console.warn('[AuthContext] Firebase auth state check timeout - proceeding without user');
-      setLoading(false);
-    }, 3000);
+      if (isMounted) {
+        console.warn('[AuthContext] Firebase auth state check timeout - proceeding without user');
+        setLoading(false);
+      }
+    }, 5000);
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!isMounted) return; // Don't update if unmounted
+      
       clearTimeout(timeoutId); // Cancel timeout if auth state received
       
       if (user) {
@@ -120,7 +138,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.error('[AuthContext] Failed to start auto-refresh:', refreshError);
           }
           
+          if (!isMounted) return;
+          
           const appUser = await authService.getCurrentUser();
+          if (!isMounted) return;
+          
           if (appUser) {
             setCurrentUser(appUser);
           } else {
@@ -138,17 +160,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
         } catch (err) {
           logger.error('Error getting user data', err instanceof Error ? err : new Error(String(err)));
-          setCurrentUser({
-            uid: user.uid,
-            id: user.uid,
-            email: user.email || '',
-            name: user.displayName || '',
-            roleId: 'user',
-            avatarUrl: user.photoURL || '',
-            isOnline: true,
-            permissions: [],
-            lastSeen: new Date().toISOString(),
-          });
+          if (isMounted) {
+            setCurrentUser({
+              uid: user.uid,
+              id: user.uid,
+              email: user.email || '',
+              name: user.displayName || '',
+              roleId: 'user',
+              avatarUrl: user.photoURL || '',
+              isOnline: true,
+              permissions: [],
+              lastSeen: new Date().toISOString(),
+            });
+          }
         }
       } else {
         // User logged out, cleanup JWT
@@ -158,12 +182,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch (cleanupError) {
           console.error('[AuthContext] Failed to cleanup JWT:', cleanupError);
         }
-        setCurrentUser(null);
+        if (isMounted) {
+          setCurrentUser(null);
+        }
       }
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     });
 
     return () => {
+      isMounted = false;
       clearTimeout(timeoutId);
       unsubscribe();
     };

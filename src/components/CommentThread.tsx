@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Comment } from '@/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { formatDate } from '@/constants';
 import { Input } from './FormControls';
 import { Button } from './Button';

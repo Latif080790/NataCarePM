@@ -169,7 +169,7 @@ class OfflineSyncService {
           successCount++;
         } catch (error) {
           failedCount++;
-          logger.error('Failed to sync operation', error, { operationId: operation.id });
+          logger.error('Failed to sync operation', error instanceof Error ? error : new Error(String(error)), { operationId: operation.id });
         }
       }
 
@@ -185,7 +185,7 @@ class OfflineSyncService {
           successCount++;
         } catch (error) {
           failedCount++;
-          logger.error('Failed to sync daily log', error, { localId: log.localId });
+          logger.error('Failed to sync daily log', error instanceof Error ? error : new Error(String(error)), { localId: log.localId });
         }
       }
 
@@ -201,7 +201,7 @@ class OfflineSyncService {
           successCount++;
         } catch (error) {
           failedCount++;
-          logger.error('Failed to sync attachment', error, { localId: attachment.localId });
+          logger.error('Failed to sync attachment', error instanceof Error ? error : new Error(String(error)), { localId: attachment.localId });
         }
       }
 

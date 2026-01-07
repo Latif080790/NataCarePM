@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { Settings, Shield, Bell, User, Lock, Database, Activity } from 'lucide-react';
 import { TwoFactorManagement } from '@/components/TwoFactorManagement';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { ButtonPro } from '@/components/ButtonPro';
 import { SpinnerPro } from '@/components/SpinnerPro';
 

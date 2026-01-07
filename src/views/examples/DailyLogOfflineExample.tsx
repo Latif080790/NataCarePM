@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import ButtonPro from '@/components/ButtonPro';
 import CardPro from '@/components/CardPro';

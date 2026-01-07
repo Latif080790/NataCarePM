@@ -5,7 +5,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { hasPermission } from '@/constants';
 import { Permission } from '@/types';
 

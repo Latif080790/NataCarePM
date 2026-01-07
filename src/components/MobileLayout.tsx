@@ -25,7 +25,7 @@ import {
   LogOut,
   ChevronDown
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import OfflineIndicator from '@/components/OfflineIndicator';
 

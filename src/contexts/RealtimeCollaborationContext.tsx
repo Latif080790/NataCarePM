@@ -65,35 +65,36 @@ interface RealtimeCollaborationProviderProps {
 }
 
 export const RealtimeCollaborationProvider = ({ children }: RealtimeCollaborationProviderProps) => {
+  // Always call all hooks unconditionally at the top level
   const [onlineUsers] = useState<OnlineUser[]>([]);
   const [currentUserPresence] = useState<OnlineUser | null>(null);
   const [recentActivity] = useState<ActivityEvent[]>([]);
   const [typingUsers] = useState<{ [key: string]: OnlineUser }>({});
 
-  // Mock implementations
+  // All useCallback hooks must be called unconditionally
   const isUserOnline = useCallback((_userId: string): boolean => {
     return false; // Mock implementation
   }, []);
 
   const updatePresence = useCallback(
     async (_view: string, _isTyping: boolean = false, _cursor?: { x: number; y: number }) => {
-      // Mock implementation
-      console.log('Updating presence (mock)');
+      // Mock implementation - safe to ignore
+      return Promise.resolve();
     },
     []
   );
 
   const sendActivityEvent = useCallback(
     async (_event: Omit<ActivityEvent, 'id' | 'userId' | 'userName' | 'timestamp'>) => {
-      // Mock implementation
-      console.log('Sending activity event (mock)');
+      // Mock implementation - safe to ignore
+      return Promise.resolve();
     },
     []
   );
 
   const updateTypingStatus = useCallback(async (_isTyping: boolean, _context: string) => {
-    // Mock implementation
-    console.log('Updating typing status (mock)');
+    // Mock implementation - safe to ignore
+    return Promise.resolve();
   }, []);
 
   const value: RealtimeCollaborationContextType = {

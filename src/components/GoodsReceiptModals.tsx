@@ -19,7 +19,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { hasPermission } from '@/constants';

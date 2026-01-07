@@ -3,7 +3,7 @@ import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescriptio
 import { ButtonPro, ButtonProGroup } from '@/components/ButtonPro';
 import { InputPro, FormGroupPro } from '@/components/FormComponents';
 import { LoadingState, ErrorState } from '@/components/StateComponents';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import { TwoFactorSetup } from '@/components/TwoFactorSetup';

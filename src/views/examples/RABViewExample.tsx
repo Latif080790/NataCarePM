@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PermissionGate, AccessDenied } from '@/components/PermissionGate';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import { rabAhspService } from '@/api/rabAhspService';
 import { RabItem } from '@/types';

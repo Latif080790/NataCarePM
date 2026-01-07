@@ -7,7 +7,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { predictiveAnalyticsService } from '@/api/predictiveAnalyticsService';
 import { useProjectCalculations } from '@/hooks/useProjectCalculations';
 import type { 

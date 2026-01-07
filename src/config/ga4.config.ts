@@ -33,7 +33,7 @@ const defaultConfig: GA4Config = {
   measurementId: import.meta.env.VITE_GA4_MEASUREMENT_ID || '',
   enabled: import.meta.env.MODE === 'production' || import.meta.env.VITE_GA4_ENABLED === 'true',
   debug: import.meta.env.MODE === 'development',
-  trackWebVitals: true,
+  trackWebVitals: false, // Temporarily disabled to fix production errors
 };
 
 /**
@@ -51,23 +51,39 @@ export function initializeGA4(config: Partial<GA4Config> = {}): void {
     return;
   }
 
-  ReactGA.initialize(finalConfig.measurementId, {
-    gaOptions: {
-      debug_mode: finalConfig.debug,
-    },
-    gtagOptions: {
-      send_page_view: false, // We'll send page views manually
-    },
-  });
+  try {
+    // Safety check: ensure window and document are available
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      logger.warn('GA4 initialization skipped - not in browser environment');
+      return;
+    }
 
-  logger.info('GA4 initialized successfully', {
-    measurementId: finalConfig.measurementId,
-    debug: finalConfig.debug,
-  });
+    ReactGA.initialize(finalConfig.measurementId, {
+      gaOptions: {
+        debug_mode: finalConfig.debug,
+      },
+      gtagOptions: {
+        send_page_view: false, // We'll send page views manually
+      },
+    });
 
-  // Track Web Vitals if enabled
-  if (finalConfig.trackWebVitals) {
-    trackWebVitals();
+    logger.info('GA4 initialized successfully', {
+      measurementId: finalConfig.measurementId,
+      debug: finalConfig.debug,
+    });
+
+    // Track Web Vitals if enabled (with delay to ensure GA is ready)
+    if (finalConfig.trackWebVitals) {
+      setTimeout(() => {
+        try {
+          trackWebVitals();
+        } catch (error) {
+          logger.error('Failed to initialize Web Vitals tracking', error instanceof Error ? error : new Error(String(error)));
+        }
+      }, 1000);
+    }
+  } catch (error) {
+    logger.error('GA4 initialization failed', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -75,30 +91,40 @@ export function initializeGA4(config: Partial<GA4Config> = {}): void {
  * Track page view
  */
 export function trackPageView(path?: string, title?: string): void {
-  const page = path || window.location.pathname + window.location.search;
-  const pageTitle = title || document.title;
+  try {
+    if (typeof window === 'undefined') return;
+    
+    const page = path || window.location.pathname + window.location.search;
+    const pageTitle = title || document.title;
 
-  ReactGA.send({
-    hitType: 'pageview',
-    page,
-    title: pageTitle,
-  });
+    ReactGA.send({
+      hitType: 'pageview',
+      page,
+      title: pageTitle,
+    });
 
-  logger.debug('GA4 page view tracked', { page, title: pageTitle });
+    logger.debug('GA4 page view tracked', { page, title: pageTitle });
+  } catch (error) {
+    logger.error('Failed to track page view', error instanceof Error ? error : new Error(String(error)));
+  }
 }
 
 /**
  * Track custom event
  */
 export function trackEvent(category: string, action: string, label?: string, value?: number): void {
-  ReactGA.event({
-    category,
-    action,
-    label,
-    value,
-  });
+  try {
+    ReactGA.event({
+      category,
+      action,
+      label,
+      value,
+    });
 
-  logger.debug('GA4 event tracked', { category, action, label, value });
+    logger.debug('GA4 event tracked', { category, action, label, value });
+  } catch (error) {
+    logger.error('Failed to track event', error instanceof Error ? error : new Error(String(error)));
+  }
 }
 
 /**
@@ -134,8 +160,12 @@ export function trackSearch(searchTerm: string): void {
   logger.debug('GA4 search tracked', { searchTerm });
 }
 
-/**
- * Set user ID (for cross-device tracking)
+/*try {
+    ReactGA.set({ user_id: userId });
+    logger.debug('GA4 user ID set', { userId });
+  } catch (error) {
+    logger.error('Failed to set GA4 user ID', error instanceof Error ? error : new Error(String(error)));
+  }
  */
 export function setGA4UserId(userId: string): void {
   ReactGA.set({ user_id: userId });
@@ -296,8 +326,8 @@ function trackWebVitals(): void {
   // Cumulative Layout Shift
   onCLS(sendToGA4);
 
-  // First Input Delay
-  onFID(sendToGA4);
+  // Interaction to Next Paint (replaces FID in web-vitals v3+)
+  onINP(sendToGA4);
 
   // First Contentful Paint
   onFCP(sendToGA4);

@@ -237,7 +237,8 @@ const createIndexedDBMock = () => {
               })),
               transaction: vi.fn((storeNames: string | string[], _mode?: string) => {
                 const storeName = Array.isArray(storeNames) ? storeNames[0] : storeNames;
-//                 const store = stores.get(storeName) || new Map(); // Unused variable
+//                 const store = stores.get(storeName) || new Map();
+ // Unused variable
 
                 return {
                   objectStore: vi.fn((storeName: string) => {

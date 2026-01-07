@@ -1,11 +1,11 @@
-﻿/**
+/**
  * ENTERPRISE PERMISSIONS HOOK
  * Real permission checking with Firebase integration + RBAC matrix
  * Last Updated: December 16, 2025
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { getUserPermissions, getUserRole } from '@/api/authService';
 import { Permission } from '@/types';
@@ -38,7 +38,7 @@ export const usePermissions = () => {
 
     const role = member.roleId as UserRole;
     if (!PERMISSION_MATRIX[role]) {
-      logger.error('Invalid role detected', { role, userId: currentUser.id });
+      logger.error('Invalid role detected', new Error(`Invalid role: ${role}`), { userId: currentUser.id });
       return null;
     }
 

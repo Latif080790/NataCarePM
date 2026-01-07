@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import { useRealtimeCollaboration } from '@/contexts/RealtimeCollaborationContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 
 interface LiveCursorsProps {
   containerId?: string;

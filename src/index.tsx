@@ -44,21 +44,24 @@ Node.prototype.insertBefore = function<T extends Node>(newNode: T, referenceNode
 // Critical: Import React first to ensure it's available globally
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import Root from './Root';
+
+// Lazy load Root to reduce initial bundle
+const Root = React.lazy(() => import('./Root'));
 
 import { initCSPMonitoring } from '@/utils/cspMonitoring';
-import { initGA4 } from '@/utils/analytics';
-import { onCLS, onINP, onLCP, onTTFB } from 'web-vitals';
+// import { initGA4 } from '@/utils/analytics';
+// import { onCLS, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // Initialize Security Features
 initCSPMonitoring();
 
-// Initialize Analytics
-initGA4();
+// Initialize Analytics - TEMPORARILY DISABLED
+// initGA4();
 
 // ===================================
-// WEB VITALS MONITORING (CRITICAL)
+// WEB VITALS MONITORING - TEMPORARILY DISABLED
 // ===================================
+/*
 function sendToAnalytics(metric: any) {
   // const body = JSON.stringify(metric);
   
@@ -87,10 +90,10 @@ function sendToAnalytics(metric: any) {
 
 // Track Core Web Vitals
 onCLS(sendToAnalytics);  // Cumulative Layout Shift
-onFID(sendToAnalytics);  // First Input Delay
+onINP(sendToAnalytics);  // Interaction to Next Paint (replaces FID)
 onLCP(sendToAnalytics);  // Largest Contentful Paint
 onTTFB(sendToAnalytics); // Time to First Byte
-onINP(sendToAnalytics);  // Interaction to Next Paint (new in 2024)
+*/
 
 // ===================================
 // GLOBAL ERROR HANDLERS
@@ -155,7 +158,23 @@ if (container) {
   try {
     console.log('[App] Rendering with React 18...');
     const root = createRoot(container);
-    root.render(<Root />);
+    
+    // Disable StrictMode in production to prevent double-render issues
+    if (import.meta.env.DEV) {
+      root.render(
+        <React.StrictMode>
+          <React.Suspense fallback={<div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>}>
+            <Root />
+          </React.Suspense>
+        </React.StrictMode>
+      );
+    } else {
+      root.render(
+        <React.Suspense fallback={<div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>}>
+          <Root />
+        </React.Suspense>
+      );
+    }
     console.log('[App] ✅ Successfully mounted');
   } catch (error) {
     console.error('[App] ❌ Fatal Error:', error);

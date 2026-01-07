@@ -15,7 +15,7 @@ import { Task } from '@/types';
 import { TaskDependency } from '@/types/ai-resource.types';
 import { schedulingService } from '@/api/schedulingService';
 import { enhancedTaskService } from '@/api/taskService.enhanced';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';

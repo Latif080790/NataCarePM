@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { Input, Select, Textarea } from './FormControls';
 import { Task, Subtask, TaskComment } from '@/types';
 import { taskService } from '@/api/taskService';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Spinner } from './Spinner';

@@ -20,7 +20,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useDeviceType, useDeviceCheck } from '@/hooks/useDeviceType';
 import { MobileCard, MobileSection } from '@/components/MobileLayout';
 import { SpinnerPro } from '@/components/SpinnerPro';

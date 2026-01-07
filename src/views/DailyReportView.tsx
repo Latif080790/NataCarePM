@@ -7,7 +7,7 @@ import { Modal } from '@/components/Modal';
 import { formatDate, getTodayDateString, hasPermission } from '@/constants';
 import { PlusCircle, Sun, Cloud, CloudRain } from 'lucide-react';
 import { InputPro } from '@/components/DesignSystem';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { CommentThread } from '@/components/CommentThread';
 

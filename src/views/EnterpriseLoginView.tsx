@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { ButtonPro } from '@/components/ButtonPro';
 import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { Spinner } from '@/components/Spinner';
 import { useValidatedForm } from '@/hooks/useValidatedForm';
 import { FormField } from '@/components/FormFields';

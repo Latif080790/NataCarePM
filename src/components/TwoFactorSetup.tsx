@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { twoFactorService } from '@/api/twoFactorService';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 
 interface TwoFactorSetupProps {
   onComplete?: () => void;

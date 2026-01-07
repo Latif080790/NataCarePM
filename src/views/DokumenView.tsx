@@ -28,7 +28,7 @@ import {
   Camera,
 } from 'lucide-react';
 import { formatDate, hasPermission } from '@/constants';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { UploadDocumentModal } from '@/components/UploadDocumentModal';
 import { CameraCapture, useCameraCapture } from '@/components/CameraCapture';
 import { useProject } from '@/contexts/ProjectContext';

@@ -34,7 +34,7 @@ import {
   Clock,
   FileText,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import { wbsService } from '@/api/wbsService';
 import { WBSElement, WBSHierarchy } from '@/types/wbs';

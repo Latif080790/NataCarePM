@@ -49,7 +49,8 @@ export function useRenderMonitor(
     if (!enabled) return;
 
     renderCount.current += 1;
-//     const renderTime = Date.now() - lastRender.current; // Unused variable
+//     const renderTime = Date.now() - lastRender.current;
+ // Unused variable
     lastRender.current = Date.now();
 
     // Performance monitoring in development

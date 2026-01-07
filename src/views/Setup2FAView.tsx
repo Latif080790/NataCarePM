@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import { generateTOTPSecret, enrollTOTP, getTOTPStatus } from '@/api/totpAuthService';
 import { ButtonPro } from '@/components/ButtonPro';

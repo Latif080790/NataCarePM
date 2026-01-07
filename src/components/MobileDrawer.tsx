@@ -20,7 +20,7 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { navLinksConfig, hasPermission } from '@/constants';
 import {
   detectSwipe,

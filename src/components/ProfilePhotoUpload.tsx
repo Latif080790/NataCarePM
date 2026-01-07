@@ -7,7 +7,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Camera, Upload, X, Check, Loader, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { uploadProfilePhoto } from '@/api/userProfileService';
 import { useToast } from '@/contexts/ToastContext';
 import {

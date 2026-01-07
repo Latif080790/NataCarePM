@@ -95,9 +95,10 @@ interface MessageProviderProps {
  * Message Provider Component
  */
 export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) => {
-  const { currentUser } = useAuth();
+  // Always call hooks at the top level, in the same order
+  const authContext = useAuth();
   
-  // State
+  // State hooks - MUST be called unconditionally
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [chatsLoading, setChatsLoading] = useState(false);
@@ -114,18 +115,25 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
 
   const [settings, setSettings] = useState<ChatSettings | null>(null);
   const [settingsLoading, setSettingsLoading] = useState(false);
+  
+  // Extract currentUser AFTER all hooks are called
+  const { currentUser } = authContext;
 
   /**
    * Fetch user chats
    */
   const fetchUserChats = useCallback(async (filters?: ChatFilterOptions) => {
-    if (!currentUser?.id) return;
+    const userId = currentUser?.id;
+    if (!userId) {
+      console.warn('[MessageContext] Cannot fetch chats - no user ID');
+      return;
+    }
 
     setChatsLoading(true);
     setChatsError(null);
 
     try {
-      const userChats = await messageService.getUserChats(currentUser.id, filters);
+      const userChats = await messageService.getUserChats(userId, filters);
       setChats(userChats);
     } catch (error: any) {
       console.error('[MessageContext] Error fetching chats:', error);
@@ -133,7 +141,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
     } finally {
       setChatsLoading(false);
     }
-  }, [currentUser?.id]);
+  }, [currentUser]);
 
   /**
    * Create new chat

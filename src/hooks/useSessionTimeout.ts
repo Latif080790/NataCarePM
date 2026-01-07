@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 
 // Session timeout: 2 hours (in milliseconds)
 const SESSION_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours

@@ -79,7 +79,7 @@ export function useOfflineSync(): OfflineSyncHookReturn {
       setIsLowStorage(stats.isLowStorage);
       setIsSyncing(stats.isSyncing);
     } catch (error) {
-      logger.error('Failed to update offline stats', error);
+      logger.error('Failed to update offline stats', error instanceof Error ? error : new Error(String(error)));
     }
   }, []);
 
@@ -93,14 +93,14 @@ export function useOfflineSync(): OfflineSyncHookReturn {
       try {
         await syncNow();
       } catch (error) {
-        logger.error('Auto-sync failed', error);
+        logger.error('Auto-sync failed', error instanceof Error ? error : new Error(String(error)));
       }
     };
 
     const handleOffline = () => {
       setIsOnline(false);
       logger.warn('Connection lost - switching to offline mode');
-      addToast('⚠️ Offline mode - Data will be saved locally', 'warning');
+      addToast('⚠️ Offline mode - Data will be saved locally', 'info');
     };
 
     window.addEventListener('online', handleOnline);
@@ -142,7 +142,7 @@ export function useOfflineSync(): OfflineSyncHookReturn {
         addToast('Operation queued for sync', 'info');
         return id;
       } catch (error) {
-        logger.error('Failed to queue operation', error);
+        logger.error('Failed to queue operation', error instanceof Error ? error : new Error(String(error)));
         addToast('Failed to queue operation', 'error');
         throw error;
       }
@@ -164,7 +164,7 @@ export function useOfflineSync(): OfflineSyncHookReturn {
         addToast('📱 Daily log saved offline', 'success');
         return localId;
       } catch (error) {
-        logger.error('Failed to save daily log offline', error);
+        logger.error('Failed to save daily log offline', error instanceof Error ? error : new Error(String(error)));
         addToast('Failed to save offline', 'error');
         throw error;
       }
@@ -175,12 +175,12 @@ export function useOfflineSync(): OfflineSyncHookReturn {
   // Manual sync
   const syncNow = useCallback(async () => {
     if (!navigator.onLine) {
-      addToast('Cannot sync: No internet connection', 'warning');
+      addToast('Cannot sync: No internet connection', 'info');
       return;
     }
 
     if (isSyncing) {
-      addToast('Sync already in progress', 'warning');
+      addToast('Sync already in progress', 'info');
       return;
     }
 
@@ -197,13 +197,13 @@ export function useOfflineSync(): OfflineSyncHookReturn {
       } else {
         addToast(
           `⚠️ Synced ${result.success}/${result.total} items (${result.failed} failed)`,
-          'warning'
+          'info'
         );
       }
 
       await updateStats();
     } catch (error) {
-      logger.error('Sync failed', error);
+      logger.error('Sync failed', error instanceof Error ? error : new Error(String(error)));
       addToast('❌ Sync failed', 'error');
     } finally {
       setIsSyncing(false);
@@ -217,7 +217,7 @@ export function useOfflineSync(): OfflineSyncHookReturn {
       addToast(`Cleared ${count} failed operations`, 'success');
       await updateStats();
     } catch (error) {
-      logger.error('Failed to clear failed operations', error);
+      logger.error('Failed to clear failed operations', error instanceof Error ? error : new Error(String(error)));
       addToast('Failed to clear operations', 'error');
     }
   }, [addToast, updateStats]);

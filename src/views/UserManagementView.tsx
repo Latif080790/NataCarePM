@@ -2,7 +2,7 @@ import { User } from '@/types';
 import { CardPro, CardProContent, CardProHeader, CardProTitle, CardProDescription, ButtonPro } from '@/components/DesignSystem';
 import { UserPlus, Trash2 } from 'lucide-react';
 import { ROLES_CONFIG, hasPermission } from '@/constants';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useState, useEffect } from 'react';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { userService } from '@/api/userService';

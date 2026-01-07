@@ -14,7 +14,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Milestone } from '@/types';
 import { milestoneService } from '@/api/milestoneService';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';

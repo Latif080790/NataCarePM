@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/FormControls';
 import { useSecurityManager, usePerformanceMonitor } from '@/hooks/useSecurityAndPerformance';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
 import {
   Shield,

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/Button';
 import { Task } from '@/types';
 import { taskService } from '@/api/taskService';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import TaskDetailModal from '@/components/TaskDetailModal';

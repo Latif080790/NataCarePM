@@ -6,7 +6,7 @@ import CreateTaskModal from '@/components/CreateTaskModal';
 import { InputPro } from '@/components/DesignSystem';
 import TaskDetailModal from '@/components/TaskDetailModal';
 import { formatDate } from '@/constants';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { Task } from '@/types';
 import { sanitizeBasic } from '@/utils/sanitizer';

@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 
 interface DashboardViewProps {
   projects?: Project[];

@@ -28,7 +28,7 @@ import {
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Input } from './FormControls';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { MaterialRequest, MRItem, MRPriority } from '@/types/logistics';

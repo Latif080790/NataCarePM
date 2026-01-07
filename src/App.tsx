@@ -1,6 +1,5 @@
 import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { EnterpriseProjectLoader } from '@/components/EnterpriseLoaders';
-import LiveCursors from '@/components/LiveCursors';
 import MainLayout from '@/components/MainLayout';
 import { MobileLayout } from '@/components/MobileLayout';
 import OfflineIndicator from '@/components/OfflineIndicator';
@@ -8,7 +7,7 @@ import PerformanceDashboard from '@/components/PerformanceDashboard'; // P2.2: P
 import { ViewErrorBoundary } from '@/components/ViewErrorBoundary';
 import '@/styles/enterprise-design-system.css';
 import '@/styles/mobile-responsive.css';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
 import { useDeviceType } from '@/hooks/useDeviceType';
 
@@ -35,11 +34,11 @@ const lazyWithRetry = (componentImport: () => Promise<any>) =>
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 import { SuspenseWithErrorBoundary } from '@/components/SuspenseWithErrorBoundary';
 
-// Priority 2C: Monitoring & Analytics initialization
-import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
+// Priority 2C: Monitoring & Analytics initialization - TEMPORARILY DISABLED
+// import { initializeGA4, setGA4UserId, trackPageView } from '@/config/ga4.config';
 // Sentry loaded dynamically to reduce initial bundle size
 // import { clearSentryUser, initializeSentry, setSentryUser } from '@/config/sentry.config';
-import { trackPushNotification } from '@/utils/mobileAnalytics';
+// import { trackPushNotification } from '@/utils/mobileAnalytics';
 
 // Eager-loaded components (critical for initial render)
 import EnterpriseLoginView from '@/views/EnterpriseLoginView';
@@ -129,7 +128,7 @@ const Setup2FAView = lazyWithRetry(() => import('@/views/Setup2FAView'));
 
 import { monitoringService } from '@/api/monitoringService';
 import { Spinner } from '@/components/Spinner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal'; // Use minimal version
 import { useProject } from '@/contexts/ProjectContext';
 import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
 import { AIResourceProvider } from '@/contexts/AIResourceContext';
@@ -307,15 +306,17 @@ function ProtectedApp() {
         initializeSentry();
         logger.info('Sentry error tracking initialized (lazy loaded)');
 
-        // Initialize Google Analytics 4
-        initializeGA4();
-        logger.info('Google Analytics 4 initialized');
+        // Initialize Google Analytics 4 - TEMPORARILY DISABLED
+        // initializeGA4();
+        // logger.info('Google Analytics 4 initialized');
 
-        // P2.2: Initialize Web Vitals Performance Monitoring
+        // P2.2: Initialize Web Vitals Performance Monitoring - TEMPORARILY DISABLED
+        /*
         const { initializeWebVitals, monitorLongTasks } = await import('@/utils/webVitalsMonitoring');
         initializeWebVitals();
         monitorLongTasks();
         logger.info('[Performance] Web Vitals monitoring initialized - tracking LCP, FID, CLS, FCP, TTFB');
+        */
       } catch (err) {
         logger.error('Failed to initialize monitoring services', err instanceof Error ? err : new Error(String(err)));
       }
@@ -343,8 +344,8 @@ function ProtectedApp() {
             role: currentUser.roleId,
           });
 
-          // Set GA4 user ID
-          setGA4UserId(currentUser.id);
+          // Set GA4 user ID - TEMPORARILY DISABLED
+          // setGA4UserId(currentUser.id);
 
           logger.info('User context set for monitoring', { userId: currentUser.id });
         } catch (err) {
@@ -369,6 +370,8 @@ function ProtectedApp() {
   useEffect(() => {
     if (currentUser) {
       try {
+        // Track page view - TEMPORARILY DISABLED
+        /*
         // Use requestIdleCallback to not block main thread
         if ('requestIdleCallback' in window) {
           requestIdleCallback(() => {
@@ -379,6 +382,7 @@ function ProtectedApp() {
             trackPageView(window.location.pathname, `NataCarePM - ${window.location.pathname}`);
           }, 1000);
         }
+        */
       } catch (err) {
         logger.error('Failed to track page view', err instanceof Error ? err : new Error(String(err)), { path: window.location.pathname });
       }
@@ -391,7 +395,7 @@ function ProtectedApp() {
       const messageHandler = (event: MessageEvent) => {
         if (event.data && event.data.type === 'NOTIFICATION_CLICKED') {
           const payload = event.data.payload;
-          trackPushNotification(payload);
+          // trackPushNotification(payload); // TODO: Re-enable when mobileAnalytics restored
           logger.info('Push notification click tracked', { type: payload.notificationType });
         }
       };
@@ -488,13 +492,40 @@ function ProtectedApp() {
   };
 
   // Use mobile layout for mobile and tablet devices
-  const LayoutComponent = (isMobile || isTablet) ? MobileLayout : MainLayout;
-  const layoutProps = (isMobile || isTablet)
-    ? { title: getPageTitle(), showBottomNav: true, showHeader: true }
-    : { isSidebarCollapsed, setIsSidebarCollapsed };
+  const useMobileLayout = isMobile || isTablet;
 
   return (
-    <LayoutComponent {...layoutProps}>
+    <>
+      {useMobileLayout ? (
+        <MobileLayout title={getPageTitle()} showBottomNav={true} showHeader={true}>
+          <EnhancedErrorBoundary>
+            <SuspenseWithErrorBoundary
+              fallback={
+                <div className="flex items-center justify-center h-full">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-sm font-medium text-slate-700">Loading view...</p>
+                  </div>
+                </div>
+              }
+            >
+              <Outlet />
+            </SuspenseWithErrorBoundary>
+          </EnhancedErrorBoundary>
+          
+          {/* Mobile-friendly components always shown */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <PWAInstallPrompt />
+          </SuspenseWithErrorBoundary> */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <UserFeedbackWidget position="bottom-right" />
+          </SuspenseWithErrorBoundary> */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <SentryTestPanel />
+          </SuspenseWithErrorBoundary> */}
+        </MobileLayout>
+      ) : (
+        <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>
       <EnhancedErrorBoundary>
         <SuspenseWithErrorBoundary
           fallback={
@@ -510,9 +541,7 @@ function ProtectedApp() {
         </SuspenseWithErrorBoundary>
       </EnhancedErrorBoundary>
       
-      {/* Heavy components - Only load on desktop for performance */}
-      {!isMobile && !isTablet && (
-        <>
+          {/* Heavy components - Only load on desktop for performance */}
           {/* PERFORMANCE OPTIMIZATION: Heavy components lazy loaded - TEMPORARILY DISABLED TO FIX CRASH */}
           {/* <SuspenseWithErrorBoundary fallback={null}>
             <CommandPalette />
@@ -520,34 +549,31 @@ function ProtectedApp() {
           {/* <SuspenseWithErrorBoundary fallback={null}>
             <AiAssistantChat />
           </SuspenseWithErrorBoundary> */}
-        </>
-      )}
-      
-      {/* Mobile-friendly components always shown */}
-      {/* <SuspenseWithErrorBoundary fallback={null}>
-        <PWAInstallPrompt />
-      </SuspenseWithErrorBoundary> */}
-      {/* <SuspenseWithErrorBoundary fallback={null}>
-        <UserFeedbackWidget position="bottom-right" />
-      </SuspenseWithErrorBoundary> */}
-      {/* <SuspenseWithErrorBoundary fallback={null}>
-        <SentryTestPanel />
-      </SuspenseWithErrorBoundary> */}
-      
-      {/* Offline indicator - Different position for mobile */}
-      {!(isMobile || isTablet) && <OfflineIndicator />}
-      
-      {/* Desktop-only components */}
-      {!isMobile && !isTablet && (
-        <>
+          
+          {/* Mobile-friendly components always shown */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <PWAInstallPrompt />
+          </SuspenseWithErrorBoundary> */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <UserFeedbackWidget position="bottom-right" />
+          </SuspenseWithErrorBoundary> */}
+          {/* <SuspenseWithErrorBoundary fallback={null}>
+            <SentryTestPanel />
+          </SuspenseWithErrorBoundary> */}
+          
+          {/* Offline indicator - Different position for mobile */}
+          <OfflineIndicator />
+          
+          {/* Desktop-only components */}
           {/* LiveCursors temporarily disabled - causes DOM manipulation errors */}
           {/* <LiveCursors containerId="app-container" showLabels /> */}
           <FailoverStatusIndicator />
-        </>
+          
+          {/* <PerformanceMonitor /> */}
+          {/* <PerformanceDashboard /> */}
+        </MainLayout>
       )}
-      {/* <PerformanceMonitor /> */}
-      {/* <PerformanceDashboard /> */}
-    </LayoutComponent>
+    </>
   );
 }
 

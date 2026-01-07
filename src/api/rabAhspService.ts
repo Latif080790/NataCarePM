@@ -149,7 +149,7 @@ export class RabAhspService {
           );
         }
       } catch (auditError) {
-        logger.error('Failed to create audit log for RAB creation', auditError);
+        logger.error('Failed to create audit log for RAB creation', auditError as Error);
       }
 
       logger.info('RAB item created successfully', {
@@ -281,7 +281,7 @@ export class RabAhspService {
           );
         }
       } catch (auditError) {
-        logger.error('Failed to create audit log for RAB update', auditError);
+        logger.error('Failed to create audit log for RAB update', auditError as Error);
       }
 
       logger.info('RAB item updated successfully', { projectId, rabItemId });
@@ -338,7 +338,7 @@ export class RabAhspService {
           );
         }
       } catch (auditError) {
-        logger.error('Failed to create audit log for RAB deletion', auditError);
+        logger.error('Failed to create audit log for RAB deletion', auditError as Error);
       }
 
       logger.info('RAB item deleted successfully', { projectId, rabItemId });

@@ -9,11 +9,10 @@ import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from 'web-vitals';
 interface PerformanceMetrics {
   // Core Web Vitals
   LCP: number | null; // Largest Contentful Paint
-  FID: number | null; // First Input Delay
+  INP: number | null; // Interaction to Next Paint (replaces FID)
   CLS: number | null; // Cumulative Layout Shift
   FCP: number | null; // First Contentful Paint
   TTFB: number | null; // Time to First Byte
-  INP: number | null; // Interaction to Next Paint
   
   // Custom metrics
   routeLoadTime: Record<string, number[]>;
@@ -32,7 +31,6 @@ class PerformanceMonitor {
   constructor() {
     this.metrics = {
       LCP: null,
-      FID: null,
       CLS: null,
       FCP: null,
       TTFB: null,
@@ -59,10 +57,10 @@ class PerformanceMonitor {
       this.logMetric('LCP', metric.value, this.getRating(metric.value, 2500, 4000));
     });
 
-    // Track First Input Delay
-    onFID((metric: Metric) => {
-      this.metrics.FID = metric.value;
-      this.logMetric('FID', metric.value, this.getRating(metric.value, 100, 300));
+    // Track Interaction to Next Paint (replaces FID)
+    onINP((metric: Metric) => {
+      this.metrics.INP = metric.value;
+      this.logMetric('INP', metric.value, this.getRating(metric.value, 200, 500));
     });
 
     // Track Cumulative Layout Shift
@@ -283,11 +281,10 @@ class PerformanceMonitor {
       // Core Web Vitals
       webVitals: {
         LCP: this.metrics.LCP,
-        FID: this.metrics.FID,
+        INP: this.metrics.INP,
         CLS: this.metrics.CLS,
         FCP: this.metrics.FCP,
-        TTFB: this.metrics.TTFB,
-        INP: this.metrics.INP
+        TTFB: this.metrics.TTFB
       },
       
       // Custom metrics
@@ -337,7 +334,6 @@ class PerformanceMonitor {
   public clearMetrics(): void {
     this.metrics = {
       LCP: null,
-      FID: null,
       CLS: null,
       FCP: null,
       TTFB: null,
