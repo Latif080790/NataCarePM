@@ -198,17 +198,17 @@ export function useSecureOperation<T = unknown>(
 
         // Show success toast
         if (showSuccessToast) {
-          addToast({
-            type: 'success',
-            message: successMessage || `${operationDescription} completed successfully`,
-          });
+          addToast(
+            successMessage || `${operationDescription} completed successfully`,
+            'success'
+          );
         }
 
         return true;
       } else {
         // Check if rate limited
         const isRateLimited = result.error?.includes('Too many attempts') || 
-                             result.error?.includes('Maximum attempts');
+                             result.error?.includes('Maximum attempts') || false;
         
         setState(prev => ({
           ...prev,
@@ -219,10 +219,10 @@ export function useSecureOperation<T = unknown>(
 
         // Show error toast
         if (showErrorToast) {
-          addToast({
-            type: 'error',
-            message: errorMessage || result.error || 'Operation failed',
-          });
+          addToast(
+            errorMessage || result.error || 'Operation failed',
+            'error'
+          );
         }
 
         return false;
@@ -237,10 +237,10 @@ export function useSecureOperation<T = unknown>(
       }));
 
       if (showErrorToast) {
-        addToast({
-          type: 'error',
-          message: errorMessage || errorMsg,
-        });
+        addToast(
+          errorMessage || errorMsg,
+          'error'
+        );
       }
 
       logger.error('[useSecureOperation] Operation failed', error instanceof Error ? error : new Error(String(error)));

@@ -25,7 +25,7 @@ import {
   type ProjectContext
 } from '@/services/naturalLanguageService';
 import { useProject } from '@/contexts/ProjectContext';
-import { useRabItems, useTasks, useInventoryItems } from './useQueryHooks';
+import { useRabItems, useTasks, useInventoryMaterials } from '@/hooks/useQueryHooks';
 import { useCallback, useMemo } from 'react';
 
 // ============================================
@@ -39,8 +39,15 @@ import { useCallback, useMemo } from 'react';
 export function useSmartNotifications(projectId: string | undefined) {
   const { data: rabItems = [] } = useRabItems(projectId);
   const { data: tasks = [] } = useTasks(projectId);
-  const { data: inventoryItems = [] } = useInventoryItems(projectId);
+  const { data: inventoryMaterials = [] } = useInventoryMaterials();
   const { currentProject } = useProject();
+  
+  // Convert inventory materials to inventory items format
+  const inventoryItems = useMemo(() => inventoryMaterials.map(m => ({
+    materialName: m.materialName,
+    quantity: m.currentStock,
+    unit: m.baseUom,
+  })), [inventoryMaterials]);
   
   return useQuery<SmartNotification[]>({
     queryKey: [...queryKeys.ai.all, 'smartNotifications', projectId],
@@ -121,8 +128,15 @@ export function useBudgetPrediction(projectId: string | undefined) {
 export function useNLQuery(projectId: string | undefined) {
   const { data: rabItems = [] } = useRabItems(projectId);
   const { data: tasks = [] } = useTasks(projectId);
-  const { data: inventoryItems = [] } = useInventoryItems(projectId);
+  const { data: inventoryMaterials = [] } = useInventoryMaterials();
   const { currentProject } = useProject();
+  
+  // Convert inventory materials to inventory items format
+  const inventoryItems = useMemo(() => inventoryMaterials.map(m => ({
+    materialName: m.materialName,
+    quantity: m.currentStock,
+    unit: m.baseUom,
+  })), [inventoryMaterials]);
   
   const context: ProjectContext | null = useMemo(() => {
     if (!currentProject) return null;

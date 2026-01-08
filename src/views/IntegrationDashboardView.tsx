@@ -27,7 +27,7 @@ const IntegrationDashboardView: React.FC = React.memo(() => {
     loading,
     error,
     syncStatus,
-    fetchIntegrations,
+    // fetchIntegrations, // Available if needed for manual refresh
     createIntegration,
     updateIntegration,
     deleteIntegration,

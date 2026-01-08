@@ -142,14 +142,14 @@ import { logger } from '@/utils/logger.enhanced';
 
 logger.debug('monitoringService imported in App.tsx', { monitoringService });
 
-// Lazy-loaded heavy components
-const CommandPalette = lazyWithRetry(() =>
-  import('@/components/CommandPalette').then((module) => ({ default: module.CommandPalette }))
-);
-const AiAssistantChat = lazyWithRetry(() => import('@/components/AiAssistantChat'));
-const PWAInstallPrompt = lazyWithRetry(() => import('@/components/PWAInstallPrompt'));
+// Lazy-loaded heavy components (commented out until needed)
+// const CommandPalette = lazyWithRetry(() =>
+//   import('@/components/CommandPalette').then((module) => ({ default: module.CommandPalette }))
+// );
+// const AiAssistantChat = lazyWithRetry(() => import('@/components/AiAssistantChat'));
+// const PWAInstallPrompt = lazyWithRetry(() => import('@/components/PWAInstallPrompt'));
 // const UserFeedbackWidget = lazyWithRetry(() => import('@/components/UserFeedbackWidget'));
-const SentryTestPanel = lazyWithRetry(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
+// const SentryTestPanel = lazyWithRetry(() => import('@/components/SentryTestButton').then((module) => ({ default: module.SentryTestPanel })));
 
 // Wrapper components that inject context data into views requiring props
 function WBSWrapper() {
@@ -275,7 +275,7 @@ function IntegrationDashboardWrapper() {
  */
 function ProtectedApp() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [showDebug, setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D
+  const [_showDebug, _setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D - unused for now
   const { currentUser } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
 

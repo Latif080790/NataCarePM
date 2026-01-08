@@ -216,7 +216,7 @@ class MLModelManager {
     trainingData: TrainingDataset,
     validationSplit: number = 0.2
   ): Promise<MLModelMetadata> {
-    const tf = await this.getTf();
+    await this.getTf(); // Ensure TensorFlow is loaded
     const startTime = Date.now();
 
     // Prepare tensors
@@ -242,7 +242,7 @@ class MLModelManager {
     };
 
     // Train model
-    const result = await model.fit(xs, ys, {
+    await model.fit(xs, ys, {
       epochs: MODEL_CONFIGS.RESOURCE_ALLOCATION_NN.epochs,
       batchSize: MODEL_CONFIGS.RESOURCE_ALLOCATION_NN.batchSize,
       validationSplit,
@@ -1054,7 +1054,7 @@ class AIResourceService {
   private calculateOptimizationMetrics(
     genome: ResourceAllocation[],
     tasks: any[],
-    resources: Resource[]
+    _resources: Resource[]
   ): OptimizationMetrics {
     const totalCost = genome.reduce((sum, a) => sum + a.estimatedCost, 0);
     const baselineCost = tasks.reduce((sum, t) => sum + t.unitPrice * t.volume, 0);
@@ -1080,9 +1080,9 @@ class AIResourceService {
    * Generate Alternative Scenarios
    */
   private generateAlternatives(
-    fitnessHistory: number[],
-    tasks: any[],
-    resources: Resource[]
+    _fitnessHistory: number[],
+    _tasks: any[],
+    _resources: Resource[]
   ): AlternativeScenario[] {
     // Generate 2-3 alternative scenarios with different trade-offs
     return [
@@ -1387,7 +1387,7 @@ class AIResourceService {
     return allocations.reduce((sum, alloc) => sum + (alloc.actualCost || alloc.estimatedCost || 0), 0);
   }
   
-  private calculateAverageCostOverrun(project: any, allocations: any[]): number {
+  private calculateAverageCostOverrun(_project: any, allocations: any[]): number {
     const estimated = allocations.reduce((sum, alloc) => sum + (alloc.estimatedCost || 0), 0);
     const actual = this.calculateActualCost(allocations);
     
@@ -1396,7 +1396,7 @@ class AIResourceService {
     return ((actual - estimated) / estimated) * 100;
   }
   
-  private calculateSuccessRate(project: any, tasks: any[]): number {
+  private calculateSuccessRate(_project: any, tasks: any[]): number {
     const completedTasks = tasks.filter(task => task.status === 'completed').length;
     return tasks.length > 0 ? completedTasks / tasks.length : 0.9;
   }

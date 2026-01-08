@@ -36,7 +36,7 @@ export function UploadDocumentModal({ isOpen, onClose, onAddDocument }: UploadDo
     }
 
     // Check file validation - block if errors exist
-    if (validationResult && !validationResult.isValid) {
+    if (validationResult && !validationResult.valid) {
       alert('File tidak valid. Harap perbaiki masalah yang ditampilkan sebelum mengunggah.');
       return;
     }

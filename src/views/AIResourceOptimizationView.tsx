@@ -39,13 +39,13 @@ const AIResourceOptimizationView: React.FC = React.memo(() => {
     models,
     optimizationResults,
     recommendations,
-    resourceAllocations,
+    // resourceAllocations, // Available for future use
     bottlenecks,
     isLoading,
     error,
     initializeModels,
     requestOptimization,
-    getRecommendations,
+    // getRecommendations, // Available for future use
     acceptRecommendation,
     rejectRecommendation,
     clearError,

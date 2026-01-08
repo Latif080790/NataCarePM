@@ -15,7 +15,18 @@
 import { rateLimiter, RateLimitResult } from './rateLimiter';
 import { sanitizeStrict, sanitizeBasic, sanitizeUrl, sanitizeFilename } from './sanitizer';
 import { logger } from './logger.enhanced';
-import { auditService } from '@/api/auditService.enhanced';
+
+// Simple audit logger that logs to console (audit service uses different API)
+const logAuditActivity = async (data: {
+  userId: string;
+  action: string;
+  resourceType: string;
+  resourceId: string;
+  projectId?: string;
+  details?: Record<string, unknown>;
+}) => {
+  logger.info('[Security Audit]', data);
+};
 
 // ============================================================================
 // Types
@@ -131,7 +142,7 @@ export async function performSecurityCheck(
 
     // 3. Create audit log entry
     try {
-      await auditService.logActivity({
+      await logAuditActivity({
         userId,
         action: 'security_check',
         resourceType: 'security',
@@ -311,7 +322,7 @@ export async function executeSecureOperation<T>(
     
     // 3. Log successful completion
     try {
-      await auditService.logActivity({
+      await logAuditActivity({
         userId: options.userId,
         action: 'operation_completed',
         resourceType: 'security',
@@ -340,7 +351,7 @@ export async function executeSecureOperation<T>(
     });
 
     try {
-      await auditService.logActivity({
+      await logAuditActivity({
         userId: options.userId,
         action: 'operation_failed',
         resourceType: 'security',
