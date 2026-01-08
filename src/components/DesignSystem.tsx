@@ -99,6 +99,9 @@ export type { InputProProps } from './InputPro';
 export { CommandPalettePro, useCommandPalette } from './CommandPalettePro';
 export type { CommandItem } from './CommandPalettePro';
 
+// Export Components (Phase 3)
+export { ExportButton } from './ExportButton';
+
 // Security Components
 export { TwoFactorAuth } from './TwoFactorAuth';
 export { TwoFactorManagement } from './TwoFactorManagement';

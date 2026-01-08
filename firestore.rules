@@ -3,10 +3,15 @@ rules_version = '2';
 /**
  * ENTERPRISE-GRADE FIRESTORE SECURITY RULES
  * Production-ready with granular RBAC permissions
- * Last Updated: December 16, 2025
+ * Last Updated: January 8, 2026
  * 
  * CRITICAL: These rules enforce role-based access control
  * Deploy with: firebase deploy --only firestore:rules
+ * 
+ * Phase 2 Security Hardening:
+ * - Added data validation functions
+ * - Enhanced rate limiting awareness
+ * - Stricter field-level permissions
  */
 
 service cloud.firestore {
@@ -54,13 +59,60 @@ service cloud.firestore {
     }
     
     // ============================================
+    // DATA VALIDATION FUNCTIONS (Phase 2)
+    // ============================================
+    
+    // Validate string field exists and is not empty
+    function isValidString(field) {
+      return field is string && field.size() > 0 && field.size() < 10000;
+    }
+    
+    // Validate number is positive
+    function isPositiveNumber(field) {
+      return field is number && field >= 0;
+    }
+    
+    // Validate email format (basic check)
+    function isValidEmail(email) {
+      return email is string && email.matches('.*@.*\\..*');
+    }
+    
+    // Validate timestamp is not in the future (with 5 min tolerance)
+    function isValidTimestamp(ts) {
+      return ts is timestamp && ts <= request.time + duration.value(5, 'm');
+    }
+    
+    // Check request size limit (prevent large payload attacks)
+    function isValidRequestSize() {
+      return request.resource.data.keys().size() < 100;
+    }
+    
+    // Validate RAB item data
+    function isValidRabItem() {
+      let data = request.resource.data;
+      return isValidString(data.uraian) &&
+             isPositiveNumber(data.volume) &&
+             isPositiveNumber(data.hargaSatuan) &&
+             isValidString(data.satuan);
+    }
+    
+    // Validate expense data
+    function isValidExpense() {
+      let data = request.resource.data;
+      return isValidString(data.description) &&
+             isPositiveNumber(data.amount);
+    }
+    
+    // ============================================
     // USERS
     // ============================================
     match /users/{userId} {
       allow read: if isOwner(userId) || isAuthenticated();
       allow update: if isOwner(userId) && 
-                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['roleId', 'permissions']);
-      allow create, delete: if isAuthenticated();
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['roleId', 'permissions']) &&
+                       isValidRequestSize();
+      allow create: if isAuthenticated() && isValidRequestSize();
+      allow delete: if false; // Users should be deactivated, not deleted
     }
     
     // ============================================
@@ -68,8 +120,9 @@ service cloud.firestore {
     // ============================================
     match /projects/{projectId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if hasRole(projectId, 'owner');
+      allow create: if isAuthenticated() && isValidRequestSize();
+      allow update: if hasRole(projectId, 'owner') && isValidRequestSize();
+      allow delete: if hasRole(projectId, 'owner');
       
       match /members/{memberId} {
         allow read: if isProjectMember(projectId);
@@ -79,50 +132,69 @@ service cloud.firestore {
       // RAB ITEMS - CRITICAL FINANCIAL DATA
       match /rabItems/{rabItemId} {
         allow read: if canViewFinancials(projectId);
-        allow create, update: if canEditRAB(projectId);
+        allow create: if canEditRAB(projectId) && isValidRabItem() && isValidRequestSize();
+        allow update: if canEditRAB(projectId) && isValidRabItem() && isValidRequestSize();
         allow delete: if hasRole(projectId, 'owner');
       }
       
       // EXPENSES - CRITICAL FINANCIAL DATA
       match /expenses/{expenseId} {
         allow read: if canViewFinancials(projectId);
-        allow create, update: if canManageProject(projectId);
+        allow create: if canManageProject(projectId) && isValidExpense() && isValidRequestSize();
+        allow update: if canManageProject(projectId) && isValidExpense() && isValidRequestSize();
         allow delete: if hasRole(projectId, 'owner');
       }
       
       // DAILY LOGS
       match /dailyLogs/{logId} {
         allow read: if isProjectMember(projectId);
-        allow create, update: if hasAnyRole(projectId, ['owner', 'pm', 'siteManager']);
+        allow create: if hasAnyRole(projectId, ['owner', 'pm', 'siteManager']) && isValidRequestSize();
+        allow update: if hasAnyRole(projectId, ['owner', 'pm', 'siteManager']) && isValidRequestSize();
         allow delete: if hasRole(projectId, 'owner');
       }
       
       // INVENTORY
       match /inventory/{inventoryId} {
         allow read: if isProjectMember(projectId);
-        allow create, update: if hasAnyRole(projectId, ['owner', 'pm', 'logisticsManager', 'siteManager']);
+        allow create, update: if hasAnyRole(projectId, ['owner', 'pm', 'logisticsManager', 'siteManager']) && isValidRequestSize();
         allow delete: if hasRole(projectId, 'owner');
       }
       
       // PURCHASE ORDERS
       match /purchaseOrders/{poId} {
         allow read: if isProjectMember(projectId);
-        allow create: if hasAnyRole(projectId, ['owner', 'pm', 'logisticsManager']);
-        allow update: if canManageProject(projectId);
+        allow create: if hasAnyRole(projectId, ['owner', 'pm', 'logisticsManager']) && isValidRequestSize();
+        allow update: if canManageProject(projectId) && isValidRequestSize();
         allow delete: if hasRole(projectId, 'owner');
       }
       
       // DOCUMENTS
       match /documents/{documentId} {
         allow read: if isProjectMember(projectId);
-        allow create: if isProjectMember(projectId);
+        allow create: if isProjectMember(projectId) && isValidRequestSize();
         allow update, delete: if canManageProject(projectId);
       }
       
+      // TASKS
+      match /tasks/{taskId} {
+        allow read: if isProjectMember(projectId);
+        allow create: if isProjectMember(projectId) && isValidRequestSize();
+        allow update: if isProjectMember(projectId) && isValidRequestSize();
+        allow delete: if canManageProject(projectId);
+      }
+      
+      // MESSAGES / CHAT
+      match /messages/{messageId} {
+        allow read: if isProjectMember(projectId);
+        allow create: if isProjectMember(projectId) && isValidRequestSize();
+        allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+        allow delete: if canManageProject(projectId) || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      }
+
       // Other subcollections
       match /{subcollection}/{document=**} {
         allow read: if isProjectMember(projectId);
-        allow write: if canManageProject(projectId);
+        allow write: if canManageProject(projectId) && isValidRequestSize();
       }
     }
     

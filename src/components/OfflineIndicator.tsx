@@ -8,7 +8,7 @@ import React from 'react';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react';
-import ButtonPro from './ButtonPro';
+import { ButtonPro } from './ButtonPro';
 
 interface OfflineIndicatorProps {
   position?: 'top' | 'bottom';

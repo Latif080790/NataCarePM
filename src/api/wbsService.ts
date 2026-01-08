@@ -25,6 +25,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { logger } from '@/utils/logger.enhanced';
 import {
   WBSElement,
   WBSHierarchy,

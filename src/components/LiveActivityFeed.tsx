@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRealtimeCollaboration } from '@/contexts/RealtimeCollaborationContext';
+import { useRealtimeCollaboration } from '@/contexts/CollaborationContext';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
 import { Activity, Clock, RefreshCw, ExternalLink } from 'lucide-react';

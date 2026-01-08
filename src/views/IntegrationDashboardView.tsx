@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { useIntegration } from '@/contexts/IntegrationContext';
+import { useIntegration } from '@/contexts/CollaborationContext';
 import { logger } from '@/utils/logger.enhanced';
 
 // Type definitions

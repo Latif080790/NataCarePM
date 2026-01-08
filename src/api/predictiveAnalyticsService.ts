@@ -9,6 +9,21 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+
+// TensorFlow.js lazy loading types (prevents bundle bloat)
+type TFNamespace = typeof import('@tensorflow/tfjs');
+type TFLayersModel = import('@tensorflow/tfjs').LayersModel;
+type TFTensor = import('@tensorflow/tfjs').Tensor;
+
+let tf: TFNamespace | null = null;
+
+async function getTensorFlow(): Promise<TFNamespace> {
+  if (!tf) {
+    tf = await import('@tensorflow/tfjs');
+  }
+  return tf;
+}
+
 import type {
   CostForecast,
   ScheduleForecast,
@@ -76,7 +91,7 @@ const MODEL_CONFIGS = {
 // ============================================================================
 
 class TimeSeriesForecaster {
-  private model: tf.LayersModel | null = null;
+  private model: TFLayersModel | null = null;
 
   /**
    * Build LSTM Model for Time Series Forecasting
@@ -88,39 +103,40 @@ class TimeSeriesForecaster {
     outputDim: number;
     learningRate: number;
     sequenceLength: number;
-  }): Promise<tf.LayersModel> {
-    const model = tf.sequential();
+  }): Promise<TFLayersModel> {
+    const tfLib = await getTensorFlow();
+    const model = tfLib.sequential();
 
     // LSTM layers
     model.add(
-      tf.layers.lstm({
+      tfLib.layers.lstm({
         inputShape: [config.sequenceLength, config.inputDim],
         units: config.lstmUnits,
         returnSequences: true,
       })
     );
 
-    model.add(tf.layers.dropout({ rate: 0.2 }));
+    model.add(tfLib.layers.dropout({ rate: 0.2 }));
 
     model.add(
-      tf.layers.lstm({
+      tfLib.layers.lstm({
         units: config.lstmUnits / 2,
         returnSequences: false,
       })
     );
 
-    model.add(tf.layers.dropout({ rate: 0.2 }));
+    model.add(tfLib.layers.dropout({ rate: 0.2 }));
 
     // Dense layers
     model.add(
-      tf.layers.dense({
+      tfLib.layers.dense({
         units: config.denseUnits,
         activation: 'relu',
       })
     );
 
     model.add(
-      tf.layers.dense({
+      tfLib.layers.dense({
         units: config.outputDim,
         activation: 'linear',
       })
@@ -128,7 +144,7 @@ class TimeSeriesForecaster {
 
     // Compile
     model.compile({
-      optimizer: tf.train.adam(config.learningRate),
+      optimizer: tfLib.train.adam(config.learningRate),
       loss: 'meanSquaredError',
       metrics: ['mae'],
     });
@@ -172,7 +188,8 @@ class TimeSeriesForecaster {
       epochs: number;
       sequenceLength: number;
     }
-  ): Promise<tf.LayersModel> {
+  ): Promise<TFLayersModel> {
+    const tfLib = await getTensorFlow();
     const model = await this.buildLSTMModel(config);
 
     // Prepare data
@@ -186,8 +203,8 @@ class TimeSeriesForecaster {
       );
     }
 
-    const xsTensor = tf.tensor3d(xs);
-    const ysTensor = tf.tensor2d(ys.map((y) => [y]));
+    const xsTensor = tfLib.tensor3d(xs);
+    const ysTensor = tfLib.tensor2d(ys.map((y) => [y]));
 
     // Train
     await model.fit(xsTensor, ysTensor, {
@@ -226,6 +243,7 @@ class TimeSeriesForecaster {
       throw new Error('Model not trained. Call train() first.');
     }
 
+    const tfLib = await getTensorFlow();
     const predictions: number[] = [];
     const confidenceIntervals: { lower: number; upper: number }[] = [];
     let currentSequence = historicalData.slice(-sequenceLength);
@@ -233,10 +251,10 @@ class TimeSeriesForecaster {
     for (let i = 0; i < forecastHorizon; i++) {
       // Prepare input
       const input = currentSequence.map((val) => [val]);
-      const inputTensor = tf.tensor3d([input]);
+      const inputTensor = tfLib.tensor3d([input]);
 
       // Predict
-      const prediction = this.model.predict(inputTensor) as tf.Tensor;
+      const prediction = this.model.predict(inputTensor) as TFTensor;
       const predValue = ((await prediction.array()) as number[][])[0][0];
 
       predictions.push(predValue);

@@ -7,6 +7,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { APIResponse } from '@/utils/responseWrapper';
 import { db } from '@/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { logger } from '@/utils/logger.enhanced';
 
 // ========================================
 // TYPES

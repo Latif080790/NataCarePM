@@ -3,7 +3,7 @@
  * Day 4 - Comprehensive audit trail with advanced filtering and export
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { Search, Filter, Download, RefreshCw, Eye, AlertCircle, CheckCircle, XCircle, Clock, FileSpreadsheet, FileText } from 'lucide-react';
 import {
@@ -25,6 +25,7 @@ import {
 } from '@/types/audit.enhanced';
 import { Timestamp } from 'firebase/firestore';
 import { useToast } from '@/contexts/ToastContext';
+import { useDebounce } from '@/utils/performanceOptimization';
 
 export function EnhancedAuditLogView() {
   const { addToast } = useToast();
@@ -44,11 +45,22 @@ export function EnhancedAuditLogView() {
     end: '',
   });
 
+  // Debounce search query for performance (300ms delay)
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Load initial data
   useEffect(() => {
     loadAuditLogs();
     loadStatistics();
   }, []);
+
+  // Re-load when debounced search changes
+  useEffect(() => {
+    if (debouncedSearchQuery !== undefined) {
+      handleApplyFilters();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery]);
 
   const loadAuditLogs = async () => {
     try {

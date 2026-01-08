@@ -130,8 +130,10 @@ import { monitoringService } from '@/api/monitoringService';
 import { Spinner } from '@/components/Spinner';
 import { useAuth } from '@/contexts/AuthContext.minimal'; // Use minimal version
 import { useProject } from '@/contexts/ProjectContext';
-import { PredictiveAnalyticsProvider } from '@/contexts/PredictiveAnalyticsContext';
-import { AIResourceProvider } from '@/contexts/AIResourceContext';
+// Consolidated AI Analytics Context (combines AIResource + PredictiveAnalytics)
+import { AIAnalyticsProvider } from '@/contexts/AIAnalyticsContext';
+// Consolidated Collaboration Context (combines Message + Realtime + Integration)
+import { CollaborationProvider } from '@/contexts/CollaborationContext';
 // import { useProjectCalculations } from '@/hooks/useProjectCalculations'; // Currently unused
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { failoverManager } from '@/utils/failoverManager';
@@ -199,17 +201,17 @@ function AnalyticsWrapper() {
 
 function PredictiveAnalyticsWrapper() {
   return (
-    <PredictiveAnalyticsProvider>
+    <AIAnalyticsProvider>
       <PredictiveAnalyticsView />
-    </PredictiveAnalyticsProvider>
+    </AIAnalyticsProvider>
   );
 }
 
 function AIResourceWrapper() {
   return (
-    <AIResourceProvider>
+    <AIAnalyticsProvider>
       <AIResourceOptimizationView />
-    </AIResourceProvider>
+    </AIAnalyticsProvider>
   );
 }
 
@@ -249,6 +251,22 @@ function ReportsWrapper() {
 
 function MasterDataWrapper() {
   return <MasterDataView workers={[]} />;
+}
+
+function ChatWrapper() {
+  return (
+    <CollaborationProvider>
+      <ChatView />
+    </CollaborationProvider>
+  );
+}
+
+function IntegrationDashboardWrapper() {
+  return (
+    <CollaborationProvider>
+      <IntegrationDashboardView />
+    </CollaborationProvider>
+  );
 }
 
 /**
@@ -833,7 +851,7 @@ function App() {
           } />
           <Route path="chat" element={
             <ViewErrorBoundary viewName="Chat">
-              <ChatView />
+              <ChatWrapper />
             </ViewErrorBoundary>
           } />
           <Route path="notifications" element={
@@ -870,7 +888,7 @@ function App() {
           } />
           <Route path="logistics/integration" element={
             <ViewErrorBoundary viewName="Integration Dashboard">
-              <IntegrationDashboardView />
+              <IntegrationDashboardWrapper />
             </ViewErrorBoundary>
           } />
 

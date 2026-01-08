@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRealtimeCollaboration } from '@/contexts/RealtimeCollaborationContext';
+import { useRealtimeCollaboration } from '@/contexts/CollaborationContext';
 import { Card, CardContent, CardHeader, CardTitle } from './Card';
 import { Button } from './Button';
 import { Users, Circle, Eye, MessageCircle, Activity, Clock } from 'lucide-react';

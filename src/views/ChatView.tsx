@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useMessage } from '@/contexts/MessageContext';
+import { useMessage } from '@/contexts/CollaborationContext';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 
 const ChatView: React.FC = React.memo(() => {

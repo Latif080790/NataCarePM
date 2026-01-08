@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/firebaseConfig';
+import { offlineDb } from '@/db/offlineDatabase';
 import type {
   OfflineInspection,
   SyncQueueItem,
@@ -25,6 +26,234 @@ import type {
   NetworkStatus,
   BackgroundSyncTask
 } from '@/types/offline.types';
+
+// IndexedDB wrapper using offlineDb
+const IndexedDB = {
+  async getMetadata(key: string): Promise<string | null> {
+    const cache = await offlineDb.offlineCache.where('key').equals(key).first();
+    return cache?.data || null;
+  },
+  async saveMetadata(key: string, value: string): Promise<void> {
+    await offlineDb.offlineCache.put({
+      id: key,
+      key,
+      data: value,
+      projectId: 'system',
+      collection: 'metadata',
+      timestamp: Date.now(),
+    });
+  },
+  async getInspection(localId: string): Promise<OfflineInspection | null> {
+    const cache = await offlineDb.offlineCache.where('key').equals(`inspection_${localId}`).first();
+    return cache?.data || null;
+  },
+  async getAllInspections(): Promise<OfflineInspection[]> {
+    const items = await offlineDb.offlineCache.where('collection').equals('inspections').toArray();
+    return items.map(item => item.data);
+  },
+  async saveInspection(inspection: OfflineInspection): Promise<void> {
+    await offlineDb.offlineCache.put({
+      id: `inspection_${inspection.localId}`,
+      key: `inspection_${inspection.localId}`,
+      data: inspection,
+      projectId: inspection.projectId,
+      collection: 'inspections',
+      timestamp: Date.now(),
+    });
+  },
+  async deleteInspection(localId: string): Promise<void> {
+    await offlineDb.offlineCache.delete(`inspection_${localId}`);
+  },
+  async getSyncQueue(): Promise<SyncQueueItem[]> {
+    const ops = await offlineDb.pendingOperations.toArray();
+    return ops.map(op => ({
+      id: String(op.id),
+      type: op.collection as SyncQueueItem['type'],
+      entityId: op.documentId || '',
+      operation: op.type,
+      direction: 'upload' as const,
+      priority: 5,
+      data: op.data,
+      status: op.status === 'pending' ? 'pending' : op.status === 'syncing' ? 'syncing' : 'failed',
+      retryCount: op.retryCount,
+      maxRetries: 3,
+      error: op.lastError,
+      createdAt: new Date(op.timestamp),
+    }));
+  },
+  async addToSyncQueue(item: Omit<SyncQueueItem, 'id' | 'createdAt'>): Promise<string> {
+    const id = await offlineDb.pendingOperations.add({
+      type: item.operation,
+      collection: item.type,
+      documentId: item.entityId,
+      data: item.data,
+      projectId: item.data?.projectId || 'unknown',
+      userId: item.data?.userId || 'unknown',
+      userName: item.data?.userName || 'Unknown',
+      timestamp: Date.now(),
+      retryCount: item.retryCount,
+      lastError: item.error,
+      status: 'pending',
+    });
+    return String(id);
+  },
+  async updateSyncQueueItem(id: string, updates: Partial<SyncQueueItem>): Promise<void> {
+    await offlineDb.pendingOperations.update(Number(id), {
+      retryCount: updates.retryCount,
+      lastError: updates.error,
+      status: updates.retryCount && updates.retryCount >= 3 ? 'failed' : 'pending',
+    });
+  },
+  async removeSyncQueueItem(id: string): Promise<void> {
+    await offlineDb.pendingOperations.delete(Number(id));
+  },
+  async saveConflict(conflict: SyncConflict): Promise<void> {
+    await offlineDb.offlineCache.put({
+      id: `conflict_${conflict.id}`,
+      key: `conflict_${conflict.id}`,
+      data: conflict,
+      projectId: conflict.localVersion?.data?.projectId || 'unknown',
+      collection: 'conflicts',
+      timestamp: Date.now(),
+    });
+  },
+  async getConflicts(): Promise<SyncConflict[]> {
+    const items = await offlineDb.offlineCache.where('collection').equals('conflicts').toArray();
+    return items.map(item => item.data);
+  },
+  async resolveConflict(id: string): Promise<void> {
+    await offlineDb.offlineCache.delete(`conflict_${id}`);
+  },
+  async savePhoto(localId: string, photoData: string): Promise<void> {
+    await offlineDb.offlineCache.put({
+      id: `photo_${localId}`,
+      key: `photo_${localId}`,
+      data: photoData,
+      projectId: 'photos',
+      collection: 'photos',
+      timestamp: Date.now(),
+    });
+  },
+  async getPhoto(localId: string): Promise<string | null> {
+    const cache = await offlineDb.offlineCache.where('key').equals(`photo_${localId}`).first();
+    return cache?.data || null;
+  },
+  async deletePhoto(localId: string): Promise<void> {
+    await offlineDb.offlineCache.delete(`photo_${localId}`);
+  },
+  async saveBackgroundTask(task: BackgroundSyncTask): Promise<void> {
+    await offlineDb.offlineCache.put({
+      id: `bgtask_${task.id}`,
+      key: `bgtask_${task.id}`,
+      data: task,
+      projectId: 'system',
+      collection: 'backgroundTasks',
+      timestamp: Date.now(),
+    });
+  },
+  async getBackgroundTask(id: string): Promise<BackgroundSyncTask | null> {
+    const cache = await offlineDb.offlineCache.where('key').equals(`bgtask_${id}`).first();
+    return cache?.data || null;
+  },
+  async getAllBackgroundTasks(): Promise<BackgroundSyncTask[]> {
+    const items = await offlineDb.offlineCache.where('collection').equals('backgroundTasks').toArray();
+    return items.map(item => item.data);
+  },
+  async deleteBackgroundTask(id: string): Promise<void> {
+    await offlineDb.offlineCache.delete(`bgtask_${id}`);
+  },
+  async clearSyncQueue(): Promise<void> {
+    await offlineDb.pendingOperations.clear();
+  },
+  // Additional methods needed by sync service
+  async updateInspection(localId: string, updates: Partial<OfflineInspection>): Promise<void> {
+    const existing = await this.getInspection(localId);
+    if (existing) {
+      await this.saveInspection({ ...existing, ...updates });
+    }
+  },
+  async saveAttachment(attachment: { id: string; localPath: string; fileName: string; mimeType: string; uploaded: boolean }): Promise<void> {
+    await offlineDb.offlineCache.put({
+      id: `attachment_${attachment.id}`,
+      key: `attachment_${attachment.id}`,
+      data: attachment,
+      projectId: 'attachments',
+      collection: 'attachments',
+      timestamp: Date.now(),
+    });
+  },
+  async getAttachment(attachmentId: string): Promise<{ id: string; localPath: string; fileName: string; mimeType: string; uploaded: boolean } | null> {
+    const cache = await offlineDb.offlineCache.where('key').equals(`attachment_${attachmentId}`).first();
+    return cache?.data || null;
+  },
+  async updateAttachmentUploadStatus(attachmentId: string, uploaded: boolean, _progress: number): Promise<void> {
+    const attachment = await this.getAttachment(attachmentId);
+    if (attachment) {
+      await this.saveAttachment({ ...attachment, uploaded });
+    }
+  },
+  async getPendingSyncQueue(): Promise<SyncQueueItem[]> {
+    const ops = await offlineDb.pendingOperations.where('status').equals('pending').toArray();
+    return ops.map(op => ({
+      id: String(op.id),
+      type: op.collection as SyncQueueItem['type'],
+      entityId: op.documentId || '',
+      operation: op.type,
+      direction: 'upload' as const,
+      priority: 5,
+      data: op.data,
+      status: 'pending' as const,
+      retryCount: op.retryCount,
+      maxRetries: 3,
+      error: op.lastError,
+      createdAt: new Date(op.timestamp),
+    }));
+  },
+  async getSyncQueueByStatus(status: string): Promise<SyncQueueItem[]> {
+    const ops = await offlineDb.pendingOperations.where('status').equals(status).toArray();
+    return ops.map(op => ({
+      id: String(op.id),
+      type: op.collection as SyncQueueItem['type'],
+      entityId: op.documentId || '',
+      operation: op.type,
+      direction: 'upload' as const,
+      priority: 5,
+      data: op.data,
+      status: op.status === 'pending' ? 'pending' : op.status === 'syncing' ? 'syncing' : 'failed',
+      retryCount: op.retryCount,
+      maxRetries: 3,
+      error: op.lastError,
+      createdAt: new Date(op.timestamp),
+    }));
+  },
+  async removeFromSyncQueue(id: string): Promise<void> {
+    await offlineDb.pendingOperations.delete(Number(id));
+  },
+  async getAllConflicts(): Promise<SyncConflict[]> {
+    return this.getConflicts();
+  },
+  async getPendingConflicts(): Promise<SyncConflict[]> {
+    const items = await offlineDb.offlineCache.where('collection').equals('conflicts').toArray();
+    return items.map(item => item.data).filter((c: SyncConflict) => c.status === 'pending');
+  },
+  async getStorageStats(): Promise<{ usage: number; quota: number }> {
+    if (!navigator.storage || !navigator.storage.estimate) {
+      return { usage: 0, quota: 0 };
+    }
+    const estimate = await navigator.storage.estimate();
+    return { usage: estimate.usage || 0, quota: estimate.quota || 0 };
+  },
+  async getInspectionsByStatus(status: string): Promise<OfflineInspection[]> {
+    const items = await offlineDb.offlineCache.where('collection').equals('inspections').toArray();
+    return items.map(item => item.data).filter((i: OfflineInspection) => i.syncStatus === status);
+  },
+  async clearCompletedSyncQueue(): Promise<void> {
+    // Delete completed items from pending operations
+    const completed = await offlineDb.pendingOperations.where('status').equals('synced').toArray();
+    await Promise.all(completed.map(op => offlineDb.pendingOperations.delete(op.id!)));
+  },
+};
+
 const INSPECTIONS_COLLECTION = 'offlineInspections';
 const SYNC_BATCH_SIZE = 10;
 const MAX_RETRY_ATTEMPTS = 3;
@@ -333,7 +562,7 @@ class SyncService {
       }
 
       // Update last sync time
-      await IndexedDB.saveMetadata('lastSync', new Date());
+      await IndexedDB.saveMetadata('lastSync', new Date().toISOString());
     } catch (error) {
       console.error('Sync failed:', error);
       if (this.currentTask) {
@@ -600,7 +829,7 @@ class SyncService {
         resolvedData = conflict.localVersion.data;
     }
 
-    await IndexedDB.resolveConflict(conflict.id, resolvedData, 'system');
+    await IndexedDB.resolveConflict(conflict.id);
 
     // Apply resolution
     const inspection = resolvedData as OfflineInspection;
@@ -642,7 +871,7 @@ class SyncService {
         break;
     }
 
-    await IndexedDB.resolveConflict(conflictId, resolvedData, 'user');
+    await IndexedDB.resolveConflict(conflictId);
 
     // Update inspection
     const inspection = resolvedData as OfflineInspection;

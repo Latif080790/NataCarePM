@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { useMessage } from '@/contexts/MessageContext';
+import { useMessage } from '@/contexts/CollaborationContext';
 
 interface ChatIconProps {
   onClick: () => void;

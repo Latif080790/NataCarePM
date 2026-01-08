@@ -9,6 +9,21 @@ import {
   doc,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+
+// TensorFlow.js lazy loading types (prevents bundle bloat)
+type TFNamespace = typeof import('@tensorflow/tfjs');
+type TFLayersModel = import('@tensorflow/tfjs').LayersModel;
+type TFTensor = import('@tensorflow/tfjs').Tensor;
+
+let tfInstance: TFNamespace | null = null;
+
+async function getTensorFlow(): Promise<TFNamespace> {
+  if (!tfInstance) {
+    tfInstance = await import('@tensorflow/tfjs');
+  }
+  return tfInstance;
+}
+
 import {
   MLModelMetadata,
   ResourceOptimizationRequest,
@@ -82,13 +97,25 @@ const MODEL_CONFIGS = {
 // ============================================================================
 
 class MLModelManager {
-  private models: Map<string, tf.LayersModel> = new Map();
+  private models: Map<string, TFLayersModel> = new Map();
   private modelMetadata: Map<string, MLModelMetadata> = new Map();
+  private tfLib: TFNamespace | null = null;
+
+  /**
+   * Get or load TensorFlow instance
+   */
+  private async getTf(): Promise<TFNamespace> {
+    if (!this.tfLib) {
+      this.tfLib = await getTensorFlow();
+    }
+    return this.tfLib;
+  }
 
   /**
    * Build Neural Network for Resource Allocation
    */
-  async buildResourceAllocationModel(): Promise<tf.LayersModel> {
+  async buildResourceAllocationModel(): Promise<TFLayersModel> {
+    const tf = await this.getTf();
     const config = MODEL_CONFIGS.RESOURCE_ALLOCATION_NN;
 
     const model = tf.sequential();
@@ -138,7 +165,8 @@ class MLModelManager {
   /**
    * Build LSTM Model for Duration Prediction
    */
-  async buildDurationPredictionModel(): Promise<tf.LayersModel> {
+  async buildDurationPredictionModel(): Promise<TFLayersModel> {
+    const tf = await this.getTf();
     const config = MODEL_CONFIGS.DURATION_PREDICTION_LSTM;
 
     const model = tf.sequential();
@@ -184,20 +212,21 @@ class MLModelManager {
    */
   async trainModel(
     modelId: string,
-    model: tf.LayersModel,
+    model: TFLayersModel,
     trainingData: TrainingDataset,
     validationSplit: number = 0.2
   ): Promise<MLModelMetadata> {
+    const tf = await this.getTf();
     const startTime = Date.now();
 
     // Prepare tensors
-    const { xs, ys } = this.prepareTrainingTensors(trainingData);
+    const { xs, ys } = await this.prepareTrainingTensors(trainingData);
 
     // Training callbacks
     const history: any[] = [];
 
-    const customCallback: tf.CustomCallbackArgs = {
-      onEpochEnd: async (epoch, logs) => {
+    const customCallback = {
+      onEpochEnd: async (epoch: number, logs: { loss?: number; acc?: number; accuracy?: number; val_loss?: number; val_acc?: number; val_accuracy?: number } | undefined) => {
         history.push({
           epoch,
           loss: logs?.loss || 0,
@@ -269,7 +298,8 @@ class MLModelManager {
   /**
    * Prepare Training Tensors from Dataset
    */
-  private prepareTrainingTensors(dataset: TrainingDataset): { xs: tf.Tensor; ys: tf.Tensor } {
+  private async prepareTrainingTensors(dataset: TrainingDataset): Promise<{ xs: TFTensor; ys: TFTensor }> {
+    const tf = await this.getTf();
     const features: number[][] = [];
     const labels: number[][] = [];
 
@@ -391,6 +421,7 @@ class MLModelManager {
    * Predict Resource Allocation
    */
   async predict(modelId: string, inputFeatures: any): Promise<number[]> {
+    const tf = await this.getTf();
     const model = this.models.get(modelId);
     if (!model) {
       throw new Error(`Model ${modelId} not found`);
@@ -399,7 +430,7 @@ class MLModelManager {
     const featureVector = this.extractFeatureVector(inputFeatures);
     const inputTensor = tf.tensor2d([featureVector]);
 
-    const prediction = model.predict(inputTensor) as tf.Tensor;
+    const prediction = model.predict(inputTensor) as TFTensor;
     const result = (await prediction.array()) as number[][];
 
     inputTensor.dispose();

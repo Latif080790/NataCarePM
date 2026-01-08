@@ -28,6 +28,7 @@ import {
     Timestamp,
     updateDoc,
     where,
+    limit as firestoreLimit,
 } from 'firebase/firestore';
 // Note: notificationService import commented due to TypeScript module resolution issue
 // Using dynamic import at runtime instead

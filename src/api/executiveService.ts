@@ -11,6 +11,7 @@ import {
   query,
 } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
+import { logger } from '@/utils/logger.enhanced';
 import type {
   ExecutiveDashboardData,
   ExecutiveKPI,
@@ -82,12 +83,16 @@ class ExecutiveService {
    * Calculate key performance indicators
    */
   private async calculateKPIs(): Promise<ExecutiveKPI[]> {
-    const [financial, schedule, quality, productivity] = await Promise.all([
+    const [financial, schedule, qualitySafety, productivity] = await Promise.all([
       this.getFinancialOverview(),
       this.getSchedulePerformance(),
       this.getQualitySafetySummary(),
       this.getProductivityMetrics(),
     ]);
+
+    // Extract safety from qualitySafety for convenience
+    const safety = qualitySafety;
+    const quality = qualitySafety;
 
     const kpis: ExecutiveKPI[] = [
       // Financial KPIs

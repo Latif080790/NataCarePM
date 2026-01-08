@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-import { useRealtimeCollaboration } from '@/contexts/RealtimeCollaborationContext';
+import { useRealtimeCollaboration } from '@/contexts/CollaborationContext';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 
 interface LiveCursorsProps {
   containerId?: string;
   showLabels?: boolean;
+  /** Enable cursor tracking (disable for performance) */
+  enabled?: boolean;
 }
 
 interface CursorPosition {
@@ -20,45 +22,101 @@ interface CursorPosition {
 export default function LiveCursors({
   containerId = 'app-container',
   showLabels = true,
+  enabled = true,
 }: LiveCursorsProps) {
   const { onlineUsers, updatePresence } = useRealtimeCollaboration();
   const { currentUser } = useAuth();
   const [cursors, setCursors] = useState<CursorPosition[]>([]);
+  const [isContainerReady, setIsContainerReady] = useState(false);
   const containerRef = useRef<HTMLElement | null>(null);
   const lastUpdateRef = useRef<number>(0);
+  const isMountedRef = useRef(true);
 
   // Throttle cursor updates to avoid overwhelming the database
   const throttleDelay = 100; // 100ms
 
+  // Safe DOM element access with retry
+  const getContainerElement = useCallback((): HTMLElement | null => {
+    if (typeof document === 'undefined') return null;
+    
+    try {
+      return document.getElementById(containerId) || document.body;
+    } catch {
+      return null;
+    }
+  }, [containerId]);
+
+  // Initialize container with MutationObserver for dynamic DOM
   useEffect(() => {
-    // Get the container element
-    const container = document.getElementById(containerId) || document.body;
-    containerRef.current = container;
+    if (!enabled) return;
+    
+    isMountedRef.current = true;
+    
+    const initializeContainer = () => {
+      const container = getContainerElement();
+      if (container && isMountedRef.current) {
+        containerRef.current = container;
+        setIsContainerReady(true);
+      }
+    };
+
+    // Try immediately
+    initializeContainer();
+    
+    // Retry with requestAnimationFrame for smoother initialization
+    const rafId = requestAnimationFrame(() => {
+      if (!containerRef.current) {
+        initializeContainer();
+      }
+    });
+
+    return () => {
+      isMountedRef.current = false;
+      cancelAnimationFrame(rafId);
+    };
+  }, [containerId, enabled, getContainerElement]);
+
+  // Handle mouse movement with safe DOM access
+  useEffect(() => {
+    if (!enabled || !isContainerReady || !currentUser) return;
+
+    const container = containerRef.current;
+    if (!container) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!currentUser) return;
+      if (!isMountedRef.current || !currentUser) return;
 
       const now = Date.now();
       if (now - lastUpdateRef.current < throttleDelay) return;
       lastUpdateRef.current = now;
 
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      try {
+        const rect = container.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-      // Convert to percentage for responsive positioning
-      const xPercent = (x / rect.width) * 100;
-      const yPercent = (y / rect.height) * 100;
+        // Convert to percentage for responsive positioning
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
 
-      updatePresence(window.location.pathname, false, {
-        x: Math.max(0, Math.min(100, xPercent)),
-        y: Math.max(0, Math.min(100, yPercent)),
-      });
+        updatePresence(window.location.pathname, false, {
+          x: Math.max(0, Math.min(100, xPercent)),
+          y: Math.max(0, Math.min(100, yPercent)),
+        });
+      } catch {
+        // Silently fail on DOM access errors
+      }
     };
 
     const handleMouseLeave = () => {
-      if (!currentUser) return;
-      updatePresence(window.location.pathname, false, undefined);
+      if (!isMountedRef.current || !currentUser) return;
+      try {
+        updatePresence(window.location.pathname, false, undefined);
+      } catch {
+        // Silently fail
+      }
     };
 
     // Add passive listeners to improve performance and prevent errors
@@ -66,13 +124,19 @@ export default function LiveCursors({
     container.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseleave', handleMouseLeave);
+      try {
+        container.removeEventListener('mousemove', handleMouseMove);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+      } catch {
+        // Silently fail on cleanup
+      }
     };
-  }, [containerId, currentUser, updatePresence]);
+  }, [enabled, isContainerReady, currentUser, updatePresence]);
 
   // Update cursor positions from online users
   useEffect(() => {
+    if (!enabled || !currentUser) return;
+    
     const now = Date.now();
     const validCursors: CursorPosition[] = [];
 
@@ -95,9 +159,10 @@ export default function LiveCursors({
     });
 
     setCursors(validCursors);
-  }, [onlineUsers, currentUser]);
+  }, [enabled, onlineUsers, currentUser]);
 
-  if (!containerRef.current) return null;
+  // Don't render if disabled or container not ready
+  if (!enabled || !isContainerReady) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50">

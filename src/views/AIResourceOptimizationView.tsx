@@ -23,7 +23,7 @@ import {
   AlertCircle,
   Play,
 } from 'lucide-react';
-import { useAIResource } from '@/contexts/AIResourceContext';
+import { useAIResource } from '@/contexts/AIAnalyticsContext';
 import { useProject } from '@/contexts/ProjectContext';
 import type {
   ResourceOptimizationRequest,

@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import OnlineUsersDisplay from '@/components/OnlineUsersDisplay';
 import { SkipLink } from '@/components/SkipLink';
 import OfflineIndicator from '@/components/OfflineIndicator';
-// import LiveCursors from '@/components/LiveCursors';
+import LiveCursors from '@/components/LiveCursors'; // Phase 3: Re-enabled with safe DOM access
 import FailoverStatusIndicator from '@/components/FailoverStatusIndicator';
 // import PerformanceMonitor from '@/components/PerformanceMonitor';
 
@@ -37,17 +37,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         showBottomNav={true}
       />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden" role="main">
         <Header isSidebarCollapsed={isSidebarCollapsed}>
           <OnlineUsersDisplay compact showActivity={false} />
         </Header>
-        <div className="flex-1 overflow-x-hidden overflow-y-auto p-6 mobile-p-4 glass-bg relative pb-20 md:pb-6">
+        <div id="main-content" className="flex-1 overflow-x-hidden overflow-y-auto p-6 mobile-p-4 glass-bg relative pb-20 md:pb-6" tabIndex={-1}>
           {children || <Outlet />}
         </div>
       </main>
 
       <OfflineIndicator />
-      {/* <LiveCursors containerId="app-container" showLabels /> */}
+      <LiveCursors containerId="app-container" showLabels enabled />
       <FailoverStatusIndicator />
       {/* <PerformanceMonitor /> */}
     </div>

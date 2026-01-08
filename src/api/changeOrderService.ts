@@ -3,6 +3,7 @@
  * Priority 3C: Change Order Management System
  */
 
+import { logger } from '@/utils/logger.enhanced';
 import {
   collection,
   doc,

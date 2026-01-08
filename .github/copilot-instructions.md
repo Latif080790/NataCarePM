@@ -180,6 +180,63 @@ import { Button } from '@/components/Button';
 import { projectService } from '@/api/projectService';
 ```
 
+### 11. React Query (Data Caching)
+**File:** `src/config/queryClient.ts`, `src/hooks/useQueryHooks.ts`
+
+Use React Query hooks for cached data fetching:
+```tsx
+import { useProjects, useRabItems, useTasks } from '@/hooks/useQueryHooks';
+
+// Fetch with automatic caching & deduplication
+const { data: projects, isLoading } = useProjects();
+const { data: rabItems } = useRabItems(projectId);
+const { data: tasks } = useTasks(projectId);
+
+// Mutations with auto-invalidation
+const createRab = useCreateRabItem();
+await createRab.mutateAsync({ projectId, item: newRabItem });
+// Cache automatically invalidated
+```
+
+**Stale Times:**
+- STATIC (30 min): Project metadata
+- SEMI_STATIC (5 min): RAB items, AHSP
+- DYNAMIC (1 min): Inventory, Tasks
+- REALTIME (10 sec): Notifications
+
+**DevTools:** React Query DevTools available in development mode.
+
+### 12. AI & Smart Notifications
+**Files:** `src/services/smartNotificationService.ts`, `src/hooks/useAIHooks.ts`
+
+```tsx
+import { useSmartNotifications, useProjectHealth, useDelayPrediction } from '@/hooks/useAIHooks';
+
+// Get smart notifications with predictions
+const { notifications } = useSmartNotifications(project, tasks, rabItems, inventory);
+
+// Calculate project health metrics (SPI, CPI, Risk Score)
+const { health } = useProjectHealth(project, tasks, rabItems);
+
+// Predict project delays
+const { prediction } = useDelayPrediction(project, tasks, rabItems);
+```
+
+### 13. Natural Language Queries
+**File:** `src/services/naturalLanguageService.ts`
+
+```tsx
+import { useNLQuery } from '@/hooks/useAIHooks';
+
+// Natural language search
+const { result, query, isQuerying } = useNLQuery(projectContext);
+await query("Bagaimana status budget project?");
+// result.answer contains formatted response
+
+// Supported intents: project_status, budget_info, task_info, inventory_info,
+// schedule_info, risk_assessment, comparison, trend_analysis, recommendation
+```
+
 ## Common Tasks
 
 ### Adding a New View

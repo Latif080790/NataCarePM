@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useDebounce } from '@/utils/performanceOptimization';
 import {
   Package,
   Plus,
@@ -99,6 +100,9 @@ const GoodsReceiptView: React.FC = React.memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<GRStatus[]>([]);
   const [qualityFilter, setQualityFilter] = useState<QualityStatus[]>([]);
+  
+  // Debounce search for performance (300ms delay)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Summary stats
   const [summary, setSummary] = useState({
@@ -380,15 +384,15 @@ const GoodsReceiptView: React.FC = React.memo(() => {
   };
 
   // ============================================================================
-  // FILTERED DATA
+  // FILTERED DATA (Using debounced search for performance)
   // ============================================================================
 
   const filteredGRs = useMemo(() => {
     let result = [...grs];
 
-    // Apply search
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    // Apply search (use debounced value for better performance)
+    if (debouncedSearchTerm) {
+      const term = debouncedSearchTerm.toLowerCase();
       result = result.filter(
         (gr) =>
           gr.grNumber.toLowerCase().includes(term) ||
@@ -408,7 +412,7 @@ const GoodsReceiptView: React.FC = React.memo(() => {
     }
 
     return result;
-  }, [grs, searchTerm, statusFilter, qualityFilter]);
+  }, [grs, debouncedSearchTerm, statusFilter, qualityFilter]);
 
   // ============================================================================
   // PERMISSION CHECK

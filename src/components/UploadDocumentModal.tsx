@@ -5,7 +5,7 @@ import { Input, Select } from './FormControls';
 import { Document } from '@/types';
 import { getTodayDateString } from '@/constants';
 import FileValidationFeedback from './FileValidationFeedback';
-import { validateFile, type ValidationResult } from '@/utils/fileValidation';
+import { validateFile, type FileValidationResult as ValidationResult } from '@/utils/fileValidation';
 
 interface UploadDocumentModalProps {
   isOpen: boolean;

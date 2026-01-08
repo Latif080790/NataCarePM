@@ -21,7 +21,7 @@ import {
   Star,
   Activity,
 } from 'lucide-react';
-import { usePredictiveAnalytics } from '@/contexts/PredictiveAnalyticsContext';
+import { usePredictiveAnalytics } from '@/contexts/AIAnalyticsContext';
 import { useProject } from '@/contexts/ProjectContext';
 import type { GenerateForecastRequest, ForecastType } from '@/types/predictive-analytics.types';
 

@@ -3,6 +3,7 @@ import { User } from '@/types';
 // Mock user data
 let users: User[] = [
   {
+    uid: '1',
     id: '1',
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -10,6 +11,7 @@ let users: User[] = [
     roleId: '1',
   },
   {
+    uid: '2',
     id: '2',
     name: 'Jane Smith',
     email: 'jane.smith@example.com',
