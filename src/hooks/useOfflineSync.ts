@@ -5,7 +5,6 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { offlineDb } from '@/db/offlineDatabase';
 import { offlineSyncService } from '@/services/offlineSyncService';
 import { logger } from '@/utils/logger.enhanced';
 import { useToast } from '@/contexts/ToastContext';
