@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { LoadingState } from '@/components/StateComponents';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
@@ -11,6 +10,7 @@ import { FormField } from '@/components/FormFields';
 import { passwordResetRequestSchema, type PasswordResetRequestData } from '@/schemas/authSchemas';
 
 export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
+  // ALL hooks MUST be called unconditionally at the top level
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
@@ -43,9 +43,12 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
     resetOnSuccess: false,
   });
 
-  if (emailSent) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+  // SINGLE return statement with conditional rendering inside JSX
+  // This ensures hooks are always called in the same order (Rules of Hooks compliance)
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      {/* Success State - Email Sent */}
+      {emailSent && (
         <CardPro variant="elevated" className="w-full max-w-sm">
           <CardProHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -67,67 +70,66 @@ export default function ForgotPasswordView({ onBack }: { onBack: () => void }) {
             </ButtonPro>
           </CardProContent>
         </CardPro>
-      </div>
-    );
-  }
+      )}
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <CardPro variant="elevated" className="w-full max-w-sm">
-        <CardProHeader className="text-center">
-          <CardProTitle className="text-2xl">Lupa Password</CardProTitle>
-          <CardProDescription>Masukkan email Anda untuk menerima link reset password</CardProDescription>
-        </CardProHeader>
-        <CardProContent>
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <FormField
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="email@contoh.com"
-              register={register}
-              errors={errors}
-              disabled={isSubmitting}
-              required
-              helpText="Masukkan email yang terdaftar di akun Anda"
-            />
+      {/* Form State - Request Email */}
+      {!emailSent && (
+        <CardPro variant="elevated" className="w-full max-w-sm">
+          <CardProHeader className="text-center">
+            <CardProTitle className="text-2xl">Lupa Password</CardProTitle>
+            <CardProDescription>Masukkan email Anda untuk menerima link reset password</CardProDescription>
+          </CardProHeader>
+          <CardProContent>
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              <FormField
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="email@contoh.com"
+                register={register}
+                errors={errors}
+                disabled={isSubmitting}
+                required
+                helpText="Masukkan email yang terdaftar di akun Anda"
+              />
 
-            {/* Inline validation message (client-side) */}
-            {errors.email && (
-              <div className="text-sm text-red-600" data-testid="email-error-msg">
-                {errors.email.message as string}
-              </div>
-            )}
+              {/* Inline validation message (client-side) */}
+              {errors.email && (
+                <div className="text-sm text-red-600" data-testid="email-error-msg">
+                  {errors.email.message as string}
+                </div>
+              )}
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
 
-            <ButtonPro
-              type="submit"
-              variant="primary"
-              className="w-full"
-              disabled={isSubmitting || formSubmitting}
-              data-testid="submit-reset"
-            >
-              {isSubmitting || formSubmitting ? 'Mengirim...' : 'Kirim Link Reset'}
-            </ButtonPro>
+              <ButtonPro
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={isSubmitting || formSubmitting}
+                data-testid="submit-reset"
+              >
+                {isSubmitting || formSubmitting ? 'Mengirim...' : 'Kirim Link Reset'}
+              </ButtonPro>
 
-            <ButtonPro
-              type="button"
-              onClick={onBack}
-              variant="outline"
-              icon={ArrowLeft}
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              Kembali ke Login
-            </ButtonPro>
-          </form>
-        </CardProContent>
-      </CardPro>
+              <ButtonPro
+                type="button"
+                onClick={onBack}
+                variant="outline"
+                icon={ArrowLeft}
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                Kembali ke Login
+              </ButtonPro>
+            </form>
+          </CardProContent>
+        </CardPro>
+      )}
     </div>
   );
 }

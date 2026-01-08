@@ -23,7 +23,7 @@ import type {
   MessageFilterOptions,
   ChatFilterOptions,
 } from '@/types/message.types';
-import { useAuth } from './AuthContext';
+import { useAuth } from './AuthContext.minimal';
 
 /**
  * Message Context State Interface

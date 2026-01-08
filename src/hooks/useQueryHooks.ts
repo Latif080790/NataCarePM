@@ -16,7 +16,7 @@ import { rabAhspService } from '@/api/rabAhspService';
 import { getMaterials } from '@/api/inventoryService';
 import { taskService } from '@/api/taskService';
 import { useToast } from '@/contexts/ToastContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.minimal'; // Use minimal version
 import type { Project, RabItem, Task } from '@/types';
 import type { InventoryMaterial } from '@/types/inventory';
 

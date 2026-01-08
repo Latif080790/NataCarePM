@@ -274,10 +274,22 @@ function IntegrationDashboardWrapper() {
  * dan memastikan data proyek dimuat.
  */
 function ProtectedApp() {
+  // =====================================================
+  // ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT TOP LEVEL
+  // (Rules of Hooks - no hooks after conditional returns)
+  // =====================================================
+  
+  // State hooks
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [_showDebug, _setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D - unused for now
+  
+  // Context hooks
   const { currentUser } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
+  
+  // Router hooks - MUST be called before any returns
+  const { isMobile, isTablet } = useDeviceType();
+  const location = useLocation();
 
   // 🔒 Initialize session timeout hook
   useSessionTimeout();
@@ -495,10 +507,7 @@ function ProtectedApp() {
   //   user: currentUser,
   // });
 
-  // 📱 P1.2: Device-based layout switching
-  const { isMobile, isTablet } = useDeviceType();
-  const location = useLocation();
-  
+  // 📱 P1.2: Device-based layout switching (hooks already called at top)
   // Get page title from current route
   const getPageTitle = () => {
     const path = location.pathname;
@@ -596,9 +605,8 @@ function ProtectedApp() {
 }
 
 function App() {
+  // Panggil semua hooks di level atas SEBELUM conditional rendering
   const { currentUser, loading: authLoading } = useAuth();
-
-  // Error boundary state
   const [hasError, setHasError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -647,7 +655,8 @@ function App() {
     );
   }
 
-  if (authLoading && !currentUser) {
+  // Loading state - show while auth is initializing
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-alabaster">
         <Spinner size="lg" />
@@ -655,31 +664,28 @@ function App() {
     );
   }
 
+  // CRITICAL FIX: Completely separate render trees based on auth state
+  // Using key prop to force React to unmount/remount entire tree when auth changes
+  // This prevents hook count mismatch errors during auth transitions
+  
+  // Not logged in - show login page ONLY
+  if (!currentUser) {
+    return (
+      <ViewErrorBoundary viewName="Login" key="unauthenticated-tree">
+        <EnterpriseLoginView />
+      </ViewErrorBoundary>
+    );
+  }
+  
+  // Logged in - show protected routes with ProjectProvider
   return (
-    <>
+    <ProjectProvider key="authenticated-tree">
       <Routes>
-        {!currentUser ? (
-          // --- Rute Publik (Belum Login) ---
-          <>
-            <Route path="/login" element={
-              <ViewErrorBoundary viewName="Login" key="enterprise-login-v1">
-                <EnterpriseLoginView key={Date.now()} />
-              </ViewErrorBoundary>
-            } />
-            {/* Paksa semua rute lain ke halaman login */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </>
-        ) : (
-        // --- Rute Privat (Sudah Login) ---
-        // Kita bungkus dengan ProjectProvider di sini agar hanya aktif setelah login
-        <Route
-          path="*" // Gunakan "*" untuk menangani semua rute turunan
-          element={
-            <ProjectProvider>
-              <ProtectedApp />
-            </ProjectProvider>
-          }
-        >
+        {/* Redirect /login to dashboard when already logged in */}
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        
+        {/* Protected routes */}
+        <Route path="/*" element={<ProtectedApp />}>
           {/* Nested routes - akan di-render di <Outlet /> di ProtectedApp */}
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={
@@ -947,13 +953,12 @@ function App() {
               </div>
             </div>
           } />
-          </Route>
-        )}
+        </Route>
       </Routes>
 
       {/* P2.2: Performance monitoring dashboard - Toggle with Ctrl+Shift+P */}
-      {currentUser && !import.meta.env.PROD && <PerformanceDashboard />}
-    </>
+      {!import.meta.env.PROD && <PerformanceDashboard />}
+    </ProjectProvider>
   );
 }
 

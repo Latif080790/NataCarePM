@@ -1,6 +1,9 @@
 /**
  * Enterprise Login View - Clean Design
  * Clean, professional login interface consistent with application design system
+ * 
+ * FIXED: Removed early returns that violated Rules of Hooks.
+ * Using conditional rendering inside JSX instead.
  */
 
 import { useState } from 'react';
@@ -20,82 +23,32 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 
-export default function EnterpriseLoginView() {
-  const { 
-    loading: authLoading, 
-    login, 
-    error: authError, 
-    clearError,
-    requires2FA,
-    mfaResolver,
-    cancel2FA,
-  } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-
-  // Login form validation
-  const loginForm = useValidatedForm<LoginFormData>({
-    schema: loginSchema,
-    onSubmit: async (data) => {
-      await login(data.email, data.password);
-    },
-  });
-
-  // Registration form validation
-  const registrationForm = useValidatedForm<RegistrationFormData>({
-    schema: registrationSchema,
-    onSubmit: async (data) => {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const user = userCredential.user;
-
-      await setDoc(doc(db, 'users', user.uid), {
-        name: data.name,
-        email: data.email,
-        role: 'project_manager',
-        createdAt: new Date().toISOString(),
-      });
-
-      alert(' Account created successfully! Please sign in.');
-      setIsLogin(true);
-      registrationForm.resetForm();
-    },
-  });
-
-  // Select active form based on mode
+/**
+ * Login Form Component - Isolated to maintain consistent hook calls
+ */
+function LoginFormContent({
+  loginForm,
+  registrationForm,
+  isLogin,
+  isSubmitting,
+  authLoading,
+  authError,
+  clearError,
+  handleToggleMode,
+  handleForgotPassword,
+}: {
+  loginForm: ReturnType<typeof useValidatedForm<LoginFormData>>;
+  registrationForm: ReturnType<typeof useValidatedForm<RegistrationFormData>>;
+  isLogin: boolean;
+  isSubmitting: boolean;
+  authLoading: boolean;
+  authError: string | null;
+  clearError: () => void;
+  handleToggleMode: () => void;
+  handleForgotPassword: () => void;
+}) {
   const activeForm = isLogin ? loginForm : registrationForm;
-  const { handleSubmit, formState: { isSubmitting } } = activeForm;
-
-  const handleToggleMode = () => {
-    clearError();
-    setIsLogin((prev) => !prev);
-  };
-
-  const handleForgotPassword = () => {
-    clearError();
-    setShowForgotPassword(true);
-  };
-
-  if (showForgotPassword) {
-    return <ForgotPasswordView onBack={() => {
-      clearError();
-      setShowForgotPassword(false);
-    }} />;
-  }
-
-  // Show 2FA verification if required
-  if (requires2FA && mfaResolver) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-        <TwoFactorSignIn
-          resolver={mfaResolver}
-          onSuccess={() => {
-            // User will be redirected by AuthContext
-          }}
-          onCancel={cancel2FA}
-        />
-      </div>
-    );
-  }
+  const { handleSubmit } = activeForm;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
@@ -137,7 +90,7 @@ export default function EnterpriseLoginView() {
                   className="text-red-600 hover:text-red-800"
                   aria-label="Dismiss error"
                 >
-                  
+                  ×
                 </button>
               </div>
             )}
@@ -308,7 +261,7 @@ export default function EnterpriseLoginView() {
 
         {/* Footer */}
         <div className="mt-6 text-center text-xs text-gray-500">
-          <p> 2025 NATA'CARA. All rights reserved.</p>
+          <p>© 2025 NATA'CARA. All rights reserved.</p>
           <p className="mt-1">Enterprise Project Management System</p>
         </div>
       </div>
@@ -316,3 +269,109 @@ export default function EnterpriseLoginView() {
   );
 }
 
+/**
+ * Main Enterprise Login View
+ * Uses conditional rendering in JSX (not early returns) to comply with Rules of Hooks
+ */
+export default function EnterpriseLoginView() {
+  // ALL hooks MUST be called unconditionally at the top level
+  const { 
+    loading: authLoading, 
+    login, 
+    error: authError, 
+    clearError,
+    requires2FA,
+    mfaResolver,
+    cancel2FA,
+  } = useAuth();
+  
+  const [isLogin, setIsLogin] = useState(true);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  // Login form validation - ALWAYS called
+  const loginForm = useValidatedForm<LoginFormData>({
+    schema: loginSchema,
+    onSubmit: async (data) => {
+      await login(data.email, data.password);
+    },
+  });
+
+  // Registration form validation - ALWAYS called
+  const registrationForm = useValidatedForm<RegistrationFormData>({
+    schema: registrationSchema,
+    onSubmit: async (data) => {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        name: data.name,
+        email: data.email,
+        role: 'project_manager',
+        createdAt: new Date().toISOString(),
+      });
+
+      alert('Account created successfully! Please sign in.');
+      setIsLogin(true);
+      registrationForm.resetForm();
+    },
+  });
+
+  // Derived state (not hooks)
+  const activeForm = isLogin ? loginForm : registrationForm;
+  const { formState: { isSubmitting } } = activeForm;
+
+  // Event handlers (not hooks)
+  const handleToggleMode = () => {
+    clearError();
+    setIsLogin((prev) => !prev);
+  };
+
+  const handleForgotPassword = () => {
+    clearError();
+    setShowForgotPassword(true);
+  };
+
+  const handleBackFromForgotPassword = () => {
+    clearError();
+    setShowForgotPassword(false);
+  };
+
+  // SINGLE return statement with conditional rendering inside JSX
+  // This ensures hooks are always called in the same order
+  return (
+    <>
+      {/* Forgot Password View */}
+      {showForgotPassword && (
+        <ForgotPasswordView onBack={handleBackFromForgotPassword} />
+      )}
+
+      {/* 2FA Verification View */}
+      {!showForgotPassword && requires2FA && mfaResolver && (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+          <TwoFactorSignIn
+            resolver={mfaResolver}
+            onSuccess={() => {
+              // User will be redirected by AuthContext
+            }}
+            onCancel={cancel2FA}
+          />
+        </div>
+      )}
+
+      {/* Main Login/Register Form */}
+      {!showForgotPassword && !(requires2FA && mfaResolver) && (
+        <LoginFormContent
+          loginForm={loginForm}
+          registrationForm={registrationForm}
+          isLogin={isLogin}
+          isSubmitting={isSubmitting}
+          authLoading={authLoading}
+          authError={authError}
+          clearError={clearError}
+          handleToggleMode={handleToggleMode}
+          handleForgotPassword={handleForgotPassword}
+        />
+      )}
+    </>
+  );
+}

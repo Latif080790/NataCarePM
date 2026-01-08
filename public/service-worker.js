@@ -4,7 +4,7 @@
  * Performance optimized for construction field operations
  */
 
-const CACHE_VERSION = 'v1.2.0'; // P2.3: Bumped for enhanced caching
+const CACHE_VERSION = 'v1.3.0'; // Fixed: Only cache GET requests
 const CACHE_NAME = `natacare-${CACHE_VERSION}`;
 
 // Cache strategies
@@ -99,6 +99,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Skip non-GET requests (POST, PUT, DELETE cannot be cached)
+  if (request.method !== 'GET') {
+    return;
+  }
 
   // Skip cross-origin requests
   if (url.origin !== location.origin && !url.origin.includes('firebase')) {
@@ -214,6 +219,11 @@ async function cacheFirst(request) {
  * Try network first, fallback to cache
  */
 async function networkFirst(request) {
+  // Only cache GET requests
+  if (request.method !== 'GET') {
+    return fetch(request);
+  }
+
   try {
     const networkResponse = await fetch(request);
 

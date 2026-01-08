@@ -21,7 +21,7 @@ import {
   WorkProgress,
   Document,
 } from '@/types';
-import { useAuth } from './AuthContext';
+import { useAuth } from './AuthContext.minimal';
 import { useToast } from './ToastContext';
 import { getTodayDateString } from '@/constants';
 

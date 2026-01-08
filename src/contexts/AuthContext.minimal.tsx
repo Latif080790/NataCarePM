@@ -18,23 +18,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Default value untuk mencegah infinite re-render
+// Harus di luar function agar tidak di-recreate setiap render
+const DEFAULT_AUTH_CONTEXT: AuthContextType = {
+  currentUser: null,
+  loading: false,
+  login: async () => { throw new Error('AuthProvider not found'); },
+  logout: async () => { throw new Error('AuthProvider not found'); },
+  error: null,
+  clearError: () => {},
+  requires2FA: false,
+  mfaResolver: null,
+  cancel2FA: () => {},
+};
+
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     // JANGAN throw error - return default value untuk prevent crash
     console.warn('[useAuth] Called outside AuthProvider - returning defaults');
-    // Return complete default AuthContextType to prevent destructuring errors
-    return {
-      currentUser: null,
-      loading: false,
-      login: async () => { throw new Error('AuthProvider not found'); },
-      logout: async () => { throw new Error('AuthProvider not found'); },
-      error: null,
-      clearError: () => {},
-      requires2FA: false,
-      mfaResolver: null,
-      cancel2FA: () => {},
-    };
+    // Return stable default untuk prevent infinite re-render
+    return DEFAULT_AUTH_CONTEXT;
   }
   return context;
 };

@@ -31,7 +31,7 @@ import { erpIntegrationService } from '@/services/erpIntegrationService';
 import { crmIntegrationService } from '@/services/crmIntegrationService';
 import { accountingIntegrationService } from '@/services/accountingIntegrationService';
 import { logger } from '@/utils/logger.enhanced';
-import { useAuth } from './AuthContext';
+import { useAuth } from './AuthContext.minimal';
 import type {
   Message,
   Chat,
@@ -849,81 +849,173 @@ export const useCollaboration = (): CollaborationContextType => {
   return context;
 };
 
+/**
+ * Safe version of useCollaboration that returns null if outside provider
+ * Use this for optional features like ChatIcon that may render outside the provider
+ */
+export const useCollaborationSafe = (): CollaborationContextType | null => {
+  return useContext(CollaborationContext);
+};
+
 // ============================================================================
 // FACADE HOOKS - Backward Compatibility
 // ============================================================================
 
+// Default values for when context is not available
+const defaultMessageState = {
+  chats: [] as Chat[],
+  currentChat: null,
+  chatsLoading: false,
+  chatsError: null,
+  messages: [] as Message[],
+  messagesLoading: false,
+  messagesError: null,
+  notifications: [] as ChatNotification[],
+  unreadNotifications: 0,
+  notificationsLoading: false,
+  notificationsError: null,
+  settings: null,
+  settingsLoading: false,
+  fetchUserChats: async () => {},
+  createChat: async () => ({} as Chat),
+  selectChat: () => {},
+  updateChat: async () => {},
+  fetchMessages: async () => {},
+  sendMessage: async () => ({} as Message),
+  markMessagesAsRead: async () => {},
+  fetchNotifications: async () => {},
+  markNotificationAsRead: async () => {},
+  markAllNotificationsAsRead: async () => {},
+  fetchSettings: async () => {},
+  updateSettings: async () => {},
+  clearErrors: () => {},
+};
+
 /**
  * @deprecated Use useCollaboration() instead. This hook is for backward compatibility only.
+ * NOTE: This hook is now safe to use outside CollaborationProvider - returns defaults
  */
 export const useMessage = () => {
-  const ctx = useCollaboration();
+  const context = useContext(CollaborationContext);
+  
+  // Return safe defaults if outside provider
+  if (!context) {
+    return defaultMessageState;
+  }
+  
   return {
-    chats: ctx.chats,
-    currentChat: ctx.currentChat,
-    chatsLoading: ctx.chatsLoading,
-    chatsError: ctx.chatsError,
-    messages: ctx.messages,
-    messagesLoading: ctx.messagesLoading,
-    messagesError: ctx.messagesError,
-    notifications: ctx.notifications,
-    unreadNotifications: ctx.unreadNotifications,
-    notificationsLoading: ctx.notificationsLoading,
-    notificationsError: ctx.notificationsError,
-    settings: ctx.settings,
-    settingsLoading: ctx.settingsLoading,
-    fetchUserChats: ctx.fetchUserChats,
-    createChat: ctx.createChat,
-    selectChat: ctx.selectChat,
-    updateChat: ctx.updateChat,
-    fetchMessages: ctx.fetchMessages,
-    sendMessage: ctx.sendMessage,
-    markMessagesAsRead: ctx.markMessagesAsRead,
-    fetchNotifications: ctx.fetchNotifications,
-    markNotificationAsRead: ctx.markNotificationAsRead,
-    markAllNotificationsAsRead: ctx.markAllNotificationsAsRead,
-    fetchSettings: ctx.fetchSettings,
-    updateSettings: ctx.updateSettings,
-    clearErrors: ctx.clearErrors,
+    chats: context.chats,
+    currentChat: context.currentChat,
+    chatsLoading: context.chatsLoading,
+    chatsError: context.chatsError,
+    messages: context.messages,
+    messagesLoading: context.messagesLoading,
+    messagesError: context.messagesError,
+    notifications: context.notifications,
+    unreadNotifications: context.unreadNotifications,
+    notificationsLoading: context.notificationsLoading,
+    notificationsError: context.notificationsError,
+    settings: context.settings,
+    settingsLoading: context.settingsLoading,
+    fetchUserChats: context.fetchUserChats,
+    createChat: context.createChat,
+    selectChat: context.selectChat,
+    updateChat: context.updateChat,
+    fetchMessages: context.fetchMessages,
+    sendMessage: context.sendMessage,
+    markMessagesAsRead: context.markMessagesAsRead,
+    fetchNotifications: context.fetchNotifications,
+    markNotificationAsRead: context.markNotificationAsRead,
+    markAllNotificationsAsRead: context.markAllNotificationsAsRead,
+    fetchSettings: context.fetchSettings,
+    updateSettings: context.updateSettings,
+    clearErrors: context.clearErrors,
   };
+};
+
+// Default values for realtime collaboration when context is not available
+const defaultRealtimeState = {
+  onlineUsers: [] as OnlineUser[],
+  currentUserPresence: null,
+  recentActivity: [] as ActivityEvent[],
+  isUserOnline: () => false,
+  updatePresence: () => {},
+  sendActivityEvent: () => {},
+  typingUsers: {} as { [key: string]: OnlineUser },
+  updateTypingStatus: () => {},
 };
 
 /**
  * @deprecated Use useCollaboration() instead. This hook is for backward compatibility only.
+ * NOTE: This hook is now safe to use outside CollaborationProvider - returns defaults
  */
 export const useRealtimeCollaboration = () => {
-  const ctx = useCollaboration();
+  const context = useContext(CollaborationContext);
+  
+  // Return safe defaults if outside provider
+  if (!context) {
+    return defaultRealtimeState;
+  }
+  
   return {
-    onlineUsers: ctx.onlineUsers,
-    currentUserPresence: ctx.currentUserPresence,
-    recentActivity: ctx.recentActivity,
-    isUserOnline: ctx.isUserOnline,
-    updatePresence: ctx.updatePresence,
-    sendActivityEvent: ctx.sendActivityEvent,
-    typingUsers: ctx.typingUsers,
-    updateTypingStatus: ctx.updateTypingStatus,
+    onlineUsers: context.onlineUsers,
+    currentUserPresence: context.currentUserPresence,
+    recentActivity: context.recentActivity,
+    isUserOnline: context.isUserOnline,
+    updatePresence: context.updatePresence,
+    sendActivityEvent: context.sendActivityEvent,
+    typingUsers: context.typingUsers,
+    updateTypingStatus: context.updateTypingStatus,
   };
+};
+
+// Default values for integration when context is not available
+const defaultIntegrationState = {
+  integrations: [] as IntegrationConfig[],
+  loading: false,
+  error: null,
+  syncStatus: {
+    lastSync: null,
+    isSyncing: false,
+    syncError: null,
+  },
+  fetchIntegrations: async () => {},
+  createIntegration: async () => false,
+  updateIntegration: async () => false,
+  deleteIntegration: async () => false,
+  syncAllData: async () => {},
+  syncIntegration: async () => false,
+  fetchERPData: async () => {},
+  fetchCRMData: async () => {},
+  fetchAccountingData: async () => {},
 };
 
 /**
  * @deprecated Use useCollaboration() instead. This hook is for backward compatibility only.
+ * NOTE: This hook is now safe to use outside CollaborationProvider - returns defaults
  */
 export const useIntegration = () => {
-  const ctx = useCollaboration();
+  const context = useContext(CollaborationContext);
+  
+  // Return safe defaults if outside provider
+  if (!context) {
+    return defaultIntegrationState;
+  }
+  
   return {
-    integrations: ctx.integrations,
-    loading: ctx.integrationsLoading,
-    error: ctx.integrationsError,
-    syncStatus: ctx.syncStatus,
-    fetchIntegrations: ctx.fetchIntegrations,
-    createIntegration: ctx.createIntegration,
-    updateIntegration: ctx.updateIntegration,
-    deleteIntegration: ctx.deleteIntegration,
-    syncAllData: ctx.syncAllData,
-    syncIntegration: ctx.syncIntegration,
-    fetchERPData: ctx.fetchERPData,
-    fetchCRMData: ctx.fetchCRMData,
-    fetchAccountingData: ctx.fetchAccountingData,
+    integrations: context.integrations,
+    loading: context.integrationsLoading,
+    error: context.integrationsError,
+    syncStatus: context.syncStatus,
+    fetchIntegrations: context.fetchIntegrations,
+    createIntegration: context.createIntegration,
+    updateIntegration: context.updateIntegration,
+    deleteIntegration: context.deleteIntegration,
+    syncAllData: context.syncAllData,
+    syncIntegration: context.syncIntegration,
+    fetchERPData: context.fetchERPData,
+    fetchCRMData: context.fetchCRMData,
+    fetchAccountingData: context.fetchAccountingData,
   };
 };
 
