@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { CardPro, CardProHeader, CardProContent, CardProTitle, CardProDescription } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
-import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
 import { useValidatedForm } from '@/hooks/useValidatedForm';

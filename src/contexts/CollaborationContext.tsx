@@ -854,7 +854,8 @@ export const useCollaboration = (): CollaborationContextType => {
  * Use this for optional features like ChatIcon that may render outside the provider
  */
 export const useCollaborationSafe = (): CollaborationContextType | null => {
-  return useContext(CollaborationContext);
+  const context = useContext(CollaborationContext);
+  return context ?? null;
 };
 
 // ============================================================================
