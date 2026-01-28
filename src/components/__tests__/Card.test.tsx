@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from './Card';
+} from '../Card';
 
 describe('Card Components', () => {
   describe('Card', () => {
@@ -385,4 +385,5 @@ describe('Card Components', () => {
     });
   });
 });
+
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import ProgressRing from './ProgressRing';
+import ProgressRing from '../ProgressRing';
 
 describe('ProgressRing Component', () => {
   describe('Rendering', () => {
@@ -494,4 +494,5 @@ describe('ProgressRing Component', () => {
     });
   });
 });
+
 

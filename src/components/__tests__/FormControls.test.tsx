@@ -7,7 +7,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Input, Select, Textarea } from './FormControls';
+import { Input, Select, Textarea } from '../FormControls';
 
 describe('Input', () => {
   describe('Rendering', () => {
@@ -461,4 +461,5 @@ describe('Textarea', () => {
     });
   });
 });
+
 

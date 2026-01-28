@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Progress } from './Progress';
+import { Progress } from '../Progress';
 
 describe('Progress Component', () => {
   describe('Rendering', () => {
@@ -332,4 +332,5 @@ describe('Progress Component', () => {
     });
   });
 });
+
 

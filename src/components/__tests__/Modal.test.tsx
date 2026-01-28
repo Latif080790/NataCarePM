@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Modal } from './Modal';
+import { Modal } from '../Modal';
 
 describe('Modal Component', () => {
   const mockOnClose = vi.fn();
@@ -302,4 +302,5 @@ describe('Modal Component', () => {
     });
   });
 });
+
 

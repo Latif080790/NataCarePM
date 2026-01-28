@@ -6,7 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GPSCapture, useGPSCapture, GeolocationData } from './GPSCapture';
+import { GPSCapture, useGPSCapture, GeolocationData } from '../GPSCapture';
 
 // Mock mobileAnalytics
 vi.mock('@/utils/mobileAnalytics', () => ({
@@ -675,4 +675,5 @@ describe('useGPSCapture', () => {
 
 // Helper for hook testing
 import { renderHook, act } from '@testing-library/react';
+
 

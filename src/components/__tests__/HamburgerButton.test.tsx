@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HamburgerButton } from './HamburgerButton';
+import { HamburgerButton } from '../HamburgerButton';
 
 describe('HamburgerButton Component', () => {
   const mockOnClick = vi.fn();
@@ -357,4 +357,5 @@ describe('HamburgerButton Component', () => {
     });
   });
 });
+
 

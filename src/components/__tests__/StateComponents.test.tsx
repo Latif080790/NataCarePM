@@ -14,7 +14,7 @@ import {
   TableLoadingSkeleton,
   CardLoadingSkeleton,
   ListLoadingSkeleton,
-} from './StateComponents';
+} from '../StateComponents';
 import { Plus, Trash2 } from 'lucide-react';
 
 describe('StateComponents', () => {
@@ -547,4 +547,5 @@ describe('StateComponents', () => {
     });
   });
 });
+
 

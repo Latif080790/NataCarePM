@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Toast } from './Toast';
+import { Toast } from '../Toast';
 
 describe('Toast Component', () => {
   const mockOnClose = vi.fn();
@@ -355,4 +355,5 @@ describe('Toast Component', () => {
     });
   });
 });
+
 

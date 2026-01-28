@@ -14,7 +14,7 @@ import {
   CardProFooter,
   CardProTitle,
   CardProDescription,
-} from './CardPro';
+} from '../CardPro';
 
 describe('CardPro', () => {
   describe('Basic Rendering', () => {
@@ -307,4 +307,5 @@ describe('CardPro', () => {
     });
   });
 });
+
 

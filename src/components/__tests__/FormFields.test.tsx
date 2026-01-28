@@ -16,7 +16,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import type { FieldErrors } from 'react-hook-form';
-import { FormField, TextareaField, SelectField, FormErrorSummary } from './FormFields';
+import { FormField, TextareaField, SelectField, FormErrorSummary } from '../FormFields';
 
 // Test wrapper component with react-hook-form
 function TestFormField(props: {
@@ -421,4 +421,5 @@ describe('FormFields Components', () => {
     });
   });
 });
+
 

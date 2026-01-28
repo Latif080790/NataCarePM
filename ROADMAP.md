@@ -1,11 +1,11 @@
 # NataCarePM Consolidation & Refactoring Roadmap
 
-- [/] **Phase 1: Codebase Hygiene & Cleanup**
-    - [ ] Audit and remove backup files (`.backup`, `.old`, `.orig`)
-    - [ ] Remove unused/duplicate configuration files (`.env.template` vs example)
-    - [ ] Clean up root directory (move old reports to `docs/reports`)
-    - [ ] Standardize project root structure
-    - [ ] Organize test files into dedicated `__tests__` directories
+- [x] **Phase 1: Codebase Hygiene & Cleanup**
+    - [x] Audit and remove backup files (`.backup`, `.old`, `.orig`)
+    - [x] Remove unused/duplicate configuration files (`.env.template` vs example)
+    - [x] Clean up root directory (move old reports to `docs/reports`)
+    - [x] Standardize project root structure
+    - [x] Organize test files into dedicated `__tests__` directories
 
 - [ ] **Phase 2: UI/UX Component Unification (The "Pro" Merge)**
     - [ ] Inventory all "Pro" vs Standard component pairs (e.g., `Button.tsx` vs `ButtonPro.tsx`)
