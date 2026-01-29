@@ -38,8 +38,8 @@ import {
   approveMaterialRequest,
   convertMRtoPO,
   validateMaterialRequest
-} from '@/api/materialRequestService';
-import { checkStockLevel } from '@/api/inventoryTransactionService';
+} from '@/services/materialRequestService';
+import { checkStockLevel } from '@/services/inventoryTransactionService';
 
 // ============================================================================
 // CREATE MR MODAL

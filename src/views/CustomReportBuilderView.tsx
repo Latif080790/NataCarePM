@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { enhancedReportingService } from '@/api/enhancedReportingService';
+import { enhancedReportingService } from '@/services/enhancedReportingService';
 import { CardPro } from '@/components/CardPro';
 import { ButtonPro } from '@/components/ButtonPro';
 import { InputPro } from '@/components/DesignSystem';

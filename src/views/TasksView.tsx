@@ -1,28 +1,39 @@
-import React, { useState, useMemo } from 'react';
+/**
+ * TasksView - Professional Tasks Management View
+ * 
+ * Enterprise-grade task management with consistent design system.
+ * Uses EnterpriseLayout, TablePro, and all design system components.
+ */
 
-import { CardPro } from '@/components/CardPro';
-import { ButtonPro } from '@/components/ButtonPro';
-import { InputPro, SelectPro } from '@/components/FormComponents';
-import { EmptyState } from '@/components/StateComponents';
+import React, { useState, useMemo } from 'react';
+import {
+  EnterpriseLayout,
+  SectionLayout,
+  StatCardPro,
+  StatCardGrid,
+  TablePro,
+  ColumnDef,
+  ButtonPro,
+  BadgePro,
+  ModalPro,
+  AlertPro,
+  EmptyState,
+  LoadingState,
+} from '@/components/DesignSystem';
 import { Task, User } from '@/types';
 import {
   Plus,
-  Search,
   CheckCircle,
-  Clock,
   AlertTriangle,
-  User as UserIcon,
   Calendar,
-  Tag,
+  Target,
+  Zap,
+  Flag,
   Edit3,
   Trash2,
   Eye,
-  Flag,
-  Target,
-  TrendingUp,
-  Zap,
+  FileText,
 } from 'lucide-react';
-import { sanitizeBasic } from '@/utils/sanitizer';
 
 interface TasksViewProps {
   tasks: Task[];
@@ -30,27 +41,17 @@ interface TasksViewProps {
   onCreateTask?: (task: Omit<Task, 'id'>) => void;
   onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
   onDeleteTask?: (taskId: string) => void;
+  isLoading?: boolean;
 }
 
-export const TasksView: React.FC<TasksViewProps> = ({ tasks = [], users = [], onDeleteTask }) => {
+export default function TasksView({
+  tasks = [],
+  users = [],
+  onDeleteTask,
+  isLoading = false,
+}: TasksViewProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
-
-  // Enhanced task filtering and search
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesSearch =
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-
-      return matchesSearch && matchesStatus && matchesPriority;
-    });
-  }, [tasks, searchTerm, statusFilter, priorityFilter]);
 
   // Task analytics
   const taskAnalytics = useMemo(() => {
@@ -73,45 +74,43 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks = [], users = [], on
     };
   }, [tasks]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'done':
-        return 'text-green-600 bg-green-100';
-      case 'in-progress':
-        return 'text-blue-600 bg-blue-100';
-      case 'todo':
-        return 'text-gray-600 bg-gray-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
+  // Status badge helper
+  const getStatusBadge = (status: string) => {
+    const statusConfig: any = {
+      done: { variant: 'success', label: 'Completed' },
+      'in-progress': { variant: 'primary', label: 'In Progress' },
+      todo: { variant: 'default', label: 'To Do' },
+    };
+
+    const config = statusConfig[status] || {
+      variant: 'default',
+      label: status,
+    };
+
+    return <BadgePro variant={config.variant}>{config.label}</BadgePro>;
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'text-red-600';
-      case 'medium':
-        return 'text-yellow-600';
-      case 'low':
-        return 'text-green-600';
-      default:
-        return 'text-gray-600';
-    }
+  // Priority badge helper
+  const getPriorityBadge = (priority: string) => {
+    const priorityConfig: any = {
+      high: { variant: 'error', icon: Flag },
+      medium: { variant: 'warning', icon: AlertTriangle },
+      low: { variant: 'success', icon: Target },
+    };
+
+    const config = priorityConfig[priority] || {
+      variant: 'default',
+      icon: Flag,
+    };
+
+    return (
+      <BadgePro variant={config.variant} icon={config.icon} size="sm">
+        {priority}
+      </BadgePro>
+    );
   };
 
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return <Flag className="w-4 h-4" />;
-      case 'medium':
-        return <AlertTriangle className="w-4 h-4" />;
-      case 'low':
-        return <Target className="w-4 h-4" />;
-      default:
-        return <Flag className="w-4 h-4" />;
-    }
-  };
-
+  // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       day: '2-digit',
@@ -120,309 +119,240 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks = [], users = [], on
     });
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Task Management Center
-            </h1>
-            <p className="text-lg text-gray-600">
-              Enterprise Task Tracking • Team Collaboration • Performance Insights
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-green-100 px-4 py-2 rounded-lg">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-green-700 font-medium">Live Updates</span>
-            </div>
-            <ButtonPro
-              variant="primary"
-              icon={Plus}
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              Create New Task
-            </ButtonPro>
-          </div>
+  // Table columns definition
+  const columns: ColumnDef<Task>[] = [
+    {
+      key: 'title',
+      header: 'Task',
+      sortable: true,
+      render: (task) => (
+        <div className="flex flex-col gap-1">
+          <span className="font-medium text-gray-900">{task.title}</span>
+          {task.description && (
+            <span className="text-sm text-gray-500 truncate max-w-md">
+              {task.description}
+            </span>
+          )}
         </div>
-
-        {/* Task Analytics Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-          <CardPro className="p-4 bg-blue-600 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">Total Tasks</p>
-                <p className="text-3xl font-bold">{taskAnalytics.total}</p>
-              </div>
-              <Target className="w-8 h-8 text-blue-200" />
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      align: 'center',
+      render: (task) => getStatusBadge(task.status),
+    },
+    {
+      key: 'priority',
+      header: 'Priority',
+      sortable: true,
+      align: 'center',
+      render: (task) => getPriorityBadge(task.priority),
+    },
+    {
+      key: 'assignedTo',
+      header: 'Assignee',
+      render: (task) => {
+        const assigneeId = Array.isArray(task.assignedTo) ? task.assignedTo[0] : task.assignedTo;
+        const assignee = users.find((u) => u.id === assigneeId);
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-semibold">
+              {assignee?.name?.[0]?.toUpperCase() || 'U'}
             </div>
-          </CardPro>
-
-          <CardPro className="p-4 bg-green-600 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-100 text-sm">Completed</p>
-                <p className="text-3xl font-bold">{taskAnalytics.completed}</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-green-200" />
-            </div>
-          </CardPro>
-
-          <CardPro className="p-4 bg-purple-600 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm">In Progress</p>
-                <p className="text-3xl font-bold">{taskAnalytics.inProgress}</p>
-              </div>
-              <Zap className="w-8 h-8 text-purple-200" />
-            </div>
-          </CardPro>
-
-          <CardPro className="p-4 bg-orange-600 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-100 text-sm">Pending</p>
-                <p className="text-3xl font-bold">{taskAnalytics.pending}</p>
-              </div>
-              <Clock className="w-8 h-8 text-orange-200" />
-            </div>
-          </CardPro>
-
-          <CardPro className="p-4 bg-red-600 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-red-100 text-sm">Overdue</p>
-                <p className="text-3xl font-bold">{taskAnalytics.overdue}</p>
-              </div>
-              <AlertTriangle className="w-8 h-8 text-red-200" />
-            </div>
-          </CardPro>
-
-          <CardPro className="p-4 bg-indigo-600 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-indigo-100 text-sm">Completion</p>
-                <p className="text-3xl font-bold">{taskAnalytics.completionRate.toFixed(0)}%</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-indigo-200" />
-            </div>
-          </CardPro>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <CardPro className="p-6 mb-8" variant="elevated">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <InputPro
-                type="text"
-                placeholder="Search tasks by title or description..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <span className="text-sm text-gray-700">
+              {assignee?.name || 'Unassigned'}
+            </span>
           </div>
-
-          <div className="flex gap-4">
-            <SelectPro
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              options={[
-                { value: 'all', label: 'All Status' },
-                { value: 'todo', label: 'To Do' },
-                { value: 'in-progress', label: 'In Progress' },
-                { value: 'done', label: 'Done' },
-              ]}
-            />
-
-            <SelectPro
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
-              options={[
-                { value: 'all', label: 'All Priority' },
-                { value: 'high', label: 'High Priority' },
-                { value: 'medium', label: 'Medium Priority' },
-                { value: 'low', label: 'Low Priority' },
-              ]}
-            />
+        );
+      },
+    },
+    {
+      key: 'dueDate',
+      header: 'Due Date',
+      sortable: true,
+      render: (task) =>
+        task.dueDate ? (
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Calendar className="w-4 h-4" />
+            <span>{formatDate(task.dueDate)}</span>
           </div>
-        </div>
-      </CardPro>
-
-      {/* Tasks List */}
-      <div className="space-y-4">
-        {filteredTasks.length === 0 ? (
-          <EmptyState
-            title="No tasks found"
-            description={
-              searchTerm || statusFilter !== 'all' || priorityFilter !== 'all'
-                ? 'Try adjusting your search or filters'
-                : 'Create your first task to get started'
-            }
-            icon={Target}
-          />
         ) : (
-          filteredTasks.map((task) => (
-            <CardPro
-              key={task.id}
-              hoverable
-              className="p-6 cursor-pointer"
-              onClick={() => setSelectedTask(task)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {task.title}
-                    </h3>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}
-                    >
-                      {task.status.replace('-', ' ').toUpperCase()}
-                    </span>
-                    <div
-                      className={`flex items-center space-x-1 ${getPriorityColor(task.priority)}`}
-                    >
-                      {getPriorityIcon(task.priority)}
-                      <span className="text-sm font-medium capitalize">{task.priority}</span>
-                    </div>
-                  </div>
+          <span className="text-sm text-gray-400">No due date</span>
+        ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      render: (task) => (
+        <div className="flex items-center justify-end gap-2">
+          <ButtonPro
+            variant="ghost"
+            size="sm"
+            icon={Eye}
+            onClick={() => setSelectedTask(task)}
+          />
+          <ButtonPro
+            variant="ghost"
+            size="sm"
+            icon={Edit3}
+            onClick={() => {
+              /* Edit handler */
+            }}
+          />
+          <ButtonPro
+            variant="ghost"
+            size="sm"
+            icon={Trash2}
+            onClick={() => onDeleteTask?.(task.id)}
+          />
+        </div>
+      ),
+    },
+  ];
 
-                  {task.description && (
-                    <div
-                      className="text-gray-600 mb-4 line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: sanitizeBasic(task.description) }}
-                    />
-                  )}
+  return (
+    <EnterpriseLayout
+      title="Task Management"
+      subtitle="Manage and track all project tasks efficiently"
+      breadcrumbs={[
+        { label: 'Projects', href: '/' },
+        { label: 'Tasks' },
+      ]}
+      actions={
+        <ButtonPro variant="primary" icon={Plus} onClick={() => setIsCreateModalOpen(true)}>
+          New Task
+        </ButtonPro>
+      }
+    >
+      {/* Key Metrics Section */}
+      <SectionLayout title="Overview" className="mb-8">
+        <StatCardGrid>
+          <StatCardPro
+            title="Total Tasks"
+            value={taskAnalytics.total}
+            icon={Target}
+            variant="primary"
+            description="All tasks"
+          />
+          <StatCardPro
+            title="Completed"
+            value={taskAnalytics.completed}
+            icon={CheckCircle}
+            variant="success"
+            trend={{
+              value: taskAnalytics.completionRate,
+              label: 'completion rate',
+            }}
+          />
+          <StatCardPro
+            title="In Progress"
+            value={taskAnalytics.inProgress}
+            icon={Zap}
+            variant="primary"
+            description="Active tasks"
+          />
+          <StatCardPro
+            title="Overdue"
+            value={taskAnalytics.overdue}
+            icon={AlertTriangle}
+            variant={taskAnalytics.overdue > 0 ? 'warning' : 'default'}
+            description="Requires attention"
+          />
+        </StatCardGrid>
+      </SectionLayout>
 
-                  <div className="flex items-center space-x-6 text-sm text-gray-500">
-                    {task.assignedTo && task.assignedTo.length > 0 && (
-                      <div className="flex items-center space-x-2">
-                        <UserIcon className="w-4 h-4" />
-                        <span>
-                          {users.find((u) => u.id === task.assignedTo[0])?.name || 'Unknown'}
-                        </span>
-                      </div>
-                    )}
-                    {task.dueDate && (
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(task.dueDate)}</span>
-                      </div>
-                    )}
-                    {task.tags && task.tags.length > 0 && (
-                      <div className="flex items-center space-x-2">
-                        <Tag className="w-4 h-4" />
-                        <span>{task.tags.join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 ml-4">
-                  <button
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      setSelectedTask(task);
-                    }}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      // Edit functionality
-                    }}
-                    className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      if (window.confirm('Apakah Anda yakin ingin menghapus task ini?')) {
-                        onDeleteTask?.(task.id);
-                      }
-                    }}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </CardPro>
-          ))
-        )}
-      </div>
-
-      {/* Create Task Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <CardPro className="p-8 max-w-lg mx-4">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">Create New Task</h3>
-              <p className="text-gray-600 mb-6">
-                Task management system is being integrated with Firebase backend.
-              </p>
-              <div className="space-y-3">
-                <ButtonPro
-                  variant="primary"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="w-full"
-                >
-                  Continue Working
-                </ButtonPro>
-                <p className="text-sm text-gray-500">Full task management will be available soon</p>
-              </div>
-            </div>
-          </CardPro>
+      {/* Warning for overdue tasks */}
+      {taskAnalytics.overdue > 0 && (
+        <div className="mb-6">
+          <AlertPro variant="warning" title="Overdue Tasks">
+            You have {taskAnalytics.overdue} overdue task(s) that require immediate attention.
+          </AlertPro>
         </div>
       )}
 
-      {/* Task Details Modal */}
+      {/* Tasks Table Section */}
+      <SectionLayout title="All Tasks" description="View and manage all project tasks">
+        {isLoading ? (
+          <LoadingState message="Loading tasks..." />
+        ) : (
+          <TablePro
+            data={tasks}
+            columns={columns}
+            searchable
+            searchPlaceholder="Search tasks by title or description..."
+            onRowClick={(task) => setSelectedTask(task)}
+            hoverable
+            stickyHeader
+            emptyMessage="No tasks found. Create your first task to get started."
+          />
+        )}
+      </SectionLayout>
+
+      {/* Task Detail Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <CardPro className="p-8 max-w-lg mx-4">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Eye className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-gray-800">{selectedTask.title}</h3>
-              <div
-                className="text-gray-600 mb-6"
-                dangerouslySetInnerHTML={{ __html: sanitizeBasic(selectedTask.description) }}
-              />
-              <ButtonPro
-                variant="primary"
-                onClick={() => setSelectedTask(null)}
-                className="w-full"
-              >
+        <ModalPro
+          isOpen={!!selectedTask}
+          onClose={() => setSelectedTask(null)}
+          title={selectedTask.title}
+          size="lg"
+          footer={
+            <div className="flex gap-3 justify-end">
+              <ButtonPro variant="outline" onClick={() => setSelectedTask(null)}>
                 Close
               </ButtonPro>
+              <ButtonPro variant="primary" icon={Edit3}>
+                Edit Task
+              </ButtonPro>
             </div>
-          </CardPro>
-        </div>
+          }
+        >
+          <div className="space-y-4">
+            {/* Task Details */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">Description</h4>
+              <p className="text-gray-600">{selectedTask.description || 'No description provided'}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Status</h4>
+                {getStatusBadge(selectedTask.status)}
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Priority</h4>
+                {getPriorityBadge(selectedTask.priority)}
+              </div>
+            </div>
+
+            {selectedTask.dueDate && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Due Date</h4>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(selectedTask.dueDate)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </ModalPro>
       )}
 
-      {/* 🏆 FOOTER */}
-      <div className="mt-12 text-center">
-        <p className="text-gray-500">
-          🎯 Enterprise Task Management • AI-Powered Analytics • Real-time Collaboration • Strategic
-          Planning • NataCarePM v2.0
-        </p>
-      </div>
-    </div>
+      {/* Create Task Modal Placeholder */}
+      <ModalPro
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Create New Task"
+        size="lg"
+      >
+        <EmptyState
+          icon={FileText}
+          title="Task Creation Form"
+          description="Task creation form will be implemented here with proper form validation."
+        />
+      </ModalPro>
+    </EnterpriseLayout>
   );
-};
-
-export default TasksView;
-
+}

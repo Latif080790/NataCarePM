@@ -14,7 +14,7 @@ import {
   useSystemHealth,
   useDashboardAnalytics,
 } from '@/hooks/useMonitoring';
-import { monitoringService, SystemMetrics, ErrorLog } from '@/api/monitoringService';
+import { monitoringService, SystemMetrics, ErrorLog } from '@/services/monitoringService';
 
 // ============================================
 // TYPES

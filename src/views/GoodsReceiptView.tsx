@@ -45,7 +45,7 @@ import {
   completeGoodsReceipt,
   deleteGoodsReceipt,
   getGRSummary,
-} from '@/api/goodsReceiptService';
+} from '@/services/goodsReceiptService';
 import { CreateGRModal, GRDetailsModal, GRInspectionModal } from '@/components/GoodsReceiptModals';
 // interface GRFormData { ... } // Removed if unused
 // ============================================================================

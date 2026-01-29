@@ -36,7 +36,7 @@ import { PurchaseOrder } from '@/types';
 import {
   createGoodsReceipt,
   inspectGRItem
-} from '@/api/goodsReceiptService';
+} from '@/services/goodsReceiptService';
 
 // ============================================================================
 // CREATE GR MODAL

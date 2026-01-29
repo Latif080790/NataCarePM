@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CreateTaskModal from '../CreateTaskModal';
-import { taskService } from '@/api/taskService';
+import { taskService } from '@/services/taskService';
 import type { User, Project, Task } from '@/types';
 
 // Mock all context hooks
@@ -19,7 +19,7 @@ vi.mock('@/contexts/ToastContext', () => ({
 }));
 
 // Mock taskService
-vi.mock('@/api/taskService', () => ({
+vi.mock('@/services/taskService', () => ({
   taskService: {
     createTask: vi.fn(),
     getTaskById: vi.fn(),

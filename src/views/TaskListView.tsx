@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { taskService } from '@/api/taskService';
+import { taskService } from '@/services/taskService';
 import { ButtonPro } from '@/components/ButtonPro';
 import { CardPro, CardProContent, CardProDescription, CardProHeader, CardProTitle } from '@/components/CardPro';
 import CreateTaskModal from '@/components/CreateTaskModal';

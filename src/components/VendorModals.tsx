@@ -27,7 +27,7 @@ import {
   CreateEvaluationInput,
   CreateBlacklistInput,
 } from '@/types/vendor';
-import { createVendor, createVendorEvaluation, blacklistVendor } from '@/api/vendorService';
+import { createVendor, createVendorEvaluation, blacklistVendor } from '@/services/vendorService';
 
 // ============================================================================
 // CREATE VENDOR MODAL

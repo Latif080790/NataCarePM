@@ -22,7 +22,7 @@ import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebaseConfig';
 import { User as AppUser } from '@/types';
 import { rateLimiter } from '@/utils/rateLimiter';
-// import { twoFactorService } from '@/api/twoFactorService'; // Reserved for future 2FA implementation
+// import { twoFactorService } from '@/services/twoFactorService'; // Reserved for future 2FA implementation
 import { logger } from '@/utils/logger';
 import { APIResponse, APIError, ErrorCodes, wrapResponse, wrapError } from '@/utils/responseWrapper';
 import { ipRestriction } from '@/middleware/ipRestriction';
@@ -143,19 +143,19 @@ export const authService = {
       // === STEP 1: IP RESTRICTION CHECK ===
       const ipCheck = await ipRestriction.middleware();
       if (!ipCheck.allowed) {
-        logger.warn('authService:login', 'IP restriction failed', { 
-          email, 
+        logger.warn('authService:login', 'IP restriction failed', {
+          email,
           reason: ipCheck.reason,
-          ipInfo: ipCheck.ipInfo 
+          ipInfo: ipCheck.ipInfo
         });
         throw new APIError(
           ErrorCodes.PERMISSION_DENIED,
           `Access denied: ${ipCheck.reason}`,
           403,
-          { 
-            email, 
+          {
+            email,
             ipInfo: ipCheck.ipInfo,
-            action: ipCheck.action 
+            action: ipCheck.action
           }
         );
       }
@@ -217,12 +217,12 @@ export const authService = {
       // TODO: Fix twoFactorService.isEnabled method
       // const is2FAEnabled = await twoFactorService.isEnabled(userCredential.user.uid);
       const is2FAEnabled = false; // Temporarily disabled until twoFactorService is fixed
-      
+
       if (is2FAEnabled) {
         logger.info('authService:login', '2FA required for user', { email });
         // Don't complete login yet, show 2FA verification
         rateLimiter.reset(email, 'login');
-        
+
         const appUser = await convertFirebaseUserToAppUser(userCredential.user);
         return wrapResponse({
           ...appUser,
@@ -487,3 +487,37 @@ export const authService = {
     }
   },
 };
+
+/**
+ * Get user permissions
+ */
+export const getUserPermissions = async (userId: string): Promise<string[]> => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      return userDoc.data().permissions || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Error getting user permissions', error);
+    return [];
+  }
+};
+
+/**
+ * Get user role
+ */
+export const getUserRole = async (userId: string): Promise<string> => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      return userDoc.data().roleId || 'user';
+    }
+    return 'user';
+  } catch (error) {
+    console.error('Error getting user role', error);
+    return 'user';
+  }
+};
+
+export { changePassword } from './passwordService';

@@ -9,8 +9,8 @@ import { Search, Filter, Download, RefreshCw, Eye, AlertCircle, CheckCircle, XCi
 import {
   CardPro,
 } from '@/components/DesignSystem';
-import { getEnhancedAuditLogs, getEnhancedAuditStatistics } from '@/api/auditService.enhanced';
-import { exportAuditLogs, getDefaultExportOptions } from '@/api/auditExport.service';
+import { getEnhancedAuditLogs, getEnhancedAuditStatistics } from '@/services/auditService';
+import { exportAuditLogs, getDefaultExportOptions } from '@/services/auditExport.service';
 import {
   EnhancedAuditLog,
   EnhancedAuditLogFilters,
@@ -31,7 +31,7 @@ export function EnhancedAuditLogView() {
   const [showFilters, setShowFilters] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exporting, setExporting] = useState(false);
-  
+
   // Filters state
   const [filters, setFilters] = useState<EnhancedAuditLogFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,7 +89,7 @@ export function EnhancedAuditLogView() {
       };
 
       await exportAuditLogs(logs, exportOptions);
-      
+
       addToast(`Audit logs exported successfully to ${format.toUpperCase()}`, 'success');
     } catch (error) {
       console.error('Error exporting audit logs:', error);
@@ -177,7 +177,7 @@ export function EnhancedAuditLogView() {
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
-          
+
           <div className="relative">
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
@@ -187,7 +187,7 @@ export function EnhancedAuditLogView() {
               <Download className="w-4 h-4" />
               {exporting ? 'Exporting...' : 'Export'}
             </button>
-            
+
             {showExportMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
                 <button
@@ -221,7 +221,7 @@ export function EnhancedAuditLogView() {
               </div>
             )}
           </div>
-          
+
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -590,13 +590,12 @@ function ChangeDisplay({ change }: { change: FieldChange }) {
       <div className="flex items-center justify-between mb-2">
         <span className="font-medium text-gray-900">{change.fieldLabel}</span>
         <span
-          className={`px-2 py-1 text-xs rounded-full ${
-            change.changeType === 'added'
+          className={`px-2 py-1 text-xs rounded-full ${change.changeType === 'added'
               ? 'bg-green-100 text-green-800'
               : change.changeType === 'removed'
                 ? 'bg-red-100 text-red-800'
                 : 'bg-blue-100 text-blue-800'
-          }`}
+            }`}
         >
           {change.changeType}
         </span>

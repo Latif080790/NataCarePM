@@ -4,7 +4,7 @@
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCcw, Home, Mail, Shield, Code, AlertCircle } from 'lucide-react';
 import { Button } from './Button';
-import { monitoringService } from '@/api/monitoringService';
+import { monitoringService } from '@/services/monitoringService';
 
 interface Props {
   children: ReactNode;

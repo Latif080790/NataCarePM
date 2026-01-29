@@ -11,10 +11,10 @@
 
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { queryKeys, STALE_TIMES, CACHE_TIMES } from '@/config/queryClient';
-import { projectService } from '@/api/projectService';
-import { rabAhspService } from '@/api/rabAhspService';
-import { getMaterials } from '@/api/inventoryService';
-import { taskService } from '@/api/taskService';
+import { projectService } from '@/services/projectService';
+import { rabAhspService } from '@/services/rabAhspService';
+import { getMaterials } from '@/services/inventoryService';
+import { taskService } from '@/services/taskService';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/contexts/AuthContext.minimal'; // Use minimal version
 import type { Project, RabItem, Task } from '@/types';

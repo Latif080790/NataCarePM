@@ -14,7 +14,7 @@ import type {
   OfflineStorageMetadata,
   ServiceWorkerStatus,
 } from '@/types/offline.types';
-import syncService, { getNetworkStatus } from '@/api/syncService';
+import syncService, { getNetworkStatus } from '@/services/syncService';
 import * as IndexedDB from '@/utils/indexedDB';
 
 interface OfflineContextState {

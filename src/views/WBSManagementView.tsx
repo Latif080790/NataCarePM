@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
-import { wbsService } from '@/api/wbsService';
+import { wbsService } from '@/services/wbsService';
 import { WBSElement, WBSHierarchy } from '@/types/wbs';
 import { formatCurrency, hasPermission } from '@/constants';
 

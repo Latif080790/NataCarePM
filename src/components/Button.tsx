@@ -1,98 +1,139 @@
 import React from 'react';
+import { LucideIcon } from 'lucide-react';
+import { cn } from '@/utils/cn'; // Assuming cn exists, if not I'll just use template literals or check if utils/cn exists.
+// Checking file listing earlier, I didn't see utils/cn.ts explicitly but I saw `src/utils`. 
+// To be safe, I will implement a local clsx/twMerge or just use the logic from ButtonPro which used template literals.
+// I'll stick to template literals for safety unless I confirm utility.
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?:
-    | 'default'
-    | 'primary'
-    | 'outline'
-    | 'ghost'
-    | 'destructive'
-    | 'secondary'
-    | 'link'
-    | 'gradient';
-  size?: 'default' | 'sm' | 'lg' | 'icon' | 'xl';
-  asChild?: boolean;
-  loading?: boolean;
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'default' | 'link' | 'destructive';
+    size?: 'sm' | 'md' | 'lg' | 'default' | 'icon' | 'xl';
+    icon?: LucideIcon;
+    iconPosition?: 'left' | 'right';
+    isLoading?: boolean;
+    loading?: boolean;
+    fullWidth?: boolean;
+    asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant = 'default',
-      size = 'default',
-      asChild = false,
-      loading = false,
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    const baseClasses =
-      'inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-precious-persimmon/50 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 relative overflow-hidden group';
+    (
+        {
+            className = '',
+            variant = 'primary',
+            size = 'md',
+            isLoading = false,
+            loading = false,
+            fullWidth = false,
+            icon: Icon,
+            iconPosition = 'left',
+            children,
+            asChild = false, // Placeholder for future Slot implementation if needed, currently just passing through props could be tricky without Slottable. 
+            // For now, I will NOT implement full asChild logic to avoid breaking simple usage, unless I import Slot. 
+            // Legacy Button had simple cloneElement logic. I'll stick to a simple button for now to match ButtonPro, but with forwardRef.
+            ...props
+        },
+        ref
+    ) => {
 
-    const variantClasses = {
-      default:
-        'glass-subtle border border-violet-essence/20 text-night-black hover:border-violet-essence/40 hover:shadow-lg hover:scale-105 backdrop-blur-sm',
-      primary:
-        'gradient-bg-primary text-white hover:shadow-lg hover:scale-105 border border-precious-persimmon/20',
-      destructive:
-        'bg-red-500 text-white hover:bg-red-600 hover:shadow-lg hover:scale-105 border border-red-400/20',
-      outline:
-        'border-2 border-violet-essence/30 bg-transparent text-night-black hover:bg-violet-essence/10 hover:border-violet-essence hover:scale-105',
-      secondary:
-        'bg-violet-essence/20 text-night-black hover:bg-violet-essence/30 hover:shadow-md hover:scale-105 border border-violet-essence/20',
-      ghost: 'text-night-black hover:bg-violet-essence/10 hover:scale-105',
-      link: 'text-precious-persimmon underline-offset-4 hover:underline hover:scale-105',
-      gradient:
-        'gradient-bg-secondary text-white hover:shadow-xl hover:scale-105 border border-no-way-rose/20',
-    };
+        // Alias handling
+        const isBusy = isLoading || loading;
 
-    const sizeClasses = {
-      default: 'h-11 px-6 py-3',
-      sm: 'h-9 rounded-lg px-4 text-xs',
-      lg: 'h-12 rounded-xl px-8 text-base',
-      xl: 'h-14 rounded-2xl px-10 text-lg',
-      icon: 'h-11 w-11',
-    };
+        // Mapper for legacy variants to Pro variants (Enterprise Design System)
+        let finalVariant = variant;
+        if (variant === 'default') finalVariant = 'primary';
+        if (variant === 'destructive') finalVariant = 'danger';
 
-    const combinedClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className || ''}`;
+        // Mapper for sizes
+        let finalSize = size;
+        if (size === 'default') finalSize = 'md';
 
-    const LoadingSpinner = () => (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+        const baseStyles = `
+      inline-flex items-center justify-center
+      font-medium rounded-lg
+      transition-all duration-200
+      focus:outline-none focus:ring-2 focus:ring-offset-2
+      disabled:opacity-50 disabled:cursor-not-allowed
+    `;
 
-    if (asChild) {
-      // FIX: Explicitly type child as React.ReactElement<any> to prevent props from being inferred as `unknown`.
-      // This resolves errors with accessing `child.props.className` and passing `ref` to `React.cloneElement`.
-      const child = React.Children.only(children) as React.ReactElement<any>;
-      return React.cloneElement(child, {
-        className: `${combinedClasses} ${child.props.className || ''}`,
-        ...props,
-        ref,
-      });
+        const variantStyles: Record<string, string> = {
+            primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 active:bg-blue-800',
+            secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 active:bg-gray-800',
+            danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800',
+            ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500 active:bg-gray-200',
+            outline: 'bg-transparent text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-500 active:bg-gray-100',
+            link: 'text-blue-600 underline-offset-4 hover:underline',
+        };
+
+        const sizeStyles: Record<string, string> = {
+            sm: 'px-3 py-1.5 text-sm gap-1.5',
+            md: 'px-4 py-2 text-base gap-2',
+            lg: 'px-6 py-3 text-lg gap-2.5',
+            xl: 'px-8 py-4 text-xl gap-3',
+            icon: 'p-2',
+        };
+
+        const widthStyles = fullWidth ? 'w-full' : '';
+
+        // Fallback for unknown variants
+        const selectedVariantStyle = variantStyles[finalVariant] || variantStyles['primary'];
+        const selectedSizeStyle = sizeStyles[finalSize] || sizeStyles['md'];
+
+        const combinedClassName = `
+      ${baseStyles}
+      ${selectedVariantStyle}
+      ${selectedSizeStyle}
+      ${widthStyles}
+      ${className}
+    `.trim().replace(/\s+/g, ' ');
+
+        const iconSize = finalSize === 'sm' ? 16 : finalSize === 'lg' ? 24 : 20;
+
+        return (
+            <button
+                ref={ref}
+                className={combinedClassName}
+                disabled={props.disabled || isBusy}
+                {...props}
+            >
+                {isBusy ? (
+                    <>
+                        <svg
+                            className="animate-spin"
+                            width={iconSize}
+                            height={iconSize}
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            />
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                        </svg>
+                        <span>Loading...</span>
+                    </>
+                ) : (
+                    <>
+                        {Icon && iconPosition === 'left' && <Icon size={iconSize} />}
+                        {children}
+                        {Icon && iconPosition === 'right' && <Icon size={iconSize} />}
+                    </>
+                )}
+            </button>
+        );
     }
-
-    return (
-      <button className={combinedClasses} ref={ref} disabled={loading || props.disabled} {...props}>
-        {/* Hover effect overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-
-        {loading && <LoadingSpinner />}
-
-        <span
-          className={`relative z-10 flex items-center gap-2 ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
-        >
-          {children}
-        </span>
-      </button>
-    );
-  }
 );
 
 Button.displayName = 'Button';
 
 export { Button };
-

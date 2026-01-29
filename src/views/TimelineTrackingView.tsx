@@ -7,7 +7,7 @@ import {
   CardProTitle,
   ButtonPro,
 } from '@/components/DesignSystem';
-import { taskService } from '@/api/taskService';
+import { taskService } from '@/services/taskService';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import {

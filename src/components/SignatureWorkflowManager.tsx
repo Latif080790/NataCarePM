@@ -27,8 +27,8 @@ import {
   IntelligentDocument
 } from '@/types';
 
-import { digitalSignaturesService } from '@/api/digitalSignaturesService';
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
+import { digitalSignaturesService } from '@/services/digitalSignaturesService';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
 
 interface SignatureWorkflowManagerProps {
   documentId?: string;

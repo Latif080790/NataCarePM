@@ -13,7 +13,7 @@ jest.mock('@/utils/logger.enhanced', () => ({
 }));
 
 // Mock the monitoring service
-jest.mock('@/api/monitoringService', () => ({
+jest.mock('@/services/monitoringService', () => ({
   monitoringService: {
     logError: jest.fn()
   }
@@ -208,7 +208,7 @@ describe('EnhancedErrorBoundary', () => {
 
   it('should log errors to monitoring service', () => {
     const mockLogError = jest.fn();
-    jest.mock('@/api/monitoringService', () => ({
+    jest.mock('@/services/monitoringService', () => ({
       monitoringService: {
         logError: mockLogError
       }

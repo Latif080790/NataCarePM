@@ -19,7 +19,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
-import { EVMService } from '@/api/evmService';
+import { EVMService } from '@/services/evmService';
 import { EVMMetrics, EVMTrendData, Task, RabItem } from '@/types';
 
 interface EVMDashboardProps {

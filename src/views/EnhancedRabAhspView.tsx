@@ -40,7 +40,7 @@ const RegionalPriceAdjustment = lazy(() => import('@/components/RegionalPriceAdj
   return { default: () => <div className="p-4 text-red-600">Failed to load Regional Price Adjustment</div> };
 }));
 
-import EnhancedRabService from '@/api/enhancedRabService';
+import EnhancedRabService from '@/services/enhancedRabService';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 

@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin';
 import bcrypt from 'bcryptjs';
 import { generateAIInsight } from './aiInsightService';
 import { digitalSignatureService } from './digitalSignatureService';
+import { approveTransactionLogic } from './services/secureTransaction';
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -12,27 +13,27 @@ const db = admin.firestore();
 // Helper function to validate password strength
 const validatePassword = (password: string): { valid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters long');
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push('Password must contain at least one uppercase letter');
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push('Password must contain at least one lowercase letter');
   }
-  
+
   if (!/[0-9]/.test(password)) {
     errors.push('Password must contain at least one number');
   }
-  
+
   if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
     errors.push('Password must contain at least one special character');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -81,7 +82,7 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
   try {
     // Get user document
     const userDoc = await db.collection('users').doc(userId).get();
-    
+
     if (!userDoc.exists) {
       throw new functions.https.HttpsError(
         'not-found',
@@ -90,7 +91,7 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
     }
 
     const userData = userDoc.data();
-    
+
     // Check password history
     const passwordHistory = userData?.passwordHistory || [];
     const recentHashes = passwordHistory
@@ -109,13 +110,13 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
     }
 
     // Update password in Firebase Authentication
-//     const user = await admin.auth().getUser(userId);
- // Unused variable
-    
+    //     const user = await admin.auth().getUser(userId);
+    // Unused variable
+
     // Reauthenticate by verifying current password
     // Note: In a real implementation, you would verify the current password
     // against the user's stored password in Firebase Authentication
-    
+
     // Update password in Firebase Authentication
     await admin.auth().updateUser(userId, {
       password: newPassword
@@ -124,7 +125,7 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
     // Hash new password for history
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(newPassword, saltRounds);
-    
+
     // Add to password history
     const historyEntry = {
       userId: userId,
@@ -149,21 +150,21 @@ export const changePassword = functions.https.onCall(async (data: any, context: 
     };
   } catch (error: any) {
     console.error('Error changing password:', error);
-    
+
     if (error.code === 'auth/weak-password') {
       throw new functions.https.HttpsError(
         'invalid-argument',
         'Password is too weak'
       );
     }
-    
+
     if (error.code === 'auth/requires-recent-login') {
       throw new functions.https.HttpsError(
         'failed-precondition',
         'Please reauthenticate and try again'
       );
     }
-    
+
     throw new functions.https.HttpsError(
       'internal',
       'Failed to change password'
@@ -187,10 +188,10 @@ export const getPasswordHistory = functions.https.onCall(async (data: any, conte
   // Check if user is requesting their own history or is admin
   const requesterDoc = await db.collection('users').doc(requesterId).get();
   const requesterData = requesterDoc.data();
-  
+
   const isAdmin = requesterData?.role === 'admin';
   const isOwner = requesterId === userId;
-  
+
   if (!isOwner && !isAdmin) {
     throw new functions.https.HttpsError(
       'permission-denied',
@@ -247,7 +248,7 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
 
   // Get Gemini API key from environment variables
   const geminiApiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.key;
-  
+
   if (!geminiApiKey) {
     throw new functions.https.HttpsError(
       'failed-precondition',
@@ -258,12 +259,12 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
   try {
     // Parse project context if it's a string
     const context = typeof projectContext === 'string' ? JSON.parse(projectContext) : projectContext;
-    
+
     // Build conversation history for context
     const historyText = conversationHistory && conversationHistory.length > 0
-      ? conversationHistory.map((msg: any) => 
-          `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.parts[0]?.text || ''}`
-        ).join('\n')
+      ? conversationHistory.map((msg: any) =>
+        `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.parts[0]?.text || ''}`
+      ).join('\n')
       : '';
 
     // Prepare enhanced project context
@@ -275,7 +276,7 @@ export const generateAiInsight = functions.https.onCall(async (data: any, contex
 
     // Generate AI response
     const aiResponse = await generateAIInsight(enhancedContext, geminiApiKey);
-    
+
     return {
       success: true,
       summary: aiResponse,
@@ -330,7 +331,7 @@ export const processOCR = functions.https.onCall(async (data: any, context: func
     };
   } catch (error: any) {
     console.error('Error processing OCR:', error);
-    
+
     throw new functions.https.HttpsError(
       'internal',
       'Failed to process OCR'
@@ -349,8 +350,8 @@ export const createDigitalSignature = functions.https.onCall(async (data: any, c
   }
 
   const { documentId, documentVersionId, signerInfo, signatureType } = data;
-//   const userId = context.auth.uid;
- // Unused variable
+  //   const userId = context.auth.uid;
+  // Unused variable
 
   try {
     // Create digital signature using the service
@@ -368,7 +369,7 @@ export const createDigitalSignature = functions.https.onCall(async (data: any, c
     };
   } catch (error: any) {
     console.error('Error creating digital signature:', error);
-    
+
     throw new functions.https.HttpsError(
       'internal',
       'Failed to create digital signature'
@@ -387,8 +388,8 @@ export const verifyDigitalSignature = functions.https.onCall(async (data: any, c
   }
 
   const { signatureData, certificate } = data;
-//   const userId = context.auth.uid;
- // Unused variable
+  //   const userId = context.auth.uid;
+  // Unused variable
 
   try {
     // Verify digital signature using the service
@@ -404,10 +405,19 @@ export const verifyDigitalSignature = functions.https.onCall(async (data: any, c
     };
   } catch (error: any) {
     console.error('Error verifying digital signature:', error);
-    
+
     throw new functions.https.HttpsError(
       'internal',
       'Failed to verify digital signature'
     );
   }
+
+});
+
+/**
+ * Securely approves financial or sensitive transactions.
+ * Replaces client-side "Approved" toggles.
+ */
+export const approveTransaction = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+  return approveTransactionLogic(data, context);
 });

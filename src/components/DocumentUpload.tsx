@@ -19,7 +19,7 @@ import {
 
 import { DocumentCategory, DocumentTemplate, IntelligentDocument } from '@/types';
 
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
 
 interface DocumentUploadProps {
   projectId?: string;

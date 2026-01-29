@@ -14,7 +14,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { riskService } from '@/api/riskService';
+import { riskService } from '@/services/riskService';
 import type {
   Risk,
   RiskCategory,

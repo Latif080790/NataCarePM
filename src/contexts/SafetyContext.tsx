@@ -14,7 +14,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { safetyService } from '@/api/safetyService';
+import { safetyService } from '@/services/safetyService';
 import type {
   SafetyIncident,
   SafetyTraining,

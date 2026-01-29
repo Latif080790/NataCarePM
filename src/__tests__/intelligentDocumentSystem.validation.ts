@@ -8,11 +8,11 @@ import {
   AIInsight,
 } from '@/types';
 
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
-import { ocrService } from '@/api/ocrService';
-import { smartTemplatesEngine } from '@/api/smartTemplatesEngine';
-import { digitalSignaturesService } from '@/api/digitalSignaturesService';
-import { documentVersionControl } from '@/api/documentVersionControl';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
+import { ocrService } from '@/services/ocrService';
+import { smartTemplatesEngine } from '@/services/smartTemplatesEngine';
+import { digitalSignaturesService } from '@/services/digitalSignaturesService';
+import { documentVersionControl } from '@/services/documentVersionControl';
 export class IntelligentDocumentValidator {
   private validationResults: ValidationResult[] = [];
   private performanceMetrics: PerformanceMetric[] = [];

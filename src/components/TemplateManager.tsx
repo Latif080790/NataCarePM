@@ -33,8 +33,8 @@ import {
   IntelligentDocument,
 } from '@/types';
 
-import { smartTemplatesEngine } from '@/api/smartTemplatesEngine';
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
+import { smartTemplatesEngine } from '@/services/smartTemplatesEngine';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
 
 interface TemplateManagerProps {
   projectId?: string;

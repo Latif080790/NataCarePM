@@ -14,7 +14,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { changeOrderService } from '@/api/changeOrderService';
+import { changeOrderService } from '@/services/changeOrderService';
 import type {
   ChangeOrder,
   ChangeOrderStatus,

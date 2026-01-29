@@ -3,7 +3,7 @@
  * Comprehensive end-to-end testing of the monitoring system
  */
 
-import { monitoringService } from '@/api/monitoringService';
+import { monitoringService } from '@/services/monitoringService';
 import { SystemMetrics, PerformanceMetric } from '@/types/monitoring';
 import { MonitoringDataValidator } from '@/utils/validation/DataValidator';
 import { circuitBreakerManager } from '@/utils/validation/CircuitBreaker';

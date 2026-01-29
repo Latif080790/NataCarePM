@@ -26,7 +26,7 @@ import {
   ResourceDemandForecast,
   ResourceBottleneck,
 } from '@/types/ai-resource.types';
-import { aiResourceService } from '@/api/aiResourceService';
+import { aiResourceService } from '@/services/aiResourceService';
 
 // ============================================================================
 // Context Type Definition

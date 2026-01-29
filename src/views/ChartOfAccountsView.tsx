@@ -13,7 +13,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
-import { chartOfAccountsService } from '@/api/chartOfAccountsService';
+import { chartOfAccountsService } from '@/services/chartOfAccountsService';
 import type { ChartOfAccount, AccountType } from '@/types/accounting';
 
 interface ChartOfAccountsViewProps {

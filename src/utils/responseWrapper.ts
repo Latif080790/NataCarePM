@@ -4,7 +4,7 @@
  * Ensures consistent error handling and logging
  */
 
-import { monitoringService } from '@/api/monitoringService';
+import { monitoringService } from '@/services/monitoringService';
 
 /**
  * Standard API Response Interface

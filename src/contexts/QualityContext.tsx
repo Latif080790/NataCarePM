@@ -14,7 +14,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { qualityService } from '@/api/qualityService';
+import { qualityService } from '@/services/qualityService';
 import type {
   QualityInspection,
   Defect,

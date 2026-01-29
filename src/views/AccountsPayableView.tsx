@@ -14,7 +14,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
-import { accountsPayableService } from '@/api/accountsPayableService';
+import { accountsPayableService } from '@/services/accountsPayableService';
 import type { AccountsPayable, PayableStatus, AgingReport } from '@/types/accounting';
 
 interface AccountsPayableViewProps {

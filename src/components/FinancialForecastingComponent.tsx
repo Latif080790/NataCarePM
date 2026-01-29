@@ -15,7 +15,7 @@ import {
   Download,
   RefreshCw,
 } from 'lucide-react';
-import { FinancialForecastingService } from '@/api/financialForecastingService';
+import { FinancialForecastingService } from '@/services/financialForecastingService';
 import { FinancialForecast } from '@/types';
 
 interface FinancialForecastingComponentProps {

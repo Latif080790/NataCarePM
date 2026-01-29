@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
 
-import { taskService } from '@/api/taskService';
+import { taskService } from '@/services/taskService';
 import { FinancialForecast, EVMMetrics, KPIMetrics, Task, RabItem, AhspData } from '@/types';
 
 export const IntegratedAnalyticsView: React.FC = () => {

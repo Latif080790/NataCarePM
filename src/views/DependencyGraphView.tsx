@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CardPro, ButtonPro } from '@/components/DesignSystem';
 import { Task } from '@/types';
-import { taskService } from '@/api/taskService';
+import { taskService } from '@/services/taskService';
 import { useToast } from '@/contexts/ToastContext';
 import TaskDetailModal from '@/components/TaskDetailModal';
 import CreateTaskModal from '@/components/CreateTaskModal';

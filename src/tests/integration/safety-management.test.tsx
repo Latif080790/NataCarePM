@@ -18,10 +18,10 @@ import SafetyDashboardView from '@/views/SafetyDashboardView';
 import IncidentManagementView from '@/views/IncidentManagementView';
 import { TrainingManagementView } from '@/views/TrainingManagementView';
 import { PPEManagementView } from '@/views/PPEManagementView';
-import { safetyService } from '@/api/safetyService';
+import { safetyService } from '@/services/safetyService';
 
 // Mock Firebase
-jest.mock('@/api/safetyService');
+jest.mock('@/services/safetyService');
 
 const mockProjectId = 'test-project-123';
 

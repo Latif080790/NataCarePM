@@ -7,8 +7,8 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
-import { TimeSeriesForecaster } from '@/api/predictiveAnalyticsService';
-import { MLModelManager, GeneticAlgorithmOptimizer } from '@/api/aiResourceService';
+import { TimeSeriesForecaster } from '@/services/predictiveAnalyticsService';
+import { MLModelManager, GeneticAlgorithmOptimizer } from '@/services/aiResourceService';
 import {
   saveModelToIndexedDB,
   loadModelFromIndexedDB,

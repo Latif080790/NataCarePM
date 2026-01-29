@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext.minimal';
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import { TwoFactorSetup } from '@/components/TwoFactorSetup';
-import { twoFactorService } from '@/api/twoFactorService';
+import { twoFactorService } from '@/services/twoFactorService';
 import { User, Lock, Save, Shield, ShieldCheck, CheckCircle, AlertCircle } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';

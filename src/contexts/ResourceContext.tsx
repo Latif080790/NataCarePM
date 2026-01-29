@@ -15,7 +15,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { resourceService } from '@/api/resourceService';
+import { resourceService } from '@/services/resourceService';
 import type {
   Resource,
   ResourceAllocation,

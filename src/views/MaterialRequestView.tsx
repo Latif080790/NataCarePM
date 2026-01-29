@@ -43,7 +43,7 @@ import {
   deleteMaterialRequest,
   getMRSummary,
   getPendingApprovals,
-} from '@/api/materialRequestService';
+} from '@/services/materialRequestService';
 import {
   CreateMRModal,
   MRDetailsModal,

@@ -4,7 +4,7 @@
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCcw, Home, Mail, Shield, Code, AlertCircle, Volume2 } from 'lucide-react';
 import { Button } from './Button';
-import { monitoringService } from '@/api/monitoringService';
+import { monitoringService } from '@/services/monitoringService';
 import { i18n, useTranslation } from '@/i18n';
 import { logger } from '@/utils/logger.enhanced';
 

@@ -10,7 +10,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Task, User } from '@/types';
 import { TaskDependency } from '@/types/ai-resource.types';
-import { enhancedTaskService } from '@/api/taskService.enhanced';
+import { enhancedTaskService } from '@/services/taskService.enhanced';
 import { Card } from './Card';
 import { Button } from './Button';
 import {

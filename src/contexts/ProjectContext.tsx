@@ -7,7 +7,7 @@ import {
   useCallback,
   useEffect,
 } from 'react';
-import { projectService } from '@/api/projectService';
+import { projectService } from '@/services/projectService';
 import {
   Workspace,
   Project,

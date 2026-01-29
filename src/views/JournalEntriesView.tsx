@@ -13,7 +13,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
-import { journalEntriesService } from '@/api/journalService';
+import { journalEntriesService } from '@/services/journalService';
 import type { JournalEntry, JournalEntryStatus } from '@/types/accounting';
 
 interface JournalEntriesViewProps {

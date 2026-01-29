@@ -5,7 +5,7 @@
  * FIXED: Handles undefined userId and other fields properly
  */
 
-import { createEnhancedAuditLog } from '@/api/auditService.enhanced';
+import { createEnhancedAuditLog } from '@/services/auditService';
 import { auth } from '@/firebaseConfig';
 
 /**
@@ -13,7 +13,7 @@ import { auth } from '@/firebaseConfig';
  */
 const getCurrentUserInfo = () => {
   const user = auth.currentUser;
-  
+
   if (!user) {
     return {
       userId: 'system',
@@ -339,7 +339,7 @@ export const commonFieldLabels = {
   updatedAt: 'Updated At',
   createdBy: 'Created By',
   updatedBy: 'Updated By',
-  
+
   // Procurement fields
   poNumber: 'PO Number',
   vendorId: 'Vendor ID',
@@ -348,7 +348,7 @@ export const commonFieldLabels = {
   currency: 'Currency',
   deliveryDate: 'Delivery Date',
   paymentTerms: 'Payment Terms',
-  
+
   // Logistics fields
   grNumber: 'GR Number',
   materialRequestNumber: 'MR Number',
@@ -356,7 +356,7 @@ export const commonFieldLabels = {
   unit: 'Unit',
   location: 'Location',
   warehouse: 'Warehouse',
-  
+
   // Finance fields
   journalNumber: 'Journal Number',
   accountCode: 'Account Code',

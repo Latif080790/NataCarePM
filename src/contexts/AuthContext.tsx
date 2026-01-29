@@ -1,9 +1,9 @@
-import { twoFactorService } from '@/api/twoFactorService';
+import { twoFactorService } from '@/services/twoFactorService';
 import { 
   checkAccountLockout, 
   recordLoginAttempt, 
   calculateLoginDelay 
-} from '@/api/rateLimitService';
+} from '@/services/rateLimitService';
 import { auth } from '@/firebaseConfig';
 import { authService } from '@/services/authService';
 import { logger } from '@/utils/logger.enhanced';

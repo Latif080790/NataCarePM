@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useProject } from '@/contexts/ProjectContext';
-import { getUserPermissions, getUserRole } from '@/api/authService';
+import { getUserPermissions, getUserRole } from '@/services/authService';
 import { Permission } from '@/types';
 import { PERMISSION_MATRIX, UserRole, ROLE_DISPLAY_NAMES } from '@/types/permissions.enhanced';
 import { logger } from '@/utils/logger.enhanced';

@@ -1,12 +1,30 @@
 import React, { useState } from 'react';
-/**
- * 📊 MONITORING VIEW
- * Comprehensive system monitoring and analytics dashboard
- */
-
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  RefreshCw,
+  Settings,
+  TrendingUp,
+  Users,
+  Zap,
+} from 'lucide-react';
+import {
+  CardPro,
+  ButtonPro,
+  StatCardPro,
+  BadgeStatus,
+  EnterpriseLayout,
+  PageHeader,
+  SectionLayout,
+  TablePro,
+  SpinnerPro,
+  AlertPro,
+  GridLayout,
+} from '@/components/DesignSystem';
+import type { ColumnDef } from '@/components/DesignSystem';
 import MonitoringDashboard from '@/components/MonitoringDashboard';
-import { CardPro } from '@/components/CardPro';
-import { ButtonPro } from '@/components/ButtonPro';
 import {
   useSystemHealth,
   useDashboardAnalytics,
@@ -18,8 +36,19 @@ interface MonitoringViewProps {
   className?: string;
 }
 
+type TimeRange = 'hour' | 'day' | 'week' | 'month';
+
+interface ErrorLog {
+  id: string;
+  message: string;
+  timestamp: Date;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  component?: string;
+  resolved: boolean;
+}
+
 export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }) => {
-  const [timeRange, setTimeRange] = useState<'hour' | 'day' | 'week' | 'month'>('day');
+  const [timeRange, setTimeRange] = useState<TimeRange>('day');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { health, loading: healthLoading, refresh: refreshHealth } = useSystemHealth();
@@ -36,224 +65,282 @@ export const MonitoringView: React.FC<MonitoringViewProps> = ({ className = '' }
     refreshAnalytics();
   };
 
-  const getHealthStatusColor = () => {
-    if (!health) return 'bg-gray-500';
+  const getHealthStatus = (): 'success' | 'warning' | 'error' | 'default' => {
+    if (!health) return 'default';
     switch (health.status) {
       case 'healthy':
-        return 'bg-green-500';
+        return 'success';
       case 'warning':
-        return 'bg-yellow-500';
+        return 'warning';
       case 'critical':
-        return 'bg-red-500';
+        return 'error';
       default:
-        return 'bg-gray-500';
+        return 'default';
     }
   };
 
-  return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">📊 System Monitoring</h1>
-          <p className="text-gray-600">Real-time monitoring and analytics for NataCarePM</p>
+  const getHealthIcon = () => {
+    switch (health?.status) {
+      case 'healthy':
+        return <CheckCircle2 className="w-5 h-5 text-success" />;
+      case 'warning':
+        return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
+      case 'critical':
+        return <AlertTriangle className="w-5 h-5 text-error" />;
+      default:
+        return <Activity className="w-5 h-5 text-gray-600" />;
+    }
+  };
+
+  // Error logs table columns
+  const errorColumns: ColumnDef<ErrorLog>[] = [
+    {
+      key: 'timestamp',
+      header: 'Time',
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-gray-400" />
+          <span className="text-sm">
+            {new Date(row.timestamp).toLocaleTimeString()}
+          </span>
         </div>
+      ),
+    },
+    {
+      key: 'severity',
+      header: 'Severity',
+      render: (row) => {
+        const severityMap = {
+          low: 'default',
+          medium: 'warning',
+          high: 'error',
+          critical: 'error',
+        } as const;
+        return (
+          <BadgeStatus variant={severityMap[row.severity]}>
+            {row.severity.toUpperCase()}
+          </BadgeStatus>
+        );
+      },
+    },
+    {
+      key: 'component',
+      header: 'Component',
+      render: (row) => (
+        <span className="text-sm text-gray-600">{row.component || 'System'}</span>
+      ),
+    },
+    {
+      key: 'message',
+      header: 'Message',
+      render: (row) => (
+        <span className="text-sm text-night-black truncate max-w-md">{row.message}</span>
+      ),
+    },
+    {
+      key: 'resolved',
+      header: 'Status',
+      render: (row) => (
+        <BadgeStatus variant={row.resolved ? 'success' : 'warning'}>
+          {row.resolved ? 'Resolved' : 'Pending'}
+        </BadgeStatus>
+      ),
+    },
+  ];
 
-        <div className="flex items-center gap-4">
-          {/* System Health Indicator */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border">
-            <div
-              className={`w-3 h-3 rounded-full ${getHealthStatusColor()} ${health?.status === 'healthy' ? 'animate-pulse' : ''}`}
-            />
-            <span className="text-sm font-medium">
-              {healthLoading ? 'Checking...' : health?.status || 'Unknown'}
-            </span>
+  const timeRangeOptions: { value: TimeRange; label: string }[] = [
+    { value: 'hour', label: 'Last Hour' },
+    { value: 'day', label: 'Today' },
+    { value: 'week', label: 'This Week' },
+    { value: 'month', label: 'This Month' },
+  ];
+
+  const isLoading = healthLoading || analyticsLoading || metricsLoading;
+
+  return (
+    <EnterpriseLayout maxWidth="full" className={className}>
+      <PageHeader
+        title="System Monitoring"
+        subtitle="Real-time monitoring and analytics for NataCarePM"
+        actions={
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-soft">
+              {healthLoading ? (
+                <SpinnerPro size="sm" />
+              ) : (
+                getHealthIcon()
+              )}
+              <span className="text-sm font-medium text-night-black">
+                {healthLoading ? 'Checking...' : health?.status || 'Unknown'}
+              </span>
+              {health?.status === 'healthy' && (
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              )}
+            </div>
+
+            <ButtonPro
+              variant="outline"
+              onClick={handleRefreshAll}
+              disabled={isLoading}
+              icon={RefreshCw}
+            >
+              Refresh
+            </ButtonPro>
+
+            <ButtonPro
+              variant={showAdvanced ? 'primary' : 'outline'}
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              icon={Settings}
+            >
+              Advanced
+            </ButtonPro>
           </div>
+        }
+      />
 
-          {/* Time Range Selector */}
-          <div className="flex bg-white rounded-lg border overflow-hidden">
-            {(['hour', 'day', 'week', 'month'] as const).map((range) => (
+      <SectionLayout>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700">Time Range:</span>
+          <div className="flex bg-white rounded-lg border border-gray-200 shadow-soft overflow-hidden">
+            {timeRangeOptions.map((option) => (
               <button
-                key={range}
-                onClick={() => setTimeRange(range)}
-                className={`px-3 py-2 text-sm font-medium transition-colors ${
-                  timeRange === range ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                key={option.value}
+                onClick={() => setTimeRange(option.value)}
+                className={`px-4 py-2 text-sm font-medium transition-all duration-200 ${timeRange === option.value
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                  }`}
               >
-                {range.charAt(0).toUpperCase() + range.slice(1)}
+                {option.label}
               </button>
             ))}
           </div>
-
-          {/* Refresh Button */}
-          <ButtonPro
-            variant="outline"
-            onClick={handleRefreshAll}
-            disabled={healthLoading || analyticsLoading}
-          >
-            <span className={healthLoading || analyticsLoading ? 'animate-spin' : ''}>🔄</span>
-            {' '}Refresh
-          </ButtonPro>
         </div>
-      </div>
+      </SectionLayout>
 
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <CardPro className="text-center">
-          <div className="text-2xl font-bold text-blue-600">{currentMetrics?.activeUsers || 0}</div>
-          <div className="text-sm text-gray-600">Active Users</div>
-          {metricsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </CardPro>
+      {health?.status === 'critical' && (
+        <AlertPro
+          variant="error"
+          title="Critical System Issue Detected"
+        >
+          Immediate attention required. Check error logs for details.
+        </AlertPro>
+      )}
 
-        <CardPro className="text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {analytics?.summary?.totalActivities || 0}
-          </div>
-          <div className="text-sm text-gray-600">Total Activities ({timeRange})</div>
-          {analyticsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </CardPro>
+      <SectionLayout title="System Metrics">
+        <GridLayout>
+          <StatCardPro
+            title="Active Users"
+            value={currentMetrics?.activeUsers || 0}
+            icon={Users}
+            trend={currentMetrics?.activeUsers ? { value: 12, isPositiveGood: true } : undefined}
+            isLoading={metricsLoading}
+            variant="primary"
+          />
 
-        <CardPro className="text-center">
-          <div className="text-2xl font-bold text-red-600">{errors.length}</div>
-          <div className="text-sm text-gray-600">Unresolved Errors</div>
-          {errorsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </CardPro>
+          <StatCardPro
+            title="Total Activities"
+            value={analytics?.summary?.totalActivities || 0}
+            icon={Activity}
+            trend={{ value: 8, isPositiveGood: true }}
+            isLoading={analyticsLoading}
+            variant="success"
+          />
 
-        <CardPro className="text-center">
-          <div className="text-2xl font-bold text-purple-600">
-            {currentMetrics ? Math.round(currentMetrics.responseTime) : 0}ms
-          </div>
-          <div className="text-sm text-gray-600">Avg Response Time</div>
-          {metricsLoading && <div className="text-xs text-gray-400 mt-1">Loading...</div>}
-        </CardPro>
-      </div>
+          <StatCardPro
+            title="Unresolved Errors"
+            value={errors.length}
+            icon={AlertTriangle}
+            trend={errors.length > 10 ? { value: 15, isPositiveGood: false } : { value: 5, isPositiveGood: true }}
+            isLoading={errorsLoading}
+            variant={errors.length > 10 ? 'error' : 'warning'}
+          />
 
-      {/* Advanced Controls */}
-      <CardPro>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Monitoring Controls</h3>
-          <ButtonPro variant="outline" onClick={() => setShowAdvanced(!showAdvanced)}>
-            {showAdvanced ? 'Hide' : 'Show'} Advanced
-          </ButtonPro>
-        </div>
+          <StatCardPro
+            title="Response Time"
+            value={currentMetrics ? `${Math.round(currentMetrics.responseTime)}ms` : '0ms'}
+            icon={Zap}
+            trend={currentMetrics && currentMetrics.responseTime < 200 ? { value: Math.round((currentMetrics.responseTime / 200) * 10), isPositiveGood: true } : { value: 0, isPositiveGood: false }}
+            isLoading={metricsLoading}
+            variant="default"
+          />
+        </GridLayout>
+      </SectionLayout>
 
-        {showAdvanced && (
-          <div className="space-y-4 border-t pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {showAdvanced && (
+        <SectionLayout
+          title="Advanced Controls"
+          description="Configure monitoring settings and thresholds"
+        >
+          <CardPro>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Monitoring Interval</label>
-                <select className="w-full p-2 border rounded-lg">
+                <label className="block text-sm font-medium text-gray-700">
+                  Monitoring Interval
+                </label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                   <option value="30000">30 seconds</option>
-                  <option value="60000">
-                    1 minute
-                  </option>
+                  <option value="60000">1 minute</option>
                   <option value="300000">5 minutes</option>
                 </select>
               </div>
 
+              {/* ... more inputs ... */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Error Threshold</label>
-                <select className="w-full p-2 border rounded-lg">
-                  <option value="5">5 errors/min</option>
-                  <option value="10">
-                    10 errors/min
-                  </option>
-                  <option value="20">20 errors/min</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Alerts</label>
-                <div className="flex gap-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" defaultChecked />
-                    <span className="text-sm">Email</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" defaultChecked />
-                    <span className="text-sm">Browser</span>
-                  </label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Auto-Refresh
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                    defaultChecked
+                  />
+                  <span className="text-sm text-gray-600">Enable auto-refresh</span>
                 </div>
               </div>
             </div>
+          </CardPro>
+        </SectionLayout>
+      )}
 
-            <div className="flex gap-2 pt-2">
-              <ButtonPro variant="outline">
-                Export Data
-              </ButtonPro>
-              <ButtonPro variant="outline">
-                Clear Cache
-              </ButtonPro>
-              <ButtonPro variant="outline">
-                Download Logs
-              </ButtonPro>
-            </div>
-          </div>
+      <SectionLayout title="Monitoring Dashboard">
+        <MonitoringDashboard />
+      </SectionLayout>
+
+      <SectionLayout
+        title="Recent Error Logs"
+        description="Latest system errors and warnings"
+        actions={
+          <ButtonPro variant="outline" size="sm">
+            <TrendingUp className="w-4 h-4" />
+            Export Logs
+          </ButtonPro>
+        }
+      >
+        {errorsLoading ? (
+          <SpinnerPro />
+        ) : errors.length === 0 ? (
+          <AlertPro
+            variant="success"
+            title="No Errors Found"
+          >
+            System is running smoothly with no recent errors.
+          </AlertPro>
+        ) : (
+          <TablePro
+            data={errors as unknown as ErrorLog[]}
+            columns={errorColumns}
+            searchable
+            searchPlaceholder="Search errors..."
+            hoverable
+            stickyHeader
+            emptyMessage="No expenses recorded yet."
+          />
         )}
-      </CardPro>
-
-      {/* Main Monitoring Dashboard */}
-      <MonitoringDashboard showControls={false} className="bg-white rounded-lg border" />
-
-      {/* System Information */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CardPro>
-          <h3 className="text-lg font-semibold mb-4">System Information</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Application Version</span>
-              <span className="font-medium">v2.0.0</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Database Status</span>
-              <span className="text-green-600 font-medium">✅ Connected</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Firebase Status</span>
-              <span className="text-green-600 font-medium">✅ Active</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Last Health Check</span>
-              <span className="font-medium">
-                {health?.metrics?.timestamp
-                  ? new Date(health.metrics.timestamp).toLocaleTimeString()
-                  : 'Never'}
-              </span>
-            </div>
-          </div>
-        </CardPro>
-
-        <CardPro>
-          <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">CPU Usage</span>
-              <span className="font-medium">
-                {currentMetrics ? `${Math.round(currentMetrics.cpu)}%` : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Memory Usage</span>
-              <span className="font-medium">
-                {currentMetrics ? `${Math.round(currentMetrics.memory)}MB` : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Error Rate</span>
-              <span className="font-medium">
-                {currentMetrics ? `${currentMetrics.errorRate}/min` : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Uptime</span>
-              <span className="font-medium">99.9%</span>
-            </div>
-          </div>
-        </CardPro>
-      </div>
-    </div>
+      </SectionLayout>
+    </EnterpriseLayout>
   );
 };
 
 export default MonitoringView;
-

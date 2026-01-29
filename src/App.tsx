@@ -12,7 +12,7 @@ import { Navigate, Route, Routes, Outlet, useLocation } from 'react-router-dom';
 import { useDeviceType } from '@/hooks/useDeviceType';
 
 // Lazy loading retry utility
-const lazyWithRetry = (componentImport: () => Promise<any>) => 
+const lazyWithRetry = (componentImport: () => Promise<any>) =>
   lazy(async () => {
     const pageHasAlreadyBeenForceRefreshed = JSON.parse(
       window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
@@ -49,7 +49,7 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 
 
 // Lazy-loaded Views (loaded on demand) - Only views actually used in Routes
-const DashboardView = lazyWithRetry(() => import('@/views/DashboardWrapper'));
+const DashboardView = lazyWithRetry(() => import('@/views/DashboardView'));
 const EnhancedAuditLogView = lazyWithRetry(() => import('@/views/EnhancedAuditLogView'));
 const AuditTestingView = lazyWithRetry(() => import('@/views/AuditTestingView'));
 const IPRestrictionTestView = lazyWithRetry(() => import('@/views/IPRestrictionTestView'));
@@ -63,7 +63,7 @@ const InventoryManagementView = lazyWithRetry(() => import('@/views/InventoryMan
 // Planning & Scheduling Views
 const WBSManagementView = lazyWithRetry(() => import('@/views/WBSManagementView'));
 const GanttChartView = lazyWithRetry(() => import('@/views/GanttChartView'));
-const TasksView = lazyWithRetry(() => import('@/views/TasksViewPro'));
+const TasksView = lazyWithRetry(() => import('@/views/TasksView'));
 const KanbanView = lazyWithRetry(() => import('@/views/KanbanView'));
 const DependencyGraphView = lazyWithRetry(() => import('@/views/DependencyGraphView'));
 const ResourceAllocationView = lazyWithRetry(() => import('@/views/ResourceAllocationView'));
@@ -81,15 +81,15 @@ const AccountsReceivableView = lazyWithRetry(() => import('@/views/AccountsRecei
 const AdvancedAnalyticsView = lazyWithRetry(() => import('@/views/AdvancedAnalyticsView'));
 const PredictiveAnalyticsView = lazyWithRetry(() => import('@/views/PredictiveAnalyticsView'));
 const AIResourceOptimizationView = lazyWithRetry(() => import('@/views/AIResourceOptimizationView'));
-const IntegratedAnalyticsView = lazyWithRetry(() => 
+const IntegratedAnalyticsView = lazyWithRetry(() =>
   import('@/views/IntegratedAnalyticsView').then(module => ({
     default: module.IntegratedAnalyticsView
   }))
 );
 
 // Monitoring & Reports Views
-const MonitoringView = lazyWithRetry(() => import('@/views/MonitoringViewPro'));
-const ReportsViewPro = lazyWithRetry(() => import('@/views/ReportsViewPro'));
+const MonitoringView = lazyWithRetry(() => import('@/views/MonitoringView'));
+const ReportsView = lazyWithRetry(() => import('@/views/ReportsView'));
 const DailyReportView = lazyWithRetry(() => import('@/views/DailyReportView'));
 const CustomReportBuilderView = lazyWithRetry(() => import('@/views/CustomReportBuilderView'));
 const ProgressView = lazyWithRetry(() => import('@/views/ProgressView'));
@@ -98,17 +98,17 @@ const ProgressView = lazyWithRetry(() => import('@/views/ProgressView'));
 const TimelineTrackingView = lazyWithRetry(() => import('@/views/TimelineTrackingView'));
 
 // Finance Views
-const FinanceViewPro = lazyWithRetry(() => import('@/views/FinanceViewPro'));
+const FinanceView = lazyWithRetry(() => import('@/views/FinanceView'));
 const CashflowView = lazyWithRetry(() => import('@/views/CashflowView'));
 const StrategicCostView = lazyWithRetry(() => import('@/views/StrategicCostView'));
 
 // Logistics Views
-const LogisticsViewPro = lazyWithRetry(() => import('@/views/LogisticsViewPro'));
+const LogisticsView = lazyWithRetry(() => import('@/views/LogisticsView'));
 const IntegrationDashboardView = lazyWithRetry(() => import('@/views/IntegrationDashboardView'));
 
 // Settings Views
 const MasterDataView = lazyWithRetry(() => import('@/views/MasterDataView'));
-const AttendanceViewPro = lazyWithRetry(() => import('@/views/AttendanceViewPro'));
+const AttendanceView = lazyWithRetry(() => import('@/views/AttendanceView'));
 
 // Documents & Communication Views
 const IntelligentDocumentSystem = lazyWithRetry(() => import('@/views/IntelligentDocumentSystem'));
@@ -118,7 +118,7 @@ const NotificationCenterView = lazyWithRetry(() => import('@/views/NotificationC
 // Settings & User Management Views
 const UserManagementView = lazyWithRetry(() => import('@/views/UserManagementView'));
 const ProfileView = lazyWithRetry(() => import('@/views/ProfileView'));
-const AdminSettingsView = lazyWithRetry(() => 
+const AdminSettingsView = lazyWithRetry(() =>
   import('@/views/AdminSettingsView').then(module => ({
     default: module.AdminSettingsView
   }))
@@ -126,7 +126,7 @@ const AdminSettingsView = lazyWithRetry(() =>
 const AuditTrailView = lazyWithRetry(() => import('@/views/AuditTrailView'));
 const Setup2FAView = lazyWithRetry(() => import('@/views/Setup2FAView'));
 
-import { monitoringService } from '@/api/monitoringService';
+import { monitoringService } from '@/services/monitoringService';
 import { Spinner } from '@/components/Spinner';
 import { useAuth } from '@/contexts/AuthContext.minimal'; // Use minimal version
 import { useProject } from '@/contexts/ProjectContext';
@@ -166,13 +166,13 @@ function TasksWrapper() {
   const { currentProject } = useProject();
   const [tasks, setTasks] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  
+
   useEffect(() => {
     // Tasks will be fetched by the component itself
     setTasks([]);
     setUsers([]);
   }, [currentProject?.id]);
-  
+
   return <TasksView tasks={tasks} users={users} />;
 }
 
@@ -180,13 +180,13 @@ function KanbanWrapper() {
   const { currentProject } = useProject();
   const [tasks, setTasks] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  
+
   useEffect(() => {
     // Tasks will be fetched by the component itself
     setTasks([]);
     setUsers([]);
   }, [currentProject?.id]);
-  
+
   return <KanbanView tasks={tasks} users={users} />;
 }
 
@@ -221,16 +221,16 @@ function TimelineWrapper() {
 }
 
 function DailyReportWrapper() {
-  return <DailyReportView dailyReports={[]} rabItems={[]} workers={[]} onAddReport={() => {}} />;
+  return <DailyReportView dailyReports={[]} rabItems={[]} workers={[]} onAddReport={() => { }} />;
 }
 
 function ProgressWrapper() {
   const itemsWithProgress: any[] = [];
-  return <ProgressView itemsWithProgress={itemsWithProgress} onUpdateProgress={() => {}} />;
+  return <ProgressView itemsWithProgress={itemsWithProgress} onUpdateProgress={() => { }} />;
 }
 
 function FinanceWrapper() {
-  return <FinanceViewPro expenses={[]} projectMetrics={undefined as any} />;
+  return <FinanceView expenses={[]} projectMetrics={undefined as any} />;
 }
 
 function CashflowWrapper() {
@@ -242,11 +242,11 @@ function StrategicCostWrapper() {
 }
 
 function LogisticsWrapper() {
-  return <LogisticsViewPro />;
+  return <LogisticsView />;
 }
 
 function ReportsWrapper() {
-  return <ReportsViewPro reports={[]} />;
+  return <ReportsView reports={[]} />;
 }
 
 function MasterDataWrapper() {
@@ -278,15 +278,15 @@ function ProtectedApp() {
   // ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT TOP LEVEL
   // (Rules of Hooks - no hooks after conditional returns)
   // =====================================================
-  
+
   // State hooks
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [_showDebug, _setShowDebug] = useState(false); // Toggle with Ctrl+Shift+D - unused for now
-  
+
   // Context hooks
   const { currentUser } = useAuth();
   const { currentProject, loading: projectLoading, error: projectError } = useProject();
-  
+
   // Router hooks - MUST be called before any returns
   const { isMobile, isTablet } = useDeviceType();
   const location = useLocation();
@@ -539,7 +539,7 @@ function ProtectedApp() {
               <Outlet />
             </SuspenseWithErrorBoundary>
           </EnhancedErrorBoundary>
-          
+
           {/* Mobile-friendly components always shown */}
           {/* <SuspenseWithErrorBoundary fallback={null}>
             <PWAInstallPrompt />
@@ -553,21 +553,21 @@ function ProtectedApp() {
         </MobileLayout>
       ) : (
         <MainLayout isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed}>
-      <EnhancedErrorBoundary>
-        <SuspenseWithErrorBoundary
-          fallback={
-            <div className="flex items-center justify-center h-full">
-              <div className="flex flex-col items-center space-y-3">
-                <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-sm font-medium text-slate-700">Loading view...</p>
-              </div>
-            </div>
-          }
-        >
-          <Outlet />
-        </SuspenseWithErrorBoundary>
-      </EnhancedErrorBoundary>
-      
+          <EnhancedErrorBoundary>
+            <SuspenseWithErrorBoundary
+              fallback={
+                <div className="flex items-center justify-center h-full">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-sm font-medium text-slate-700">Loading view...</p>
+                  </div>
+                </div>
+              }
+            >
+              <Outlet />
+            </SuspenseWithErrorBoundary>
+          </EnhancedErrorBoundary>
+
           {/* Heavy components - Only load on desktop for performance */}
           {/* PERFORMANCE OPTIMIZATION: Heavy components lazy loaded - TEMPORARILY DISABLED TO FIX CRASH */}
           {/* <SuspenseWithErrorBoundary fallback={null}>
@@ -576,7 +576,7 @@ function ProtectedApp() {
           {/* <SuspenseWithErrorBoundary fallback={null}>
             <AiAssistantChat />
           </SuspenseWithErrorBoundary> */}
-          
+
           {/* Mobile-friendly components always shown */}
           {/* <SuspenseWithErrorBoundary fallback={null}>
             <PWAInstallPrompt />
@@ -587,15 +587,15 @@ function ProtectedApp() {
           {/* <SuspenseWithErrorBoundary fallback={null}>
             <SentryTestPanel />
           </SuspenseWithErrorBoundary> */}
-          
+
           {/* Offline indicator - Different position for mobile */}
           <OfflineIndicator />
-          
+
           {/* Desktop-only components */}
           {/* LiveCursors temporarily disabled - causes DOM manipulation errors */}
           {/* <LiveCursors containerId="app-container" showLabels /> */}
           <FailoverStatusIndicator />
-          
+
           {/* <PerformanceMonitor /> */}
           {/* <PerformanceDashboard /> */}
         </MainLayout>
@@ -667,7 +667,7 @@ function App() {
   // CRITICAL FIX: Completely separate render trees based on auth state
   // Using key prop to force React to unmount/remount entire tree when auth changes
   // This prevents hook count mismatch errors during auth transitions
-  
+
   // Not logged in - show login page ONLY
   if (!currentUser) {
     return (
@@ -676,14 +676,14 @@ function App() {
       </ViewErrorBoundary>
     );
   }
-  
+
   // Logged in - show protected routes with ProjectProvider
   return (
     <ProjectProvider key="authenticated-tree">
       <Routes>
         {/* Redirect /login to dashboard when already logged in */}
         <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-        
+
         {/* Protected routes */}
         <Route path="/*" element={<ProtectedApp />}>
           {/* Nested routes - akan di-render di <Outlet /> di ProtectedApp */}
@@ -708,7 +708,7 @@ function App() {
               <AuditTestingView />
             </ViewErrorBoundary>
           } />
-          
+
           {/* Planning & Scheduling Routes */}
           <Route path="wbs" element={
             <ViewErrorBoundary viewName="WBS Management">
@@ -926,7 +926,7 @@ function App() {
           } />
           <Route path="attendance" element={
             <ViewErrorBoundary viewName="Attendance">
-              <AttendanceViewPro />
+              <AttendanceView />
             </ViewErrorBoundary>
           } />
           <Route path="profile" element={
@@ -934,7 +934,7 @@ function App() {
               <ProfileView />
             </ViewErrorBoundary>
           } />
-          
+
           {/* <Route path="settings/audit-dashboard" element={
             <ViewErrorBoundary viewName="Audit Dashboard">
               <AuditDashboardView />

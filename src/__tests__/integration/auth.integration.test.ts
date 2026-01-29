@@ -72,7 +72,7 @@ vi.mock('@/utils/rateLimiter', () => ({
 }));
 
 // Mock two-factor service
-vi.mock('@/api/twoFactorService', () => ({
+vi.mock('@/services/twoFactorService', () => ({
   get twoFactorService() {
     return mockTwoFactorService;
   }

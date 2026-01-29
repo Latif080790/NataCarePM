@@ -51,7 +51,7 @@ import {
   approveVendor,
   getVendorSummary,
   searchVendors,
-} from '@/api/vendorService';
+} from '@/services/vendorService';
 import {
   CreateVendorModal,
   VendorDetailsModal,

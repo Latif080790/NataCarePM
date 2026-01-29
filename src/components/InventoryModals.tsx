@@ -9,7 +9,7 @@ import {
   createTransaction,
   getWarehouses,
   getMaterialById,
-} from '@/api/inventoryService';
+} from '@/services/inventoryService';
 import {
   CreateMaterialInput,
   UpdateMaterialInput,
@@ -770,7 +770,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const loadMaterials = async () => {
     try {
-      const { getMaterials } = await import('../api/inventoryService');
+      const { getMaterials } = await import('@/services/inventoryService');
       const data = await getMaterials();
       setMaterials(data);
     } catch (error) {

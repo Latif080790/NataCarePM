@@ -21,7 +21,7 @@ import {
   Download,
   RefreshCw,
 } from 'lucide-react';
-import { KPIService } from '@/api/kpiService';
+import { KPIService } from '@/services/kpiService';
 import { KPIMetrics, Task, RabItem, EVMMetrics } from '@/types';
 
 interface EnhancedProgressTrackingProps {

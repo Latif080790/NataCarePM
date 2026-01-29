@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { twoFactorService } from '@/api/twoFactorService';
+import { twoFactorService } from '@/services/twoFactorService';
 
 interface TwoFactorVerifyProps {
   userId: string;

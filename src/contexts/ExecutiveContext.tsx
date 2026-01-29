@@ -11,7 +11,7 @@ import type {
   ExecutiveDashboardData,
   TimeFrame,
 } from '@/types/executive.types';
-import executiveService from '@/api/executiveService';
+import executiveService from '@/services/executiveService';
 
 interface ExecutiveContextState {
   // Dashboard data

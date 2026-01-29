@@ -14,7 +14,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { formatCurrency } from '@/constants';
-import { accountsReceivableService } from '@/api/accountsReceivableService';
+import { accountsReceivableService } from '@/services/accountsReceivableService';
 import type { AccountsReceivable, ReceivableStatus, AgingReport } from '@/types/accounting';
 
 interface AccountsReceivableViewProps {

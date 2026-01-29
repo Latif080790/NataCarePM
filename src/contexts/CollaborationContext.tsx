@@ -25,8 +25,8 @@ import {
   useReducer,
   ReactNode,
 } from 'react';
-import { messageService } from '@/api/messageService';
-import { integrationGateway, IntegrationConfig } from '@/api/integrationGateway';
+import { messageService } from '@/services/messageService';
+import { integrationGateway, IntegrationConfig } from '@/services/integrationGateway';
 import { erpIntegrationService } from '@/services/erpIntegrationService';
 import { crmIntegrationService } from '@/services/crmIntegrationService';
 import { accountingIntegrationService } from '@/services/accountingIntegrationService';

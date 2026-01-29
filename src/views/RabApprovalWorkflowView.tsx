@@ -8,9 +8,9 @@
 import React, { useState, useEffect } from 'react';
 import { useProject } from '@/contexts/ProjectContext';
 import type { EnhancedRabItem, ApprovalDecision } from '@/types';
-import { rabAhspService } from '@/api/rabAhspService';
-import { rabApprovalService } from '@/api/rabApprovalService';
-import { EnhancedRabService } from '@/api/enhancedRabService';
+import { rabAhspService } from '@/services/rabAhspService';
+import { rabApprovalService } from '@/services/rabApprovalService';
+import { EnhancedRabService } from '@/services/enhancedRabService';
 import { Spinner } from '@/components/Spinner';
 import { ButtonPro } from '@/components/DesignSystem';
 import { formatCurrency } from '@/constants';

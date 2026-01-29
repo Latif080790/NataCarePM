@@ -5,7 +5,7 @@ import { ROLES_CONFIG, hasPermission } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useState, useEffect } from 'react';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
-import { userService } from '@/api/userService';
+import { userService } from '@/services/userService';
 import { LoadingState } from '@/components/StateComponents';
 
 export default function UserManagementView() {

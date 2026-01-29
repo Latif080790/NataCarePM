@@ -30,8 +30,8 @@ import {
     IntelligentDocument,
 } from '@/types';
 
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
-import { smartTemplatesEngine } from '@/api/smartTemplatesEngine';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
+import { smartTemplatesEngine } from '@/services/smartTemplatesEngine';
 import { sanitizeBasic } from '@/utils/sanitizer';
 
 interface IntelligentDocumentSystemProps {

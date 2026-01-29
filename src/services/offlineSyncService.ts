@@ -22,7 +22,7 @@ import {
 } from '@/db/offlineDatabase';
 import { logger } from '@/utils/logger.enhanced';
 // TODO: Implement storageService for file uploads
-// import { uploadFile } from '@/api/storageService';
+// import { uploadFile } from '@/services/storageService';
 
 /**
  * SYNC QUEUE MANAGER

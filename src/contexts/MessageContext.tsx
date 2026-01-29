@@ -14,7 +14,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { messageService } from '@/api/messageService';
+import { messageService } from '@/services/messageService';
 import type {
   Message,
   Chat,

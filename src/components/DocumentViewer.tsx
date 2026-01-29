@@ -32,7 +32,7 @@ import {
 
 import { AIInsight, IntelligentDocument } from '@/types';
 
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
 
 interface DocumentViewerProps {
   document: IntelligentDocument;

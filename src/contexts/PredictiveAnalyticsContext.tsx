@@ -17,7 +17,7 @@ import type {
   GenerateForecastRequest,
   GenerateForecastResponse
 } from '@/types/predictive-analytics.types';
-import { predictiveAnalyticsService } from '@/api/predictiveAnalyticsService';
+import { predictiveAnalyticsService } from '@/services/predictiveAnalyticsService';
 
 // ============================================================================
 // Context Type Definition

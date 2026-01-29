@@ -4,7 +4,7 @@
  */
 
 import { jwtUtils } from '@/utils/jwtUtils';
-import { authService } from '@/api/authService';
+import { authService } from '@/services/authService';
 
 // ============================================================================
 // TYPES

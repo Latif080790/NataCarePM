@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
-import { generateTOTPSecret, enrollTOTP, getTOTPStatus } from '@/api/totpAuthService';
+import { generateTOTPSecret, enrollTOTP, getTOTPStatus } from '@/services/totpAuthService';
 import { ButtonPro } from '@/components/ButtonPro';
 import { CardPro } from '@/components/CardPro';
 import { LoadingState } from '@/components/StateComponents';

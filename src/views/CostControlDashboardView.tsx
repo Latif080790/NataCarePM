@@ -2,7 +2,7 @@ import {
     generateCostAlerts,
     generateForecast,
     getCostControlSummary,
-} from '@/api/costControlService';
+} from '@/services/costControlService';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import {

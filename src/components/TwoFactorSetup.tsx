@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { twoFactorService } from '@/api/twoFactorService';
+import { twoFactorService } from '@/services/twoFactorService';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 
 interface TwoFactorSetupProps {

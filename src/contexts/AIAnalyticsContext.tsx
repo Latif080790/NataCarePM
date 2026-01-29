@@ -38,8 +38,8 @@ import type {
 } from '@/types/predictive-analytics.types';
 
 // Services
-import { aiResourceService } from '@/api/aiResourceService';
-import { predictiveAnalyticsService } from '@/api/predictiveAnalyticsService';
+import { aiResourceService } from '@/services/aiResourceService';
+import { predictiveAnalyticsService } from '@/services/predictiveAnalyticsService';
 
 // ============================================================================
 // Combined State Type

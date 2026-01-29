@@ -10,7 +10,7 @@ import { PermissionGate, AccessDenied } from '@/components/PermissionGate';
 import { useProject } from '@/contexts/ProjectContext';
 import { useAuth } from '@/contexts/AuthContext.minimal';
 import { useToast } from '@/contexts/ToastContext';
-import { rabAhspService } from '@/api/rabAhspService';
+import { rabAhspService } from '@/services/rabAhspService';
 import { RabItem } from '@/types';
 import ButtonPro from '@/components/ButtonPro';
 import CardPro from '@/components/CardPro';

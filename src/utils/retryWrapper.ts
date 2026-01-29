@@ -4,7 +4,7 @@
  * Handles transient failures gracefully
  */
 
-import { monitoringService } from '@/api/monitoringService';
+import { monitoringService } from '@/services/monitoringService';
 
 /**
  * Retry configuration options

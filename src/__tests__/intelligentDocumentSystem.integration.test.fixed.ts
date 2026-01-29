@@ -1,4 +1,4 @@
-import { intelligentDocumentService } from '@/api/intelligentDocumentService';
+import { intelligentDocumentService } from '@/services/intelligentDocumentService';
 
 // Mock services for testing
 const smartTemplatesEngine = {

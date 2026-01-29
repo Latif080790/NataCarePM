@@ -27,7 +27,7 @@ import {
   getInventorySummary,
   getStockAlerts,
   deleteMaterial,
-} from '@/api/inventoryService';
+} from '@/services/inventoryService';
 import {
   InventoryMaterial,
   InventorySummary,
